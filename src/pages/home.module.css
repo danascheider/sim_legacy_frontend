@@ -1,0 +1,21 @@
+.root {
+  background-color: #000;
+  margin: auto;
+  display: grid;
+}
+
+.header {
+  font-family: 'Cinzel Decorative', sans-serif;
+  color: #fff;
+  margin: 0 auto;
+}
+
+.login {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 auto;
+}
+
+.login:hover {
+  text-decoration: underline;
+}
