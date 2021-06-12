@@ -11,6 +11,10 @@
 # production build - this belongs in the https://github.com/danascheider/skyrim_inventory_management_deploy repo
 /build
 
+# SSL certs
+skyrim_inventory_management_frontend.key
+skyrim_inventory_management_frontend.csr
+
 # misc
 .DS_Store
 .env.local
