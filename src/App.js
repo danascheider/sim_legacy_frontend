@@ -1,14 +1,14 @@
 import React from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter as Router } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import PageRoutes from './routing/pageRoutes'
 
 const App = () => (
-  <BrowserRouter>
+  <Router basename={process.env.PUBLIC_URL}>
     <HelmetProvider>
       <PageRoutes />
     </HelmetProvider>
-  </BrowserRouter>
+  </Router>
 )
 
 export default App;
