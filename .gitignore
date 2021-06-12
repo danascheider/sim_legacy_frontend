@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# production build - this belongs in the https://github.com/danascheider/skyrim_inventory_management_deploy repo
+/build
+
 # misc
 .DS_Store
 .env.local
