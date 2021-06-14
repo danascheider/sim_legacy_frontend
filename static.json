@@ -1,4 +1,9 @@
 {
   "root": "build/",
-  "https_only": true
+  "https_only": true,
+  "routes": {
+    "/static/css/*": "/static/css/",
+    "/static/js/*": "/static/js/",
+    "/**": "index.html"
+  }
 }
