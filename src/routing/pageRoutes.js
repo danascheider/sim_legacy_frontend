@@ -22,7 +22,7 @@ let pages = [
     title: 'Skyrim Inventory Management | Login',
     description: commonDescription,
     splash: false,
-    Component: () => <div styles={{backgroundColor: '#fff'}}>Log In</div>,
+    Component: () => <div style={{backgroundColor: '#fff'}}>Log In</div>,
     path: paths.login
   }
 ]
