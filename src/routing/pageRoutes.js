@@ -2,6 +2,7 @@ import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import HomePage from '../pages/home'
+import LoginPage from '../pages/login'
 import PageIdContext from '../contexts/pageIdContext'
 import paths from './paths'
 import splashStyles from '../splash.css'
@@ -22,7 +23,7 @@ let pages = [
     title: 'Skyrim Inventory Management | Login',
     description: commonDescription,
     splash: false,
-    Component: () => <div style={{backgroundColor: '#fff'}}>Log In</div>,
+    Component: LoginPage,
     path: paths.login
   }
 ]

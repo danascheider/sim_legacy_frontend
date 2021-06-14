@@ -1,0 +1,8 @@
+.root {
+  background-color: #000;
+  display: grid;
+}
+
+.button {
+  margin: auto;
+}
