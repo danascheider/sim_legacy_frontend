@@ -1,6 +1,7 @@
 {
-  "root": "/",
+  "root": "build/",
   "routes": {
-    "/**": "index.html"
-  }
+    "/**": "public/index.html"
+  },
+  "https_only": true
 }
