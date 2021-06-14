@@ -16,6 +16,14 @@ let pages = [
     splash: true,
     Component: HomePage,
     path: paths.home
+  },
+  {
+    pageId: 'login',
+    title: 'Skyrim Inventory Management | Login',
+    description: commonDescription,
+    splash: false,
+    Component: () => <div styles={{backgroundColor: '#fff'}}>Log In</div>,
+    path: paths.login
   }
 ]
 

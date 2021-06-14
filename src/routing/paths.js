@@ -1,5 +1,6 @@
 const paths = {
-  home: '/'
+  home: '/',
+  login: '/login'
 }
 
 export default paths
