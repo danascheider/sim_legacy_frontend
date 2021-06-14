@@ -9,7 +9,7 @@
 /coverage
 
 # production build - this belongs in the https://github.com/danascheider/skyrim_inventory_management_deploy repo
-/build
+# /build
 
 # SSL certs/keys
 skyrim_inventory_management_frontend.key
