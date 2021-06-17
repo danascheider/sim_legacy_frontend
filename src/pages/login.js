@@ -1,25 +1,24 @@
 import React from 'react'
 import GoogleLogin from 'react-google-login'
+import { Redirect } from 'react-router-dom'
+import { googleClientId } from '../utils/config'
 import styles from './login.module.css'
 
-const clientId = process.env.NODE_ENV === 'production'
-  ? '891031345873-gf3loovttd7bfvrq4ilqdduvvibb0tub.apps.googleusercontent.com'
-  : '891031345873-ir73kc1ru0ncv564iesac94kjaap5nf4.apps.googleusercontent.com'
+const LoginPage = ({ pageProps }) => {
+  const { userLoggedIn, loginSuccessCallback, loginFailureCallback } = pageProps
 
-const LoginPage = () => {
-  const logGoogleResponse = resp => console.log(resp)
-
-  return(
+  return(userLoggedIn ?
     <div className={styles.root}>
       <GoogleLogin
         className={styles.button}
-        clientId={clientId}
+        clientId={googleClientId[process.env.NODE_ENV]}
         buttonText='Log In with Google'
-        onSuccess={logGoogleResponse}
-        onFailure={logGoogleResponse}
-        cookiePolicy='single_host_origin'
+        onSuccess={loginSuccessCallback}
+        onFailure={loginFailureCallback}
+        isSignedIn={true}
       />
     </div>
+    : <Redirect to='/logout' />
   )
 }
 
