@@ -12,3 +12,5 @@ export const frontendBaseUri = {
   development: 'http://localhost:3001',
   production: 'https://sim.danascheider.com'
 }
+
+export const sessionCookieName = '_sim_google_session'
