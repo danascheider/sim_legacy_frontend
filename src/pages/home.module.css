@@ -1,4 +1,10 @@
 .root {
+  height: 100vh;
+  background-color: #000;
+  display: grid;
+}
+
+.container {
   background-color: #000;
   margin: auto;
   display: grid;

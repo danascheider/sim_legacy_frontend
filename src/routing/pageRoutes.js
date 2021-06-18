@@ -5,8 +5,6 @@ import DashboardPage from '../pages/dashboard'
 import HomePage from '../pages/home'
 import LoginPage from '../pages/login'
 import paths from './paths'
-import splashStyles from '../splash.css'
-import dashboardStyles from '../dashboard.css'
 
 const siteTitle = 'Skyrim Inventory Management |'
 
@@ -15,7 +13,6 @@ const pages = [
     pageId: 'home',
     title: `${siteTitle} Home`,
     description: 'Manage your inventory across multiple properties in Skyrim',
-    baseStyles: splashStyles,
     Component: HomePage,
     path: paths.home
   },
