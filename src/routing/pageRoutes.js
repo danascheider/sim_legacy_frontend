@@ -42,7 +42,7 @@ const pages = [
     description: 'Skyrim Inventory Management User Dashboard',
     baseStyles: dashboardStyles,
     Component: DashboardPage,
-    path: paths.dashboard
+    path: paths.dashboard.main
   }
 ]
 

@@ -2,7 +2,10 @@ const paths = {
   home: '/',
   login: '/login',
   logout: '/logout',
-  dashboard: '/dashboard'
+  dashboard: {
+    main: '/dashboard',
+    shoppingLists: '/dashboard/shoppingLists'
+  }
 }
 
 export default paths
