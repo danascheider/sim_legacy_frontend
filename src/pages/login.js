@@ -17,7 +17,6 @@ const LoginPage = () => {
   const successCallback = (resp) => {
     const { tokenId } = resp
 
-    console.log(resp)
     const backendUri = `${backendBaseUri[process.env.NODE_ENV]}/auth/verify_token`
 
     if (cookies[sessionCookieName] !== tokenId) {
