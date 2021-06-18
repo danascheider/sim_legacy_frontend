@@ -1,6 +1,12 @@
 .root {
+  height: 100vh;
   background-color: #000;
   display: grid;
+}
+
+.container {
+  display: grid;
+  margin: auto;
 }
 
 .button {

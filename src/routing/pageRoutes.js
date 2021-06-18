@@ -20,7 +20,6 @@ const pages = [
     pageId: 'login',
     title: `${siteTitle} Login`,
     description: 'Log into Skyrim Inventory Management using your Google account',
-    baseStyles: null,
     Component: LoginPage,
     path: paths.login
   },
@@ -40,7 +39,7 @@ const PageRoutes = () => (
         return(
           <Route exact path={path} key={pageId}>
             <Helmet>
-              <html lang="en" style={baseStyles} />
+              <html lang="en" />
 
               <title>{title}</title>
               <meta name='description' content={description} />

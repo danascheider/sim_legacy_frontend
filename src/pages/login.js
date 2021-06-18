@@ -46,19 +46,36 @@ const LoginPage = () => {
   }
 
   return(!!cookies[sessionCookieName] ?
-    <Redirect to={paths.dashboard} /> :
+    <Redirect to={paths.dashboard.main} /> :
     <div className={styles.root}>
-      <GoogleLogin
-        className={styles.button}
-        clientId={googleClientId[process.env.NODE_ENV]}
-        buttonText='Log In with Google'
-        onSuccess={successCallback}
-        onFailure={failureCallback}
-        redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}/dashboard`}
-        isSignedIn={true}
-      />
+      <div className={styles.container}>
+        <GoogleLogin
+          className={styles.button}
+          clientId={googleClientId[process.env.NODE_ENV]}
+          buttonText='Log In With Google'
+          onSuccess={successCallback}
+          onFailure={failureCallback}
+          redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}${paths.dashboard.main}`}
+          isSignedIn={true}
+        />
+      </div>
     </div>
   )
+
+  // return(!!cookies[sessionCookieName] ?
+  //   <Redirect to={paths.dashboard} /> :
+  //   <div className={styles.root}>
+  //     <GoogleLogin
+  //       className={styles.button}
+  //       clientId={googleClientId[process.env.NODE_ENV]}
+  //       buttonText='Log In with Google'
+  //       onSuccess={successCallback}
+  //       onFailure={failureCallback}
+  //       redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}/dashboard`}
+  //       isSignedIn={true}
+  //     />
+  //   </div>
+  // )
 }
 
 export default LoginPage

@@ -32,11 +32,11 @@ const DashboardHeader = ({ data }) => {
           </div>
           <img className={styles.avatar} src={image_url || anonymousAvatar} alt='User avatar' referrerPolicy='no-referrer' />
         </button>
-        <LogoutDropdown
-          className={dropdownVisible ? styles.logoutDropdown : styles.hidden}
-          successCallback={logoutSuccess}
-          failureCallback={logoutFailure}
-        />
+          <LogoutDropdown
+            className={dropdownVisible ? styles.logoutDropdown : styles.hidden}
+            successCallback={logoutSuccess}
+            failureCallback={logoutFailure}
+          />
       </div>
     </div>
   )
