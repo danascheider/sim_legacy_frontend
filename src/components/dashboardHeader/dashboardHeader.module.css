@@ -1,0 +1,53 @@
+.root {
+  height: 64px;
+  padding: 12px 16px;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.headerContainer {
+  display: grid;
+  align-items: center;
+}
+
+.header {
+  font-family: 'Cinzel Decorative', sans-serif;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.profile {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 30%;
+}
+
+.profileText {
+  display: grid;
+  align-items: center;
+}
+
+.textTop, .textBottom {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  color: #fff;
+  text-align: right;
+  margin: 0;
+}
+
+.textTop {
+  margin-bottom: -6px;
+}
+
+.textBottom {
+  margin-top: -6px;
+}
+
+.avatar {
+  display: inline-block;
+  border-radius: 50%;
+  box-shadow: 0px 0px 12px #fff;
+  margin-left: 24px;
+  margin-right: 16px;
+}

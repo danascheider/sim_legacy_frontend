@@ -14,19 +14,21 @@ import styles from './login.module.css'
 const LoginPage = () => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
 
-  const successCallback = ({ qc }) => {
+  const successCallback = ({ tokenId }) => {
     const backendUri = `${backendBaseUri[process.env.NODE_ENV]}/auth/verify_token`
 
-    if (!cookies[sessionCookieName]) {
+    if (cookies[sessionCookieName] !== tokenId) {
       fetch(backendUri, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${qc.id_token}`
+          'Authorization': `Bearer ${tokenId}`
         }
       })
       .then(response => {
         if (response.ok === true) {
-          setCookie(sessionCookieName, qc.id_token)
+          setCookie(sessionCookieName, tokenId)
+        } else {
+          if (cookies[sessionCookieName]) { removeCookie(sessionCookieName) }
         }
       })
       .catch(error => console.log(error))
