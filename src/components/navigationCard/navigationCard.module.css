@@ -10,6 +10,7 @@
   display: grid;
   text-align: center;
   align-content: center;
+  cursor: pointer;
 }
 
 .root:hover {
