@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet-async'
 import DashboardPage from '../pages/dashboard'
 import HomePage from '../pages/home'
 import LoginPage from '../pages/login'
-import LogoutPage from '../pages/logout'
 import paths from './paths'
 import splashStyles from '../splash.css'
 import dashboardStyles from '../dashboard.css'
@@ -27,14 +26,6 @@ const pages = [
     baseStyles: null,
     Component: LoginPage,
     path: paths.login
-  },
-  {
-    pageId: 'logout',
-    title: `${siteTitle} Logout`,
-    description: 'Log out of Skyrim Inventory Management with your Google account',
-    baseStyles: null,
-    Component: LogoutPage,
-    path: paths.logout
   },
   {
     pageId: 'dashboard',

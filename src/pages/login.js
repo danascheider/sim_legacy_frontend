@@ -46,7 +46,7 @@ const LoginPage = () => {
   }
 
   return(!!cookies[sessionCookieName] ?
-    <Redirect to={paths.logout} /> :
+    <Redirect to={paths.dashboard} /> :
     <div className={styles.root}>
       <GoogleLogin
         className={styles.button}
