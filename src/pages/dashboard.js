@@ -8,10 +8,9 @@ import DashboardHeader from '../components/dashboardHeader/dashboardHeader'
 import styles from './dashboard.module.css'
 
 const DashboardPage = () => {
-  const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+  const [cookies, , removeCookie] = useCookies([sessionCookieName])
   const [userData, setUserData] = useState(null)
-
-  let shouldRedirect = !cookies[sessionCookieName]
+  const [shouldRedirect, setShouldRedirect] = useState(!cookies[sessionCookieName])
 
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
@@ -26,7 +25,7 @@ const DashboardPage = () => {
       console.log('Response from API: ', response)
       if (response.status === 401) {
         removeCookie(sessionCookieName)
-        shouldRedirect = true
+        setShouldRedirect(true)
         return {}
       } else {
         return response.json()
@@ -36,7 +35,7 @@ const DashboardPage = () => {
     .catch(error => console.log(error))
   }
 
-  useEffect(fetchUserData, [])
+  useEffect(fetchUserData, [cookies, removeCookie])
 
   return(!!shouldRedirect ?
     <Redirect to={paths.login} /> :
