@@ -78,10 +78,10 @@ const DashboardPage = () => {
 
   return(!!shouldRedirect ?
     <Redirect to={paths.login} /> :
-    <>
+    <div className={styles.root}>
       <div className={styles.body}><NavigationMosaic cardArray={cards} /></div>
       {!!userData ? <DashboardHeader data={userData} /> : <ReactLoading type='spinningBubbles' color='#ccc' />}
-    </>
+    </div>
   )
 }
 
