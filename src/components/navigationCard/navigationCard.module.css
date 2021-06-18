@@ -4,18 +4,15 @@
   border-radius: 5px;
   background-color: var(--background-color);
   color: var(--text-color);
+  text-decoration: none;
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   font-size: 1.5em;
   display: grid;
-  cursor: pointer;
+  text-align: center;
+  align-content: center;
 }
 
-.link {
-  color: var(--text-color);
-  text-decoration: none;
-  margin: auto;
-}
-
-.root:hover .link {
+.root:hover {
   text-decoration: underline;
+  filter: brightness(95%);
 }
