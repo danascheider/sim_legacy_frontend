@@ -31,7 +31,6 @@ const pages = [
     pageId: 'dashboard',
     title: `${siteTitle} Dashboard`,
     description: 'Skyrim Inventory Management User Dashboard',
-    baseStyles: dashboardStyles,
     Component: DashboardPage,
     path: paths.dashboard.main
   }
