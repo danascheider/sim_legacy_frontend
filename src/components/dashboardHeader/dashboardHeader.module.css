@@ -45,6 +45,8 @@
 }
 
 .avatar {
+  height: 64px;
+  width: 64px;
   border-radius: 50%;
   box-shadow: 0px 0px 12px #fff;
   margin-left: 24px;
