@@ -10,4 +10,4 @@ const userData = {
 
 export default { title: 'DashboardHeader' }
 
-export const Default = () => <DashboardHeader data={userData} />
+export const Default = () => <DashboardHeader data={userData} onClick={() => {}} />

@@ -19,29 +19,33 @@
 }
 
 .profile {
-  display: flex;
-  justify-content: flex-end;
+  background-color: #000;
+  border: none;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr;
   max-width: 30%;
+  cursor: pointer;
 }
 
 .profileText {
   display: grid;
-  align-items: center;
 }
 
 .textTop, .textBottom {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
   color: #fff;
   text-align: right;
-  margin: 0;
+  margin: auto 0;
 }
 
 .textTop {
-  margin-bottom: -6px;
+  margin-bottom: 2px;
 }
 
 .textBottom {
-  margin-top: -6px;
+  margin-top: 2px;
 }
 
 .avatar {
