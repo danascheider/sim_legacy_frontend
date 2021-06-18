@@ -79,8 +79,8 @@ const DashboardPage = () => {
   return(!!shouldRedirect ?
     <Redirect to={paths.login} /> :
     <>
-      {!!userData ? <DashboardHeader data={userData} /> : <ReactLoading type='spinningBubbles' color='#ccc' />}
       <div className={styles.body}><NavigationMosaic cardArray={cards} /></div>
+      {!!userData ? <DashboardHeader data={userData} /> : <ReactLoading type='spinningBubbles' color='#ccc' />}
     </>
   )
 }
