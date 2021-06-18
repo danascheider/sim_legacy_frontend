@@ -23,7 +23,7 @@
   border: none;
   display: grid;
   align-items: center;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   max-width: 30%;
   cursor: pointer;
 }
