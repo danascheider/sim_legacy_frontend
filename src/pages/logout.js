@@ -7,7 +7,7 @@ import { frontendBaseUri, googleClientId, sessionCookieName } from '../utils/con
 import styles from './logout.module.css'
 
 const LogoutPage = () => {
-  const [cookies, _, removeCookie] = useCookies([sessionCookieName])
+  const [cookies, , removeCookie] = useCookies([sessionCookieName])
 
   const successCallback = () => {
     console.log('Logout succeeded')
