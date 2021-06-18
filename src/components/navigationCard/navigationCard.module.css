@@ -1,0 +1,21 @@
+.root {
+  width: 320px;
+  height: 128px;
+  border-radius: 5px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.5em;
+  display: grid;
+  cursor: pointer;
+}
+
+.link {
+  color: var(--text-color);
+  text-decoration: none;
+  margin: auto;
+}
+
+.root:hover .link {
+  text-decoration: underline;
+}
