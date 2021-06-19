@@ -1,21 +1,38 @@
 import React from 'react'
-import GoogleLogout from 'react-google-login'
-import { frontendBaseUri, googleClientId } from '../../utils/config'
+import { Redirect } from 'react-router-dom'
+import { useCookies } from 'react-cookie'
+import paths from '../../routing/paths'
+import { sessionCookieName } from '../../utils/config'
+import icon from './googleIcon.svg'
 import styles from './logoutDropdown.module.css'
 
-const LogoutDropdown = ({successCallback, failureCallback, className}) => (
-  <div className={className}>
-    <div className={styles.body}>
-      <GoogleLogout
-        className={styles.button}
-        buttonText='Log Out With Google'
-        clientId={googleClientId[process.env.NODE_ENV]}
-        redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}/`}
-        onLogoutSuccess={successCallback}
-        onLogoutFailure={failureCallback}
-      />
-    </div>
-  </div>
-)
+const LogoutDropdown = ({className}) => {
+  const [cookies, , removeCookie] = useCookies([sessionCookieName])
+
+  const logOutUser = () => {
+    const googleUri = 'https://accounts.google.com/o/oauth2/revoke?token=' + cookies[sessionCookieName]
+    
+    fetch(googleUri, {
+      headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+     }
+    }).then((resp) => {
+      console.log('Revoked token through Google: ', resp)
+      removeCookie(sessionCookieName)
+      return <Redirect to={paths.home} />
+    })
+  }
+
+  return(
+    <button className={className} onClick={logOutUser}>
+      <div className={styles.body}>
+        <div className={styles.googleLogout}>
+          <img src={icon} alt='Google logo' />
+          Log Out With Google
+        </div>
+      </div>
+    </button>
+  )
+}
 
 export default LogoutDropdown

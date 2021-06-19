@@ -1,4 +1,26 @@
 .body {
   background-color: #000;
   padding: 8px;
+  cursor: pointer;
+}
+
+.googleLogout {
+  background-color: #f5f5f5;
+  padding: 12px;
+  display: inline-flex;
+  align-items: center;
+  color: #000036;
+}
+
+/* Giving the img element a classname resulted in
+ * the classname not being applied for some reason.
+ * I couldn't be fucked to figure out why,this way
+ * works
+ */
+.googleLogout > img {
+  margin-right: 8px;
+}
+
+.body:hover .googleLogout {
+  opacity: 0.9;
 }

@@ -56,7 +56,6 @@ const LoginPage = () => {
           onSuccess={successCallback}
           onFailure={failureCallback}
           redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}${paths.dashboard.main}`}
-          isSignedIn={true}
         />
       </div>
     </div>
