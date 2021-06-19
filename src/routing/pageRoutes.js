@@ -29,13 +29,18 @@ const pages = [
     description: 'Skyrim Inventory Management User Dashboard',
     Component: DashboardPage,
     path: paths.dashboard.main
+  },
+  {
+    pageId: 'shoppingLists',
+    title: `${siteTitle} Manage Shopping Lists`,
+    description: 'Manage Skyrim Shopping Lists'
   }
 ]
 
 const PageRoutes = () => (
   <Switch>
     {pages.map(
-      ({ pageId, title, description, baseStyles, Component, path }) => {
+      ({ pageId, title, description, Component, path }) => {
         return(
           <Route exact path={path} key={pageId}>
             <Helmet>

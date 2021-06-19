@@ -3,8 +3,7 @@ import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import paths from '../routing/paths'
 import { backendBaseUri, sessionCookieName } from '../utils/config'
-import ReactLoading from 'react-loading'
-import DashboardHeader from '../components/dashboardHeader/dashboardHeader'
+import DashboardLayout from '../layouts/dashboardLayout'
 import NavigationMosaic from '../components/navigationMosaic/navigationMosaic'
 import styles from './dashboard.module.css'
 
@@ -77,10 +76,11 @@ const DashboardPage = () => {
 
   return(!!shouldRedirect ?
     <Redirect to={paths.login} /> :
-    <div className={styles.root}>
-      <div className={styles.body}><NavigationMosaic cardArray={cards} /></div>
-      {!!userData ? <DashboardHeader data={userData} /> : <ReactLoading type='spinningBubbles' color='#ccc' />}
-    </div>
+    <DashboardLayout userData={userData}>
+      <div className={styles.root}>
+        <NavigationMosaic cardArray={cards} />
+      </div>
+    </DashboardLayout>
   )
 }
 

@@ -1,3 +1,10 @@
+.button {
+  border: none;
+  background-color: #000;
+  display: inline-block;
+  position: fixed;
+}
+
 .body {
   background-color: #000;
   padding: 8px;

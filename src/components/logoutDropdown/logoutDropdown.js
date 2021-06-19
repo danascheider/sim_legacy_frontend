@@ -23,14 +23,16 @@ const LogoutDropdown = ({className}) => {
   }
 
   return(
-    <button className={className} onClick={logOutUser}>
-      <div className={styles.body}>
-        <div className={styles.googleLogout}>
-          <img src={icon} alt='Google logo' />
-          Log Out With Google
+    <div className={className}>
+      <button className={styles.button} onClick={logOutUser}>
+        <div className={styles.body}>
+          <div className={styles.googleLogout}>
+            <img src={icon} alt='Google logo' />
+            Log Out With Google
+          </div>
         </div>
-      </div>
-    </button>
+      </button>
+    </div>
   )
 }
 

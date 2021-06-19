@@ -66,13 +66,11 @@
 }
 
 .logoutDropdown {
-  border: none;
-  background-color: #000;
   display: inline-block;
   position: fixed;
   max-width: 30%;
   top: 90px;
-  right: 16px;
+  right: 218px;
 }
 
 .hidden {
