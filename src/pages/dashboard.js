@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
+import React from 'react'
 import paths from '../routing/paths'
-import { backendBaseUri, sessionCookieName } from '../utils/config'
 import DashboardLayout from '../layouts/dashboardLayout'
 import NavigationMosaic from '../components/navigationMosaic/navigationMosaic'
 import styles from './dashboard.module.css'
@@ -46,37 +43,8 @@ const cards = [
 ]
 
 const DashboardPage = () => {
-  const [cookies, , removeCookie] = useCookies([sessionCookieName])
-  const [userData, setUserData] = useState(null)
-  const [shouldRedirect, setShouldRedirect] = useState(!cookies[sessionCookieName])
-
-  const fetchUserData = () => {
-    const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
-
-    fetch(dataUri, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cookies[sessionCookieName]}`
-      }
-    })
-    .then(response => {
-      if (response.status === 401) {
-        removeCookie(sessionCookieName)
-        setShouldRedirect(true)
-        return {}
-      } else {
-        return response.json()
-      }
-    })
-    .then(data => setUserData(data))
-    .catch(error => console.log(error))
-  }
-
-  useEffect(fetchUserData, [cookies, removeCookie])
-
-  return(!!shouldRedirect ?
-    <Redirect to={paths.login} /> :
-    <DashboardLayout userData={userData}>
+  return(
+    <DashboardLayout>
       <div className={styles.root}>
         <NavigationMosaic cardArray={cards} />
       </div>
