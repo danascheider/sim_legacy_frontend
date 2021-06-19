@@ -17,7 +17,6 @@ const LogoutDropdown = ({className}) => {
       'Content-Type': 'application/x-www-form-urlencoded'
      }
     }).then((resp) => {
-      console.log('Revoked token through Google: ', resp)
       removeCookie(sessionCookieName)
       return <Redirect to={paths.home} />
     })
