@@ -61,7 +61,6 @@ const DashboardPage = () => {
       }
     })
     .then(response => {
-      console.log('Response from API: ', response)
       if (response.status === 401) {
         removeCookie(sessionCookieName)
         setShouldRedirect(true)
