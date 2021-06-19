@@ -2,6 +2,7 @@ import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import DashboardPage from '../pages/dashboard'
+import ShoppingListPage from '../pages/shoppingList'
 import HomePage from '../pages/home'
 import LoginPage from '../pages/login'
 import paths from './paths'
@@ -33,7 +34,9 @@ const pages = [
   {
     pageId: 'shoppingLists',
     title: `${siteTitle} Manage Shopping Lists`,
-    description: 'Manage Skyrim Shopping Lists'
+    description: 'Manage Skyrim Shopping Lists',
+    Component: ShoppingListPage,
+    path: paths.dashboard.shoppingLists
   }
 ]
 
