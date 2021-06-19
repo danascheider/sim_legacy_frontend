@@ -1,8 +1,6 @@
 .button {
   border: none;
   background-color: #000;
-  display: inline-block;
-  position: fixed;
 }
 
 .body {
