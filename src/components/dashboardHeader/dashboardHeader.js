@@ -12,7 +12,9 @@ const DashboardHeader = ({ data }) => {
     <div className={styles.root}>
       <div className={styles.bar}>
         <span className={styles.headerContainer}>
-          <h1 className={styles.header}>Skyrim Inventory Management</h1>
+          <h1 className={styles.header}>
+            Skyrim Inventory<br className={styles.bp} /> Management
+          </h1>
         </span>
         <button className={styles.profile} onClick={() => setDropdownVisible(!dropdownVisible)}>
           <div className={styles.profileText}>
