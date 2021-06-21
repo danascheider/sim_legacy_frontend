@@ -16,7 +16,7 @@ const DashboardHeader = () => {
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
-    if (!!cookies[sessionCookieName]) {
+    if (typeof global.process === 'undefined' || !!cookies[sessionCookieName]) {
       fetch(dataUri, {
         headers: {
           'Content-Type': 'application/json',
