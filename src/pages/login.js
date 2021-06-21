@@ -23,7 +23,6 @@ const LoginPage = () => {
     if (cookies[sessionCookieName] !== tokenId) {
       fetch(backendUri, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${tokenId}`
         }
       })
