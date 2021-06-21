@@ -42,7 +42,9 @@ When you have finished the work, push to GitHub and make a pull request. Link th
 
 All pull requests are expected to include updates to Storybook stories and developer and/or user documentation as appropriate. Storybook stories should cover any possible component states, such as loading states or states resulting from API error responses. API responses can be mocked using `msw`. API docs for the SIM API are available [in the docs directory](https://github.com/danascheider/skyrim_inventory_management/blob/main/docs/api/README.md) of that repo.
 
-After creating your pull request, move the Trello card into the "Reviewing" column. When your PR has been reviewed, you are free to merge it.
+In order to deploy your work to Heroku, you will need to run `yarn build`. This should be done on a separate PR based off your main PR branch so as not to clutter the main PR that gets reviewed. Remember to rebase and run `yarn build` again on that branch if you make any changes to your main PR.
+
+After creating your pull requests, attach them to the Trello card and move it into the "Reviewing" column. When your PRs have been reviewed, you are free to merge them.
 
 ### Deployment
 
@@ -60,7 +62,7 @@ Once you've done this, running `git remote` should reveal a remote called `herok
 
 #### Deploying
 
-All deployments should be done from the `main` branch. Note that, on Heroku, the app runs from the `build` directory. For that reason, you should run `yarn build` on each pull request branch and commit changes to the `build` directory before merging the PR. After merging, on your local terminal, run:
+All deployments should be done from the `main` branch. Note that, on Heroku, the app runs from the `build` directory. That's why the [Development Workflows](#development-workflows) section above suggests making a PR with the changes to the `build` directory based off the branch of your main PR to facilitate review. After merging both PRs, on your local terminal, run:
 ```
 git checkout main
 git pull
