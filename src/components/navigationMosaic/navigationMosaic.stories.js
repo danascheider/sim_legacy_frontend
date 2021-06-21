@@ -6,7 +6,7 @@ const cards = [
     backgroundColor: '#FFBF00',
     textColor: '#000000',
     href: '#',
-    children: 'Nav Link 1',
+    children: 'Your Shopping Lists',
     key: 'card-1'
   },
   {
