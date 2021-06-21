@@ -8,7 +8,7 @@ const cards = [
   {
     backgroundColor: '#FFBF00',
     textColor: '#000000',
-    href: paths.shoppingLists,
+    href: paths.dashboard.shoppingLists,
     children: 'Your Shopping Lists',
     key: 'shopping-lists'
   },

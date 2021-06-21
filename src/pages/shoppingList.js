@@ -2,7 +2,8 @@ import React from 'react'
 import DashboardLayout from '../layouts/dashboardLayout'
 
 const ShoppingListPage = () => (
-  <div></div>
+  <DashboardLayout>
+  </DashboardLayout>
 )
 
 export default ShoppingListPage
