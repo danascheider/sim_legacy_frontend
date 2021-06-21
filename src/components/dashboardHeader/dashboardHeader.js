@@ -17,6 +17,7 @@ const DashboardHeader = () => {
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
+    // typeof global.process === 'undefined' when it's storybook
     if (mountedRef.current === true && (typeof global.process === 'undefined' || !!cookies[sessionCookieName])) {
       fetch(dataUri, {
         headers: {
