@@ -1,26 +1,8 @@
 import React from 'react'
-import { Redirect } from 'react-router-dom'
-import { useCookies } from 'react-cookie'
-import paths from '../../routing/paths'
-import { sessionCookieName } from '../../utils/config'
 import icon from './googleIcon.svg'
 import styles from './logoutDropdown.module.css'
 
-const LogoutDropdown = ({className}) => {
-  const [cookies, , removeCookie] = useCookies([sessionCookieName])
-
-  const logOutUser = () => {
-    const googleUri = 'https://accounts.google.com/o/oauth2/revoke?token=' + cookies[sessionCookieName]
-    
-    fetch(googleUri, {
-      headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-     }
-    }).then((resp) => {
-      removeCookie(sessionCookieName)
-      return <Redirect to={paths.home} />
-    })
-  }
+const LogoutDropdown = ({className, logOutUser}) => {
 
   return(
     <div className={className}>
