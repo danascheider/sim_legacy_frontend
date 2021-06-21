@@ -16,16 +16,15 @@ const DashboardHeader = () => {
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
-    fetch(dataUri, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cookies[sessionCookieName]}`
-      }
-    })
+    if (!!cookies[sessionCookieName]) {
+      fetch(dataUri, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${cookies[sessionCookieName]}`
+        }
+      })
       .then(response => {
         if (response.status === 401) {
-          removeCookie(sessionCookieName)
-          setShouldRedirect(true)
           return null
         } else {
           return response.json()
@@ -34,11 +33,19 @@ const DashboardHeader = () => {
       .then(data => {
         if (!!data) {
           setUserData(data)
+          setShouldRedirect(false)
         } else {
+          removeCookie(sessionCookieName)
           setShouldRedirect(true)
         }
       })
-      .catch(() => setShouldRedirect(true))
+      .catch(() => {
+        cookies[sessionCookieName] && removeCookie(sessionCookieName)
+        setShouldRedirect(true)
+      })
+    } else {
+      setShouldRedirect(true)
+    }
   }
 
   useEffect(fetchUserData, [cookies, removeCookie])
@@ -62,9 +69,9 @@ const DashboardHeader = () => {
         </button> :
         null
         }
-          <LogoutDropdown
-            className={dropdownVisible ? styles.logoutDropdown : styles.hidden}
-          />
+        <LogoutDropdown
+          className={dropdownVisible ? styles.logoutDropdown : styles.hidden}
+        />
       </div>
     </div>
   )

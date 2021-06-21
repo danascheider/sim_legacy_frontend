@@ -16,7 +16,7 @@ const LogoutDropdown = ({className}) => {
       headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
      }
-    }).then((resp) => {
+    }).then(() => {
       removeCookie(sessionCookieName)
       return <Redirect to={paths.home} />
     })

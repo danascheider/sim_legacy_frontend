@@ -27,22 +27,23 @@ const LoginPage = () => {
         }
       })
       .then(response => {
-        if (response.ok === true) {
+        if (response.status === 204) {
           setCookie(sessionCookieName, tokenId)
         } else {
-          if (cookies[sessionCookieName]) { removeCookie(sessionCookieName) }
+          !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
         }
       })
-      .catch(error => console.log(error))
+      .catch(error => {
+        !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+        console.log('Error from /auth/verify_token: ', error)
+        return <Redirect to={paths.home} />
+      })
     }
   }
 
   const failureCallback = (resp) => {
     console.log('Login failure: ', resp)
-
-    if (!!cookies[sessionCookieName]) {
-      removeCookie(sessionCookieName)
-    }
+    !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
   }
 
   return(!!cookies[sessionCookieName] ?
