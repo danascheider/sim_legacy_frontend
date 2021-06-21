@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 import GoogleLogin from 'react-google-login'
 import { useCookies } from 'react-cookie'
@@ -13,6 +13,7 @@ import styles from './login.module.css'
 
 const LoginPage = () => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+  const [loginErrorMessage, setLoginErrorMessage] = useState(null)
 
   const successCallback = (resp) => {
     const { tokenId } = resp
@@ -44,11 +45,15 @@ const LoginPage = () => {
   const failureCallback = (resp) => {
     console.log('Login failure: ', resp)
     !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+    setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }
 
   return(!!cookies[sessionCookieName] ?
     <Redirect to={paths.dashboard.main} /> :
     <div className={styles.root}>
+      {loginErrorMessage ?
+      <p className={styles.errorMessage}>{loginErrorMessage}</p> :
+      null}
       <div className={styles.container}>
         <GoogleLogin
           className={styles.button}
