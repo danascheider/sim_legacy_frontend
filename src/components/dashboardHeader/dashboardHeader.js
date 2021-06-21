@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import paths from '../../routing/paths'
@@ -12,11 +12,12 @@ const DashboardHeader = () => {
   const [cookies, , removeCookie] = useCookies([sessionCookieName])
   const [userData, setUserData] = useState(null)
   const [shouldRedirect, setShouldRedirect] = useState(!cookies[sessionCookieName])
+  const mountedRef = useRef(true)
 
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
-    if (typeof global.process === 'undefined' || !!cookies[sessionCookieName]) {
+    if (mountedRef.current === true && (typeof global.process === 'undefined' || !!cookies[sessionCookieName])) {
       fetch(dataUri, {
         headers: {
           'Content-Type': 'application/json',
@@ -48,6 +49,30 @@ const DashboardHeader = () => {
     }
   }
 
+  const logOutUser = (e) => {
+    e.preventDefault()
+
+    if (window.gapi) {
+      const auth = window.gapi.auth2.getAuthInstance()
+
+      if (auth != null) {
+        auth.then(() => {
+          auth.disconnect()
+          mountedRef.current = false
+          !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+          return <Redirect to={paths.home} />
+        },
+        error => {
+          console.log('Logout error: ', error)
+        })
+      }
+    } else {
+      mountedRef.current = false
+      removeCookie(sessionCookieName)
+      return <Redirect to={paths.home} />
+    }
+  }
+
   useEffect(fetchUserData, [cookies, removeCookie])
 
   return(!!shouldRedirect ?
@@ -71,6 +96,7 @@ const DashboardHeader = () => {
         }
         <LogoutDropdown
           className={dropdownVisible ? styles.logoutDropdown : styles.hidden}
+          logOutUser={logOutUser}
         />
       </div>
     </div>
