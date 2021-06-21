@@ -46,6 +46,14 @@ In order to deploy your work to Heroku, you will need to run `yarn build`. This 
 
 After creating your pull requests, attach them to the Trello card and move it into the "Reviewing" column. When your PRs have been reviewed, you are free to merge them.
 
+### Storybook
+
+The SIM front end components are tested extensively using [Storybook](https://storybook.js.org/), which allows components to be developed and tested in isolation. Storybook runs on a server on `http://localhost:6006`. After setting up your repo and running `yarn install`, you can run your Storybook server with:
+```
+yarn storybook
+```
+Storybook generally handles hot reloads easily. However, there are a few cases where certain types of changes completely bork the server. If that happens, kill and restart the server before you panic.
+
 ### Deployment
 
 The SIM front end is deployed to [Heroku](https://heroku.com) under the app name `obscure-reaches-80056`. Deployment is done manually via the command line and Git. It is recommended to install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) to work with Heroku.
