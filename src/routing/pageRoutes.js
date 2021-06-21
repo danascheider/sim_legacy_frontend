@@ -2,6 +2,7 @@ import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import DashboardPage from '../pages/dashboard'
+import ShoppingListPage from '../pages/shoppingList'
 import HomePage from '../pages/home'
 import LoginPage from '../pages/login'
 import paths from './paths'
@@ -29,13 +30,20 @@ const pages = [
     description: 'Skyrim Inventory Management User Dashboard',
     Component: DashboardPage,
     path: paths.dashboard.main
+  },
+  {
+    pageId: 'shoppingLists',
+    title: `${siteTitle} Manage Shopping Lists`,
+    description: 'Manage Skyrim Shopping Lists',
+    Component: ShoppingListPage,
+    path: paths.dashboard.shoppingLists
   }
 ]
 
 const PageRoutes = () => (
   <Switch>
     {pages.map(
-      ({ pageId, title, description, baseStyles, Component, path }) => {
+      ({ pageId, title, description, Component, path }) => {
         return(
           <Route exact path={path} key={pageId}>
             <Helmet>
