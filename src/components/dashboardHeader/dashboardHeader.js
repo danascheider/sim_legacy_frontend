@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import paths from '../../routing/paths'
 import { sessionCookieName, backendBaseUri } from '../../utils/config'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
@@ -83,7 +83,7 @@ const DashboardHeader = () => {
       <div className={styles.bar}>
         <span className={styles.headerContainer}>
           <h1 className={styles.header}>
-            Skyrim Inventory<br className={styles.bp} /> Management
+            <Link className={styles.headerLink} to={paths.dashboard.main}>Skyrim Inventory<br className={styles.bp} /> Management</Link>
           </h1>
         </span>
         {!!userData ?

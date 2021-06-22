@@ -25,6 +25,11 @@
   font-size: 1.5rem;
 }
 
+.headerLink {
+  text-decoration: none;
+  color: #fff;
+}
+
 .profile {
   background-color: #000;
   border: none;
