@@ -1,0 +1,33 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--background-color);
+  border-radius: 8px;
+}
+
+.headerBar {
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+}
+
+.button {
+  background: none;
+  border: none;
+  text-align: left;
+  margin-left: 0;
+}
+
+.description {
+  margin-left: 32px;
+}
+
+.quantity {
+  margin: auto 32px;
+  text-align: right;
+}
+
+.description {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  color: var(--text-color);
+}
