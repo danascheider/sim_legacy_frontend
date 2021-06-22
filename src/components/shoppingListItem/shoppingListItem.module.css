@@ -26,10 +26,11 @@
 
 .description {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  color: var(--text-color);
+  color: var(--title-text-color);
+  margin: 0;
 }
 
 .collapsible {
   background-color: var(--body-background-color);
-  color: #000;
+  color: var(--body-text-color);
 }

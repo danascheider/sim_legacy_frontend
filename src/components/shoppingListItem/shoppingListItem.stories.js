@@ -3,7 +3,8 @@ import ShoppingListItem from './shoppingListItem'
 
 const colorScheme = {
   schemeColor: '#E83F6F',
-  textColor: '#FFFFFF',
+  titleTextColor: '#FFFFFF',
+  bodyTextColor: '#000000',
   borderColor: '#B93258',
   bodyBackgroundColor: '#FAD8E2'
 }
