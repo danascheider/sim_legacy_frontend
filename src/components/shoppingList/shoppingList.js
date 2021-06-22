@@ -71,7 +71,17 @@ const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
 
 ShoppingList.propTypes = {
   title: PropTypes.string.isRequired,
-  colorScheme: PropTypes.shape.isRequired,
+  colorScheme: PropTypes.shape({
+    schemeColor: PropTypes.string.isRequired,
+    hoverColor: PropTypes.string.isRequired,
+    borderColor: PropTypes.string.isRequired,
+    textColorPrimary: PropTypes.string.isRequired,
+    schemeColorLighter: PropTypes.string.isRequired,
+    hoverColorLighter: PropTypes.string.isRequired,
+    schemeColorLightest: PropTypes.string.isRequired,
+    textColorSecondary: PropTypes.string.isRequired,
+    textColorTertiary: PropTypes.string.isRequired
+  }).isRequired,
   listItems: PropTypes.arrayOf(PropTypes.shape).isRequired
 }
 
