@@ -15,5 +15,5 @@
 
 .root:hover {
   text-decoration: underline;
-  filter: brightness(95%);
+  background-color: var(--hover-color)
 }
