@@ -1,33 +1,35 @@
 .root {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  background-color: var(--background-color);
-  border-radius: 8px;
+  background-color: var(--scheme-color);
 }
 
 .headerBar {
   width: 100%;
+  border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 5fr 1fr;
 }
 
 .button {
   background: none;
   border: none;
+  padding: 0;
   text-align: left;
-  margin-left: 0;
-}
-
-.description {
-  margin-left: 32px;
+  cursor: pointer;
 }
 
 .quantity {
-  margin: auto 32px;
+  margin: auto 0;
   text-align: right;
 }
 
 .description {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   color: var(--text-color);
+}
+
+.collapsible {
+  background-color: var(--body-background-color);
+  color: #000;
 }

@@ -10,7 +10,7 @@ const ShoppingListItem = ({
   notes,
   colorScheme
 }) => {
-  const { schemeColor, textColor, borderColor } = colorScheme
+  const { schemeColor, textColor, borderColor, bodyBackgroundColor } = colorScheme
 
   const [toggleEvent, setToggleEvent] = useState(0)
 
@@ -19,9 +19,10 @@ const ShoppingListItem = ({
   }
 
   const styleVars = {
-    '--background-color': schemeColor,
+    '--scheme-color': schemeColor,
     '--text-color': textColor,
-    '--border-color': borderColor
+    '--border-color': borderColor,
+    '--body-background-color': bodyBackgroundColor
   }
 
   return(

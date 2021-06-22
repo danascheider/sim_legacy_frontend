@@ -4,7 +4,8 @@ import ShoppingListItem from './shoppingListItem'
 const colorScheme = {
   schemeColor: '#E83F6F',
   textColor: '#FFFFFF',
-  borderColor: '#B93258'
+  borderColor: '#B93258',
+  bodyBackgroundColor: '#FAD8E2'
 }
 
 export default { title: 'ShoppingListItem' }
