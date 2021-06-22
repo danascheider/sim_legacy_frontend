@@ -6,7 +6,8 @@ const colorScheme = {
   titleTextColor: '#FFFFFF',
   bodyTextColor: '#000000',
   borderColor: '#B93258',
-  bodyBackgroundColor: '#FAD8E2'
+  bodyBackgroundColor: '#FAD8E2',
+  hoverColor: '#D03863'
 }
 
 export default { title: 'ShoppingListItem' }

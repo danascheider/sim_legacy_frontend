@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
@@ -10,7 +10,14 @@ const ShoppingListItem = ({
   notes,
   colorScheme
 }) => {
-  const { schemeColor, titleTextColor, borderColor, bodyBackgroundColor, bodyTextColor } = colorScheme
+  const {
+    schemeColor,
+    hoverColor,
+    titleTextColor,
+    borderColor,
+    bodyBackgroundColor,
+    bodyTextColor
+  } = colorScheme
 
   const [toggleEvent, setToggleEvent] = useState(0)
 
@@ -23,12 +30,13 @@ const ShoppingListItem = ({
     '--title-text-color': titleTextColor,
     '--border-color': borderColor,
     '--body-background-color': bodyBackgroundColor,
-    '--body-text-color': bodyTextColor
+    '--body-text-color': bodyTextColor,
+    '--hover-color': hoverColor
   }
 
   return(
     <div className={styles.root} style={styleVars}>
-      <div className={classnames(styles.headerBar, styles.flexItem)}>
+      <div className={styles.headerContainer}>
         <button className={styles.button} onClick={toggleDetails}>
           <h3 className={styles.description}>{description}</h3>
         </button>
@@ -36,9 +44,9 @@ const ShoppingListItem = ({
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
-          <div className={styles.collapsible}>
-            <div className={styles.collapsibleContent} ref={setCollapsibleElement}>
-              {notes || 'No details available'}
+          <div className={styles.collapsible} ref={setCollapsibleElement}>
+            <div className={styles.container}>
+              <p className={styles.notes}>{notes || 'No details available'}</p>
             </div>
           </div>
         )}

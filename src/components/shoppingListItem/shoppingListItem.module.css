@@ -3,24 +3,30 @@
   background-color: var(--scheme-color);
 }
 
-.headerBar {
-  width: 100%;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
+.root:hover {
+  background-color: var(--hover-color);
+}
+
+.headerContainer {
   display: grid;
-  grid-template-columns: 5fr 1fr;
+  grid-template-columns: 4fr 1fr;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .button {
   background: none;
   border: none;
+  border-right: 1px solid var(--border-color);
   padding: 0;
   text-align: left;
   cursor: pointer;
+  padding: 32px 0 32px 24px;
 }
 
 .quantity {
+  color: var(--title-text-color);
   margin: auto 0;
+  padding: 0 24px 0 0;
   text-align: right;
 }
 
@@ -33,4 +39,9 @@
 .collapsible {
   background-color: var(--body-background-color);
   color: var(--body-text-color);
+}
+
+.notes {
+  padding: 24px;
+  margin: 0;
 }
