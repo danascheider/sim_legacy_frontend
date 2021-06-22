@@ -1,4 +1,5 @@
 import React from 'react'
+import { PINK } from '../../utils/colorSchemes'
 import ShoppingList from './shoppingList'
 
 const listItems = [
@@ -25,24 +26,12 @@ const listItems = [
   }
 ]
 
-const colorScheme = {
-  outerColor: '#E83F6F',
-  hoverColor: '#D03863',
-  borderColor: '#B93258',
-  textColor: '#FFFFFF',
-  listItemHeaderColor: '#EC658B',
-  listItemHoverColor: '#EA527D',
-  listItemTitleTextColor: '#FFFFFF',
-  listItemBodyTextColor: '#000000',
-  listItemBodyBackgroundColor: '#FAD8E2'
-}
-
 export default { title: 'ShoppingList' }
 
 export const Default = () => (
   <ShoppingList
     title='My List 1'
-    colorScheme={colorScheme}
+    colorScheme={PINK}
     listItems={listItems}
   />
 )

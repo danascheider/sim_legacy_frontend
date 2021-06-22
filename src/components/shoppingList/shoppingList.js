@@ -6,25 +6,24 @@ import styles from './shoppingList.module.css'
 
 const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
   const {
-    outerColor,
-    borderColor,
-    textColor,
+    schemeColor,
     hoverColor,
-    listItemHeaderColor,
-    listItemHoverColor,
-    listItemBorderColor,
-    listItemBodyBackgroundColor,
-    listItemTitleTextColor,
-    listItemBodyTextColor
+    borderColor,
+    textColorPrimary,
+    schemeColorLighter,
+    hoverColorLighter,
+    schemeColorLightest,
+    textColorSecondary,
+    textColorTertiary,
   } = colorScheme
 
   const listItemColorScheme = {
-    schemeColor: listItemHeaderColor,
-    hoverColor: listItemHoverColor,
-    borderColor: listItemBorderColor,
-    titleTextColor: listItemTitleTextColor,
-    bodyBackgroundColor: listItemBodyBackgroundColor,
-    bodyTextColor: listItemBodyTextColor
+    schemeColor: schemeColorLighter,
+    hoverColor: hoverColorLighter,
+    borderColor: borderColor,
+    titleTextColor: textColorSecondary,
+    bodyBackgroundColor: schemeColorLightest,
+    bodyTextColor: textColorTertiary
   }
 
   const [toggleEvent, setToggleEvent] = useState(0)
@@ -34,9 +33,9 @@ const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
   }
 
   const styleVars = {
-    '--scheme-color': outerColor,
+    '--scheme-color': schemeColor,
     '--border-color': borderColor,
-    '--text-color': textColor,
+    '--text-color': textColorPrimary,
     '--hover-color': hoverColor
   }
 
