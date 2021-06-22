@@ -58,10 +58,12 @@ export const AQUA = {
   schemeColorLightest: '#D2F9FA'
 }
 
-export default [
+const colorSchemes = [
   YELLOW,
   PINK,
   BLUE,
   GREEN,
   AQUA
 ]
+
+export default colorSchemes
