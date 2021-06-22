@@ -5,6 +5,7 @@
   color: var(--text-color);
   border-radius: 8px;
   padding: 8px;
+  margin: 0 auto;
 }
 
 .root:hover, .root:hover .button {
@@ -13,6 +14,7 @@
 
 .button {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.125rem;
   background-color: var(--scheme-color);
   color: var(--text-color);
   width: 100%;

@@ -7,6 +7,8 @@ import LogoutDropdown from '../logoutDropdown/logoutDropdown'
 import anonymousAvatar from './anonymousAvatar.jpg'
 import styles from './dashboardHeader.module.css'
 
+const isStorybook = typeof global.process === 'undefined'
+
 const DashboardHeader = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false)
   const [cookies, , removeCookie] = useCookies([sessionCookieName])
@@ -17,8 +19,7 @@ const DashboardHeader = () => {
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
-    // typeof global.process === 'undefined' when it's storybook
-    if (mountedRef.current === true && (typeof global.process === 'undefined' || !!cookies[sessionCookieName])) {
+    if (mountedRef.current === true && (isStorybook || !!cookies[sessionCookieName])) {
       fetch(dataUri, {
         headers: {
           'Content-Type': 'application/json',

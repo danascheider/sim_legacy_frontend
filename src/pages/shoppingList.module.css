@@ -1,0 +1,19 @@
+.title {
+  font-family: 'Cinzel Decorative', sans-serif;
+}
+
+.hr {
+  border-top-style: none;
+  border-left-style: none;
+  border-right-style: none;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 32px;
+}
+
+.shoppingList {
+  margin-bottom: 32px;
+}
+
+.shoppingList:last-of-type {
+  margin-bottom: 0;
+}

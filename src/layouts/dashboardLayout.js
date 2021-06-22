@@ -5,7 +5,9 @@ import styles from './dashboardLayout.module.css'
 const DashboardLayout = ({ children }) => {
   return(
     <div className={styles.root}>
-      {children}
+      <div className={styles.container}>
+        {children}
+      </div>
       <DashboardHeader />
     </div>
   )

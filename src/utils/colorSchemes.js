@@ -4,6 +4,7 @@ export const YELLOW = {
   borderColor: '#CC9800',
   textColorPrimary: '#000000',
   schemeColorLighter: '#FFCB32',
+  hoverColorLighter: '#FFC519',
   textColorSecondary: '#000000',
   textColorTertiary: '#000000',
   schemeColorLightest: '#FFF2CC'
