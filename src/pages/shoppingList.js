@@ -45,9 +45,7 @@ const ShoppingListPage = () => {
   useEffect(fetchLists, [])
 
   return(
-    <DashboardLayout>
-      <h2 className={styles.title}>Your Shopping Lists</h2>
-      <hr className={styles.hr} />
+    <DashboardLayout title='Your Shopping Lists'>
       <div className={styles.shoppingListContainer}>
         {!!shoppingLists ?
           shoppingLists.map(({ title, shopping_list_items }, index) => {
