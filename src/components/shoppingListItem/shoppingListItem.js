@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import classnames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
@@ -38,9 +37,9 @@ const ShoppingListItem = ({
     <div className={styles.root} style={styleVars}>
       <div className={styles.headerContainer}>
         <button className={styles.button} onClick={toggleDetails}>
-          <h3 className={styles.description}>{description}</h3>
+          <h4 className={styles.description}>{description}</h4>
         </button>
-        <span className={classnames(styles.quantity, styles.flexItem)}>{quantity}</span>
+        <span className={styles.quantity}>{quantity}</span>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (

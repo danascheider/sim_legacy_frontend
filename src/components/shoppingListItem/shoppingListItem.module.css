@@ -1,6 +1,7 @@
 .root {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   background-color: var(--scheme-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .root:hover {
@@ -32,6 +33,7 @@
 
 .description {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
   color: var(--title-text-color);
   margin: 0;
 }
@@ -39,6 +41,7 @@
 .collapsible {
   background-color: var(--body-background-color);
   color: var(--body-text-color);
+  border-bottom-color: var(--border-color);
 }
 
 .notes {
