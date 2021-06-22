@@ -14,15 +14,16 @@ const possibleTypes = [
   'spokes'
 ]
 
-const Loading = ({ type = 'spin', color, height, width }) => (
-  <ReactLoading type={type} color={color} height={height} width={width} />
+const Loading = ({ className, type = 'spin', color, height, width }) => (
+  <ReactLoading className={className} type={type} color={color} height={height} width={width} />
 )
 
 Loading.propTypes = {
+  className: PropTypes.string.isRequired,
   type: PropTypes.oneOf(possibleTypes),
   color: PropTypes.string.isRequired,
   height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  width: PropTypes.number.isRequired
+  width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 }
 
 export default Loading
