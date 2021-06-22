@@ -6,8 +6,12 @@ const DashboardLayout = ({ title, children }) => {
   return(
     <div className={styles.root}>
       <div className={styles.container}>
-        <h2 className={styles.title}>{title}</h2>
-        <hr className={styles.hr} />
+        {title ?
+        <>
+          <h2 className={styles.title}>{title}</h2>
+          <hr className={styles.hr} />
+        </> :
+        null}
         {children}
       </div>
       <DashboardHeader />
