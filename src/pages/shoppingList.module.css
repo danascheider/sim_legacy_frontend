@@ -5,3 +5,11 @@
 .shoppingList:last-of-type {
   margin-bottom: 0;
 }
+
+.loading {
+  margin: 0 auto;
+}
+
+.error {
+  color: #ff0000;
+}
