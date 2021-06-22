@@ -26,20 +26,17 @@ const DashboardHeader = () => {
           'Authorization': `Bearer ${cookies[sessionCookieName]}`
         }
       })
-      .then(response => {
-        if (response.status === 401) {
-          return null
-        } else {
-          return response.json()
-        }
-      })
+      .then(response => (response.json()))
       .then(data => {
-        if (!!data) {
-          setUserData(data)
-          setShouldRedirect(false)
-        } else {
+        if (!data) {
+          setShouldRedirect(true)
+        } else if (data.error) {
+          console.warn('Error fetching user data - logging out user: ', data.error)
           removeCookie(sessionCookieName)
           setShouldRedirect(true)
+        } else {
+          setUserData(data)
+          setShouldRedirect(false)
         }
       })
       .catch(() => {
