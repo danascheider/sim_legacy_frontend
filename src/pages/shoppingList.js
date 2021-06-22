@@ -50,10 +50,11 @@ const ShoppingListPage = () => {
         {!!shoppingLists ?
           shoppingLists.map(({ title, shopping_list_items }, index) => {
             const colorSchemesIndex = index > colorSchemes.length ? index % colorSchemes.length : index
+            const listKey = title.toLowerCase().replace(' ', '-')
 
             return(
-              <div className={styles.shoppingList}>
-                <ShoppingList key={title} title={title} listItems={shopping_list_items} colorScheme={colorSchemes[colorSchemesIndex]} />
+              <div className={styles.shoppingList} key={listKey}>
+                <ShoppingList title={title} listItems={shopping_list_items} colorScheme={colorSchemes[colorSchemesIndex]} />
               </div>
             )
           }) :

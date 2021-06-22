@@ -49,15 +49,19 @@ const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {listItems.map(({ id, description, quantity, notes }) => (
-              <ShoppingListItem
-                key={`shopping-list-item-${id}`}
-                description={description}
-                quantity={quantity}
-                notes={notes}
-                colorScheme={listItemColorScheme}
-              />
-            ))}
+            {listItems.map(({ id, description, quantity, notes }) => {
+              const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
+
+              return(
+                <ShoppingListItem
+                  key={itemKey}
+                  description={description}
+                  quantity={quantity}
+                  notes={notes}
+                  colorScheme={listItemColorScheme}
+                />
+              )
+            })}
           </div>
         )}
       </SlideToggle>

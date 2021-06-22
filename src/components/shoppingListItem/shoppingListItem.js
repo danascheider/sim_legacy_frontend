@@ -55,7 +55,6 @@ const ShoppingListItem = ({
 }
 
 ShoppingListItem.propTypes = {
-  className: PropTypes.string.isRequired,
   colorScheme: PropTypes.shape.isRequired,
   description: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
