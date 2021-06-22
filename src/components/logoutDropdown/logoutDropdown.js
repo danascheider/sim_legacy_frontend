@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import icon from './googleIcon.svg'
 import styles from './logoutDropdown.module.css'
 
@@ -14,5 +15,10 @@ const LogoutDropdown = ({className, logOutUser}) => (
     </button>
   </div>
 )
+
+LogoutDropdown.propTypes = {
+  className: PropTypes.string.isRequired,
+  logOutUser: PropTypes.func.isRequired
+}
 
 export default LogoutDropdown

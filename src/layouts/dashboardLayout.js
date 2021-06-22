@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import DashboardHeader from '../components/dashboardHeader/dashboardHeader'
 import styles from './dashboardLayout.module.css'
 
@@ -17,6 +18,11 @@ const DashboardLayout = ({ title, children }) => {
       <DashboardHeader />
     </div>
   )
+}
+
+DashboardLayout.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.node.isRequired
 }
 
 export default DashboardLayout
