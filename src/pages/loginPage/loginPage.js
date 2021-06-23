@@ -7,9 +7,10 @@ import {
   frontendBaseUri,
   backendBaseUri,
   sessionCookieName
-} from '../utils/config'
-import paths from '../routing/paths'
-import styles from './login.module.css'
+} from '../../utils/config'
+import isStorybook from '../../utils/isStorybook'
+import paths from '../../routing/paths'
+import styles from './loginPage.module.css'
 
 const LoginPage = () => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
@@ -47,7 +48,7 @@ const LoginPage = () => {
     setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }
 
-  return(!!cookies[sessionCookieName] ?
+  return(!!cookies[sessionCookieName] && !isStorybook() ?
     <Redirect to={paths.dashboard.main} /> :
     <div className={styles.root}>
       {loginErrorMessage ?
@@ -65,21 +66,6 @@ const LoginPage = () => {
       </div>
     </div>
   )
-
-  // return(!!cookies[sessionCookieName] ?
-  //   <Redirect to={paths.dashboard} /> :
-  //   <div className={styles.root}>
-  //     <GoogleLogin
-  //       className={styles.button}
-  //       clientId={googleClientId[process.env.NODE_ENV]}
-  //       buttonText='Log In with Google'
-  //       onSuccess={successCallback}
-  //       onFailure={failureCallback}
-  //       redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}/dashboard`}
-  //       isSignedIn={true}
-  //     />
-  //   </div>
-  // )
 }
 
 export default LoginPage
