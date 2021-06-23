@@ -54,6 +54,18 @@ yarn storybook
 ```
 Storybook generally handles hot reloads easily. However, there are a few cases where certain types of changes completely bork the server. If that happens, kill and restart the server before you panic.
 
+#### API Mocking
+
+There are a few considerations when writing stories for components that make API calls (and the components themselves). The first is mock data. For mocking, we use the [mock service worker Storybook addon](https://storybook.js.org/addons/msw-storybook-addon/). For an example of how the MSW addon is used, look at the story for the [dashboard header](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/components/dashboardHeader/dashboardHeader.stories.js), which makes a call to `/users/current` to get the user's profile information from the backend.
+
+SIM components that make API calls typically first check for the presence of the `_sim_google_session` cookie beforee doing so. This is an issue in Storybook because Storybook doesn't set cookies and there doesn't seem to be a great solution out there for mocking them with decorators or addons. For this reason, I have configured the `yarn storybook` script to set an environment variable, `STORYBOOK`, to `true`. There is a utility function, [`isStorybook`](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/utils/isStorybook.js), that checks whether this variable is set to a truthy value and returns `true` if so and `false` otherwise. Components that check for the presence of cookies can also check if the environment is Storybook:
+```js
+if (!!cookies[sessionCookieName] || isStorybook()) {
+  // make API call
+}
+```
+There is a card for fixing how we handle auth within components so this behaviour will likely change in the future.
+
 ### Deployment
 
 The SIM front end is deployed to [Heroku](https://heroku.com) under the app name `obscure-reaches-80056`. Deployment is done manually via the command line and Git. It is recommended to install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) to work with Heroku.
