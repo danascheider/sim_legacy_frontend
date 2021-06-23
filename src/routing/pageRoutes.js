@@ -3,7 +3,7 @@ import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import DashboardPage from '../pages/dashboardPage/dashboardPage'
 import ShoppingListPage from '../pages/shoppingList'
-import HomePage from '../pages/home'
+import HomePage from '../pages/homePage/homePage'
 import LoginPage from '../pages/login'
 import paths from './paths'
 

@@ -1,14 +1,15 @@
 import React from 'react'
 import { Link, Redirect } from 'react-router-dom'
 import { useCookies } from 'react-cookie'
-import { sessionCookieName } from '../utils/config'
-import paths from '../routing/paths'
-import styles from './home.module.css'
+import { sessionCookieName } from '../../utils/config'
+import isStorybook from '../../utils/isStorybook'
+import paths from '../../routing/paths'
+import styles from './homePage.module.css'
 
 const HomePage = () => {
   const [cookies, , ,] = useCookies([sessionCookieName])
 
-  return(!!cookies[sessionCookieName] ?
+  return(!isStorybook() && !!cookies[sessionCookieName] ?
     <Redirect to={paths.dashboard.main} /> :
     <div className={styles.root}>
       <div className={styles.container}>
