@@ -1,12 +1,12 @@
 import React from 'react'
 import { rest } from 'msw'
 import { worker } from '../../../.storybook/mocks/browser'
-import DashboardHeader from './dashboardHeader'
 import { backendBaseUri } from '../../utils/config'
+import DashboardPage from './dashboardPage'
 
-export default { title: 'DashboardHeader' }
+export default { title: 'DashboardPage' }
 
-export const Default = () => <DashboardHeader />
+export const Default = () => <DashboardPage />
 
 Default.decorators = [
   (Story) => {
@@ -17,7 +17,7 @@ Default.decorators = [
           uid: 'jane.doe@gmail.com',
           email: 'jane.doe@gmail.com',
           name: 'Jane Doe',
-          image_url: null,
+          image_url: null
         }))
       })
     )

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import DashboardPage from '../pages/dashboard'
+import DashboardPage from '../pages/dashboardPage/dashboardPage'
 import ShoppingListPage from '../pages/shoppingList'
 import HomePage from '../pages/home'
 import LoginPage from '../pages/login'
