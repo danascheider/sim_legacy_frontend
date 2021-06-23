@@ -44,6 +44,8 @@ const ShoppingListPage = () => {
             setShoppingLists(data)
           }
         } else {
+          setLoadingState(ERROR)
+          setApiError('Unknown error: something went wrong when retrieving shopping list data')
           console.warn('Something went wrong')
         }
       })
@@ -56,7 +58,8 @@ const ShoppingListPage = () => {
     <DashboardLayout title='Your Shopping Lists'>
       {!!shoppingLists ?
         shoppingLists.map(({ title, shopping_list_items }, index) => {
-          const colorSchemesIndex = index > colorSchemes.length ? index % colorSchemes.length : index
+          // If there are more lists than colour schemes, cycle through the colour schemes
+          const colorSchemesIndex = index > colorSchemes.length ? (index % colorSchemes.length) : index
           const listKey = title.toLowerCase().replace(' ', '-')
 
           return(
@@ -69,7 +72,7 @@ const ShoppingListPage = () => {
           <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' /> :
           loadingState === ERROR ?
             <div className={styles.error}>{apiError}</div> :
-            <div>You have no shopping lists.</div>}
+            <p>You have no shopping lists.</p>}
     </DashboardLayout>
   )
 }
