@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import paths from '../../routing/paths'
 import { sessionCookieName, backendBaseUri } from '../../utils/config'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
 import anonymousAvatar from './anonymousAvatar.jpg'
 import styles from './dashboardHeader.module.css'
+
+const isStorybook = typeof global.process === 'undefined'
 
 const DashboardHeader = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false)
@@ -17,28 +19,24 @@ const DashboardHeader = () => {
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
-    // typeof global.process === 'undefined' when it's storybook
-    if (mountedRef.current === true && (typeof global.process === 'undefined' || !!cookies[sessionCookieName])) {
+    if (mountedRef.current === true && (isStorybook || !!cookies[sessionCookieName])) {
       fetch(dataUri, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${cookies[sessionCookieName]}`
         }
       })
-      .then(response => {
-        if (response.status === 401) {
-          return null
-        } else {
-          return response.json()
-        }
-      })
+      .then(response => (response.json()))
       .then(data => {
-        if (!!data) {
-          setUserData(data)
-          setShouldRedirect(false)
-        } else {
+        if (!data) {
+          setShouldRedirect(true)
+        } else if (data.error) {
+          console.warn('Error fetching user data - logging out user: ', data.error)
           removeCookie(sessionCookieName)
           setShouldRedirect(true)
+        } else {
+          setUserData(data)
+          setShouldRedirect(false)
         }
       })
       .catch(() => {
@@ -82,7 +80,7 @@ const DashboardHeader = () => {
       <div className={styles.bar}>
         <span className={styles.headerContainer}>
           <h1 className={styles.header}>
-            Skyrim Inventory<br className={styles.bp} /> Management
+            <Link className={styles.headerLink} to={paths.dashboard.main}>Skyrim Inventory<br className={styles.bp} /> Management</Link>
           </h1>
         </span>
         {!!userData ?

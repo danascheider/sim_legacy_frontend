@@ -1,0 +1,39 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--scheme-color);
+  color: var(--text-color);
+  border-radius: 8px;
+  padding: 8px;
+  margin: 0 auto;
+}
+
+.root:hover, .root:hover .button {
+  background-color: var(--hover-color);
+}
+
+.button {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.125rem;
+  background-color: var(--scheme-color);
+  color: var(--text-color);
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.collapsible {
+  border: 1px solid var(--border-color);
+}
+
+@media (min-width: 768px) {
+  .root {
+    width: 80%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .root {
+    width: 50%;
+  }
+}

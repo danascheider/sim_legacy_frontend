@@ -1,0 +1,50 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--scheme-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.root:hover {
+  background-color: var(--hover-color);
+}
+
+.headerContainer {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.button {
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border-color);
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  padding: 32px 0 32px 24px;
+}
+
+.quantity {
+  color: var(--title-text-color);
+  margin: auto 0;
+  padding: 0 24px 0 0;
+  text-align: right;
+}
+
+.description {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
+  color: var(--title-text-color);
+  margin: 0;
+}
+
+.collapsible {
+  background-color: var(--body-background-color);
+  color: var(--body-text-color);
+  border-bottom-color: var(--border-color);
+}
+
+.notes {
+  padding: 24px;
+  margin: 0;
+}

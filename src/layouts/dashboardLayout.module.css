@@ -2,3 +2,21 @@
   min-height: 100vh;
   background-color: #f5f5f5;
 }
+
+.title {
+  font-family: 'Cinzel Decorative', sans-serif;
+}
+
+.hr {
+  border-top-style: none;
+  border-left-style: none;
+  border-right-style: none;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 32px;
+}
+
+.container {
+  padding: 128px 0;
+  margin: 0 auto; 
+  max-width: 90%;
+}
