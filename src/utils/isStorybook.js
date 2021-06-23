@@ -1,1 +1,1 @@
-export default () => (typeof global.process === 'undefined')
+export default () => (!!process.env.STORYBOOK)

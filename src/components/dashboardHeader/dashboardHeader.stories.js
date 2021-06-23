@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
-import DashboardHeader from './dashboardHeader'
 import { backendBaseUri } from '../../utils/config'
+import DashboardHeader from './dashboardHeader'
 
 export default { title: 'DashboardHeader' }
 
