@@ -72,7 +72,7 @@ const DashboardHeader = () => {
     }
   }
 
-  useEffect(fetchUserData, [removeCookie])
+  useEffect(fetchUserData, [])
 
   return(!!shouldRedirect ?
     <Redirect to={paths.login} /> :
