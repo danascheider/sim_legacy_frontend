@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEdit, faCheckSquare } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
 
-const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
+const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) => {
   const {
     schemeColor,
     hoverColor,
@@ -27,23 +29,39 @@ const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
   }
 
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [editFormVisible, setEditFormVisible] = useState(false)
 
   const toggleListItems = () => {
     setToggleEvent(Date.now)
+  }
+
+  const toggleEditForm = (e) => {
+    e.stopPropagation();
+    setEditFormVisible(!editFormVisible)
   }
 
   const styleVars = {
     '--scheme-color': schemeColor,
     '--border-color': borderColor,
     '--text-color': textColorPrimary,
-    '--hover-color': hoverColor
+    '--hover-color': hoverColor,
+    '--scheme-color-lighter': schemeColorLighter,
+    '--scheme-color-lightest': schemeColorLightest
   }
 
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
         <button className={styles.button} onClick={toggleListItems}>
-          <h3 className={styles.title}>{title}</h3>
+          {editFormVisible ?
+            <form className={styles.editForm} onSubmit={onSubmitEditForm}>
+              <input className={styles.input} onClick={e => e.stopPropagation()} type='text' name='title' value={title} focus />
+              <button className={styles.submit} name='submit' type='submit'>
+                <FontAwesomeIcon className={styles.fa} icon={faCheckSquare} />
+              </button>
+            </form> :
+            <h3 className={styles.title}>{title}</h3>}
+          <FontAwesomeIcon className={styles.fa} onClick={toggleEditForm} icon={faEdit} />
         </button>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
@@ -82,6 +100,7 @@ ShoppingList.propTypes = {
     textColorSecondary: PropTypes.string.isRequired,
     textColorTertiary: PropTypes.string.isRequired
   }).isRequired,
+  onSubmitEditForm: PropTypes.func.isRequired,
   listItems: PropTypes.arrayOf(PropTypes.shape).isRequired
 }
 

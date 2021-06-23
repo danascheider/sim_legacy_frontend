@@ -7,7 +7,10 @@
   margin: 0 auto;
 }
 
-.root:hover, .root:hover .button {
+.root:hover,
+.root:hover .button,
+.root:hover form .input,
+.root:hover form .submit {
   background-color: var(--hover-color);
 }
 
@@ -20,6 +23,59 @@
   border: none;
   cursor: pointer;
   border-radius: 8px;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: stretch;
+  text-align: left;
+}
+
+.title {
+  margin-block-start: 23px;
+  margin-block-end: 22px;
+  font-size: 1.25rem;
+}
+
+.fa {
+  margin: auto 0;
+  font-size: 1rem;
+}
+
+.fa:hover {
+  color: var(--scheme-color-lightest);
+}
+
+.editForm {
+  display: inline-flex;
+  width: 100%;
+}
+
+.input {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 8px;
+  padding-left: 0;
+  background-color: var(--scheme-color);
+  color: var(--text-color);
+  margin-block-start: 15px;
+  margin-block-end: 13px;
+  border-style: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.submit {
+  padding: 0;
+  margin-block-start: 16px;
+  margin-block-end: 16px;
+  background-color: var(--scheme-color);
+  border-style: none;
+    color: var(--text-color);
+}
+
+.submit .fa {
+  margin-top: auto;
+  margin-bottom: 8px;
+  margin-right: 16px;
 }
 
 .collapsible {

@@ -31,6 +31,7 @@ export default { title: 'ShoppingList' }
 export const Default = () => (
   <ShoppingList
     title='My List 1'
+    onSubmitEditForm={e => e.preventDefault()}
     colorScheme={PINK}
     listItems={listItems}
   />
