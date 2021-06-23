@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faCheckSquare } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
+import ShoppingListForm from '../shoppingListForm/shoppingListForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
 
@@ -30,9 +31,13 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
 
   const [toggleEvent, setToggleEvent] = useState(0)
   const [editFormVisible, setEditFormVisible] = useState(false)
+  const buttonRef = useRef(null)
+  const titleRef = useRef(null)
 
-  const toggleListItems = () => {
-    setToggleEvent(Date.now)
+  const toggleListItems = (e) => {
+    if (e.target === buttonRef.current || e.target === titleRef.current) {
+      setToggleEvent(Date.now)
+    }
   }
 
   const toggleEditForm = (e) => {
@@ -52,17 +57,17 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
-        <button className={styles.button} onClick={toggleListItems}>
+        <div className={styles.trigger} ref={buttonRef} onClick={toggleListItems}>
           {editFormVisible ?
-            <form className={styles.editForm} onSubmit={onSubmitEditForm}>
-              <input className={styles.input} onClick={e => e.stopPropagation()} type='text' name='title' value={title} focus />
-              <button className={styles.submit} name='submit' type='submit'>
-                <FontAwesomeIcon className={styles.fa} icon={faCheckSquare} />
-              </button>
-            </form> :
-            <h3 className={styles.title}>{title}</h3>}
+            <ShoppingListForm
+              className={styles.form}
+              colorScheme={colorScheme}
+              title={title}
+              onSubmit={onSubmitEditForm}
+            /> :
+            <h3 className={styles.title} ref={titleRef}>{title}</h3>}
           <FontAwesomeIcon className={styles.fa} onClick={toggleEditForm} icon={faEdit} />
-        </button>
+        </div>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
