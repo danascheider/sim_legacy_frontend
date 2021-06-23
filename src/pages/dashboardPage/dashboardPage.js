@@ -1,15 +1,15 @@
 import React from 'react'
-import paths from '../routing/paths'
+import paths from '../../routing/paths'
 import {
   YELLOW,
   PINK,
   BLUE,
   GREEN,
   AQUA
-} from '../utils/colorSchemes'
-import DashboardLayout from '../layouts/dashboardLayout'
-import NavigationMosaic from '../components/navigationMosaic/navigationMosaic'
-import styles from './dashboard.module.css'
+} from '../../utils/colorSchemes'
+import DashboardLayout from '../../layouts/dashboardLayout'
+import NavigationMosaic from '../../components/navigationMosaic/navigationMosaic'
+import styles from './dashboardPage.module.css'
 
 const cards = [
   {
@@ -44,14 +44,12 @@ const cards = [
   }
 ]
 
-const DashboardPage = () => {
-  return(
-    <DashboardLayout>
-      <div className={styles.root}>
-        <NavigationMosaic cardArray={cards} />
-      </div>
-    </DashboardLayout>
-  )
-}
+const DashboardPage = () => (
+  <DashboardLayout>
+    <div className={styles.root}>
+      <NavigationMosaic cardArray={cards} />
+    </div>
+  </DashboardLayout>
+)
 
 export default DashboardPage

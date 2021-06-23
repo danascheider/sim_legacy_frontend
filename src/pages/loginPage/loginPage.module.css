@@ -5,8 +5,13 @@
 }
 
 .errorMessage {
-  margin: 64px auto 0;
+  top: 35%;
+  width: 100%;
+  text-align: center;
   color: #ff0000;
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+  position: fixed;
 }
 
 .container {

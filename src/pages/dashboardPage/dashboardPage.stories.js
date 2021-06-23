@@ -1,15 +1,16 @@
 import React from 'react'
 import { rest } from 'msw'
+import { worker } from '../../../.storybook/mocks/browser'
 import { backendBaseUri } from '../../utils/config'
-import DashboardHeader from './dashboardHeader'
+import DashboardPage from './dashboardPage'
 
-export default { title: 'DashboardHeader' }
+export default { title: 'DashboardPage' }
 
-export const Default = () => <DashboardHeader />
+export const Default = () => <DashboardPage />
 
-Default.story = {
-  parameters: {
-    msw: [
+Default.decorators = [
+  (Story) => {
+    worker.use(
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
         return res(ctx.json({
           id: 24,
@@ -19,6 +20,8 @@ Default.story = {
           image_url: null
         }))
       })
-    ]
+    )
+
+    return <Story />
   }
-}
+]
