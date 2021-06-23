@@ -1,10 +1,9 @@
 import { addDecorator } from '@storybook/react'
 import { BrowserRouter } from 'react-router-dom'
+import { initializeWorker, mswDecorator } from 'msw-storybook-addon'
 
-if (typeof global.process === 'undefined') {
-  const { worker } = require('./mocks/browser')
-  worker.start()
-}
+initializeWorker()
+addDecorator(mswDecorator)
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
