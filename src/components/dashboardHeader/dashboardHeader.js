@@ -3,11 +3,10 @@ import { useCookies } from 'react-cookie'
 import { Link, Redirect } from 'react-router-dom'
 import paths from '../../routing/paths'
 import { sessionCookieName, backendBaseUri } from '../../utils/config'
+import isStorybook from '../../utils/isStorybook'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
 import anonymousAvatar from './anonymousAvatar.jpg'
 import styles from './dashboardHeader.module.css'
-
-const isStorybook = typeof global.process === 'undefined'
 
 const DashboardHeader = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false)
@@ -19,7 +18,7 @@ const DashboardHeader = () => {
   const fetchUserData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
-    if (mountedRef.current === true && (isStorybook || !!cookies[sessionCookieName])) {
+    if (mountedRef.current === true && (isStorybook() || !!cookies[sessionCookieName])) {
       fetch(dataUri, {
         headers: {
           'Content-Type': 'application/json',
