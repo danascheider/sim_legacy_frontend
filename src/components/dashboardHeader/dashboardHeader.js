@@ -26,6 +26,7 @@ const DashboardHeader = () => {
         }
       })
       .then(response => (response.json()))
+      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
       .then(data => {
         if (!data) {
           setShouldRedirect(true)

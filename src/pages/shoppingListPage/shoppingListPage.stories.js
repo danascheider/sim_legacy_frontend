@@ -11,9 +11,12 @@ import {
 import ShoppingListPage from './shoppingListPage'
 export default { title: 'ShoppingListPage' }
 
-export const Default = () => <ShoppingListPage />
+// When the user has shopping lists, and the ones that
+// are allowed to be updated can be updated successfully
 
-Default.story = {
+export const HappyPath = () => <ShoppingListPage />
+
+HappyPath.story = {
   parameters: {
     msw: [
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
@@ -46,6 +49,45 @@ Default.story = {
         return res(
           ctx.status(200),
           ctx.json(returnData)
+        )
+      })
+    ]
+  }
+}
+
+// When the user has shopping lists but there's an error when they try to update
+
+export const UpdateListNotFound = () => <ShoppingListPage />
+
+UpdateListNotFound.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(userData)
+        )
+      }),
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(shoppingLists)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        return res(
+          ctx.status(404),
+          ctx.json({ error: 'Shopping list id=1 not found' })
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(404),
+          ctx.json({ error: 'Shopping list id=3 not found' })
         )
       })
     ]

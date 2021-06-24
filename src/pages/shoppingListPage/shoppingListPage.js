@@ -35,6 +35,7 @@ const ShoppingListPage = () => {
           return null
         }
       })
+      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
       .then(data => {
         if (!!data) {
           if (data.error) {
@@ -73,8 +74,9 @@ const ShoppingListPage = () => {
     })
     .then(response => response.json())
     .then(data => {
-      if (data['error']) {
-        console.error(data['error'])
+      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
+      if (data.error && data.error.match(/not found/i)) {
+        alert('Oops! There was an issue updating your shopping list. Try refreshing the page to resolve this issue.')
       } else {
         const newShoppingLists = shoppingLists.map((list, i) => { if (list.id === listId) { return data } else { return list } })
         console.log('new shopping lists: ', newShoppingLists)
