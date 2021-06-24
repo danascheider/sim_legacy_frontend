@@ -36,3 +36,13 @@ export const Default = () => (
     listItems={listItems}
   />
 )
+
+export const NotEditable = () => (
+  <ShoppingList
+    title='Master'
+    canEdit={false}
+    onSubmitEditForm={e => e.preventDefault()}
+    colorScheme={PINK}
+    listItems={listItems}
+  />
+)

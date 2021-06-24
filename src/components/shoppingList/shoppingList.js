@@ -8,7 +8,7 @@ import ShoppingListForm from '../shoppingListForm/shoppingListForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
 
-const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) => {
+const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, listItems = [] }) => {
   const {
     schemeColor,
     hoverColor,
@@ -34,8 +34,9 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
   const slideTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
-  const slideTriggerRefContains = element => slideTriggerRef.curreent && slideTriggerRef.current.contains(element)
-  const shouldToggleListItems = element => element === slideTriggerRef.current || slideTriggerRefContains(element)
+  const slideTriggerRefContains = element => slideTriggerRef.current && slideTriggerRef.current.contains(element)
+  const triggerRefContains = element => triggerRef.current && triggerRef.current.contains(element)
+  const shouldToggleListItems = element => ((element === slideTriggerRef.current || slideTriggerRefContains(element)) && !triggerRefContains(element))
 
   const toggleListItems = (e) => {
     if (shouldToggleListItems(e.target)) {
@@ -56,10 +57,10 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
-          <div ref={triggerRef}>
+          {canEdit && <div ref={triggerRef}>
             <FontAwesomeIcon className={styles.fa} icon={faEdit} />
-          </div>
-          {isComponentVisible ?
+          </div>}
+          {canEdit && isComponentVisible ?
             <ShoppingListForm
               formRef={componentRef}
               className={styles.form}
@@ -95,6 +96,7 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
 
 ShoppingList.propTypes = {
   title: PropTypes.string.isRequired,
+  canEdit: PropTypes.bool,
   colorScheme: PropTypes.shape({
     schemeColor: PropTypes.string.isRequired,
     hoverColor: PropTypes.string.isRequired,
