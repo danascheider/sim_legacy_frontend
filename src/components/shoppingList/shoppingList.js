@@ -31,17 +31,16 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
 
   const [toggleEvent, setToggleEvent] = useState(0)
   const [editFormVisible, setEditFormVisible] = useState(false)
-  const buttonRef = useRef(null)
+  const triggerRef = useRef(null)
   const titleRef = useRef(null)
 
   const toggleListItems = (e) => {
-    if (e.target === buttonRef.current || e.target === titleRef.current) {
+    if (e.target === triggerRef.current || e.target === titleRef.current) {
       setToggleEvent(Date.now)
     }
   }
 
   const toggleEditForm = (e) => {
-    e.stopPropagation();
     setEditFormVisible(!editFormVisible)
   }
 
@@ -57,7 +56,8 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
-        <div className={styles.trigger} ref={buttonRef} onClick={toggleListItems}>
+        <div className={styles.trigger} ref={triggerRef} onClick={toggleListItems}>
+          <FontAwesomeIcon className={styles.fa} onClick={toggleEditForm} icon={faEdit} />
           {editFormVisible ?
             <ShoppingListForm
               className={styles.form}
@@ -66,7 +66,6 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
               onSubmit={onSubmitEditForm}
             /> :
             <h3 className={styles.title} ref={titleRef}>{title}</h3>}
-          <FontAwesomeIcon className={styles.fa} onClick={toggleEditForm} icon={faEdit} />
         </div>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
