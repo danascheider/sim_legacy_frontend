@@ -32,11 +32,12 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
 
   const [toggleEvent, setToggleEvent] = useState(0)
   const slideTriggerRef = useRef(null)
-  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
+  const { componentRef, triggerRef, isComponentVisible } = useComponentVisible()
 
-  const slideTriggerRefContains = element => slideTriggerRef.current && slideTriggerRef.current.contains(element)
-  const triggerRefContains = element => triggerRef.current && triggerRef.current.contains(element)
-  const shouldToggleListItems = element => ((element === slideTriggerRef.current || slideTriggerRefContains(element)) && !triggerRefContains(element))
+  const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
+  const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
+  const componentRefContains = element => componentRef.current && (componentRef.current === element || componentRef.current.contains(element))
+  const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element)) && !componentRefContains(element)
 
   const toggleListItems = (e) => {
     if (shouldToggleListItems(e.target)) {
