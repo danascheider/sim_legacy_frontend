@@ -36,7 +36,7 @@ const FlashMessage = ({ type = INFO, header, message }) => {
       {header && <p className={styles.header}>{header}</p>}
       {typeof message === 'string' ? message :
       <ul className={styles.messageList}>
-        {message.map(msg => <li className={styles.msg}>{msg}</li>)}
+        {message.map((msg, index) => <li key={`message-${index}`} className={styles.msg}>{msg}</li>)}
       </ul>}
     </div>
   )
@@ -44,7 +44,6 @@ const FlashMessage = ({ type = INFO, header, message }) => {
 
 FlashMessage.propTypes = {
   type: PropTypes.oneOf([INFO, ERROR, WARNING]),
-  children: PropTypes.node.isRequired,
   header: PropTypes.string,
   message: PropTypes.oneOfType([
     PropTypes.string, PropTypes.arrayOf(PropTypes.string)

@@ -4,6 +4,7 @@ import { backendBaseUri, sessionCookieName } from '../../utils/config'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
 import DashboardLayout from '../../layouts/dashboardLayout'
+import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingList from '../../components/shoppingList/shoppingList'
 import Loading from '../../components/loading/loading'
 import styles from './shoppingListPage.module.css'
@@ -16,6 +17,8 @@ const ShoppingListPage = () => {
   const [shoppingLists, setShoppingLists] = useState(null)
   const [loadingState, setLoadingState] = useState(LOADING)
   const [apiError, setApiError] = useState(null)
+  const [flashProps, setFlashProps] = useState({})
+  const [flashVisible, setFlashVisible] = useState(false)
 
   const [cookies, , ,] = useCookies([sessionCookieName])
 
@@ -77,6 +80,13 @@ const ShoppingListPage = () => {
       // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
       if (data.error && data.error.match(/not found/i)) {
         alert('Oops! There was an issue updating your shopping list. Try refreshing the page to resolve this issue.')
+      } else if (data.errors && data.errors.title) {
+        setFlashProps({
+          type: 'error',
+          header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
+          message: data.errors.title.map(msg => `Title ${msg}`)
+        })
+        setFlashVisible(true)
       } else {
         const newShoppingLists = shoppingLists.map((list, i) => { if (list.id === listId) { return data } else { return list } })
         console.log('new shopping lists: ', newShoppingLists)
@@ -90,6 +100,10 @@ const ShoppingListPage = () => {
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
+      {flashVisible ? 
+        <div className={styles.flash}>
+          <FlashMessage {...flashProps} />
+        </div> : null}
       {!!shoppingLists ?
         (shoppingLists.length > 0 ? shoppingLists.map(({ id, master, title, shopping_list_items }, index) => {
           // If there are more lists than colour schemes, cycle through the colour schemes

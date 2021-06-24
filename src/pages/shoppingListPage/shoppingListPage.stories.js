@@ -94,6 +94,45 @@ UpdateListNotFound.story = {
   }
 }
 
+// When the list can't be updated (422 from API)
+
+export const UpdateUnprocessableEntity = () => <ShoppingListPage />
+
+UpdateUnprocessableEntity.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(userData)
+        )
+      }),
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(shoppingLists)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        return res(
+          ctx.status(422),
+          ctx.json({ errors: { title: ['cannot be blank'] } })
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(422),
+          ctx.json({ errors: { title: ['is already taken'] } })
+        )
+      })
+    ]
+  }
+}
+
 // When the user has no shopping lists
 
 export const Empty = () => <ShoppingListPage />
