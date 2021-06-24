@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -16,6 +16,7 @@ const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
 
   const [inputValue, setInputValue] = useState(title)
   const [inputWidth, setInputWidth] = useState(`${getInputTextWidth(title)}px`)
+  const inputRef = useRef(null)
 
   const { schemeColor, textColorPrimary, borderColor, schemeColorLightest } = colorScheme
 
@@ -31,7 +32,10 @@ const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
     setInputValue(newValue)
     setInputWidth(`${getInputTextWidth(newValue)}px`)
   }
-  // TODO: Shift focus to form when it appears
+
+  useEffect(() => {
+    inputRef.current.focus()
+  })
 
   return(
     <form className={classnames(className, styles.root)} style={colorVars} onSubmit={onSubmit}>
@@ -41,6 +45,7 @@ const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
         onChange={updateInputWidth}
         type='text'
         name='title'
+        ref={inputRef}
         style={{width: inputWidth}}
         value={inputValue}
       />
