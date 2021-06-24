@@ -53,19 +53,56 @@ const ShoppingListPage = () => {
     }
   }
 
+  const updateList = (listId, e) => {
+    e.preventDefault()
+
+    const newTitle = e.nativeEvent.target.children[0].defaultValue
+
+    fetch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/${listId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${cookies[sessionCookieName]}`
+      },
+      body: JSON.stringify({
+        id: listId,
+        shopping_list: {
+          title: newTitle
+        }
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data['error']) {
+        console.error(data['error'])
+      } else {
+        const newShoppingLists = shoppingLists.map((list, i) => { if (list.id === listId) { return data } else { return list } })
+        console.log('new shopping lists: ', newShoppingLists)
+        setShoppingLists(newShoppingLists)
+      }
+    })
+    .catch(error => console.error(error))
+  }
+
   useEffect(fetchLists, [])
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
       {!!shoppingLists ?
-        (shoppingLists.length > 0 ? shoppingLists.map(({ title, shopping_list_items }, index) => {
+        (shoppingLists.length > 0 ? shoppingLists.map(({ id, master, title, shopping_list_items }, index) => {
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index > colorSchemes.length ? (index % colorSchemes.length) : index
           const listKey = title.toLowerCase().replace(' ', '-')
 
           return(
             <div className={styles.shoppingList} key={listKey}>
-              <ShoppingList title={title} listItems={shopping_list_items} colorScheme={colorSchemes[colorSchemesIndex]} />
+              <ShoppingList
+                canEdit={!master}
+                title={title}
+                listItems={shopping_list_items}
+                colorScheme={colorSchemes[colorSchemesIndex]}
+                onSubmitEditForm={(e) => updateList(id, e)}
+              />
             </div>
           )
         }) : <p className={styles.noLists}>You have no shopping lists.</p>) :

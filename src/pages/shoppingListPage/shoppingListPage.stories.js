@@ -4,7 +4,9 @@ import { backendBaseUri } from '../../utils/config'
 import {
   userData,
   emptyShoppingLists,
-  shoppingLists
+  shoppingLists,
+  shoppingListUpdateData1,
+  shoppingListUpdateData2
 } from './storyData'
 import ShoppingListPage from './shoppingListPage'
 export default { title: 'ShoppingListPage' }
@@ -24,6 +26,26 @@ Default.story = {
         return res(
           ctx.status(200),
           ctx.json(shoppingLists)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData1
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
         )
       })
     ]
