@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react'
+import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit, faCheckSquare } from '@fortawesome/free-regular-svg-icons'
+import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import ShoppingListForm from '../shoppingListForm/shoppingListForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
@@ -30,18 +31,16 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
   }
 
   const [toggleEvent, setToggleEvent] = useState(0)
-  const [editFormVisible, setEditFormVisible] = useState(false)
-  const triggerRef = useRef(null)
-  const titleRef = useRef(null)
+  const slideTriggerRef = useRef(null)
+  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
+
+  const slideTriggerRefContains = element => slideTriggerRef.curreent && slideTriggerRef.current.contains(element)
+  const shouldToggleListItems = element => element === slideTriggerRef.current || slideTriggerRefContains(element)
 
   const toggleListItems = (e) => {
-    if (e.target === triggerRef.current || e.target === titleRef.current) {
+    if (shouldToggleListItems(e.target)) {
       setToggleEvent(Date.now)
     }
-  }
-
-  const toggleEditForm = (e) => {
-    setEditFormVisible(!editFormVisible)
   }
 
   const styleVars = {
@@ -56,16 +55,19 @@ const ShoppingList = ({ title, onSubmitEditForm, colorScheme, listItems = [] }) 
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
-        <div className={styles.trigger} ref={triggerRef} onClick={toggleListItems}>
-          <FontAwesomeIcon className={styles.fa} onClick={toggleEditForm} icon={faEdit} />
-          {editFormVisible ?
+        <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
+          <div ref={triggerRef}>
+            <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+          </div>
+          {isComponentVisible ?
             <ShoppingListForm
+              formRef={componentRef}
               className={styles.form}
               colorScheme={colorScheme}
               title={title}
               onSubmit={onSubmitEditForm}
             /> :
-            <h3 className={styles.title} ref={titleRef}>{title}</h3>}
+            <h3 className={styles.title}>{title}</h3>}
         </div>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>

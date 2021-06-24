@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons'
 import styles from './shoppingListForm.module.css'
 
-const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
+const ShoppingListForm = ({ formRef, className, colorScheme, title, onSubmit }) => {
   const getInputTextWidth = (text) => {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
@@ -38,7 +38,7 @@ const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
   })
 
   return(
-    <form className={classnames(className, styles.root)} style={colorVars} onSubmit={onSubmit}>
+    <form className={classnames(className, styles.root)} style={colorVars} ref={formRef} onSubmit={onSubmit}>
       <input
         className={styles.input}
         onClick={e => e.stopPropagation()}
@@ -57,6 +57,9 @@ const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
 }
 
 ShoppingListForm.propTypes = {
+  formRef: PropTypes.shape({
+    current: PropTypes.instanceOf(Element)
+  }),
   className: PropTypes.string.isRequired,
   colorScheme: PropTypes.shape({
     schemeColor: PropTypes.string.isRequired,
