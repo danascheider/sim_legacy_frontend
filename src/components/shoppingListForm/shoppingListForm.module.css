@@ -24,6 +24,7 @@
 .fa {
   color: var(--text-color);
   font-size: 17px;
+  margin-bottom: -2px;
 }
 
 .fa:hover {

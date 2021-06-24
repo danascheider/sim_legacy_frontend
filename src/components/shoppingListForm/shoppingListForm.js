@@ -26,8 +26,6 @@ const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
     '--icon-hover-color': schemeColorLightest
   }
 
-  // TODO: Automagically resize input based on text inside
-
   const updateInputWidth = (e) => {
     const newValue = e.currentTarget.value
     setInputValue(newValue)
@@ -53,20 +51,18 @@ const ShoppingListForm = ({ className, colorScheme, title, onSubmit }) => {
   )
 }
 
-// TODO: Remove isRequired from colourScheme values that aren't used
-
 ShoppingListForm.propTypes = {
   className: PropTypes.string.isRequired,
   colorScheme: PropTypes.shape({
     schemeColor: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string.isRequired,
     borderColor: PropTypes.string.isRequired,
     textColorPrimary: PropTypes.string.isRequired,
-    schemeColorLighter: PropTypes.string.isRequired,
-    hoverColorLighter: PropTypes.string.isRequired,
     schemeColorLightest: PropTypes.string.isRequired,
-    textColorSecondary: PropTypes.string.isRequired,
-    textColorTertiary: PropTypes.string.isRequired
+    hoverColor: PropTypes.string,
+    schemeColorLighter: PropTypes.string,
+    hoverColorLighter: PropTypes.string,
+    textColorSecondary: PropTypes.string,
+    textColorTertiary: PropTypes.string
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired
