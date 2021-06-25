@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import useColorScheme from '../../hooks/useColorScheme'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
 const ShoppingListItem = ({
   description,
   quantity,
-  notes,
-  colorScheme
+  notes
 }) => {
+  const [colorScheme] = useColorScheme()
+  const [toggleEvent, setToggleEvent] = useState(0)
+
   const {
     schemeColor,
     hoverColor,
@@ -17,9 +20,7 @@ const ShoppingListItem = ({
     bodyBackgroundColor,
     bodyTextColor
   } = colorScheme
-
-  const [toggleEvent, setToggleEvent] = useState(0)
-
+  
   const toggleDetails = () => {
     setToggleEvent(Date.now)
   }
@@ -55,14 +56,6 @@ const ShoppingListItem = ({
 }
 
 ShoppingListItem.propTypes = {
-  colorScheme: PropTypes.shape({
-    schemeColor: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string.isRequired,
-    titleTextColor: PropTypes.string.isRequired,
-    borderColor: PropTypes.string.isRequired,
-    bodyBackgroundColor: PropTypes.string.isRequired,
-    bodyTextColor: PropTypes.string.isRequired
-  }).isRequired,
   description: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
   notes: PropTypes.string
