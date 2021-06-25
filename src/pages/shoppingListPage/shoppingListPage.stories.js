@@ -4,14 +4,19 @@ import { backendBaseUri } from '../../utils/config'
 import {
   userData,
   emptyShoppingLists,
-  shoppingLists
+  shoppingLists,
+  shoppingListUpdateData1,
+  shoppingListUpdateData2
 } from './storyData'
 import ShoppingListPage from './shoppingListPage'
 export default { title: 'ShoppingListPage' }
 
-export const Default = () => <ShoppingListPage />
+// When the user has shopping lists, and the ones that
+// are allowed to be updated can be updated successfully
 
-Default.story = {
+export const HappyPath = () => <ShoppingListPage />
+
+HappyPath.story = {
   parameters: {
     msw: [
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
@@ -25,10 +30,148 @@ Default.story = {
           ctx.status(200),
           ctx.json(shoppingLists)
         )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData1
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
+        )
       })
     ]
   }
 }
+
+// When the user has shopping lists but there's an error when they try to update
+
+export const UpdateListNotFound = () => <ShoppingListPage />
+
+UpdateListNotFound.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(userData)
+        )
+      }),
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(shoppingLists)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        return res(
+          ctx.status(404),
+          ctx.json({ error: 'Shopping list id=1 not found' })
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(404),
+          ctx.json({ error: 'Shopping list id=3 not found' })
+        )
+      })
+    ]
+  }
+}
+
+// When the list can't be updated (422 from API)
+
+export const UpdateUnprocessableEntity = () => <ShoppingListPage />
+
+UpdateUnprocessableEntity.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(userData)
+        )
+      }),
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(shoppingLists)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        return res(
+          ctx.status(422),
+          ctx.json({ errors: { title: ['cannot be blank'] } })
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(422),
+          ctx.json({ errors: { title: ['is already taken'] } })
+        )
+      })
+    ]
+  }
+}
+
+// When the update fails due to an auth error
+
+export const UpdateUnauthorized = () => <ShoppingListPage />
+
+UpdateUnauthorized.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(userData)
+        )
+      }),
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(shoppingLists)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        return res(
+          ctx.status(401),
+          ctx.json({ error: 'Google OAuth token validation failed' })
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(401),
+          ctx.json({ error: 'Google OAuth token validation failed' })
+        )
+      })
+    ]
+  }
+}
+
 
 // When the user has no shopping lists
 

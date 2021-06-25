@@ -4,6 +4,7 @@ import { backendBaseUri, sessionCookieName } from '../../utils/config'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
 import DashboardLayout from '../../layouts/dashboardLayout'
+import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingList from '../../components/shoppingList/shoppingList'
 import Loading from '../../components/loading/loading'
 import styles from './shoppingListPage.module.css'
@@ -16,6 +17,8 @@ const ShoppingListPage = () => {
   const [shoppingLists, setShoppingLists] = useState(null)
   const [loadingState, setLoadingState] = useState(LOADING)
   const [apiError, setApiError] = useState(null)
+  const [flashProps, setFlashProps] = useState({})
+  const [flashVisible, setFlashVisible] = useState(false)
 
   const [cookies, , ,] = useCookies([sessionCookieName])
 
@@ -35,6 +38,7 @@ const ShoppingListPage = () => {
           return null
         }
       })
+      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
       .then(data => {
         if (!!data) {
           if (data.error) {
@@ -53,19 +57,79 @@ const ShoppingListPage = () => {
     }
   }
 
+  const updateList = (listId, e) => {
+    e.preventDefault()
+
+    const newTitle = e.nativeEvent.target.children[0].defaultValue
+
+    fetch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/${listId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${cookies[sessionCookieName]}`
+      },
+      body: JSON.stringify({
+        id: listId,
+        shopping_list: {
+          title: newTitle
+        }
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
+      if (data.error && data.error.match(/not found/i)) {
+        setFlashProps({
+          type: 'error',
+          message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
+        })
+        setFlashVisible(true)
+      } else if (data.errors && data.errors.title) {
+        setFlashProps({
+          type: 'error',
+          header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
+          message: data.errors.title.map(msg => `Title ${msg}`)
+        })
+        setFlashVisible(true)
+      } else if (data.error) {
+        // it's a 401, that's the only other error the API returns
+        setFlashProps({
+          type: 'error',
+          header: 'Error authenticating user (log back in to try again):',
+          message: data.error
+        })
+        setFlashVisible(true)
+      } else {
+        const newShoppingLists = shoppingLists.map((list, i) => { if (list.id === listId) { return data } else { return list } })
+        setShoppingLists(newShoppingLists)
+      }
+    })
+    .catch(error => console.error(error))
+  }
+
   useEffect(fetchLists, [])
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
+      {flashVisible ? 
+        <div className={styles.flash}>
+          <FlashMessage {...flashProps} />
+        </div> : null}
       {!!shoppingLists ?
-        (shoppingLists.length > 0 ? shoppingLists.map(({ title, shopping_list_items }, index) => {
+        (shoppingLists.length > 0 ? shoppingLists.map(({ id, master, title, shopping_list_items }, index) => {
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index > colorSchemes.length ? (index % colorSchemes.length) : index
           const listKey = title.toLowerCase().replace(' ', '-')
 
           return(
             <div className={styles.shoppingList} key={listKey}>
-              <ShoppingList title={title} listItems={shopping_list_items} colorScheme={colorSchemes[colorSchemesIndex]} />
+              <ShoppingList
+                canEdit={!master}
+                title={title}
+                listItems={shopping_list_items}
+                colorScheme={colorSchemes[colorSchemesIndex]}
+                onSubmitEditForm={(e) => updateList(id, e)}
+              />
             </div>
           )
         }) : <p className={styles.noLists}>You have no shopping lists.</p>) :

@@ -1,0 +1,32 @@
+.root {
+  display: inline-flex;
+}
+
+.input {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 8px 8px 6px 0;
+  background-color: var(--scheme-color);
+  color: var(--text-color);
+  border-style: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.submit {
+  background-color: var(--scheme-color);
+  border-style: none;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.fa {
+  color: var(--text-color);
+  font-size: 17px;
+  margin-bottom: -2px;
+}
+
+.fa:hover {
+  color: var(--icon-hover-color);
+}

@@ -1,10 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
+import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
+import ShoppingListForm from '../shoppingListForm/shoppingListForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
 
-const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
+const isValid = str => (
+  // The title is valid if the entire string matches the regex. It can
+  // contain alphanumeric characters, spaces, and leading or trailing
+  // whitespace (which will be stripped before it is saved in the DB).
+  // Any other characters (including non-space whitespace characters
+  // that are not leading or trailing) will cause a validation error
+  // on the backend.
+  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str
+)
+
+const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, listItems = [] }) => {
   const {
     schemeColor,
     hoverColor,
@@ -27,24 +41,56 @@ const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
   }
 
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [currentTitle, setCurrentTitle] = useState(title)
+  const slideTriggerRef = useRef(null)
+  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
-  const toggleListItems = () => {
-    setToggleEvent(Date.now)
+  const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
+  const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
+  const componentRefContains = element => componentRef.current && (componentRef.current === element || componentRef.current.contains(element))
+  const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element)) && !componentRefContains(element)
+
+  const toggleListItems = (e) => {
+    if (shouldToggleListItems(e.target)) {
+      setToggleEvent(Date.now)
+    }
   }
 
   const styleVars = {
     '--scheme-color': schemeColor,
     '--border-color': borderColor,
     '--text-color': textColorPrimary,
-    '--hover-color': hoverColor
+    '--hover-color': hoverColor,
+    '--scheme-color-lighter': schemeColorLighter,
+    '--scheme-color-lightest': schemeColorLightest
+  }
+
+  const submitAndHideForm = (e) => {
+    const newTitle = e.nativeEvent.target.children[0].defaultValue
+
+    if (!!isValid(newTitle)) setCurrentTitle(newTitle)
+
+    onSubmitEditForm(e)
+    setIsComponentVisible(false)
   }
 
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
-        <button className={styles.button} onClick={toggleListItems}>
-          <h3 className={styles.title}>{title}</h3>
-        </button>
+        <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
+          {canEdit && <div ref={triggerRef}>
+            <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+          </div>}
+          {canEdit && isComponentVisible ?
+            <ShoppingListForm
+              formRef={componentRef}
+              className={styles.form}
+              colorScheme={colorScheme}
+              title={title}
+              onSubmit={submitAndHideForm}
+            /> :
+            <h3 className={styles.title}>{currentTitle}</h3>}
+        </div>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
@@ -71,6 +117,7 @@ const ShoppingList = ({ title, colorScheme, listItems = [] }) => {
 
 ShoppingList.propTypes = {
   title: PropTypes.string.isRequired,
+  canEdit: PropTypes.bool,
   colorScheme: PropTypes.shape({
     schemeColor: PropTypes.string.isRequired,
     hoverColor: PropTypes.string.isRequired,
@@ -82,6 +129,7 @@ ShoppingList.propTypes = {
     textColorSecondary: PropTypes.string.isRequired,
     textColorTertiary: PropTypes.string.isRequired
   }).isRequired,
+  onSubmitEditForm: PropTypes.func.isRequired,
   listItems: PropTypes.arrayOf(PropTypes.shape).isRequired
 }
 

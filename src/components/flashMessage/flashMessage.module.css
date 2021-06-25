@@ -1,0 +1,41 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--body-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  text-align: center;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+
+.content {
+  margin: 0 auto; 
+}
+
+.header {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.messageList {
+  padding-left: 0;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.msg {
+  list-style-position: inside;
+}
+
+@media (min-width: 728px) {
+  .root {
+    max-width: 60%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .root {
+    max-width: 30%;
+  }
+}

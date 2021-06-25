@@ -7,11 +7,14 @@
   margin: 0 auto;
 }
 
-.root:hover, .root:hover .button {
+.root:hover,
+.root:hover .trigger,
+.root:hover .form input,
+.root:hover .form button {
   background-color: var(--hover-color);
 }
 
-.button {
+.trigger {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   font-size: 1.125rem;
   background-color: var(--scheme-color);
@@ -20,6 +23,31 @@
   border: none;
   cursor: pointer;
   border-radius: 8px;
+  display: flex;
+  text-align: left;
+}
+
+.form {
+  margin-block-start: 7px;
+  margin-block-end: 7px;
+  margin-left: 16px;
+}
+
+.title {
+  font-size: 1.25rem;
+  margin-left: 16px;
+  margin-block-start: 17px;
+  margin-block-end: 15px;
+}
+
+.fa {
+  margin: 19px 0 19px 8px;
+  font-size: 1rem;
+  display: inline-block;
+}
+
+.fa:hover {
+  color: var(--scheme-color-lightest);
 }
 
 .collapsible {
