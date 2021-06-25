@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react'
 import useComponentVisible from '../../hooks/useComponentVisible'
-import useColorScheme from '../../hooks/useColorScheme'
 import PropTypes from 'prop-types'
+import useColorScheme from '../../hooks/useColorScheme'
+import { ColorProvider } from '../../contexts/colorContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
@@ -84,13 +85,15 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] 
             <FontAwesomeIcon className={styles.fa} icon={faEdit} />
           </div>}
           {canEdit && isComponentVisible ?
-            <ShoppingListForm
-              formRef={componentRef}
-              className={styles.form}
-              colorScheme={colorScheme}
-              title={title}
-              onSubmit={submitAndHideForm}
-            /> :
+            <ColorProvider colorScheme={colorScheme}>
+              <ShoppingListForm
+                formRef={componentRef}
+                className={styles.form}
+                colorScheme={colorScheme}
+                title={title}
+                onSubmit={submitAndHideForm}
+              />
+            </ColorProvider> :
             <h3 className={styles.title}>{currentTitle}</h3>}
         </div>
       </div>
