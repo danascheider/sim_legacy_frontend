@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useCookies } from 'react-cookie'
-import { Link, Redirect } from 'react-router-dom'
+import { Link, Redirect  } from 'react-router-dom'
 import paths from '../../routing/paths'
 import { sessionCookieName, backendBaseUri } from '../../utils/config'
 import isStorybook from '../../utils/isStorybook'
@@ -9,10 +9,13 @@ import anonymousAvatar from './anonymousAvatar.jpg'
 import styles from './dashboardHeader.module.css'
 
 const DashboardHeader = () => {
-  const [dropdownVisible, setDropdownVisible] = useState(false)
   const [cookies, , removeCookie] = useCookies([sessionCookieName])
+
+  const initialRedirectPath = !cookies[sessionCookieName] ? paths.login : null
+  const [shouldRedirectTo, setShouldRedirectTo] = useState(initialRedirectPath)
+
+  const [dropdownVisible, setDropdownVisible] = useState(false)
   const [userData, setUserData] = useState(null)
-  const [shouldRedirect, setShouldRedirect] = useState(!cookies[sessionCookieName])
   const mountedRef = useRef(true)
 
   const fetchUserData = () => {
@@ -29,28 +32,30 @@ const DashboardHeader = () => {
       // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
       .then(data => {
         if (!data) {
-          setShouldRedirect(true)
+          setShouldRedirectTo(paths.login)
         } else if (data.error) {
           console.warn('Error fetching user data - logging out user: ', data.error)
           removeCookie(sessionCookieName)
-          setShouldRedirect(true)
+          setShouldRedirectTo(paths.login)
         } else {
           setUserData(data)
-          setShouldRedirect(false)
+          setShouldRedirectTo(null)
         }
       })
       .catch(() => {
         cookies[sessionCookieName] && removeCookie(sessionCookieName)
-        setShouldRedirect(true)
+        setShouldRedirectTo(paths.login)
       })
     } else {
-      setShouldRedirect(true)
+      setShouldRedirectTo(paths.login)
     }
   }
 
   const logOutUser = (e) => {
     e.preventDefault()
 
+    setDropdownVisible(false);
+    
     if (window.gapi) {
       const auth = window.gapi.auth2.getAuthInstance()
 
@@ -59,7 +64,7 @@ const DashboardHeader = () => {
           auth.disconnect()
           mountedRef.current = false
           !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
-          return <Redirect to={paths.home} />
+          setShouldRedirectTo(paths.home)
         },
         error => {
           console.log('Logout error: ', error)
@@ -67,15 +72,15 @@ const DashboardHeader = () => {
       }
     } else {
       mountedRef.current = false
-      removeCookie(sessionCookieName)
-      return <Redirect to={paths.home} />
+      !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+      setShouldRedirectTo(paths.home)
     }
   }
 
   useEffect(fetchUserData, [removeCookie])
 
-  return(!!shouldRedirect ?
-    <Redirect to={paths.login} /> :
+  return(!!shouldRedirectTo ?
+    <Redirect to={shouldRedirectTo} /> :
     <div className={styles.root}>
       <div className={styles.bar}>
         <span className={styles.headerContainer}>
