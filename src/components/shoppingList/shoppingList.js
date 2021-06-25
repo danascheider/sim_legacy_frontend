@@ -32,7 +32,7 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
 
   const [toggleEvent, setToggleEvent] = useState(0)
   const slideTriggerRef = useRef(null)
-  const { componentRef, triggerRef, isComponentVisible } = useComponentVisible()
+  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
@@ -54,6 +54,11 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
     '--scheme-color-lightest': schemeColorLightest
   }
 
+  const submitAndHideForm = (e) => {
+    onSubmitEditForm(e)
+    setIsComponentVisible(false)
+  }
+
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
@@ -67,7 +72,7 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
               className={styles.form}
               colorScheme={colorScheme}
               title={title}
-              onSubmit={onSubmitEditForm}
+              onSubmit={submitAndHideForm}
             /> :
             <h3 className={styles.title}>{title}</h3>}
         </div>
