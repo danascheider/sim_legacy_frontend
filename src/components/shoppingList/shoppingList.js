@@ -8,6 +8,16 @@ import ShoppingListForm from '../shoppingListForm/shoppingListForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
 
+const isValid = str => (
+  // The title is valid if the entire string matches the regex. It can
+  // contain alphanumeric characters, spaces, and leading or trailing
+  // whitespace (which will be stripped before it is saved in the DB).
+  // Any other characters (including non-space whitespace characters
+  // that are not leading or trailing) will cause a validation error
+  // on the backend.
+  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str
+)
+
 const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, listItems = [] }) => {
   const {
     schemeColor,
@@ -31,6 +41,7 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
   }
 
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [currentTitle, setCurrentTitle] = useState(title)
   const slideTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
@@ -55,6 +66,10 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
   }
 
   const submitAndHideForm = (e) => {
+    const newTitle = e.nativeEvent.target.children[0].defaultValue
+
+    if (!!isValid(newTitle)) setCurrentTitle(newTitle)
+
     onSubmitEditForm(e)
     setIsComponentVisible(false)
   }
@@ -74,7 +89,7 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
               title={title}
               onSubmit={submitAndHideForm}
             /> :
-            <h3 className={styles.title}>{title}</h3>}
+            <h3 className={styles.title}>{currentTitle}</h3>}
         </div>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
