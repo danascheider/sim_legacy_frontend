@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useCookies } from 'react-cookie'
-import { Link, Redirect  } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import paths from '../../routing/paths'
 import { sessionCookieName, backendBaseUri } from '../../utils/config'
 import isStorybook from '../../utils/isStorybook'
