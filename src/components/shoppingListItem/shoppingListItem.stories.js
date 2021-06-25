@@ -1,4 +1,5 @@
 import React from 'react'
+import { ColorProvider } from '../../contexts/colorContext'
 import ShoppingListItem from './shoppingListItem'
 
 const colorScheme = {
@@ -13,10 +14,12 @@ const colorScheme = {
 export default { title: 'ShoppingListItem' }
 
 export const Default = () => (
-  <ShoppingListItem
-    description='Ebony sword'
-    quantity={2}
-    notes='One to enchant with Soul Trap, one to enchant with Absorb Health'
-    colorScheme={colorScheme}
-  />
+  <ColorProvider colorScheme={colorScheme}>
+    <ShoppingListItem
+      description='Ebony sword'
+      quantity={2}
+      notes='One to enchant with Soul Trap, one to enchant with Absorb Health'
+      colorScheme={colorScheme}
+    />
+  </ColorProvider>
 )
