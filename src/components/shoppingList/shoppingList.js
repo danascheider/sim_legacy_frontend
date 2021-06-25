@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import useComponentVisible from '../../hooks/useComponentVisible'
+import useColorScheme from '../../hooks/useColorScheme'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
@@ -18,7 +19,13 @@ const isValid = str => (
   !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str
 )
 
-const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, listItems = [] }) => {
+const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] }) => {
+  const [toggleEvent, setToggleEvent] = useState(0)
+  const [currentTitle, setCurrentTitle] = useState(title)
+  const [colorScheme] = useColorScheme()
+  const slideTriggerRef = useRef(null)
+  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
+
   const {
     schemeColor,
     hoverColor,
@@ -39,11 +46,6 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
     bodyBackgroundColor: schemeColorLightest,
     bodyTextColor: textColorTertiary
   }
-
-  const [toggleEvent, setToggleEvent] = useState(0)
-  const [currentTitle, setCurrentTitle] = useState(title)
-  const slideTriggerRef = useRef(null)
-  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
@@ -118,17 +120,6 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
 ShoppingList.propTypes = {
   title: PropTypes.string.isRequired,
   canEdit: PropTypes.bool,
-  colorScheme: PropTypes.shape({
-    schemeColor: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string.isRequired,
-    borderColor: PropTypes.string.isRequired,
-    textColorPrimary: PropTypes.string.isRequired,
-    schemeColorLighter: PropTypes.string.isRequired,
-    hoverColorLighter: PropTypes.string.isRequired,
-    schemeColorLightest: PropTypes.string.isRequired,
-    textColorSecondary: PropTypes.string.isRequired,
-    textColorTertiary: PropTypes.string.isRequired
-  }).isRequired,
   onSubmitEditForm: PropTypes.func.isRequired,
   listItems: PropTypes.arrayOf(PropTypes.shape).isRequired
 }
