@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
+import useColorScheme from '../../hooks/useColorScheme'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons'
 import styles from './shoppingListForm.module.css'
 
-const ShoppingListForm = ({ formRef, className, colorScheme, title, onSubmit }) => {
+const ShoppingListForm = ({ formRef, className, title, onSubmit }) => {
   const getInputTextWidth = (text) => {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
@@ -17,6 +18,8 @@ const ShoppingListForm = ({ formRef, className, colorScheme, title, onSubmit }) 
   const [inputValue, setInputValue] = useState(title)
   const [inputWidth, setInputWidth] = useState(`${getInputTextWidth(title)}px`)
   const inputRef = useRef(null)
+
+  const [ colorScheme ] = useColorScheme()
 
   const { schemeColor, textColorPrimary, borderColor, schemeColorLightest } = colorScheme
 
@@ -61,17 +64,6 @@ ShoppingListForm.propTypes = {
     current: PropTypes.instanceOf(Element)
   }),
   className: PropTypes.string.isRequired,
-  colorScheme: PropTypes.shape({
-    schemeColor: PropTypes.string.isRequired,
-    borderColor: PropTypes.string.isRequired,
-    textColorPrimary: PropTypes.string.isRequired,
-    schemeColorLightest: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string,
-    schemeColorLighter: PropTypes.string,
-    hoverColorLighter: PropTypes.string,
-    textColorSecondary: PropTypes.string,
-    textColorTertiary: PropTypes.string
-  }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired
 }

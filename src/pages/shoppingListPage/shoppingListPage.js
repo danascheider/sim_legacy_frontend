@@ -3,6 +3,7 @@ import { useCookies } from 'react-cookie'
 import { backendBaseUri, sessionCookieName } from '../../utils/config'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
+import { ColorProvider } from '../../contexts/colorContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingList from '../../components/shoppingList/shoppingList'
@@ -122,15 +123,17 @@ const ShoppingListPage = () => {
           const listKey = title.toLowerCase().replace(' ', '-')
 
           return(
-            <div className={styles.shoppingList} key={listKey}>
-              <ShoppingList
-                canEdit={!master}
-                title={title}
-                listItems={shopping_list_items}
-                colorScheme={colorSchemes[colorSchemesIndex]}
-                onSubmitEditForm={(e) => updateList(id, e)}
-              />
-            </div>
+            <ColorProvider key={listKey} colorScheme={colorSchemes[colorSchemesIndex]}>
+              <div className={styles.shoppingList}>
+                  <ShoppingList
+                    canEdit={!master}
+                    title={title}
+                    listItems={shopping_list_items}
+                    colorScheme={colorSchemes[colorSchemesIndex]}
+                    onSubmitEditForm={(e) => updateList(id, e)}
+                  />
+              </div>
+            </ColorProvider>
           )
         }) : <p className={styles.noLists}>You have no shopping lists.</p>) :
         loadingState === LOADING ?

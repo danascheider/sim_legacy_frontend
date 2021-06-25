@@ -1,5 +1,6 @@
 import React from 'react'
 import { PINK } from '../../utils/colorSchemes'
+import { ColorProvider } from '../../contexts/colorContext'
 import ShoppingList from './shoppingList'
 
 const listItems = [
@@ -29,20 +30,24 @@ const listItems = [
 export default { title: 'ShoppingList' }
 
 export const Default = () => (
-  <ShoppingList
-    title='My List 1'
-    onSubmitEditForm={e => e.preventDefault()}
-    colorScheme={PINK}
-    listItems={listItems}
-  />
+  <ColorProvider colorScheme={PINK}>
+    <ShoppingList
+      title='My List 1'
+      onSubmitEditForm={e => e.preventDefault()}
+      colorScheme={PINK}
+      listItems={listItems}
+    />
+  </ColorProvider>
 )
 
 export const NotEditable = () => (
-  <ShoppingList
-    title='Master'
-    canEdit={false}
-    onSubmitEditForm={e => e.preventDefault()}
-    colorScheme={PINK}
-    listItems={listItems}
-  />
+  <ColorProvider colorScheme={PINK}>
+    <ShoppingList
+      title='Master'
+      canEdit={false}
+      onSubmitEditForm={e => e.preventDefault()}
+      colorScheme={PINK}
+      listItems={listItems}
+    />
+  </ColorProvider>
 )

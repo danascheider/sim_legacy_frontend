@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { ColorProvider } from '../../contexts/colorContext'
 import NavigationCard from '../navigationCard/navigationCard'
 import styles from './navigationMosaic.module.css'
 
@@ -7,11 +8,12 @@ const NavigationMosaic = ({ cardArray }) => (
   <div className={styles.root}>
     {cardArray.map(({ colorScheme, href, children, key }) => (
       <div key={key} className={styles.card}>
-        <NavigationCard 
-          colorScheme={colorScheme}
-          href={href}
-          children={children}
-        />
+        <ColorProvider colorScheme={colorScheme}>
+          <NavigationCard 
+            href={href}
+            children={children}
+          />
+        </ColorProvider>
       </div>
     ))}
   </div>

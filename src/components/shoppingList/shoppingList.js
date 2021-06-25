@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
+import useColorScheme from '../../hooks/useColorScheme'
+import { ColorProvider } from '../../contexts/colorContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
@@ -18,7 +20,13 @@ const isValid = str => (
   !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str
 )
 
-const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, listItems = [] }) => {
+const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] }) => {
+  const [toggleEvent, setToggleEvent] = useState(0)
+  const [currentTitle, setCurrentTitle] = useState(title)
+  const [colorScheme] = useColorScheme()
+  const slideTriggerRef = useRef(null)
+  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
+
   const {
     schemeColor,
     hoverColor,
@@ -39,11 +47,6 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
     bodyBackgroundColor: schemeColorLightest,
     bodyTextColor: textColorTertiary
   }
-
-  const [toggleEvent, setToggleEvent] = useState(0)
-  const [currentTitle, setCurrentTitle] = useState(title)
-  const slideTriggerRef = useRef(null)
-  const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
@@ -82,13 +85,15 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
             <FontAwesomeIcon className={styles.fa} icon={faEdit} />
           </div>}
           {canEdit && isComponentVisible ?
-            <ShoppingListForm
-              formRef={componentRef}
-              className={styles.form}
-              colorScheme={colorScheme}
-              title={title}
-              onSubmit={submitAndHideForm}
-            /> :
+            <ColorProvider colorScheme={colorScheme}>
+              <ShoppingListForm
+                formRef={componentRef}
+                className={styles.form}
+                colorScheme={colorScheme}
+                title={title}
+                onSubmit={submitAndHideForm}
+              />
+            </ColorProvider> :
             <h3 className={styles.title}>{currentTitle}</h3>}
         </div>
       </div>
@@ -118,17 +123,6 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, colorScheme, li
 ShoppingList.propTypes = {
   title: PropTypes.string.isRequired,
   canEdit: PropTypes.bool,
-  colorScheme: PropTypes.shape({
-    schemeColor: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string.isRequired,
-    borderColor: PropTypes.string.isRequired,
-    textColorPrimary: PropTypes.string.isRequired,
-    schemeColorLighter: PropTypes.string.isRequired,
-    hoverColorLighter: PropTypes.string.isRequired,
-    schemeColorLightest: PropTypes.string.isRequired,
-    textColorSecondary: PropTypes.string.isRequired,
-    textColorTertiary: PropTypes.string.isRequired
-  }).isRequired,
   onSubmitEditForm: PropTypes.func.isRequired,
   listItems: PropTypes.arrayOf(PropTypes.shape).isRequired
 }
