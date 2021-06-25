@@ -133,6 +133,46 @@ UpdateUnprocessableEntity.story = {
   }
 }
 
+// When the update fails due to an auth error
+
+export const UpdateUnauthorized = () => <ShoppingListPage />
+
+UpdateUnauthorized.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(userData)
+        )
+      }),
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(shoppingLists)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
+        return res(
+          ctx.status(401),
+          ctx.json({ error: 'Google OAuth token validation failed' })
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
+        const newTitle = req.body.shopping_list.title
+        const returnData = shoppingListUpdateData2
+        returnData['title'] = newTitle
+
+        return res(
+          ctx.status(401),
+          ctx.json({ error: 'Google OAuth token validation failed' })
+        )
+      })
+    ]
+  }
+}
+
+
 // When the user has no shopping lists
 
 export const Empty = () => <ShoppingListPage />

@@ -79,7 +79,11 @@ const ShoppingListPage = () => {
     .then(data => {
       // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
       if (data.error && data.error.match(/not found/i)) {
-        alert('Oops! There was an issue updating your shopping list. Try refreshing the page to resolve this issue.')
+        setFlashProps({
+          type: 'error',
+          message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
+        })
+        setFlashVisible(true)
       } else if (data.errors && data.errors.title) {
         setFlashProps({
           type: 'error',
@@ -87,9 +91,16 @@ const ShoppingListPage = () => {
           message: data.errors.title.map(msg => `Title ${msg}`)
         })
         setFlashVisible(true)
+      } else if (data.error) {
+        // it's a 401, that's the only other error the API returns
+        setFlashProps({
+          type: 'error',
+          header: 'Error authenticating user (log back in to try again):',
+          message: data.error
+        })
+        setFlashVisible(true)
       } else {
         const newShoppingLists = shoppingLists.map((list, i) => { if (list.id === listId) { return data } else { return list } })
-        console.log('new shopping lists: ', newShoppingLists)
         setShoppingLists(newShoppingLists)
       }
     })
