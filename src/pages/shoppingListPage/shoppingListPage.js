@@ -24,7 +24,7 @@ const ShoppingListPage = () => {
   const [flashVisible, setFlashVisible] = useState(false)
   const [shouldRedirect, setShouldRedirect] = useState(false)
 
-  const { token, removeSessionToken } = useDashboardContext()
+  const { token, removeSessionCookie } = useDashboardContext()
 
   const fetchLists = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`
@@ -38,7 +38,7 @@ const ShoppingListPage = () => {
       .then(response => {
         if (response.status === 401) {
           console.error('SIM API failed to validate Google OAuth token')
-          token && removeSessionToken()
+          token && removeSessionCookie()
           setShouldRedirect(true)
         } else if (response.status === 200) {
           return response.json()
@@ -83,7 +83,6 @@ const ShoppingListPage = () => {
         case 200:
         case 422:
           return response.json()
-          break;
         case 404:
           setFlashProps({
             type: 'error',
@@ -93,10 +92,8 @@ const ShoppingListPage = () => {
           setFlashVisible(true)
 
           return null
-          
-          break;
         case 401:
-          removeSessionToken()
+          token && removeSessionCookie()
           setShouldRedirect(true)
           break;
         default:
@@ -113,16 +110,14 @@ const ShoppingListPage = () => {
           header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
           message: data.errors.title.map(msg => `Title ${msg}`)
         })
+        setFlashVisible(true)
       } else {
         setFlashProps({
           type: 'error',
           message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
         })
+        setFlashVisible(true)
       }
-
-      setFlashVisible(true)
-
-      return null
     })
     .catch(error => {
       console.error(error.message)

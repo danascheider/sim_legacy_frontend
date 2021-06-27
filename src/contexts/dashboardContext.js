@@ -5,7 +5,12 @@ import { sessionCookieName } from '../utils/config'
 
 const DashboardContext = createContext()
 
-const DashboardProvider = ({ children }) => {
+// overrideValue allows us to set the context value in Storybook.
+// I hate having the testing apparatus baked into the app code but
+// none of the solutions I found worked and I don't understand
+// Storybook decorators and whatnot enough to figure out how to
+// set the value for the context in the story,
+const DashboardProvider = ({ children, overrideValue = {} }) => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
   const [profileData, setProfileData] = useState(null)
 
@@ -17,7 +22,8 @@ const DashboardProvider = ({ children }) => {
     profileData,
     setSessionCookie,
     removeSessionCookie,
-    setProfileData
+    setProfileData,
+    ...overrideValue // enables you to only change certain values
   }
 
   return(
@@ -28,7 +34,20 @@ const DashboardProvider = ({ children }) => {
 }
 
 DashboardProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  overrideValue: PropTypes.shape({
+    token: PropTypes.string,
+    profileData: PropTypes.shape({
+      id: PropTypes.number,
+      uid: PropTypes.string,
+      email: PropTypes.string,
+      name: PropTypes.string,
+      image_url: PropTypes.string
+    }),
+    setSessionCookie: PropTypes.func,
+    removeSessionCookie: PropTypes.func,
+    setProfileData: PropTypes.func
+  })
 }
 
 export { DashboardContext, DashboardProvider }

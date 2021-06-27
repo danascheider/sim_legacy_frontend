@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { Link, Redirect } from 'react-router-dom'
-import { backendBaseUri } from '../../utils/config'
-import isStorybook from '../../utils/isStorybook'
 import paths from '../../routing/paths'
 import { useDashboardContext } from '../../hooks/contexts'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
@@ -12,48 +10,12 @@ const DashboardHeader = () => {
   const {
     token,
     profileData,
-    removeSessionCookie,
-    setProfileData
+    removeSessionCookie
   } = useDashboardContext()
 
-  const initialRedirectPath = !token ? paths.login : null
-  const [shouldRedirectTo, setShouldRedirectTo] = useState(initialRedirectPath)
-
+  const [shouldRedirect, setShouldRedirect] = useState(false)
   const [dropdownVisible, setDropdownVisible] = useState(false)
   const mountedRef = useRef(true)
-
-  const fetchprofileData = () => {
-    const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
-
-    if (mountedRef.current === true && (isStorybook() || !!token)) {
-      fetch(dataUri, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      .then(response => (response.json()))
-      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
-      .then(data => {
-        if (!data) {
-          setShouldRedirectTo(paths.login)
-        } else if (data.error) {
-          console.warn('Error fetching user data - logging out user: ', data.error)
-          removeSessionCookie()
-          setShouldRedirectTo(paths.login)
-        } else {
-          setProfileData(data)
-          setShouldRedirectTo(null)
-        }
-      })
-      .catch(() => {
-        token && removeSessionCookie()
-        setShouldRedirectTo(paths.login)
-      })
-    } else {
-      setShouldRedirectTo(paths.login)
-    }
-  }
 
   const logOutUser = (e) => {
     e.preventDefault()
@@ -66,8 +28,8 @@ const DashboardHeader = () => {
       if (auth != null) {
         auth.then(() => {
           auth.disconnect()
-          !!token && removeSessionCookie()
-          setShouldRedirectTo(paths.home)
+          token && removeSessionCookie()
+          setShouldRedirect(true)
           mountedRef.current = false
         },
         error => {
@@ -75,16 +37,14 @@ const DashboardHeader = () => {
         })
       }
     } else {
-      !!token && removeSessionCookie()
-      setShouldRedirectTo(paths.home)
+      token && removeSessionCookie()
+      setShouldRedirect(true)
       mountedRef.current = false
     }
   }
 
-  useEffect(fetchprofileData, [])
-
-  return(!!shouldRedirectTo ?
-    <Redirect to={shouldRedirectTo} /> :
+  return(!!shouldRedirect ?
+    <Redirect to={paths.home} /> :
     <div className={styles.root}>
       <div className={styles.bar}>
         <span className={styles.headerContainer}>
