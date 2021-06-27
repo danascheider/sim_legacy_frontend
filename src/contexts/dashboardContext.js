@@ -6,6 +6,9 @@ import { backendBaseUri, sessionCookieName } from '../utils/config'
 import isStorybook from '../utils/isStorybook'
 import paths from '../routing/paths'
 
+const LOADING = 'loading'
+const DONE = 'done'
+
 const DashboardContext = createContext()
 
 // overrideValue allows us to set the context value in Storybook.
@@ -17,6 +20,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
   const [profileData, setProfileData] = useState(null)
   const [shouldRedirect, setShouldRedirect] = useState(false)
+  const [profileLoadState, setProfileLoadState] = useState(LOADING)
 
   const setSessionCookie = val => setCookie(sessionCookieName, val)
   const removeSessionCookie = () => removeCookie(sessionCookieName)
@@ -27,6 +31,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
     setSessionCookie,
     removeSessionCookie,
     setProfileData,
+    profileLoadState,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -53,6 +58,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
           setShouldRedirect(true)
         } else {
           setProfileData(data)
+          if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
         }
       })
       .catch(error => {
@@ -62,7 +68,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
       })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
       setShouldRedirect(true)
-    }
+    } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
   }
 
   useEffect(fetchProfileData, [])

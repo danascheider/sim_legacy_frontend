@@ -10,6 +10,7 @@ import {
 import paths from '../../routing/paths'
 import { useDashboardContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
+import Loading from '../../components/loading/loading'
 import NavigationMosaic from '../../components/navigationMosaic/navigationMosaic'
 import styles from './dashboardPage.module.css'
 
@@ -47,13 +48,14 @@ const cards = [
 ]
 
 const DashboardPage = () => {
-  const { token } = useDashboardContext()
+  const { token, profileLoadState } = useDashboardContext()
   
   return(token ?
     <DashboardLayout>
-      <div className={styles.root}>
+      {profileLoadState === 'done' ? <div className={styles.root}>
         <NavigationMosaic cardArray={cards} />
-      </div>
+      </div> :
+      <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' />}
     </DashboardLayout> :
     <Redirect to={paths.login} />
   )

@@ -17,3 +17,9 @@ export const Default = () => (
     <DashboardPage />
   </DashboardProvider>
 )
+
+export const Loading = () => (
+  <DashboardProvider overrideValue={{ token: 'xxxxxx', profileLoadState: 'loading' }}>
+    <DashboardPage />
+  </DashboardProvider>
+)
