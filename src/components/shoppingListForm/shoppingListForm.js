@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import useColorScheme from '../../hooks/useColorScheme'
+import { useColorScheme } from '../../hooks/contexts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons'
 import styles from './shoppingListForm.module.css'
