@@ -1,49 +1,19 @@
 import React, { useState, useEffect }from 'react'
 import { fetchShoppingLists, updateShoppingList } from '../../utils/simApi'
-import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
+import { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
 import logOutWithGoogle from '../../utils/logOutWithGoogle'
 import paths from '../../routing/paths'
 import { useDashboardContext } from '../../hooks/contexts'
-import { ColorProvider } from '../../contexts/colorContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
-import ShoppingList from '../../components/shoppingList/shoppingList'
+import ShoppingListPageContent from '../../components/shoppingListPageContent/shoppingListPageContent'
 import Loading from '../../components/loading/loading'
 import styles from './shoppingListPage.module.css'
 
 const LOADING = 'loading'
 const DONE = 'done'
 const ERROR = 'error'
-
-const ShoppingListsEl = ({ lists, onSubmitEditForm }) => {
-  if (lists.length === 0) {
-    return <p className={styles.noLists}>You have no shopping lists.</p>
-  } else {
-    return(
-      <>
-        {lists.map(({ id, title, master, shopping_list_items }, index) => {
-          // If there are more lists than colour schemes, cycle through the colour schemes
-          const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
-          const listKey = title.toLowerCase().replace(' ', '-')
-
-          return(
-            <ColorProvider key={listKey} colorScheme={colorSchemes[colorSchemesIndex]}>
-              <div className={styles.shoppingList}>
-                <ShoppingList
-                  canEdit={!master}
-                  title={title}
-                  listItems={shopping_list_items}
-                  onSubmitEditForm={e => onSubmitEditForm(id, e)}
-                />
-              </div>
-            </ColorProvider>
-          )
-        })}
-      </>
-    )
-  }
-}
 
 const ShoppingListPage = () => {
   const [shoppingLists, setShoppingLists] = useState(null)
@@ -147,7 +117,7 @@ const ShoppingListPage = () => {
   return(
     <DashboardLayout title='Your Shopping Lists'>
       {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
-      {shoppingLists && loadingState === DONE && <ShoppingListsEl lists={shoppingLists} onSubmitEditForm={updateList} />}
+      {shoppingLists && loadingState === DONE && <ShoppingListPageContent lists={shoppingLists} onSubmitEditForm={updateList} />}
       {loadingState === LOADING && <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' />}
       {loadingState === ERROR && <p className={styles.error}>There was an error loading your lists.</p>}
     </DashboardLayout>
