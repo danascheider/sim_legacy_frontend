@@ -17,7 +17,7 @@ const pages = [
     description: 'Manage your inventory across multiple properties in Skyrim',
     Component: HomePage,
     path: paths.home,
-    isDashboard: false
+    useDashboardContext: false
   },
   {
     pageId: 'login',
@@ -25,7 +25,7 @@ const pages = [
     description: 'Log into Skyrim Inventory Management using your Google account',
     Component: LoginPage,
     path: paths.login,
-    isDashboard: false
+    useDashboardContext: true
   },
   {
     pageId: 'dashboard',
@@ -33,7 +33,7 @@ const pages = [
     description: 'Skyrim Inventory Management User Dashboard',
     Component: DashboardPage,
     path: paths.dashboard.main,
-    isDashboard: true
+    useDashboardContext: true
   },
   {
     pageId: 'shoppingLists',
@@ -41,17 +41,14 @@ const pages = [
     description: 'Manage Skyrim Shopping Lists',
     Component: ShoppingListPage,
     path: paths.dashboard.shoppingLists,
-    isDashboard: true
+    useDashboardContext: true
   }
 ]
 
-const pagesWithoutDashboardContext = pages.filter(page => !page.isDashboard && page.path !== paths.login)
-const pagesWithDashboardContext = pages.filter(page => page.isDashboard || page.path === paths.login)
-
 const PageRoutes = () => (
   <Switch>
-    {pagesWithoutDashboardContext.map(
-      ({ pageId, title, description, Component, path }) => {
+    {pages.map(
+      ({ pageId, title, description, Component, path, useDashboardContext }) => {
         return(
           <Route exact path={path} key={pageId}>
             <Helmet>
@@ -60,28 +57,11 @@ const PageRoutes = () => (
               <title>{title}</title>
               <meta name='description' content={description} />
             </Helmet>
-            <Component />
+            {useDashboardContext ? <DashboardProvider><Component /></DashboardProvider> : <Component />}
           </Route>
         )
       }
     )}
-    <DashboardProvider>
-      {pagesWithDashboardContext.map(
-        ({ pageId, title, description, Component, path }) => {
-          return(
-            <Route exact path={path} key={pageId}>
-              <Helmet>
-                <html lang='en' />
-
-                <title>{title}</title>
-                <meta name='description' content={description} />
-              </Helmet>
-              <Component />
-            </Route>
-          )
-        }
-      )}
-    </DashboardProvider>
   </Switch>
 )
 
