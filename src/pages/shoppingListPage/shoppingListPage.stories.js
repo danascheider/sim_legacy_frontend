@@ -15,17 +15,11 @@ export default { title: 'ShoppingListPage' }
 // When the user has shopping lists, and the ones that
 // are allowed to be updated can be updated successfully
 
-export const HappyPath = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
+export const HappyPath = () => <DashboardProvider overrideValue={{ profileData: userData }}><ShoppingListPage /></DashboardProvider>
 
 HappyPath.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
