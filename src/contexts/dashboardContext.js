@@ -1,8 +1,10 @@
-import { createContext, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { sessionCookieName } from '../utils/config'
+import { backendBaseUri, sessionCookieName } from '../utils/config'
+import isStorybook from '../utils/isStorybook'
+import paths from '../routing/paths'
 
 const DashboardContext = createContext()
 
@@ -14,6 +16,7 @@ const DashboardContext = createContext()
 const DashboardProvider = ({ children, overrideValue = {} }) => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
   const [profileData, setProfileData] = useState(null)
+  const [shouldRedirect, setShouldRedirect] = useState(false)
 
   const setSessionCookie = val => setCookie(sessionCookieName, val)
   const removeSessionCookie = () => removeCookie(sessionCookieName)
@@ -27,9 +30,44 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue // enables you to only change certain values
   }
 
+  const shouldFetchProfileData = !overrideValue.profileData && (cookies[sessionCookieName] || isStorybook())
+
+  const fetchProfileData = () => {
+    if (shouldFetchProfileData) {
+      const uri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
+
+      fetch(uri, {
+        headers: {
+          'Authorization': `Bearer ${cookies[sessionCookieName]}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data) {
+          console.warn('No data reeceived from server - logging out user in case of an auth issue')
+          cookies[sessionCookieName] && removeCookie(sessionCookieName)
+          setShouldRedirect(true)
+        } else if (data.error) {
+          console.warn('Error fetching user data - logging out user: ', data.error)
+          cookies[sessionCookieName] && removeCookie(sessionCookieName)
+          setShouldRedirect(true)
+        } else {
+          setProfileData(data)
+        }
+      })
+      .catch(error => {
+        console.error('Error returned while fetching profile data: ', error.message)
+        cookies[sessionCookieName] && removeCookie(sessionCookieName)
+        setShouldRedirect(true)
+      })
+    }
+  }
+
+  useEffect(fetchProfileData, [])
+
   return(
     <DashboardContext.Provider value={value}>
-      {children}
+      {shouldRedirect ? <Redirect to={paths.login} /> : children}
     </DashboardContext.Provider>
   )
 }
