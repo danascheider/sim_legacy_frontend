@@ -1,22 +1,19 @@
 import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 import GoogleLogin from 'react-google-login'
+import { useCookies } from 'react-cookie'
 import {
   googleClientId,
   frontendBaseUri,
   backendBaseUri,
+  sessionCookieName
 } from '../../utils/config'
 import isStorybook from '../../utils/isStorybook'
 import paths from '../../routing/paths'
-import { useDashboardContext } from '../../hooks/contexts'
 import styles from './loginPage.module.css'
 
 const LoginPage = () => {
-  const {
-    token,
-    setSessionCookie,
-    removeSessionCookie,
-  } = useDashboardContext()
+  const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
 
   const [loginErrorMessage, setLoginErrorMessage] = useState(null)
 
@@ -25,7 +22,7 @@ const LoginPage = () => {
 
     const backendUri = `${backendBaseUri[process.env.NODE_ENV]}/auth/verify_token`
 
-    if (token !== tokenId) {
+    if (cookies[sessionCookieName] !== tokenId) {
       fetch(backendUri, {
         headers: {
           'Authorization': `Bearer ${tokenId}`
@@ -33,14 +30,14 @@ const LoginPage = () => {
       })
       .then(response => {
         if (response.status === 204) {
-          setSessionCookie(tokenId)
+          setCookie(sessionCookieName, tokenId)
         } else { // the status is 401
-          !!token && removeSessionCookie()
+          cookies[sessionCookieName] && removeCookie(sessionCookieName)
           throw new Error('SIM API failed to validate Google OAuth token')
         }
       })
       .catch(error => {
-        !!token && removeSessionCookie()
+        cookies[sessionCookieName] && removeCookie(sessionCookieName)
         console.error('Error from /auth/verify_token: ', error)
         return <Redirect to={paths.home} />
       })
@@ -49,11 +46,11 @@ const LoginPage = () => {
 
   const failureCallback = (resp) => {
     console.log('Login failure: ', resp)
-    !!token && removeSessionCookie()
+    cookies[sessionCookieName] && removeCookie(sessionCookieName)
     setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }
 
-  return(!!token && !isStorybook() ?
+  return(cookies[sessionCookieName] && !isStorybook() ?
     <Redirect to={paths.dashboard.main} /> :
     <div className={styles.root}>
       {loginErrorMessage ?

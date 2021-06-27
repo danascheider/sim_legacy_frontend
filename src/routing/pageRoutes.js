@@ -25,7 +25,7 @@ const pages = [
     description: 'Log into Skyrim Inventory Management using your Google account',
     Component: LoginPage,
     path: paths.login,
-    useDashboardContext: true
+    useDashboardContext: false
   },
   {
     pageId: 'dashboard',
