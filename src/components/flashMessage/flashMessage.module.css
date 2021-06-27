@@ -1,5 +1,6 @@
 .root {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
   background-color: var(--body-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);

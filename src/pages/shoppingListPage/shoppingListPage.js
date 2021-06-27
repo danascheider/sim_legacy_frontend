@@ -1,8 +1,9 @@
 import React, { useState, useEffect }from 'react'
-import { Redirect } from 'react-router-dom'
 import { fetchShoppingLists, updateShoppingList } from '../../utils/simApi'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
+import logOutWithGoogle from '../../utils/logOutWithGoogle'
+import paths from '../../routing/paths'
 import { useDashboardContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
@@ -10,45 +11,68 @@ import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingList from '../../components/shoppingList/shoppingList'
 import Loading from '../../components/loading/loading'
 import styles from './shoppingListPage.module.css'
-import paths from '../../routing/paths'
 
 const LOADING = 'loading'
-const LOADED = 'loaded'
+const DONE = 'done'
 const ERROR = 'error'
+
+const ShoppingListsEl = ({ lists, onSubmitEditForm }) => {
+  if (lists.length === 0) {
+    return <p className={styles.noLists}>You have no shopping lists.</p>
+  } else {
+    return(
+      <>
+        {lists.map(({ id, title, master, shopping_list_items }, index) => {
+          // If there are more lists than colour schemes, cycle through the colour schemes
+          const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
+          const listKey = title.toLowerCase().replace(' ', '-')
+
+          return(
+            <ColorProvider key={listKey} colorScheme={colorSchemes[colorSchemesIndex]}>
+              <div className={styles.shoppingList}>
+                <ShoppingList
+                  canEdit={!master}
+                  title={title}
+                  listItems={shopping_list_items}
+                  onSubmitEditForm={e => onSubmitEditForm(id, e)}
+                />
+              </div>
+            </ColorProvider>
+          )
+        })}
+      </>
+    )
+  }
+}
 
 const ShoppingListPage = () => {
   const [shoppingLists, setShoppingLists] = useState(null)
   const [loadingState, setLoadingState] = useState(LOADING)
-  const [apiError, setApiError] = useState(null)
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
-  const [shouldRedirect, setShouldRedirect] = useState(false)
 
-  const { token, removeSessionCookie } = useDashboardContext()
+  const { token, removeSessionCookie, setShouldRedirectTo } = useDashboardContext()
 
   const fetchLists = () => {
     if (!!token || isStorybook()) {
       fetchShoppingLists(token)
-        .then(response => {
-          if (response.status === 401) {
-            console.error('SIM API failed to validate Google OAuth token')
-            token && removeSessionCookie()
-            setShouldRedirect(true)
-          } else if (response.status === 200) {
-            return response.json()
-          } else {
-            return null
-          }
-        })
-        // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
+        .then(resp => resp.json())
         .then(data => {
           if (data) {
-            setLoadingState(LOADED)
             setShoppingLists(data)
+            setLoadingState(DONE)
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching shopping lists: ', err.message)
+
+          if (err.name === 'AuthorizationError') {
+            logOutWithGoogle(() => {
+              token && removeSessionCookie()
+              setShouldRedirectTo(paths.home)
+            })
           } else {
             setLoadingState(ERROR)
-            setApiError('Something went wrong when retrieving your shopping list data. This is probably a problem on our end - we\'re sorry!')
-            console.error('Something went wrong while retrieving shopping list data.')
           }
         })
     }
@@ -74,12 +98,8 @@ const ShoppingListPage = () => {
             setFlashVisible(true)
 
             return null
-          case 401:
-            token && removeSessionCookie()
-            setShouldRedirect(true)
-            break;
           default:
-            throw Error(`Something went wrong while updating list ${listId}`)
+            throw Error(`Something unexpected went wrong while updating list ${listId}`)
         }
       })
       .then(data => {
@@ -102,16 +122,23 @@ const ShoppingListPage = () => {
         }
       })
       .catch(error => {
-        console.error(error.message)
+        console.error(`Error updating shopping list ${listId}: `, error.message)
 
-        if (!flashVisible) {
+        // The simApi module functions all throw a custom error class
+        // called AuthorizationError (defined in /src/utils/customErrors.js)
+        // in the event the API response status is 401
+        if (error.name === 'AuthorizationError') {
+          return logOutWithGoogle(() => {
+            token && removeSessionCookie()
+            setShouldRedirectTo(paths.login)
+          })
+        } else
           setFlashProps({
             type: 'error',
             message: 'An unknown error prevented your changes from being saved. Please refresh the page and try again.'
           })
 
-          setFlashVisible(true)
-        }
+          if (!flashVisible) setFlashVisible(true)
       })
   }
 
@@ -119,36 +146,10 @@ const ShoppingListPage = () => {
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
-      {shouldRedirect && <Redirect to={paths.login} />}
-      {flashVisible ? 
-        <div className={styles.flash}>
-          <FlashMessage {...flashProps} />
-        </div> : null}
-      {!!shoppingLists ?
-        (shoppingLists.length > 0 ? shoppingLists.map(({ id, master, title, shopping_list_items }, index) => {
-          // If there are more lists than colour schemes, cycle through the colour schemes
-          const colorSchemesIndex = index > colorSchemes.length ? (index % colorSchemes.length) : index
-          const listKey = title.toLowerCase().replace(' ', '-')
-
-          return(
-            <ColorProvider key={listKey} colorScheme={colorSchemes[colorSchemesIndex]}>
-              <div className={styles.shoppingList}>
-                  <ShoppingList
-                    canEdit={!master}
-                    title={title}
-                    listItems={shopping_list_items}
-                    colorScheme={colorSchemes[colorSchemesIndex]}
-                    onSubmitEditForm={(e) => updateList(id, e)}
-                  />
-              </div>
-            </ColorProvider>
-          )
-        }) : <p className={styles.noLists}>You have no shopping lists.</p>) :
-        loadingState === LOADING ?
-          <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' /> :
-          loadingState === ERROR ?
-            <div className={styles.error}>{apiError}</div> :
-            <></>}
+      {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
+      {shoppingLists && loadingState === DONE && <ShoppingListsEl lists={shoppingLists} onSubmitEditForm={updateList} />}
+      {loadingState === LOADING && <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' />}
+      {loadingState === ERROR && <p className={styles.error}>There was an error loading your lists.</p>}
     </DashboardLayout>
   )
 }
