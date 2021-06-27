@@ -27,4 +27,8 @@ const DashboardProvider = ({ children }) => {
   )
 }
 
+DashboardProvider.propTypes = {
+  children: PropTypes.node.isRequired
+}
+
 export { DashboardContext, DashboardProvider }
