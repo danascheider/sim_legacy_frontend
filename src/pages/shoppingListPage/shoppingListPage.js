@@ -1,4 +1,4 @@
-import React, { useState, useEffect }from 'react'
+import React, { useState, useEffect, useRef }from 'react'
 import { fetchShoppingLists, updateShoppingList } from '../../utils/simApi'
 import { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
@@ -21,6 +21,8 @@ const ShoppingListPage = () => {
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
 
+  const mountedRef = useRef(true)
+
   const { token, removeSessionCookie, setShouldRedirectTo } = useDashboardContext()
 
   const fetchLists = () => {
@@ -31,6 +33,8 @@ const ShoppingListPage = () => {
           if (data) {
             setShoppingLists(data)
             setLoadingState(DONE)
+          } else {
+            throw new Error('No shopping list data returned from the SIM API')
           }
         })
         .catch(err => {
@@ -40,8 +44,10 @@ const ShoppingListPage = () => {
             logOutWithGoogle(() => {
               token && removeSessionCookie()
               setShouldRedirectTo(paths.home)
+              mountedRef.current = false
             })
           } else {
+            if (flashVisible) setFlashVisible(false)
             setLoadingState(ERROR)
           }
         })
@@ -101,6 +107,7 @@ const ShoppingListPage = () => {
           return logOutWithGoogle(() => {
             token && removeSessionCookie()
             setShouldRedirectTo(paths.login)
+            mountedRef.current = false
           })
         } else
           setFlashProps({
@@ -114,12 +121,16 @@ const ShoppingListPage = () => {
 
   useEffect(fetchLists, [])
 
+  useEffect(() => {
+    return () => (mountedRef.current = false)
+  }, [])
+
   return(
     <DashboardLayout title='Your Shopping Lists'>
       {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
       {shoppingLists && loadingState === DONE && <ShoppingListPageContent lists={shoppingLists} onSubmitEditForm={updateList} />}
       {loadingState === LOADING && <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' />}
-      {loadingState === ERROR && <p className={styles.error}>There was an error loading your lists.</p>}
+      {loadingState === ERROR || (!shoppingLists && loadingState === DONE) && <p className={styles.error}>There was an error loading your lists. It may have been on our end. We're sorry!</p>}
     </DashboardLayout>
   )
 }
