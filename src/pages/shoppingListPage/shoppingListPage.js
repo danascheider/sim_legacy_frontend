@@ -130,7 +130,7 @@ const ShoppingListPage = () => {
       {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
       {shoppingLists && loadingState === DONE && <ShoppingListPageContent lists={shoppingLists} onSubmitEditForm={updateList} />}
       {loadingState === LOADING && <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' />}
-      {loadingState === ERROR || (!shoppingLists && loadingState === DONE) && <p className={styles.error}>There was an error loading your lists. It may have been on our end. We're sorry!</p>}
+      {(loadingState === ERROR || (loadingState === DONE && !shoppingLists)) && <p className={styles.error}>There was an error loading your lists. It may have been on our end. We're sorry!</p>}
     </DashboardLayout>
   )
 }
