@@ -58,13 +58,16 @@ Storybook generally handles hot reloads easily. However, there are a few cases w
 
 There are a few considerations when writing stories for components that make API calls (and the components themselves). The first is mock data. For mocking, we use the [mock service worker Storybook addon](https://storybook.js.org/addons/msw-storybook-addon/). For an example of how the MSW addon is used, look at the story for the [dashboard header](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/components/dashboardHeader/dashboardHeader.stories.js), which makes a call to `/users/current` to get the user's profile information from the backend.
 
-SIM components that make API calls typically first check for the presence of the `_sim_google_session` cookie beforee doing so. This is an issue in Storybook because Storybook doesn't set cookies and there doesn't seem to be a great solution out there for mocking them with decorators or addons. For this reason, I have configured the `yarn storybook` script to set an environment variable, `STORYBOOK`, to `true`. There is a utility function, [`isStorybook`](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/utils/isStorybook.js), that checks whether this variable is set to a truthy value and returns `true` if so and `false` otherwise. Components that check for the presence of cookies can also check if the environment is Storybook:
+SIM components that make API calls typically first check for the presence of the `_sim_google_session` cookie beforee doing so. This is an issue in Storybook because Storybook doesn't set cookies and there doesn't seem to be a great solution out there for mocking them with decorators or addons. For this reason, I have configured the `yarn storybook` script to set an environment variable, `STORYBOOK`, to `true`. There is a utility function, [`isStorybook`](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/utils/isStorybook.js), that checks whether this variable is set to a truthy value and returns `true` if so and `false` otherwise. Components that check for the presence of an auth token can set this using the `DashboardContext` and the `overrideValue` for the `DashboardProvider` for components that use it:
+
 ```js
-if (!!cookies[sessionCookieName] || isStorybook()) {
-  // make API call
-}
+const overrideValue = { token: 'xxxxxx', profileData: data }
+
+export default { title: 'DashboardHeader' }
+
+export const Default = () => <DashboardProvider overrideValue={overrideValue}><DashboardHeader /></DashboardProvider>
 ```
-There is a card for fixing how we handle auth within components so this behaviour will likely change in the future.
+For other cases where you absolutely must change app behaviour for Storybook, you can use the [`isStorybook`](/src/utils/isStorybook.js) function. Use of this function should be considered a code smell and avoided when possible.
 
 ### Deployment
 
@@ -102,6 +105,21 @@ On successful authorisation, the Google response returns a [JWT bearer token](ht
 Any time you fetch data from the API, you need to authenticate the API call using the JWT bearer token stored in the `_sim_google_session` cookie. This is done by including an authorisation header (where `xxxxxxxxxx` is the value of the cookie):
 ```
 Authorization: Bearer xxxxxxxxxx
+```
+If you are developing components that use the `DashboardContext`, it should be used to get token values:
+```js
+import { useDashboardContext } from '../../hooks/contexts'
+
+const MyComponent = () => {
+  const { token } = useDashboardContext()
+
+  const fetchFromApi = () => {
+    const headers = { 'Authorization': `Bearer ${token}` }
+
+    fetch(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, { headers: headers })
+      .then(() => { /* do something */ })
+  }
+}
 ```
 
 #### Logging Out
