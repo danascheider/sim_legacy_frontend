@@ -7,8 +7,7 @@ import {
   emptyShoppingLists,
   shoppingLists,
   shoppingListUpdateData1,
-  shoppingListUpdateData2,
-  shoppingListUpdateData3
+  shoppingListUpdateData2
 } from './storyData'
 import ShoppingListPage from './shoppingListPage'
 export default { title: 'ShoppingListPage' }
@@ -78,9 +77,8 @@ UpdateDefaultTitle.story = {
         )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
-        const newTitle = 'My List 1'
         const returnData = shoppingListUpdateData1
-        returnData.title = newTitle
+        returnData.title = 'My List 1'
 
         return res(
           ctx.status(200),
@@ -88,7 +86,7 @@ UpdateDefaultTitle.story = {
         )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
-        const returnData = shoppingListUpdateData3
+        const returnData = shoppingListUpdateData1
         returnData.title = 'My List 2'
 
         return res(
