@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { ColorContext } from '../contexts/colorContext'
-import { DashboardContext } from '../contexts/DashboardContext'
+import { DashboardContext } from '../contexts/dashboardContext'
 
 const useCustomContext = (cxt, msg) => {
   const context = useContext(cxt)
