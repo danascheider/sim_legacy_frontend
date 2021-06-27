@@ -78,36 +78,64 @@ const ShoppingListPage = () => {
         }
       })
     })
-    .then(response => response.json())
+    .then(response => {
+      switch(response.status) {
+        case 200:
+        case 422:
+          return response.json()
+          break;
+        case 404:
+          setFlashProps({
+            type: 'error',
+            message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
+          })
+
+          setFlashVisible(true)
+
+          return null
+          
+          break;
+        case 401:
+          removeSessionToken()
+          setShouldRedirect(true)
+          break;
+        default:
+          throw Error(`Something went wrong while updating list ${listId}`)
+      }
+    })
     .then(data => {
-      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
-      if (data.error && data.error.match(/not found/i)) {
-        setFlashProps({
-          type: 'error',
-          message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
-        })
-        setFlashVisible(true)
-      } else if (data.errors && data.errors.title) {
+      if (data && !data.errors) {
+        const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
+        setShoppingLists(newShoppingLists)
+      } else if (data && data.errors && data.errors.title) {
         setFlashProps({
           type: 'error',
           header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
           message: data.errors.title.map(msg => `Title ${msg}`)
         })
-        setFlashVisible(true)
-      } else if (data.error) {
-        // it's a 401, that's the only other error the API returns
+      } else {
         setFlashProps({
           type: 'error',
-          header: 'Error authenticating user (log back in to try again):',
-          message: data.error
+          message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
         })
+      }
+
+      setFlashVisible(true)
+
+      return null
+    })
+    .catch(error => {
+      console.error(error.message)
+
+      if (!flashVisible) {
+        setFlashProps({
+          type: 'error',
+          message: 'An unknown error prevented your changes from being saved. Please refresh the page and try again.'
+        })
+
         setFlashVisible(true)
-      } else {
-        const newShoppingLists = shoppingLists.map((list, i) => { if (list.id === listId) { return data } else { return list } })
-        setShoppingLists(newShoppingLists)
       }
     })
-    .catch(error => console.error(error))
   }
 
   useEffect(fetchLists, [])

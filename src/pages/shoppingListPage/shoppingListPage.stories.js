@@ -126,10 +126,6 @@ UpdateListNotFound.story = {
         )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
-        const newTitle = req.body.shopping_list.title
-        const returnData = shoppingListUpdateData2
-        returnData.title = newTitle
-
         return res(
           ctx.status(404),
           ctx.json({ error: 'Shopping list id=3 not found' })
@@ -161,14 +157,10 @@ UpdateUnprocessableEntity.story = {
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
         return res(
           ctx.status(422),
-          ctx.json({ errors: { title: ['cannot be blank'] } })
+          ctx.json({ errors: { title: ['is already taken'] } })
         )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
-        const newTitle = req.body.shopping_list.title
-        const returnData = shoppingListUpdateData2
-        returnData.title = newTitle
-
         return res(
           ctx.status(422),
           ctx.json({ errors: { title: ['is already taken'] } })
@@ -177,46 +169,6 @@ UpdateUnprocessableEntity.story = {
     ]
   }
 }
-
-// When the update fails due to an auth error
-
-export const UpdateUnauthorized = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
-
-UpdateUnauthorized.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(shoppingLists)
-        )
-      }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
-        return res(
-          ctx.status(401),
-          ctx.json({ error: 'Google OAuth token validation failed' })
-        )
-      }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
-        const newTitle = req.body.shopping_list.title
-        const returnData = shoppingListUpdateData2
-        returnData.title = newTitle
-
-        return res(
-          ctx.status(401),
-          ctx.json({ error: 'Google OAuth token validation failed' })
-        )
-      })
-    ]
-  }
-}
-
 
 // When the user has no shopping lists
 
