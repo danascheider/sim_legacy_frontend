@@ -13,12 +13,12 @@ const ShoppingListItem = ({
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const {
-    schemeColor,
-    hoverColor,
-    titleTextColor,
+    schemeColorLighter,
+    hoverColorLighter,
+    textColorSecondary,
     borderColor,
-    bodyBackgroundColor,
-    bodyTextColor
+    schemeColorLightest,
+    textColorTertiary
   } = colorScheme
   
   const toggleDetails = () => {
@@ -26,12 +26,12 @@ const ShoppingListItem = ({
   }
 
   const styleVars = {
-    '--scheme-color': schemeColor,
-    '--title-text-color': titleTextColor,
+    '--main-color': schemeColorLighter,
+    '--title-text-color': textColorSecondary,
     '--border-color': borderColor,
-    '--body-background-color': bodyBackgroundColor,
-    '--body-text-color': bodyTextColor,
-    '--hover-color': hoverColor
+    '--body-background-color': schemeColorLightest,
+    '--body-text-color': textColorTertiary,
+    '--hover-color': hoverColorLighter
   }
 
   return(
