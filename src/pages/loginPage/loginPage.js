@@ -58,6 +58,7 @@ const LoginPage = () => {
           buttonText='Log In With Google'
           onSuccess={successCallback}
           onFailure={failureCallback}
+          isSignedIn={true}
           redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}${paths.dashboard.main}`}
         />
       </div>
