@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import useColorScheme from '../../hooks/useColorScheme'
+import { useColorScheme } from '../../hooks/contexts'
 import styles from './navigationCard.module.css'
 
 const NavigationCard = ({ href, children }) => {

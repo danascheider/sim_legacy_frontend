@@ -1,1 +1,3 @@
-export default () => (!!process.env.STORYBOOK)
+const isStorybook = () => (!!process.env.STORYBOOK)
+
+export default isStorybook

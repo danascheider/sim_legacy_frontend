@@ -8,7 +8,6 @@ const googleApiJsLink = 'https://apis.google.com/js/api.js'
 export default { title: 'LoginPage' }
 
 export const Default = () => <LoginPage />
-export const SomethingWentWrong = () => <LoginPage />
 
 Default.story = {
   parameters: {
@@ -25,6 +24,8 @@ Default.story = {
     ]
   }
 }
+
+export const SomethingWentWrong = () => <LoginPage />
 
 SomethingWentWrong.story = {
   parameters: {

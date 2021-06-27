@@ -14,6 +14,7 @@ import styles from './loginPage.module.css'
 
 const LoginPage = () => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+
   const [loginErrorMessage, setLoginErrorMessage] = useState(null)
 
   const successCallback = (resp) => {
@@ -30,13 +31,14 @@ const LoginPage = () => {
       .then(response => {
         if (response.status === 204) {
           setCookie(sessionCookieName, tokenId)
-        } else {
-          !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+        } else { // the status is 401
+          cookies[sessionCookieName] && removeCookie(sessionCookieName)
+          throw new Error('SIM API failed to validate Google OAuth token')
         }
       })
       .catch(error => {
-        !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
-        console.log('Error from /auth/verify_token: ', error)
+        cookies[sessionCookieName] && removeCookie(sessionCookieName)
+        console.error('Error from /auth/verify_token: ', error)
         return <Redirect to={paths.home} />
       })
     }
@@ -44,11 +46,11 @@ const LoginPage = () => {
 
   const failureCallback = (resp) => {
     console.log('Login failure: ', resp)
-    !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+    cookies[sessionCookieName] && removeCookie(sessionCookieName)
     setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }
 
-  return(!!cookies[sessionCookieName] && !isStorybook() ?
+  return(cookies[sessionCookieName] && !isStorybook() ?
     <Redirect to={paths.dashboard.main} /> :
     <div className={styles.root}>
       {loginErrorMessage ?

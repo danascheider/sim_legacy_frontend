@@ -1,6 +1,7 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { DashboardProvider } from '../contexts/dashboardContext'
 import DashboardPage from '../pages/dashboardPage/dashboardPage'
 import ShoppingListPage from '../pages/shoppingListPage/shoppingListPage'
 import HomePage from '../pages/homePage/homePage'
@@ -15,44 +16,48 @@ const pages = [
     title: `${siteTitle} Home`,
     description: 'Manage your inventory across multiple properties in Skyrim',
     Component: HomePage,
-    path: paths.home
+    path: paths.home,
+    useDashboardContext: false
   },
   {
     pageId: 'login',
     title: `${siteTitle} Login`,
     description: 'Log into Skyrim Inventory Management using your Google account',
     Component: LoginPage,
-    path: paths.login
+    path: paths.login,
+    useDashboardContext: false
   },
   {
     pageId: 'dashboard',
     title: `${siteTitle} Dashboard`,
     description: 'Skyrim Inventory Management User Dashboard',
     Component: DashboardPage,
-    path: paths.dashboard.main
+    path: paths.dashboard.main,
+    useDashboardContext: true
   },
   {
     pageId: 'shoppingLists',
     title: `${siteTitle} Manage Shopping Lists`,
     description: 'Manage Skyrim Shopping Lists',
     Component: ShoppingListPage,
-    path: paths.dashboard.shoppingLists
+    path: paths.dashboard.shoppingLists,
+    useDashboardContext: true
   }
 ]
 
 const PageRoutes = () => (
   <Switch>
     {pages.map(
-      ({ pageId, title, description, Component, path }) => {
+      ({ pageId, title, description, Component, path, useDashboardContext }) => {
         return(
           <Route exact path={path} key={pageId}>
             <Helmet>
-              <html lang="en" />
+              <html lang='en' />
 
               <title>{title}</title>
               <meta name='description' content={description} />
             </Helmet>
-            <Component />
+            {useDashboardContext ? <DashboardProvider><Component /></DashboardProvider> : <Component />}
           </Route>
         )
       }

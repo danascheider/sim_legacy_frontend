@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import useColorScheme from '../../hooks/useColorScheme'
+import { useColorScheme } from '../../hooks/contexts'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 

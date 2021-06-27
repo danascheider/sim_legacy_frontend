@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
-import useColorScheme from '../../hooks/useColorScheme'
+import { useColorScheme } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'

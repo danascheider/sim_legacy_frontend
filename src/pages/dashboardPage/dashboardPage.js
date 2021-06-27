@@ -1,5 +1,5 @@
 import React from 'react'
-import paths from '../../routing/paths'
+import { Redirect } from 'react-router-dom'
 import {
   YELLOW,
   PINK,
@@ -7,6 +7,8 @@ import {
   GREEN,
   AQUA
 } from '../../utils/colorSchemes'
+import paths from '../../routing/paths'
+import { useDashboardContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import NavigationMosaic from '../../components/navigationMosaic/navigationMosaic'
 import styles from './dashboardPage.module.css'
@@ -44,12 +46,17 @@ const cards = [
   }
 ]
 
-const DashboardPage = () => (
-  <DashboardLayout>
-    <div className={styles.root}>
-      <NavigationMosaic cardArray={cards} />
-    </div>
-  </DashboardLayout>
-)
+const DashboardPage = () => {
+  const { token } = useDashboardContext()
+  
+  return(token ?
+    <DashboardLayout>
+      <div className={styles.root}>
+        <NavigationMosaic cardArray={cards} />
+      </div>
+    </DashboardLayout> :
+    <Redirect to={paths.login} />
+  )
+}
 
 export default DashboardPage

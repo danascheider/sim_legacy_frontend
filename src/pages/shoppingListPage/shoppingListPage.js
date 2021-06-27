@@ -1,14 +1,16 @@
 import React, { useState, useEffect }from 'react'
-import { useCookies } from 'react-cookie'
-import { backendBaseUri, sessionCookieName } from '../../utils/config'
+import { Redirect } from 'react-router-dom'
+import { backendBaseUri } from '../../utils/config'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
+import { useDashboardContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingList from '../../components/shoppingList/shoppingList'
 import Loading from '../../components/loading/loading'
 import styles from './shoppingListPage.module.css'
+import paths from '../../routing/paths'
 
 const LOADING = 'loading'
 const LOADED = 'loaded'
@@ -20,20 +22,25 @@ const ShoppingListPage = () => {
   const [apiError, setApiError] = useState(null)
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
+  const [shouldRedirect, setShouldRedirect] = useState(false)
 
-  const [cookies, , ,] = useCookies([sessionCookieName])
+  const { token, removeSessionCookie } = useDashboardContext()
 
   const fetchLists = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`
 
-    if (!!cookies[sessionCookieName] || isStorybook()) {
+    if (!!token || isStorybook()) {
       fetch(dataUri, {
         headers: {
-          'Authorization': `Bearer ${cookies[sessionCookieName]}`
+          'Authorization': `Bearer ${token}`
         }
       })
       .then(response => {
-        if (response.status === 200 || response.status === 401) {
+        if (response.status === 401) {
+          console.error('SIM API failed to validate Google OAuth token')
+          token && removeSessionCookie()
+          setShouldRedirect(true)
+        } else if (response.status === 200) {
           return response.json()
         } else {
           return null
@@ -41,18 +48,13 @@ const ShoppingListPage = () => {
       })
       // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
       .then(data => {
-        if (!!data) {
-          if (data.error) {
-            setLoadingState(ERROR)
-            setApiError(data.error)
-          } else {
-            setLoadingState(LOADED)
-            setShoppingLists(data)
-          }
+        if (data) {
+          setLoadingState(LOADED)
+          setShoppingLists(data)
         } else {
           setLoadingState(ERROR)
-          setApiError('Unknown error: something went wrong when retrieving your shopping list data.')
-          console.warn('Something went wrong')
+          setApiError('Something went wrong when retrieving your shopping list data. This is probably a problem on our end - we\'re sorry!')
+          console.error('Something went wrong while retrieving shopping list data.')
         }
       })
     }
@@ -67,7 +69,7 @@ const ShoppingListPage = () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cookies[sessionCookieName]}`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         id: listId,
@@ -76,42 +78,66 @@ const ShoppingListPage = () => {
         }
       })
     })
-    .then(response => response.json())
+    .then(response => {
+      switch(response.status) {
+        case 200:
+        case 422:
+          return response.json()
+        case 404:
+          setFlashProps({
+            type: 'error',
+            message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
+          })
+
+          setFlashVisible(true)
+
+          return null
+        case 401:
+          token && removeSessionCookie()
+          setShouldRedirect(true)
+          break;
+        default:
+          throw Error(`Something went wrong while updating list ${listId}`)
+      }
+    })
     .then(data => {
-      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
-      if (data.error && data.error.match(/not found/i)) {
-        setFlashProps({
-          type: 'error',
-          message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
-        })
-        setFlashVisible(true)
-      } else if (data.errors && data.errors.title) {
+      if (data && !data.errors) {
+        const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
+        setShoppingLists(newShoppingLists)
+      } else if (data && data.errors && data.errors.title) {
         setFlashProps({
           type: 'error',
           header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
           message: data.errors.title.map(msg => `Title ${msg}`)
         })
         setFlashVisible(true)
-      } else if (data.error) {
-        // it's a 401, that's the only other error the API returns
+      } else {
         setFlashProps({
           type: 'error',
-          header: 'Error authenticating user (log back in to try again):',
-          message: data.error
+          message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
         })
         setFlashVisible(true)
-      } else {
-        const newShoppingLists = shoppingLists.map((list, i) => { if (list.id === listId) { return data } else { return list } })
-        setShoppingLists(newShoppingLists)
       }
     })
-    .catch(error => console.error(error))
+    .catch(error => {
+      console.error(error.message)
+
+      if (!flashVisible) {
+        setFlashProps({
+          type: 'error',
+          message: 'An unknown error prevented your changes from being saved. Please refresh the page and try again.'
+        })
+
+        setFlashVisible(true)
+      }
+    })
   }
 
   useEffect(fetchLists, [])
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
+      {shouldRedirect && <Redirect to={paths.login} />}
       {flashVisible ? 
         <div className={styles.flash}>
           <FlashMessage {...flashProps} />
