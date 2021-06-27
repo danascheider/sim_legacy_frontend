@@ -106,3 +106,25 @@ export const shoppingListUpdateData2 = {
     }
   ]
 }
+
+export const shoppingListUpdateData3 = {
+  id: 1,
+  user_id: 24,
+  master: false,
+  shopping_list_items: [
+    {
+      id: 1,
+      shopping_list_id: 1,
+      description: 'Ebony sword',
+      quantity: 1,
+      notes: 'notes 1'
+    },
+    {
+      id: 3,
+      shopping_list_id: 1,
+      description: 'Ingredients with "Frenzy" property',
+      quantity: 4,
+      notes: null
+    }
+  ]
+}

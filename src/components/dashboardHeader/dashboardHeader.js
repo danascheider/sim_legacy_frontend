@@ -1,31 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useCookies } from 'react-cookie'
 import { Link, Redirect } from 'react-router-dom'
-import paths from '../../routing/paths'
-import { sessionCookieName, backendBaseUri } from '../../utils/config'
+import { backendBaseUri } from '../../utils/config'
 import isStorybook from '../../utils/isStorybook'
+import paths from '../../routing/paths'
+import { useDashboardContext } from '../../hooks/contexts'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
 import anonymousAvatar from './anonymousAvatar.jpg'
 import styles from './dashboardHeader.module.css'
 
 const DashboardHeader = () => {
-  const [cookies, , removeCookie] = useCookies([sessionCookieName])
+  const {
+    token,
+    profileData,
+    removeSessionCookie,
+    setProfileData
+  } = useDashboardContext()
 
-  const initialRedirectPath = !cookies[sessionCookieName] ? paths.login : null
+  const initialRedirectPath = !token ? paths.login : null
   const [shouldRedirectTo, setShouldRedirectTo] = useState(initialRedirectPath)
 
   const [dropdownVisible, setDropdownVisible] = useState(false)
-  const [userData, setUserData] = useState(null)
   const mountedRef = useRef(true)
 
-  const fetchUserData = () => {
+  const fetchprofileData = () => {
     const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/users/current`
 
-    if (mountedRef.current === true && (isStorybook() || !!cookies[sessionCookieName])) {
+    if (mountedRef.current === true && (isStorybook() || !!token)) {
       fetch(dataUri, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cookies[sessionCookieName]}`
+          'Authorization': `Bearer ${token}`
         }
       })
       .then(response => (response.json()))
@@ -35,15 +39,15 @@ const DashboardHeader = () => {
           setShouldRedirectTo(paths.login)
         } else if (data.error) {
           console.warn('Error fetching user data - logging out user: ', data.error)
-          removeCookie(sessionCookieName)
+          removeSessionCookie()
           setShouldRedirectTo(paths.login)
         } else {
-          setUserData(data)
+          setProfileData(data)
           setShouldRedirectTo(null)
         }
       })
       .catch(() => {
-        cookies[sessionCookieName] && removeCookie(sessionCookieName)
+        token && removeSessionCookie()
         setShouldRedirectTo(paths.login)
       })
     } else {
@@ -62,22 +66,22 @@ const DashboardHeader = () => {
       if (auth != null) {
         auth.then(() => {
           auth.disconnect()
-          mountedRef.current = false
-          !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+          !!token && removeSessionCookie()
           setShouldRedirectTo(paths.home)
+          mountedRef.current = false
         },
         error => {
           console.log('Logout error: ', error)
         })
       }
     } else {
-      mountedRef.current = false
-      !!cookies[sessionCookieName] && removeCookie(sessionCookieName)
+      !!token && removeSessionCookie()
       setShouldRedirectTo(paths.home)
+      mountedRef.current = false
     }
   }
 
-  useEffect(fetchUserData, [removeCookie])
+  useEffect(fetchprofileData, [])
 
   return(!!shouldRedirectTo ?
     <Redirect to={shouldRedirectTo} /> :
@@ -88,13 +92,13 @@ const DashboardHeader = () => {
             <Link className={styles.headerLink} to={paths.dashboard.main}>Skyrim Inventory<br className={styles.bp} /> Management</Link>
           </h1>
         </span>
-        {!!userData ?
+        {!!profileData ?
         <button className={styles.profile} onClick={() => setDropdownVisible(!dropdownVisible)}>
           <div className={styles.profileText}>
-            <p className={styles.textTop}>{userData.name}</p>
-            <p className={styles.textBottom}>{userData.email}</p>
+            <p className={styles.textTop}>{profileData.name}</p>
+            <p className={styles.textBottom}>{profileData.email}</p>
           </div>
-          <img className={styles.avatar} src={userData.image_url || anonymousAvatar} alt='User avatar' referrerPolicy='no-referrer' />
+          <img className={styles.avatar} src={profileData.image_url || anonymousAvatar} alt='User avatar' referrerPolicy='no-referrer' />
         </button> :
         null
         }

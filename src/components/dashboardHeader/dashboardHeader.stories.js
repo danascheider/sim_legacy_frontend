@@ -1,11 +1,12 @@
 import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
+import { DashboardProvider } from '../../contexts/dashboardContext'
 import DashboardHeader from './dashboardHeader'
 
 export default { title: 'DashboardHeader' }
 
-export const Default = () => <DashboardHeader />
+export const Default = () => <DashboardProvider><DashboardHeader /></DashboardProvider>
 
 Default.story = {
   parameters: {
