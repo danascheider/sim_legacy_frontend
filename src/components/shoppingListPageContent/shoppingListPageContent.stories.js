@@ -5,14 +5,14 @@ import {
 } from './storyData'
 import ShoppingListPageContent from './shoppingListPageContent'
 
-const noop = () => {}
+const preventDefault = e => e.preventDefault()
 
 export default { title: 'ShoppingListPageContent' }
 
 export const Default = () => (
-  <ShoppingListPageContent lists={shoppingLists} onSubmitEditForm={noop} />
+  <ShoppingListPageContent lists={shoppingLists} onSubmitEditForm={preventDefault} />
 )
 
 export const NoLists = () => (
-  <ShoppingListPageContent lists={emptyShoppingLists} onSubmitEditForm={noop} />
+  <ShoppingListPageContent lists={emptyShoppingLists} onSubmitEditForm={preventDefault} />
 )
