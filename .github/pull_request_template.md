@@ -10,7 +10,7 @@ Summary of the changes made, preferably as a bulleted list
 
 ## Considerations
 
-Explanation of design/implementation decisions or which alternatives you considereed or tried
+Explanation of design/implementation decisions or which alternatives you considered or tried
 
 ## Manual Test Cases
 
