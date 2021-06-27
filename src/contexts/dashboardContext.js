@@ -30,7 +30,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue // enables you to only change certain values
   }
 
-  const shouldFetchProfileData = !overrideValue.profileData && (cookies[sessionCookieName] || isStorybook())
+  const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName]
 
   const fetchProfileData = () => {
     if (shouldFetchProfileData) {
@@ -60,6 +60,8 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
         cookies[sessionCookieName] && removeCookie(sessionCookieName)
         setShouldRedirect(true)
       })
+    } else if (!cookies[sessionCookieName] && !isStorybook()) {
+      setShouldRedirect(true)
     }
   }
 
