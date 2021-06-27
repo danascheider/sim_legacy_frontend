@@ -1,3 +1,10 @@
+/*
+ *
+ * For more information about contexts and how they are used in SIM,
+ * visit the docs on SIM contexts (/docs/contexts.md)
+ *
+ */
+
 import { useContext } from 'react'
 import { ColorContext } from '../contexts/colorContext'
 import { DashboardContext } from '../contexts/dashboardContext'

@@ -1,3 +1,10 @@
+/*
+ *
+ * For more information about contexts and how they are used in SIM,
+ * visit the docs on SIM contexts (/docs/contexts.md)
+ *
+ */
+
 import { createContext, useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
