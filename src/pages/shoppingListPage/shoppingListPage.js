@@ -1,6 +1,6 @@
 import React, { useState, useEffect }from 'react'
 import { Redirect } from 'react-router-dom'
-import { backendBaseUri } from '../../utils/config'
+import { fetchShoppingLists, updateShoppingList } from '../../utils/simApi'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import isStorybook from '../../utils/isStorybook'
 import { useDashboardContext } from '../../hooks/contexts'
@@ -27,36 +27,30 @@ const ShoppingListPage = () => {
   const { token, removeSessionCookie } = useDashboardContext()
 
   const fetchLists = () => {
-    const dataUri = `${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`
-
     if (!!token || isStorybook()) {
-      fetch(dataUri, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      .then(response => {
-        if (response.status === 401) {
-          console.error('SIM API failed to validate Google OAuth token')
-          token && removeSessionCookie()
-          setShouldRedirect(true)
-        } else if (response.status === 200) {
-          return response.json()
-        } else {
-          return null
-        }
-      })
-      // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
-      .then(data => {
-        if (data) {
-          setLoadingState(LOADED)
-          setShoppingLists(data)
-        } else {
-          setLoadingState(ERROR)
-          setApiError('Something went wrong when retrieving your shopping list data. This is probably a problem on our end - we\'re sorry!')
-          console.error('Something went wrong while retrieving shopping list data.')
-        }
-      })
+      fetchShoppingLists(token)
+        .then(response => {
+          if (response.status === 401) {
+            console.error('SIM API failed to validate Google OAuth token')
+            token && removeSessionCookie()
+            setShouldRedirect(true)
+          } else if (response.status === 200) {
+            return response.json()
+          } else {
+            return null
+          }
+        })
+        // TODO: https://trello.com/c/JRyN8FSN/25-refactor-error-handling-in-promise-chains
+        .then(data => {
+          if (data) {
+            setLoadingState(LOADED)
+            setShoppingLists(data)
+          } else {
+            setLoadingState(ERROR)
+            setApiError('Something went wrong when retrieving your shopping list data. This is probably a problem on our end - we\'re sorry!')
+            console.error('Something went wrong while retrieving shopping list data.')
+          }
+        })
     }
   }
 
@@ -65,72 +59,60 @@ const ShoppingListPage = () => {
 
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
-    fetch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/${listId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        id: listId,
-        shopping_list: {
-          title: newTitle
+    updateShoppingList(token, listId, { title: newTitle })
+      .then(response => {
+        switch(response.status) {
+          case 200:
+          case 422:
+            return response.json()
+          case 404:
+            setFlashProps({
+              type: 'error',
+              message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
+            })
+
+            setFlashVisible(true)
+
+            return null
+          case 401:
+            token && removeSessionCookie()
+            setShouldRedirect(true)
+            break;
+          default:
+            throw Error(`Something went wrong while updating list ${listId}`)
         }
       })
-    })
-    .then(response => {
-      switch(response.status) {
-        case 200:
-        case 422:
-          return response.json()
-        case 404:
+      .then(data => {
+        if (data && !data.errors) {
+          const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
+          setShoppingLists(newShoppingLists)
+        } else if (data && data.errors && data.errors.title) {
           setFlashProps({
             type: 'error',
-            message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
+            header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
+            message: data.errors.title.map(msg => `Title ${msg}`)
+          })
+          setFlashVisible(true)
+        } else {
+          setFlashProps({
+            type: 'error',
+            message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
+          })
+          setFlashVisible(true)
+        }
+      })
+      .catch(error => {
+        console.error(error.message)
+
+        if (!flashVisible) {
+          setFlashProps({
+            type: 'error',
+            message: 'An unknown error prevented your changes from being saved. Please refresh the page and try again.'
           })
 
           setFlashVisible(true)
-
-          return null
-        case 401:
-          token && removeSessionCookie()
-          setShouldRedirect(true)
-          break;
-        default:
-          throw Error(`Something went wrong while updating list ${listId}`)
-      }
-    })
-    .then(data => {
-      if (data && !data.errors) {
-        const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
-        setShoppingLists(newShoppingLists)
-      } else if (data && data.errors && data.errors.title) {
-        setFlashProps({
-          type: 'error',
-          header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
-          message: data.errors.title.map(msg => `Title ${msg}`)
-        })
-        setFlashVisible(true)
-      } else {
-        setFlashProps({
-          type: 'error',
-          message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
-        })
-        setFlashVisible(true)
-      }
-    })
-    .catch(error => {
-      console.error(error.message)
-
-      if (!flashVisible) {
-        setFlashProps({
-          type: 'error',
-          message: 'An unknown error prevented your changes from being saved. Please refresh the page and try again.'
-        })
-
-        setFlashVisible(true)
-      }
-    })
+        }
+      })
   }
 
   useEffect(fetchLists, [])

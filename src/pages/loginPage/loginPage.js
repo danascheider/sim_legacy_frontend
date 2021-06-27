@@ -5,9 +5,9 @@ import { useCookies } from 'react-cookie'
 import {
   googleClientId,
   frontendBaseUri,
-  backendBaseUri,
   sessionCookieName
 } from '../../utils/config'
+import { authorize } from '../../utils/simApi'
 import isStorybook from '../../utils/isStorybook'
 import paths from '../../routing/paths'
 import styles from './loginPage.module.css'
@@ -20,14 +20,8 @@ const LoginPage = () => {
   const successCallback = (resp) => {
     const { tokenId } = resp
 
-    const backendUri = `${backendBaseUri[process.env.NODE_ENV]}/auth/verify_token`
-
     if (cookies[sessionCookieName] !== tokenId) {
-      fetch(backendUri, {
-        headers: {
-          'Authorization': `Bearer ${tokenId}`
-        }
-      })
+      authorize(tokenId)
       .then(response => {
         if (response.status === 204) {
           setCookie(sessionCookieName, tokenId)
