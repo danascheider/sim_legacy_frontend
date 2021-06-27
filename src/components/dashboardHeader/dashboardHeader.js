@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import logOutWithGoogle from '../../utils/logOutWithGoogle'
-import { frontendBaseUri } from '../../utils/config'
 import paths from '../../routing/paths'
 import { useDashboardContext } from '../../hooks/contexts'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'

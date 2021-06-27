@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef }from 'react'
 import { fetchShoppingLists, updateShoppingList } from '../../utils/simApi'
 import { YELLOW } from '../../utils/colorSchemes'
-import isStorybook from '../../utils/isStorybook'
 import logOutWithGoogle from '../../utils/logOutWithGoogle'
 import paths from '../../routing/paths'
 import { useDashboardContext } from '../../hooks/contexts'
