@@ -26,7 +26,7 @@ const ShoppingListPage = () => {
   const { token, removeSessionCookie, setShouldRedirectTo } = useDashboardContext()
 
   const fetchLists = () => {
-    if (!!token || isStorybook()) {
+    if (token) {
       fetchShoppingLists(token)
         .then(resp => resp.json())
         .then(data => {
