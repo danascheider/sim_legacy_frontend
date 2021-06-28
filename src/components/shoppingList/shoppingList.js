@@ -20,9 +20,6 @@ const isValid = str => (
   !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str !== 'Master'
 )
 
-// TODO: This can get its list items from the context with just one extra step
-//       of finding itself in the shoppingLists array and grabbing the list items
-//       from there
 const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
