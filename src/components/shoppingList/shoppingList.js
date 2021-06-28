@@ -17,7 +17,7 @@ const isValid = str => (
   // Any other characters (including non-space whitespace characters
   // that are not leading or trailing) will cause a validation error
   // on the backend.
-  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str
+  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str !== 'Master'
 )
 
 const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] }) => {
