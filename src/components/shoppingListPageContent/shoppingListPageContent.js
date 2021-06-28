@@ -15,15 +15,17 @@ const ShoppingListPageContent = ({ lists, onSubmitEditForm }) => {
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
           const listKey = title.toLowerCase().replace(' ', '-')
+          const originalTitle = title
 
           return (
             <ColorProvider key={listKey} colorScheme={colorSchemes[colorSchemesIndex]}>
               <div className={styles.shoppingList}>
                 <ShoppingList
                   canEdit={!master}
+                  listId={id}
                   title={title}
                   listItems={shopping_list_items}
-                  onSubmitEditForm={e => onSubmitEditForm(id, e)}
+                  onSubmitEditForm={(e, success, error) => onSubmitEditForm(id, e, success, error)}
                 />
               </div>
             </ColorProvider>

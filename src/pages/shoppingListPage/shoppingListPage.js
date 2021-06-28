@@ -53,7 +53,7 @@ const ShoppingListPage = () => {
     }
   }
 
-  const updateList = (listId, e) => {
+  const updateList = (listId, e, success = null, error = null) => {
     e.preventDefault()
 
     const newTitle = e.nativeEvent.target.children[0].defaultValue
@@ -81,6 +81,7 @@ const ShoppingListPage = () => {
         if (data && !data.errors) {
           const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
           setShoppingLists(newShoppingLists)
+          success && success()
         } else if (data && data.errors && data.errors.title) {
           setFlashProps({
             type: 'error',
@@ -88,26 +89,29 @@ const ShoppingListPage = () => {
             message: data.errors.title.map(msg => `Title ${msg}`)
           })
           setFlashVisible(true)
+          error && error()
         } else {
           setFlashProps({
             type: 'error',
             message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
           })
           setFlashVisible(true)
+          error && error()
         }
       })
-      .catch(error => {
-        console.error(`Error updating shopping list ${listId}: `, error.message)
+      .catch(err => {
+        console.error(`Error updating shopping list ${listId}: `, err.message)
 
         // The simApi module functions all throw a custom error class
         // called AuthorizationError (defined in /src/utils/customErrors.js)
         // in the event the API response status is 401
-        if (error.name === 'AuthorizationError') {
+        if (err.name === 'AuthorizationError') {
           return logOutWithGoogle(() => {
             token && removeSessionCookie()
             setShouldRedirectTo(paths.login)
             mountedRef.current = false
           })
+          // Don't run the error callback - they should be logged out, full stop
         } else
           setFlashProps({
             type: 'error',
@@ -115,6 +119,7 @@ const ShoppingListPage = () => {
           })
 
           if (!flashVisible) setFlashVisible(true)
+          error && error()
       })
   }
 

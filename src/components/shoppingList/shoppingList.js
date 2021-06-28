@@ -27,6 +27,8 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] 
   const slideTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
+  const originalTitle = title // to switch back in case of API error
+
   const {
     schemeColor,
     hoverColor,
@@ -71,9 +73,9 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] 
   const submitAndHideForm = (e) => {
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
-    if (!!isValid(newTitle)) setCurrentTitle(newTitle)
+    if (!newTitle || isValid(newTitle)) setCurrentTitle(newTitle)
 
-    onSubmitEditForm(e)
+    onSubmitEditForm(e, null, () => { setCurrentTitle(originalTitle) })
     setIsComponentVisible(false)
   }
 
