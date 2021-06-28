@@ -5,7 +5,7 @@
  *
  */
 
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
 import { fetchShoppingLists, updateShoppingList } from '../utils/simApi'
@@ -24,6 +24,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   const [flashProps, setFlashProps] = useState({})
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
   const { token, setShouldRedirectTo, removeSessionCookie } = useDashboardContext()
+
+  const mountedRef = useRef(true)
   
   const fetchLists = () => {
     if (token && !overrideValue.shoppingLists) {
@@ -44,6 +46,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             logOutWithGoogle(() => {
               token && removeSessionCookie()
               setShouldRedirectTo(paths.home)
+              mountedRef.current = false
               // Don't set the loading state to ERROR because it's redirecting anyway
             })
           } else {
@@ -105,6 +108,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           return logOutWithGoogle(() => {
             token && removeSessionCookie()
             setShouldRedirectTo(paths.login)
+            mountedRef.current = false
           })
         } else {
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
@@ -122,6 +126,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }
 
   useEffect(fetchLists, [])
+  useEffect(() => (
+    () => { mountedRef.current = false }
+  ))
 
   return(
     <ShoppingListContext.Provider value={value}>
