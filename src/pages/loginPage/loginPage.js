@@ -11,6 +11,7 @@ import { authorize } from '../../utils/simApi'
 import isStorybook from '../../utils/isStorybook'
 import paths from '../../routing/paths'
 import styles from './loginPage.module.css'
+import logOutWithGoogle from '../../utils/logOutWithGoogle'
 
 const LoginPage = () => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
@@ -25,15 +26,15 @@ const LoginPage = () => {
       .then(response => {
         if (response.status === 204) {
           setCookie(sessionCookieName, tokenId)
-        } else { // the status is 401
-          cookies[sessionCookieName] && removeCookie(sessionCookieName)
-          throw new Error('SIM API failed to validate Google OAuth token')
         }
       })
       .catch(error => {
-        cookies[sessionCookieName] && removeCookie(sessionCookieName)
-        console.error('Error from /auth/verify_token: ', error)
-        return <Redirect to={paths.home} />
+        console.error('Error from /auth/verify_token: ', error.message)
+
+        logOutWithGoogle(() => {
+          cookies[sessionCookieName] && removeCookie(sessionCookieName)
+          return <Redirect to={paths.home} />
+        })
       })
     }
   }
@@ -57,6 +58,7 @@ const LoginPage = () => {
           buttonText='Log In With Google'
           onSuccess={successCallback}
           onFailure={failureCallback}
+          isSignedIn={true}
           redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}${paths.dashboard.main}`}
         />
       </div>

@@ -1,9 +1,17 @@
+/*
+ *
+ * For more information about contexts and how they are used in SIM,
+ * visit the docs on SIM contexts (/docs/contexts.md)
+ * 
+ */
+
 import { createContext, useEffect, useState } from 'react'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
+import logOutWithGoogle from '../utils/logOutWithGoogle'
 import isStorybook from '../utils/isStorybook'
 import paths from '../routing/paths'
 
@@ -18,21 +26,20 @@ const DashboardContext = createContext()
 // Storybook decorators and whatnot enough to figure out how to
 // set the value for the context in the story,
 const DashboardProvider = ({ children, overrideValue = {} }) => {
-  const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+  const [cookies, , removeCookie] = useCookies([sessionCookieName])
   const [profileData, setProfileData] = useState(null)
-  const [shouldRedirect, setShouldRedirect] = useState(false)
+  const [shouldRedirectTo, setShouldRedirectTo] = useState(null)
   const [profileLoadState, setProfileLoadState] = useState(LOADING)
 
-  const setSessionCookie = val => setCookie(sessionCookieName, val)
   const removeSessionCookie = () => removeCookie(sessionCookieName)
 
   const value = {
     token: cookies[sessionCookieName],
     profileData,
-    setSessionCookie,
     removeSessionCookie,
     setProfileData,
     profileLoadState,
+    setShouldRedirectTo,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -43,26 +50,19 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
       fetchUserProfile(cookies[sessionCookieName])
         .then(response => response.json())
         .then(data => {
-          if (!data) {
-            console.warn('No data reeceived from server - logging out user in case of an auth issue')
-            cookies[sessionCookieName] && removeCookie(sessionCookieName)
-            setShouldRedirect(true)
-          } else if (data.error) {
-            console.warn('Error fetching user data - logging out user: ', data.error)
-            cookies[sessionCookieName] && removeCookie(sessionCookieName)
-            setShouldRedirect(true)
-          } else {
-            setProfileData(data)
-            if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
-          }
+          setProfileData(data)
+          if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
         })
         .catch(error => {
           console.error('Error returned while fetching profile data: ', error.message)
-          cookies[sessionCookieName] && removeCookie(sessionCookieName)
-          setShouldRedirect(true)
+
+          logOutWithGoogle(() => {
+            cookies[sessionCookieName] && removeSessionCookie()
+            setShouldRedirectTo(paths.login)
+          })
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
-      setShouldRedirect(true)
+      setShouldRedirectTo(paths.login)
     } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
   }
 
@@ -70,7 +70,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
 
   return(
     <DashboardContext.Provider value={value}>
-      {shouldRedirect ? <Redirect to={paths.login} /> : children}
+      {shouldRedirectTo ? <Redirect to={shouldRedirectTo} /> : children}
     </DashboardContext.Provider>
   )
 }

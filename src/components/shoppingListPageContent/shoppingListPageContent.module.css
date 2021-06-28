@@ -1,0 +1,12 @@
+.noLists {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+}
+
+.shoppingList {
+  margin-bottom: 32px;
+}
+
+.shoppingList:last-of-type {
+  margin-bottom: 0;
+}

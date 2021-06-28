@@ -12,10 +12,15 @@ import {
 import ShoppingListPage from './shoppingListPage'
 export default { title: 'ShoppingListPage' }
 
+const contextOverrideValue = {
+  token: 'xxxxxx',
+  profileData: userData
+}
+
 // When the user has shopping lists, and the ones that
 // are allowed to be updated can be updated successfully
 
-export const HappyPath = () => <DashboardProvider overrideValue={{ profileData: userData }}><ShoppingListPage /></DashboardProvider>
+export const HappyPath = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
 
 HappyPath.story = {
   parameters: {
@@ -53,7 +58,7 @@ HappyPath.story = {
 // When the user enters a blank title, the API will change the title to "My List N". This
 // story is to verify that the UI updates with the saved title when the API call finishes.
 
-export const UpdateDefaultTitle = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
+export const UpdateDefaultTitle = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
 
 UpdateDefaultTitle.story = {
   parameters: {
@@ -94,7 +99,7 @@ UpdateDefaultTitle.story = {
 
 // When the user has shopping lists but there's an error when they try to update
 
-export const UpdateListNotFound = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
+export const UpdateListNotFound = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
 
 UpdateListNotFound.story = {
   parameters: {
@@ -129,7 +134,7 @@ UpdateListNotFound.story = {
 
 // When the list can't be updated (422 from API)
 
-export const UpdateUnprocessableEntity = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
+export const UpdateUnprocessableEntity = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
 
 UpdateUnprocessableEntity.story = {
   parameters: {
@@ -164,7 +169,7 @@ UpdateUnprocessableEntity.story = {
 
 // When the user has no shopping lists
 
-export const Empty = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
+export const Empty = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
 
 Empty.story = {
   parameters: {
@@ -187,7 +192,7 @@ Empty.story = {
 
 // When the API data is loading
 
-export const Loading = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
+export const Loading = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
 
 Loading.story = {
   parameters: {
@@ -209,7 +214,7 @@ Loading.story = {
 
 // When there is an error with the API response
 
-export const ErrorState = () => <DashboardProvider><ShoppingListPage /></DashboardProvider>
+export const ErrorState = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
 
 ErrorState.story = {
   parameters: {

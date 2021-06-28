@@ -1,22 +1,9 @@
 .flash {
-  margin: 16px auto;
-}
-
-.shoppingList {
-  margin-bottom: 32px;
-}
-
-.shoppingList:last-of-type {
-  margin-bottom: 0;
+  margin: 16px auto 32px;
 }
 
 .loading {
   margin: 0 auto;
-}
-
-.noLists {
-  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  font-size: 1.1rem;
 }
 
 .error {

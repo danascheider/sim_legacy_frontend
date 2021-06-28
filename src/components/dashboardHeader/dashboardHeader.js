@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import React, { useState, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import logOutWithGoogle from '../../utils/logOutWithGoogle'
 import paths from '../../routing/paths'
 import { useDashboardContext } from '../../hooks/contexts'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
@@ -10,10 +11,10 @@ const DashboardHeader = () => {
   const {
     token,
     profileData,
-    removeSessionCookie
+    removeSessionCookie,
+    setShouldRedirectTo
   } = useDashboardContext()
 
-  const [shouldRedirect, setShouldRedirect] = useState(false)
   const [dropdownVisible, setDropdownVisible] = useState(false)
   const mountedRef = useRef(true)
 
@@ -21,30 +22,19 @@ const DashboardHeader = () => {
     e.preventDefault()
 
     setDropdownVisible(false);
-    
-    if (window.gapi) {
-      const auth = window.gapi.auth2.getAuthInstance()
 
-      if (auth != null) {
-        auth.then(() => {
-          auth.disconnect()
-          token && removeSessionCookie()
-          setShouldRedirect(true)
-          mountedRef.current = false
-        },
-        error => {
-          console.log('Logout error: ', error)
-        })
-      }
-    } else {
+    logOutWithGoogle(() => {
       token && removeSessionCookie()
-      setShouldRedirect(true)
+      setShouldRedirectTo(paths.home)
       mountedRef.current = false
-    }
+    })
   }
 
-  return(!!shouldRedirect ?
-    <Redirect to={paths.home} /> :
+  useEffect(() => {
+    return () => (mountedRef.current = false)
+  }, [])
+
+  return(
     <div className={styles.root}>
       <div className={styles.bar}>
         <span className={styles.headerContainer}>
