@@ -5,7 +5,7 @@ import { ColorProvider } from '../../contexts/colorContext'
 import ShoppingList from '../shoppingList/shoppingList'
 import styles from './shoppingListPageContent.module.css'
 
-const ShoppingListPageContent = ({ lists, onSubmitEditForm }) => {
+const ShoppingListPageContent = ({ lists }) => {
   if (lists.length === 0) {
     return <p className={styles.noLists}>You have no shopping lists.</p>
   } else {
@@ -24,7 +24,6 @@ const ShoppingListPageContent = ({ lists, onSubmitEditForm }) => {
                   listId={id}
                   title={title}
                   listItems={shopping_list_items}
-                  onSubmitEditForm={(e, success, error) => onSubmitEditForm(id, e, success, error)}
                 />
               </div>
             </ColorProvider>
@@ -45,8 +44,7 @@ ShoppingListPageContent.propTypes = {
       quantity: PropTypes.number.isRequired,
       notes: PropTypes.string
     })).isRequired
-  })).isRequired,
-  onSubmitEditForm: PropTypes.func.isRequired
+  })).isRequired
 }
 
 export default ShoppingListPageContent
