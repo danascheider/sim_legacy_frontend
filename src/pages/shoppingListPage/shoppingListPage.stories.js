@@ -14,7 +14,7 @@ export default { title: 'ShoppingListPage' }
 
 const contextOverrideValue = {
   token: 'xxxxxx',
-  ...userData
+  profileData: userData
 }
 
 // When the user has shopping lists, and the ones that
