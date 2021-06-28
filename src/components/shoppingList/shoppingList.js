@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
-import { useColorScheme } from '../../hooks/contexts'
+import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
@@ -17,15 +17,19 @@ const isValid = str => (
   // Any other characters (including non-space whitespace characters
   // that are not leading or trailing) will cause a validation error
   // on the backend.
-  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str
+  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str !== 'Master'
 )
 
-const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] }) => {
+const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
+  const [listItems, setListItems] = useState(null)
   const [colorScheme] = useColorScheme()
   const slideTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
+  const { shoppingLists, performShoppingListUpdate } = useShoppingListContext()
+
+  const originalTitle = title // to switch back in case of API error
 
   const {
     schemeColor,
@@ -68,14 +72,23 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] 
     '--scheme-color-lightest': schemeColorLightest
   }
 
-  const submitAndHideForm = (e) => {
+  const submitAndHideForm = e => {
+    e.preventDefault()
+
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
-    if (!!isValid(newTitle)) setCurrentTitle(newTitle)
+    if (!newTitle || isValid(newTitle)) setCurrentTitle(newTitle)
 
-    onSubmitEditForm(e)
+    performShoppingListUpdate(listId, newTitle, null, () => { setCurrentTitle(originalTitle) })
     setIsComponentVisible(false)
   }
+
+  useEffect(() => {
+    if (shoppingLists === undefined) return // it'll run again when they populate
+
+    const items = shoppingLists.find(obj => obj.id === listId).shopping_list_items
+    setListItems(items)
+  }, [shoppingLists])
 
   return(
     <div className={styles.root} style={styleVars}>
@@ -89,7 +102,6 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] 
               <ShoppingListForm
                 formRef={componentRef}
                 className={styles.form}
-                colorScheme={colorScheme}
                 title={title}
                 onSubmit={submitAndHideForm}
               />
@@ -100,7 +112,7 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] 
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {listItems.map(({ id, description, quantity, notes }) => {
+            {listItems && listItems.map(({ id, description, quantity, notes }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
               return(
@@ -123,8 +135,7 @@ const ShoppingList = ({ canEdit = true, title, onSubmitEditForm, listItems = [] 
 ShoppingList.propTypes = {
   title: PropTypes.string.isRequired,
   canEdit: PropTypes.bool,
-  onSubmitEditForm: PropTypes.func.isRequired,
-  listItems: PropTypes.arrayOf(PropTypes.shape).isRequired
+  listId: PropTypes.number.isRequired
 }
 
 export default ShoppingList

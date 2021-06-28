@@ -5,7 +5,7 @@
  * 
  */
 
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useState, useRef } from 'react'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -27,11 +27,13 @@ const DashboardContext = createContext()
 // set the value for the context in the story,
 const DashboardProvider = ({ children, overrideValue = {} }) => {
   const [cookies, , removeCookie] = useCookies([sessionCookieName])
-  const [profileData, setProfileData] = useState(null)
-  const [shouldRedirectTo, setShouldRedirectTo] = useState(null)
-  const [profileLoadState, setProfileLoadState] = useState(LOADING)
+  const [profileData, setProfileData] = useState(overrideValue.profileData)
+  const [shouldRedirectTo, setShouldRedirectTo] = useState(overrideValue.shouldRedirectTo)
+  const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
 
-  const removeSessionCookie = () => removeCookie(sessionCookieName)
+  const mountedRef = useRef(true)
+
+  const removeSessionCookie = () => overrideValue.removeSessionCookie || removeCookie(sessionCookieName)
 
   const value = {
     token: cookies[sessionCookieName],
@@ -59,14 +61,19 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
           logOutWithGoogle(() => {
             cookies[sessionCookieName] && removeSessionCookie()
             setShouldRedirectTo(paths.login)
+            mountedRef.current = false
           })
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
       setShouldRedirectTo(paths.login)
+      mountedRef.current = false
     } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
   }
 
   useEffect(fetchProfileData, [])
+  useEffect(() => (
+    () => { mountedRef.current = false }
+  ))
 
   return(
     <DashboardContext.Provider value={value}>

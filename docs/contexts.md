@@ -4,6 +4,7 @@ SIM uses [React contexts](https://reactjs.org/docs/context.html) for management 
 
 * [ColorContext](#colorcontext)
 * [DashboardContext](#dashboardcontext)
+* [ShoppingListContext](#shoppinglistcontext)
 
 For each context, there is a [custom hook](/src/hooks/contexts.js) that can be used to invoke it in consumers.
 
@@ -154,7 +155,9 @@ const Component = () => {
   const someCallback = () => {
     makeApiCall(token)
       .catch(error => {
-        if (error.name === 'AuthorizationError') {
+        // simApi functions always throw an error object with a 401 code
+        // if the error is a 401 response from the server.
+        if (error.code === 401) {
           logOutWithGoogle(() => {
             token && removeSessionCookie
             setShouldRedirectTo(paths.login)
@@ -196,3 +199,25 @@ export const Default = () => (
 )
 ```
 Now, the data rendered in your component will use the token value and profile data given. If an API call is used in your component, it should be mocked with [msw](https://mswjs.io/) to make sure a 401 isn't returned due to an invalid token.
+
+## ShoppingListContext
+
+The `ShoppingListContext` is used to fetch all the relevant shopping lists when the shopping list page renders. It uses some similar patterns to the `DashboardContext`, including the use of the `overrideValue` prop to set the value of the provider in Storybook.
+
+The `ShoppingList` context is a consumer of the `DashboardContext`, implying that the `useShoppingListContext` hook can only be used inside a `ShoppingListProvider`. You will see an error to this effect if you try to implement it another way. From the `DashboardProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `removeSessionCookie` and `setShouldRedirectTo` functions. The latter two are used in the event an API call returns status 401 and thee user needs to be logged out. Like elsewhere, the `logOutWithGoogle` function is used for this, with the cookie being removed and the redirect set in the callback passed to that function.
+
+On load, the `ShoppingListProvider` fetches all the user's shopping lists. It returns the following in its `value`:
+
+* `shoppingLists`: the array of all the user's shopping lists, with the master list first
+* `shoppingListLoadingState`: whether the `shoppingLists` are 'loading' (waiting for the API call to resolve), 'done' (when the API call is finished), or 'error' (when the API call has thrown an honest-to-god, unexpected error - not just when it returns a 400-range error code)
+* `performShoppingListUpdate`: a function that updates the list specified through the API, also encompassing error handling logic. The function takes 4 arguments:
+  * `listId`: The ID (primary key in the database) of the list to be updated
+  * `newTitle`: The new title of the list taken from the form the user submitted
+  * `success`: An optional success callback that can be used for handling state within the component that calls the function
+  * `error`: An optional error callback that can be used to clean up state within the component that calls the function
+* `flashProps`: The props to be passed to the `FlashMessage` component when/if it is displayed
+* `flashVisible`: Whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
+
+### Testing
+
+The `ShoppingListContext` is a little easier to test with in Storybook than the `DashboardContext`. While it still has an `overrideValues` prop, it isn't needed quite as much to make the basics work and you should only need it to, for example, set the loading state to 'loading' if a story needs to display that state. The rest of the testing can mostly be handled by mocking the API calls the provider makes using `msw`. Remember that the `ShoppingListProvider` component needs to be wrapped in a `DashboardProvider`, which will require override values for at least the token if not other values as well.

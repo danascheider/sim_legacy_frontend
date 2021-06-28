@@ -2,6 +2,7 @@ import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
 import { DashboardProvider } from '../../contexts/dashboardContext'
+import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import {
   userData,
   emptyShoppingLists,
@@ -10,9 +11,10 @@ import {
   shoppingListUpdateData2
 } from './storyData'
 import ShoppingListPage from './shoppingListPage'
+
 export default { title: 'ShoppingListPage' }
 
-const contextOverrideValue = {
+const dashboardContextOverrideValue = {
   token: 'xxxxxx',
   profileData: userData
 }
@@ -20,7 +22,13 @@ const contextOverrideValue = {
 // When the user has shopping lists, and the ones that
 // are allowed to be updated can be updated successfully
 
-export const HappyPath = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
+export const HappyPath = () => (
+  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+    <ShoppingListProvider>
+      <ShoppingListPage />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
 
 HappyPath.story = {
   parameters: {
@@ -32,9 +40,8 @@ HappyPath.story = {
         )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
-        const newTitle = req.body.shopping_list.title
         const returnData = shoppingListUpdateData1
-        returnData.title = newTitle
+        returnData.title = req.body.shopping_list.title
 
         return res(
           ctx.status(200),
@@ -42,9 +49,8 @@ HappyPath.story = {
         )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
-        const newTitle = req.body.shopping_list.title
         const returnData = shoppingListUpdateData2
-        returnData.title = newTitle
+        returnData.title = req.body.shopping_list.title
 
         return res(
           ctx.status(200),
@@ -55,20 +61,21 @@ HappyPath.story = {
   }
 }
 
+
 // When the user enters a blank title, the API will change the title to "My List N". This
 // story is to verify that the UI updates with the saved title when the API call finishes.
 
-export const UpdateDefaultTitle = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
+export const UpdateDefaultTitle = () => (
+  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+    <ShoppingListProvider>
+      <ShoppingListPage />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
 
 UpdateDefaultTitle.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
@@ -99,17 +106,17 @@ UpdateDefaultTitle.story = {
 
 // When the user has shopping lists but there's an error when they try to update
 
-export const UpdateListNotFound = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
+export const UpdateListNotFound = () => (
+  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+    <ShoppingListProvider>
+      <ShoppingListPage />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
 
 UpdateListNotFound.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
@@ -134,17 +141,17 @@ UpdateListNotFound.story = {
 
 // When the list can't be updated (422 from API)
 
-export const UpdateUnprocessableEntity = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
+export const UpdateUnprocessableEntity = () => (
+  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+    <ShoppingListProvider>
+      <ShoppingListPage />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
 
 UpdateUnprocessableEntity.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
@@ -169,17 +176,17 @@ UpdateUnprocessableEntity.story = {
 
 // When the user has no shopping lists
 
-export const Empty = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
+export const Empty = () => (
+  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+    <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists, shoppingListLoadingState: 'done' }}>
+      <ShoppingListPage />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
 
 Empty.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
@@ -192,20 +199,21 @@ Empty.story = {
 
 // When the API data is loading
 
-export const Loading = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
+export const Loading = () => (
+  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+    <ShoppingListProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
+      <ShoppingListPage />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
 
 Loading.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
-          ctx.delay(1000 * 60 * 60 * 60)
+          ctx.status(200),
+          ctx.json(emptyShoppingLists)
         )
       })
     ]
@@ -214,17 +222,17 @@ Loading.story = {
 
 // When there is an error with the API response
 
-export const ErrorState = () => <DashboardProvider overrideValue={contextOverrideValue}><ShoppingListPage /></DashboardProvider>
+export const ErrorState = () => (
+  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+    <ShoppingListProvider>
+      <ShoppingListPage />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
 
 ErrorState.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/users/current`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(userData)
-        )
-      }),
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(500)
