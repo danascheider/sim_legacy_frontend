@@ -1,6 +1,10 @@
 import React from 'react'
+import { rest } from 'msw'
 import { PINK } from '../../utils/colorSchemes'
+import { backendBaseUri } from '../../utils/config'
 import { ColorProvider } from '../../contexts/colorContext'
+import { ShoppingListProvider } from '../../contexts/shoppingListContext'
+import { DashboardProvider } from '../../contexts/dashboardContext'
 import ShoppingList from './shoppingList'
 
 const listItems = [
@@ -30,24 +34,66 @@ const listItems = [
 export default { title: 'ShoppingList' }
 
 export const Default = () => (
-  <ColorProvider colorScheme={PINK}>
-    <ShoppingList
-      title='My List 1'
-      onSubmitEditForm={e => e.preventDefault()}
-      colorScheme={PINK}
-      listItems={listItems}
-    />
-  </ColorProvider>
+  <DashboardProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
+    <ColorProvider colorScheme={PINK}>
+      <ShoppingListProvider overrideValue={{ performUpdateShoppingList: (a, b, c = null, d = null) => {} }}>
+        <ShoppingList
+          listId={1}
+          title='My List 1'
+          listItems={listItems}
+        />
+      </ShoppingListProvider>
+    </ColorProvider>
+  </DashboardProvider>
 )
 
+Default.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: 1,
+            title: 'My List 1',
+            master: false,
+            shopping_list_items: listItems
+          })
+        )
+      })
+    ]
+  }
+}
+
 export const NotEditable = () => (
-  <ColorProvider colorScheme={PINK}>
-    <ShoppingList
-      title='Master'
-      canEdit={false}
-      onSubmitEditForm={e => e.preventDefault()}
-      colorScheme={PINK}
-      listItems={listItems}
-    />
-  </ColorProvider>
+  <DashboardProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
+    <ColorProvider colorScheme={PINK}>
+      <ShoppingListProvider>
+        <ShoppingList
+          title='Master'
+          listId={1}
+          canEdit={false}
+          listItems={listItems}
+        />
+      </ShoppingListProvider>
+    </ColorProvider>
+  </DashboardProvider>
 )
+
+NotEditable.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: 1,
+            master: true,
+            title: 'My List 1',
+            shopping_list_items: listItems
+          })
+        )
+      })
+    ]
+  }
+}

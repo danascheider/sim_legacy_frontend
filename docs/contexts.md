@@ -155,7 +155,9 @@ const Component = () => {
   const someCallback = () => {
     makeApiCall(token)
       .catch(error => {
-        if (error.name === 'AuthorizationError') {
+        // simApi functions always throw an error object with a 401 code
+        // if the error is a 401 response from the server.
+        if (error.code === 401) {
           logOutWithGoogle(() => {
             token && removeSessionCookie
             setShouldRedirectTo(paths.login)

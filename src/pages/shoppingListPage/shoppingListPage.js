@@ -5,10 +5,6 @@ import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingListPageContent from '../../components/shoppingListPageContent/shoppingListPageContent'
 import styles from './shoppingListPage.module.css'
 
-const LOADING = 'loading'
-const DONE = 'done'
-const ERROR = 'error'
-
 const ShoppingListPage = () => {
   const {
     flashProps,
