@@ -18,7 +18,7 @@ const ShoppingListPage = () => {
   return(
     <DashboardLayout title='Your Shopping Lists'>
       {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
-      <ShoppingListPageContent /> {/* This component implements its own loading behaviour */}
+      <ShoppingListPageContent /> {/* This component implements its own loading & error handling behaviour */}
     </DashboardLayout>
   )
 }
