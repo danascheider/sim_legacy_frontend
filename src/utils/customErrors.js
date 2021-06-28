@@ -13,7 +13,7 @@ AuthorizationError.prototype = Object.create(Error.prototype, {
     writable: true,
     configurable: true
   }
-});
+})
 
 if (Object.setPrototypeOf) {
   Object.setPrototypeOf(AuthorizationError, Error)
