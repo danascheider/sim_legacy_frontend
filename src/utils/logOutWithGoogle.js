@@ -10,6 +10,8 @@ const logOutWithGoogle = (success = () => {}, error = defaultErrorCallback) => {
       GoogleAuth
         .then(() => GoogleAuth.signOut())
         .then(success, error)
+    } else {
+      success() // Google thinks they aren't logged in anyway
     }
   }
 
