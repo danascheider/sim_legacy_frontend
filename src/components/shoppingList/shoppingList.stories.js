@@ -40,7 +40,6 @@ export const Default = () => (
         <ShoppingList
           listId={1}
           title='My List 1'
-          listItems={listItems}
         />
       </ShoppingListProvider>
     </ColorProvider>
@@ -53,12 +52,22 @@ Default.story = {
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
-          ctx.json({
-            id: 1,
-            title: 'My List 1',
-            master: false,
-            shopping_list_items: listItems
-          })
+          ctx.json(
+            [
+              {
+                id: 1,
+                title: 'My List 1',
+                master: false,
+                shopping_list_items: listItems
+              },
+              {
+                id: 2,
+                title: 'My List 2',
+                master: true,
+                shopping_list_items: listItems
+              }
+            ]
+          )
         )
       })
     ]
@@ -73,7 +82,6 @@ export const NotEditable = () => (
           title='Master'
           listId={1}
           canEdit={false}
-          listItems={listItems}
         />
       </ShoppingListProvider>
     </ColorProvider>
@@ -86,12 +94,20 @@ NotEditable.story = {
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
-          ctx.json({
-            id: 1,
-            master: true,
-            title: 'My List 1',
-            shopping_list_items: listItems
-          })
+          ctx.json([
+            {
+              id: 1,
+              title: 'My List 1',
+              master: false,
+              shopping_list_items: listItems
+            },
+            {
+              id: 2,
+              title: 'My List 2',
+              master: true,
+              shopping_list_items: listItems
+            }
+          ])
         )
       })
     ]

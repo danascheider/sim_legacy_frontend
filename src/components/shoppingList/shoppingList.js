@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
 import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
@@ -23,13 +23,14 @@ const isValid = str => (
 // TODO: This can get its list items from the context with just one extra step
 //       of finding itself in the shoppingLists array and grabbing the list items
 //       from there
-const ShoppingList = ({ canEdit = true, listId, title, listItems = [] }) => {
+const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
+  const [listItems, setListItems] = useState(null)
   const [colorScheme] = useColorScheme()
   const slideTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
-  const { performShoppingListUpdate } = useShoppingListContext()
+  const { shoppingLists, performShoppingListUpdate } = useShoppingListContext()
 
   const originalTitle = title // to switch back in case of API error
 
@@ -85,6 +86,13 @@ const ShoppingList = ({ canEdit = true, listId, title, listItems = [] }) => {
     setIsComponentVisible(false)
   }
 
+  useEffect(() => {
+    if (shoppingLists === undefined) return // it'll run again when they populate
+
+    const items = shoppingLists.find(obj => obj.id === listId).shopping_list_items
+    setListItems(items)
+  }, [shoppingLists])
+
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
@@ -97,7 +105,6 @@ const ShoppingList = ({ canEdit = true, listId, title, listItems = [] }) => {
               <ShoppingListForm
                 formRef={componentRef}
                 className={styles.form}
-                colorScheme={colorScheme}
                 title={title}
                 onSubmit={submitAndHideForm}
               />
@@ -108,7 +115,7 @@ const ShoppingList = ({ canEdit = true, listId, title, listItems = [] }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {listItems.map(({ id, description, quantity, notes }) => {
+            {listItems && listItems.map(({ id, description, quantity, notes }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
               return(
@@ -131,8 +138,7 @@ const ShoppingList = ({ canEdit = true, listId, title, listItems = [] }) => {
 ShoppingList.propTypes = {
   title: PropTypes.string.isRequired,
   canEdit: PropTypes.bool,
-  listId: PropTypes.number.isRequired,
-  listItems: PropTypes.arrayOf(PropTypes.shape).isRequired
+  listId: PropTypes.number.isRequired
 }
 
 export default ShoppingList
