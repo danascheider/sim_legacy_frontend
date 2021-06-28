@@ -1,4 +1,4 @@
-export const AuthorizationError = (message = '401 Unauthorized') => {
+const AuthorizationError = (message = '401 Unauthorized') => {
   let instance = new Error(message)
   instance.name = 'AuthorizationError'
   instance.message = message
@@ -20,3 +20,5 @@ if (Object.setPrototypeOf) {
 } else {
   AuthorizationError.__proto__ = Error
 }
+
+export { AuthorizationError }

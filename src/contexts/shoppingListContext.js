@@ -5,7 +5,6 @@
  *
  */
 
-
 import { createContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
@@ -19,23 +18,23 @@ const ERROR = 'error'
 
 const ShoppingListContext = createContext()
 
-const ShoppingListProvider = ({ children }) => {
-  const [shoppingLists, setShoppingLists] = useState(null)
+const ShoppingListProvider = ({ children, overrideValue = {} }) => {
+  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists)
   const [flashVisible, setFlashVisible] = useState(false)
   const [flashProps, setFlashProps] = useState({})
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
   const { token, setShouldRedirectTo, removeSessionCookie } = useDashboardContext()
   
   const fetchLists = () => {
-    if (token) {
+    if (token && !overrideValue.shoppingLists) {
       fetchShoppingLists(token)
         .then(resp => resp.json())
         .then(data => {
           if(data) {
             setShoppingLists(data)
-            setShoppingListLoadingState(DONE)
+            overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           } else {
-            return new Error('No shopping list data returned from the SIM API')
+            throw new Error('No shopping list data returned from the SIM API')
           }
         })
         .catch(err => {
@@ -45,9 +44,10 @@ const ShoppingListProvider = ({ children }) => {
             logOutWithGoogle(() => {
               token && removeSessionCookie()
               setShouldRedirectTo(paths.home)
+              // Don't set the loading state to ERROR because it's redirecting anyway
             })
           } else {
-            setShoppingListLoadingState(ERROR)
+            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
           }
         })
     }
@@ -66,7 +66,7 @@ const ShoppingListProvider = ({ children }) => {
               message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
             })
 
-            setFlashVisible(true)
+            !overrideValue.setFlashVisible && setFlashVisible(true)
 
             return null
           default:
@@ -77,6 +77,7 @@ const ShoppingListProvider = ({ children }) => {
         if (data && !data.errors) {
           const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
           setShoppingLists(newShoppingLists)
+          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           success && success()
         } else if (data && data.errors && data.errors.title) {
           setFlashProps({
@@ -84,14 +85,16 @@ const ShoppingListProvider = ({ children }) => {
             header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
             message: data.errors.title.map(msg => `Title ${msg}`)
           })
-          setFlashVisible(true)
+          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
+          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
           error && error()
         } else if (data && data.errors) {
           setFlashProps({
             type: 'error',
             message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
           })
-          setFlashVisible(true)
+          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
+          overrideValue.setShoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done because no error thrown
           error && error()
         } // no else because if data is null that's been dealt with
       })
@@ -104,13 +107,7 @@ const ShoppingListProvider = ({ children }) => {
             setShouldRedirectTo(paths.login)
           })
         } else {
-          setFlashProps({
-            type: 'error',
-            message: 'An unknown error prevented your changes from being saved. Please refresh the page and try again.'
-          })
-
-          if (!flashVisible) setFlashVisible(true)
-          error && error()
+          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
         }
       }) 
   }
@@ -120,9 +117,10 @@ const ShoppingListProvider = ({ children }) => {
     shoppingListLoadingState,
     performShoppingListUpdate,
     flashProps,
-    flashVisible
+    flashVisible,
+    ...overrideValue
   }
-  
+
   useEffect(fetchLists, [])
 
   return(
@@ -133,7 +131,29 @@ const ShoppingListProvider = ({ children }) => {
 }
 
 ShoppingListProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  overrideValue: PropTypes.shape({
+    shoppingLists: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      user_id: PropTypes.number,
+      title: PropTypes.string.isRequired,
+      shoppingListItems: PropTypes.arrayOf({
+        id: PropTypes.number,
+        shopping_list_id: PropTypes.number,
+        description: PropTypes.string.isRequired,
+        quantity: PropTypes.number.isRequired,
+        notes: PropTypes.string
+      }).isRequired
+    })),
+    shoppingListLoadingState: PropTypes.string,
+    performShoppingListUpdate: PropTypes.func,
+    flashProps: PropTypes.shape({
+      type: PropTypes.string,
+      header: PropTypes.string,
+      message: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]).isRequired
+    }),
+    flashVisible: PropTypes.bool
+  })
 }
 
 export { ShoppingListContext, ShoppingListProvider}

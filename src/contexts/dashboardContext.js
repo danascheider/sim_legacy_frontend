@@ -27,11 +27,11 @@ const DashboardContext = createContext()
 // set the value for the context in the story,
 const DashboardProvider = ({ children, overrideValue = {} }) => {
   const [cookies, , removeCookie] = useCookies([sessionCookieName])
-  const [profileData, setProfileData] = useState(null)
-  const [shouldRedirectTo, setShouldRedirectTo] = useState(null)
-  const [profileLoadState, setProfileLoadState] = useState(LOADING)
+  const [profileData, setProfileData] = useState(overrideValue.profileData)
+  const [shouldRedirectTo, setShouldRedirectTo] = useState(overrideValue.shouldRedirectTo)
+  const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
 
-  const removeSessionCookie = () => removeCookie(sessionCookieName)
+  const removeSessionCookie = () => overrideValue.removeSessionCookie || removeCookie(sessionCookieName)
 
   const value = {
     token: cookies[sessionCookieName],
