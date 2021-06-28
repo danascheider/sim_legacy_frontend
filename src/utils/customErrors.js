@@ -15,7 +15,6 @@ AuthorizationError.prototype = Object.create(Error.prototype, {
   }
 });
 
-
 if (Object.setPrototypeOf) {
   Object.setPrototypeOf(AuthorizationError, Error)
 } else {
