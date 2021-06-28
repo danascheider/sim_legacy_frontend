@@ -15,7 +15,6 @@ const ShoppingListPageContent = ({ lists, onSubmitEditForm }) => {
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
           const listKey = title.toLowerCase().replace(' ', '-')
-          const originalTitle = title
 
           return (
             <ColorProvider key={listKey} colorScheme={colorSchemes[colorSchemesIndex]}>
