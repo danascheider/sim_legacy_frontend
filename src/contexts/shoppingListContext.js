@@ -42,7 +42,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         .catch(err => {
           console.error('Error fetching shopping lists: ', err.message)
 
-          if (err.name === 'AuthorizationError') {
+          if (err.code === 401) {
             logOutWithGoogle(() => {
               token && removeSessionCookie()
               setShouldRedirectTo(paths.home)
@@ -104,7 +104,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       .catch(err => {
         console.error(`Error updating shopping list ${listId}: `, err.message)
 
-        if (err.name === 'AuthorizationError') {
+        if (err.code === 401) {
           return logOutWithGoogle(() => {
             token && removeSessionCookie()
             setShouldRedirectTo(paths.login)
