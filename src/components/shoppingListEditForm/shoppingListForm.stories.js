@@ -1,13 +1,13 @@
 import React from 'react'
 import { PINK } from '../../utils/colorSchemes'
 import { ColorProvider } from '../../contexts/colorContext'
-import ShoppingListForm from './shoppingListForm'
+import ShoppingListEditForm from './shoppingListEditForm'
 
-export default { title: 'ShoppingListForm' }
+export default { title: 'ShoppingListEditForm' }
 
 export const Default = () => (
   <ColorProvider colorScheme={PINK}>
-    <ShoppingListForm
+    <ShoppingListEditForm
       className='foo'
       title='Severin Manor'
       onSubmit={e => e.preventDefault()}

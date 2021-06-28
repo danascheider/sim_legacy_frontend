@@ -6,7 +6,7 @@ import { ColorProvider } from '../../contexts/colorContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
-import ShoppingListForm from '../shoppingListForm/shoppingListForm'
+import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
 
@@ -99,7 +99,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
           </div>}
           {canEdit && isComponentVisible ?
             <ColorProvider colorScheme={colorScheme}>
-              <ShoppingListForm
+              <ShoppingListEditForm
                 formRef={componentRef}
                 className={styles.form}
                 title={title}
