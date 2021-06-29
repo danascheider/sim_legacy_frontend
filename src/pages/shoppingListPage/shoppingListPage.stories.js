@@ -19,8 +19,15 @@ const dashboardContextOverrideValue = {
   profileData: userData
 }
 
-// When the user has shopping lists, and the ones that
-// are allowed to be updated can be updated successfully
+/* 
+ * 
+ * When the user is logged in, has shopping lists, and the shopping
+ * lists are able to be created or updated without incident. Also tests that,
+ * when a user assigns a blank title and the API response returns a default
+ * one, the title first stays blank then updates to the default one when the
+ * response comes back.
+ * 
+ */
 
 export const HappyPath = () => (
   <DashboardProvider overrideValue={dashboardContextOverrideValue}>
@@ -39,12 +46,27 @@ HappyPath.story = {
           ctx.json(shoppingLists)
         )
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => () => {
-        const returnData = shoppingList
+      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        const title = req.body.shopping_list.title || 'My List 3'
+        const returnData = [{ id: 32, user_id: 24, title: title, master: false, shopping_list_items: [] }]
+
+        return res(
+          ctx.status(201),
+          ctx.json(returnData)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/32`, (req, res, ctx) => {
+        const title = req.body.shopping_list.title || 'My List 1'
+        const returnData = { id: 32, user_id: 24, title: title, master: false, shopping_list_items: []}
+
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
+        )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
         const returnData = shoppingListUpdateData1
-        returnData.title = req.body.shopping_list.title
+        returnData.title = req.body.shopping_list.title || 'My List 1'
 
         return res(
           ctx.status(200),
@@ -53,7 +75,7 @@ HappyPath.story = {
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
         const returnData = shoppingListUpdateData2
-        returnData.title = req.body.shopping_list.title
+        returnData.title = req.body.shopping_list.title || 'My List 2'
 
         return res(
           ctx.status(200),
@@ -64,50 +86,12 @@ HappyPath.story = {
   }
 }
 
-
-// When the user enters a blank title, the API will change the title to "My List N". This
-// story is to verify that the UI updates with the saved title when the API call finishes.
-
-export const UpdateDefaultTitle = () => (
-  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
-    <ShoppingListProvider>
-      <ShoppingListPage />
-    </ShoppingListProvider>
-  </DashboardProvider>
-)
-
-UpdateDefaultTitle.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(shoppingLists)
-        )
-      }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
-        const returnData = shoppingListUpdateData1
-        returnData.title = 'My List 1'
-
-        return res(
-          ctx.status(200),
-          ctx.json(returnData)
-        )
-      }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
-        const returnData = shoppingListUpdateData1
-        returnData.title = 'My List 2'
-
-        return res(
-          ctx.status(200),
-          ctx.json(returnData)
-        )
-      })
-    ]
-  }
-}
-
-// When the user has shopping lists but there's an error when they try to update
+/*
+ *
+ * When the user has shopping lists but there is an error when they try to update one
+ * due to a 404 on the server side.
+ * 
+ */
 
 export const UpdateListNotFound = () => (
   <DashboardProvider overrideValue={dashboardContextOverrideValue}>
@@ -126,6 +110,21 @@ UpdateListNotFound.story = {
           ctx.json(shoppingLists)
         )
       }),
+      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        const title = req.body.shopping_list.title || 'My List 3'
+        const returnData = [{ id: 32, user_id: 24, title: title, master: false, shopping_list_items: [] }]
+
+        return res(
+          ctx.status(201),
+          ctx.json(returnData)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/32`, (req, res, ctx) => {
+        return res(
+          ctx.status(404),
+          ctx.json({ error: 'Shopping list id=32 not found' })
+        )
+      }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
         return res(
           ctx.status(404),
@@ -142,7 +141,12 @@ UpdateListNotFound.story = {
   }
 }
 
-// When the list can't be updated (422 from API)
+/*
+ *
+ * When the list can't be updated because of a 422 error from the API,
+ * or the user attempts to create a list with invalid data.
+ * 
+ */
 
 export const UpdateUnprocessableEntity = () => (
   <DashboardProvider overrideValue={dashboardContextOverrideValue}>
@@ -161,6 +165,12 @@ UpdateUnprocessableEntity.story = {
           ctx.json(shoppingLists)
         )
       }),
+      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => () => {
+        return res(
+          ctx.status(422),
+          ctx.json({ errors: { title: ['can only include alphanumeric characters and spaces'] } })
+        )
+      }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
         return res(
           ctx.status(422),
@@ -177,7 +187,11 @@ UpdateUnprocessableEntity.story = {
   }
 }
 
-// When the user has no shopping lists
+/*
+ *
+ * When the user has no shopping lists
+ * 
+ */
 
 export const Empty = () => (
   <DashboardProvider overrideValue={dashboardContextOverrideValue}>
@@ -194,6 +208,24 @@ Empty.story = {
         return res(
           ctx.status(200),
           ctx.json(emptyShoppingLists)
+        )
+      }),
+      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        const title = req.body.shopping_list.title || 'My List 3'
+        const returnData = [{ id: 32, user_id: 24, title: title, master: false, shopping_list_items: [] }]
+
+        return res(
+          ctx.status(201),
+          ctx.json(returnData)
+        )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/32`, (req, res, ctx) => {
+        const title = req.body.shopping_list.title || 'My List 2'
+        const returnData = { id: 32, user_id: 24, title, master: false, shopping_list_items: [] }
+
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
         )
       })
     ]

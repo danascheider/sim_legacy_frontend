@@ -26,7 +26,7 @@ const ShoppingListPageContent = () => {
    */
 
   if (happyPathEmpty) {
-    return <p className={styles.noLists}>You have no shopping lists.</p>
+    return null
   } else if (happyPathNonEmpty) {
     return(
       <>
