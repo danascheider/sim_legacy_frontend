@@ -19,9 +19,7 @@ const ShoppingListEditForm = ({ formRef, className, title, onSubmit }) => {
   const [inputWidth, setInputWidth] = useState(`${getInputTextWidth(title)}px`)
   const inputRef = useRef(null)
 
-  const [ colorScheme ] = useColorScheme()
-
-  const { schemeColor, textColorPrimary, borderColor, schemeColorLightest } = colorScheme
+  const { schemeColor, textColorPrimary, borderColor, schemeColorLightest } = useColorScheme()
 
   const colorVars = {
     '--scheme-color': schemeColor,

@@ -12,11 +12,8 @@ import PropTypes from 'prop-types'
 const ColorContext = createContext()
 
 const ColorProvider = ({ colorScheme, children }) => {
-  const [scheme, setScheme] = useState(colorScheme)
-  const value = useMemo(() => [scheme, setScheme], [scheme])
-
   return(
-    <ColorContext.Provider value={value} colorScheme={scheme}>
+    <ColorContext.Provider value={colorScheme}>
       {children}
     </ColorContext.Provider>
   )

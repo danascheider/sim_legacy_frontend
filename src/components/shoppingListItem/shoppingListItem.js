@@ -9,7 +9,6 @@ const ShoppingListItem = ({
   quantity,
   notes
 }) => {
-  const [colorScheme] = useColorScheme()
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const {
@@ -19,7 +18,7 @@ const ShoppingListItem = ({
     borderColor,
     schemeColorLightest,
     textColorTertiary
-  } = colorScheme
+  } = useColorScheme()
   
   const toggleDetails = () => {
     setToggleEvent(Date.now)
