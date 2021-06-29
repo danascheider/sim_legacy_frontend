@@ -39,6 +39,9 @@ HappyPath.story = {
           ctx.json(shoppingLists)
         )
       }),
+      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => () => {
+        const returnData = shoppingList
+      }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
         const returnData = shoppingListUpdateData1
         returnData.title = req.body.shopping_list.title

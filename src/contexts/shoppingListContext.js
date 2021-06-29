@@ -145,11 +145,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           setFlashVisible(true)
 
           success && success()
-        } else if (data.length) {
+        } else if (Array.isArray(data)) {
           // It is an array of shopping lists but it only contains one. This case means
           // that there was already a master list and only the list the user manually
           // created was created. The new list should be added to the existing shoppingLists
-          // array in the second position (after the master list but before any of the others)
+          // array in the second position (after the master list but before any of the others).
           const newShoppingLists = shoppingLists
           newShoppingLists.splice(1, 0, data[0])
           setShoppingLists(newShoppingLists)
@@ -172,7 +172,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
             message: data.errors.title.map(msg => `Title ${msg}`)
           })
-          setFlashVisible()
+          setFlashVisible(true)
 
           success && success()
         } else {

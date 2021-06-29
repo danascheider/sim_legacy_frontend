@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import { useShoppingListContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
@@ -19,21 +19,15 @@ const ShoppingListPageContent = () => {
   const happyPathNonEmpty = shoppingLists && shoppingListLoadingState === 'done' && shoppingLists.length > 0
   const happyPathEmpty = shoppingLists && shoppingListLoadingState === 'done' && shoppingLists.length === 0
 
-  // Unexpected but possible states
-  const missingListsDone = !shoppingLists && shoppingListLoadingState === 'done'
-  const missingListsError = !shoppingLists && shoppingListLoadingState === 'error'
-
-  // These states should definitely not be occurring but sometimes shit goes sideways
-  const hasListsWithError = shoppingLists && shoppingListLoadingState === 'error'
-
   /*
    *
    * Return appropriate values for the state the component is in
    * 
    */
 
-  if (happyPathEmpty) return <p className={styles.noLists}>You have no shopping lists.</p>
-  if (happyPathNonEmpty) {
+  if (happyPathEmpty) {
+    return <p className={styles.noLists}>You have no shopping lists.</p>
+  } else if (happyPathNonEmpty) {
     return(
       <>
         {shoppingLists.map(({ id, title, master }, index) => {
@@ -56,9 +50,9 @@ const ShoppingListPageContent = () => {
         })}
       </>
     )
-  }
-  if (shoppingListLoadingState === 'loading') return <Loading className={styles.loading} color={YELLOW.schemeColor} height='15%' width='15%' />
-  if (missingListsDone || missingListsError || hasListsWithError) {
+  } else if (shoppingListLoadingState === 'loading') {
+    return <Loading className={styles.loading} color={YELLOW.schemeColor} height='15%' width='15%' />
+  } else {
     return <p className={styles.error}>There was an error loading your lists. It may have been on our end. We're sorry!</p>
   }
 }

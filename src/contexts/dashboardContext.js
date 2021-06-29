@@ -70,8 +70,10 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
           })
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
-      setShouldRedirectTo(paths.login)
-      mountedRef.current = false
+      logOutWithGoogle(() => {
+        setShouldRedirectTo(paths.login)
+        mountedRef.current = false
+      })
     } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
   }
 
