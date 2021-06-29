@@ -14,16 +14,12 @@
  */
 
 import { backendBaseUri } from './config'
+import { AuthorizationError } from './customErrors'
 
-const authError = (msg = '401 Unauthorized') => ({ name: 'AuthorizationError', code: 401, message: msg })
 const baseUri = backendBaseUri[process.env.NODE_ENV]
 const authHeader = token => ({ 'Authorization': `Bearer ${token}`})
 const contentTypeHeader = { 'Content-Type': 'application/json' }
 const combinedHeaders = token => ({ ...authHeader(token), ...contentTypeHeader })
-
-const throwAuthErrorOn401 = resp => {
-  if (resp.status === 401) resp.json().then(data => { throw authError(data.error) })
-}
 
 /*
  *
@@ -37,7 +33,7 @@ export const authorize = token => {
   return(
     fetch(uri, {  headers: authHeader(token) })
       .then(resp => {
-        throwAuthErrorOn401(resp)
+        if (resp.status === 401) throw new AuthorizationError()
         return resp
       })
   )
@@ -55,7 +51,7 @@ export const fetchUserProfile = token => {
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
-        throwAuthErrorOn401(resp)
+        if (resp.status === 401) throw new AuthorizationError()
         return resp
       })
   )
@@ -74,7 +70,7 @@ export const fetchShoppingLists = token => {
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
-        throwAuthErrorOn401(resp)
+        if (resp.status === 401) throw new AuthorizationError()
         return resp
       })
   )
@@ -91,7 +87,7 @@ export const createShoppingList = (token, attrs) => {
     body: body
   })
   .then(resp => {
-    throwAuthErrorOn401(resp)
+    if (resp.status === 401) throw new AuthorizationError()
     return resp
   })
 }
@@ -112,7 +108,7 @@ export const updateShoppingList = (token, listId, attrs) => {
       body: body
     })
     .then(resp => {
-      throwAuthErrorOn401(resp)
+      if (resp.status === 401) throw new AuthorizationError()
       return resp
     })
   )
