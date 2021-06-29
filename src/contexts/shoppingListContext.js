@@ -161,10 +161,12 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           success && success()
           setFlashVisible(true)
-        } else if (data.errors && data.errors.title) {
+        } else if (data && data.errors && data.errors.title) {
           // The list couldn't be created because of errors. Since "title" is the only field
           // the UI provides where there could be errors, we'll just assume that's the only
-          // place in this object to find the error messages.
+          // place in this object to find the error messages. Note that in this case the response
+          // body will be an object and not an array, since the master list won't be created anyway
+          // if creation of this item fails.
           setFlashProps({
             type: 'error',
             header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,

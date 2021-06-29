@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import { useShoppingListContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
@@ -36,19 +36,19 @@ const ShoppingListPageContent = () => {
   if (happyPathNonEmpty) {
     return(
       <>
-        {shoppingLists.map(({ id, title, master, shopping_list_items }, index) => {
+        {shoppingLists.map(({ id, title, master }, index) => {
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
+          const colorScheme = colorSchemes[colorSchemesIndex]
           const listKey = title.toLowerCase().replace(' ', '-')
 
           return (
-            <ColorProvider key={listKey} colorScheme={colorSchemes[colorSchemesIndex]}>
+            <ColorProvider key={listKey} colorScheme={colorScheme}>
               <div className={styles.shoppingList}>
                 <ShoppingList
                   canEdit={!master}
                   listId={id}
                   title={title}
-                  listItems={shopping_list_items}
                 />
               </div>
             </ColorProvider>
