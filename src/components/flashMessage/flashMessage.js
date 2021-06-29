@@ -2,11 +2,17 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styles from './flashMessage.module.css'
 
+const SUCCESS = 'success'
 const INFO = 'info'
 const ERROR = 'error'
 const WARNING = 'warning'
 
 const colors = {
+  [SUCCESS]: {
+    body: '#e5f2e5',
+    border: '#b2d8b2',
+    text: '#329932'
+  },
   [INFO]: {
     body: '#cce5ff',
     border: '#b3d8ff',
@@ -43,7 +49,7 @@ const FlashMessage = ({ type = INFO, header, message }) => {
 }
 
 FlashMessage.propTypes = {
-  type: PropTypes.oneOf([INFO, ERROR, WARNING]),
+  type: PropTypes.oneOf([SUCCESS, INFO, ERROR, WARNING]),
   header: PropTypes.string,
   message: PropTypes.oneOfType([
     PropTypes.string, PropTypes.arrayOf(PropTypes.string)

@@ -215,8 +215,14 @@ On load, the `ShoppingListProvider` fetches all the user's shopping lists. It re
   * `newTitle`: The new title of the list taken from the form the user submitted
   * `success`: An optional success callback that can be used for handling state within the component that calls the function
   * `error`: An optional error callback that can be used to clean up state within the component that calls the function
+* `performShoppingListCreate`: a function that creates a shopping list for the authenticated user, also encompassing error handling logic. The function takes three arguments:
+  * `title`: The title of the new list
+  * `success`: An optional success callback that can be used for handling state within the component that calls the function
+  * `error`: An optional error callback that can be used to clean up state within the component that calls the function
 * `flashProps`: The props to be passed to the `FlashMessage` component when/if it is displayed
 * `flashVisible`: Whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
+* `setFlashProps`: A setter function to let the context know what the flash message type and content should be
+* `setFlashVisible`: A setter function to let the context know whether the flash message should be displayed
 
 ### Testing
 
