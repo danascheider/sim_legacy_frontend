@@ -33,12 +33,16 @@ const DashboardContext = createContext()
 const DashboardProvider = ({ children, overrideValue = {} }) => {
   const [cookies, , removeCookie] = useCookies([sessionCookieName])
   const [profileData, setProfileData] = useState(overrideValue.profileData)
-  const [shouldRedirectTo, setShouldRedirectTo] = useState(overrideValue.shouldRedirectTo)
+  const [redirectPath, setRedirectPath] = useState(overrideValue.shouldRedirectTo)
   const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
 
   const mountedRef = useRef(true)
 
-  const removeSessionCookie = () => overrideValue.removeSessionCookie || removeCookie(sessionCookieName)
+  const removeSessionCookie = () => overrideValue.removeSessionCookie() || removeCookie(sessionCookieName)
+  const setShouldRedirectTo = path => {
+    setRedirectPath(path)
+    mountedRef.current = false
+  }
 
   const value = {
     token: cookies[sessionCookieName],
@@ -65,13 +69,11 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
           logOutWithGoogle(() => {
             cookies[sessionCookieName] && removeSessionCookie()
             setShouldRedirectTo(paths.login)
-            mountedRef.current = false
           })
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
       logOutWithGoogle(() => {
         setShouldRedirectTo(paths.login)
-        mountedRef.current = false
       })
     } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
   }
@@ -83,7 +85,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
 
   return(
     <DashboardContext.Provider value={value}>
-      {shouldRedirectTo ? <Redirect to={shouldRedirectTo} /> : children}
+      {redirectPath ? <Redirect to={redirectPath} /> : children}
     </DashboardContext.Provider>
   )
 }

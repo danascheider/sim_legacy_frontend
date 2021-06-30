@@ -22,19 +22,18 @@ const LoginPage = () => {
 
     if (cookies[sessionCookieName] !== tokenId) {
       authorize(tokenId)
-      .then(response => {
-        if (response.status === 204) {
-          setCookie(sessionCookieName, tokenId)
-        }
-      })
-      .catch(error => {
-        console.error('Error from /auth/verify_token: ', error.message)
-
-        logOutWithGoogle(() => {
-          cookies[sessionCookieName] && removeCookie(sessionCookieName)
-          return <Redirect to={paths.home} />
+        .then(response => {
+          if (response.status === 204) {
+            setCookie(sessionCookieName, tokenId)
+          }
         })
-      })
+        .catch(error => {
+          console.error('Error from /auth/verify_token: ', error.message)
+
+          logOutWithGoogle(() => {
+            cookies[sessionCookieName] && removeCookie(sessionCookieName)
+          })
+        })
     }
   }
 
