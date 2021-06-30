@@ -226,6 +226,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           throw new Error('You can\'t delete your master list as it is managed automatically.')
         } else if (resp.status === 404) {
           throw new Error('Shopping list could not be destroyed. Try refreshing to fix this problem.')
+        } else if (resp.status === 204) {
+          return null
         } else {
           return resp.json()
         }
@@ -235,6 +237,14 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // This means that the list was the user's last shopping list and both
           // it and the master list have been destroyed.
           setShoppingLists([])
+          setFlashProps({
+            type: 'success',
+            header: 'Your shopping list has been deleted.',
+            message: 'Since it was your last list, your master list has been deleted as well.'
+          })
+
+          setFlashVisible(true)
+
           success && success()
         } else {
           // This means that the master list has been updated and returned,
@@ -243,6 +253,14 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
                                                 .filter(list => list.id !== listId)
 
           setShoppingLists(newShoppingLists)
+
+          setFlashProps({
+            type: 'success',
+            message: 'Your shopping list has been deleted.'
+          })
+
+          setFlashVisible(true)
+
           success && success()
         }
       })
