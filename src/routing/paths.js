@@ -3,7 +3,7 @@ const paths = {
   login: '/login',
   dashboard: {
     main: '/dashboard',
-    shoppingLists: '/dashboard/shoppingLists'
+    shoppingLists: '/dashboard/shopping_lists'
   }
 }
 
