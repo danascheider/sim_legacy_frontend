@@ -23,7 +23,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
 
   const createShoppingList = e => {
     e.preventDefault()
-    const title = e.nativeEvent.target.children[0].defaultValue
+    const title = e.nativeEvent.target.children[0].children[0].defaultValue
     performShoppingListCreate(title, () => setInputValue(''))
   }
 
