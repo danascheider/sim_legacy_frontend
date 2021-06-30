@@ -207,8 +207,6 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     performShoppingListCreate,
     flashProps,
     flashVisible,
-    setFlashProps,
-    setFlashVisible,
     ...overrideValue
   }
 

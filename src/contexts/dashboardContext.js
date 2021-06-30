@@ -44,7 +44,6 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
     token: cookies[sessionCookieName],
     profileData,
     removeSessionCookie,
-    setProfileData,
     profileLoadState,
     setShouldRedirectTo,
     ...overrideValue // enables you to only change certain values

@@ -72,7 +72,6 @@ The `DashboardProvider`'s value includes the following:
 * `token`: The JWT token assigned by Google and stored in the `_sim_google_session` cookie. The context provider gets the value from the cookie, not from Google directly.
 * `profileData`: The user's profile data returned from the API, which is fetched when the component renders provided there is a `token`.
 * `removeSessionCookie`: A function, which takes zero arguments and removes the `_sim_google_session` cookie. This is used in logout callbacks.
-* `setProfileData`: A setter function enabling the `profileData` value to be set.
 * `profileLoadState`: The status of profile data loading, either 'loading' or 'done'
 * `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in.
 
@@ -221,8 +220,6 @@ On load, the `ShoppingListProvider` fetches all the user's shopping lists. It re
   * `error`: An optional error callback that can be used to clean up state within the component that calls the function
 * `flashProps`: The props to be passed to the `FlashMessage` component when/if it is displayed
 * `flashVisible`: Whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
-* `setFlashProps`: A setter function to let the context know what the flash message type and content should be
-* `setFlashVisible`: A setter function to let the context know whether the flash message should be displayed
 
 ### Testing
 
