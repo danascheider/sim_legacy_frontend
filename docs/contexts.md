@@ -224,6 +224,8 @@ On load, the `ShoppingListProvider` fetches all the user's shopping lists. It re
   * `error`: an optional error callback that can be used to clean up state within the component that calls the function
 * `flashProps`: the props to be passed to the `FlashMessage` component when/if it is displayed
 * `flashVisible`: whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
+* `setFlashProps`: a function to set the type and message in the `FlashMessage` component; takes an object argument
+* `setFlashVisible`: a function to set the visibility of the `FlashMessage` component; takes a boolean argument
 
 ### Testing
 

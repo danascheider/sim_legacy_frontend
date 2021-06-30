@@ -23,7 +23,7 @@ const cards = [
   },
   {
     colorScheme: PINK,
-    href: '#',
+    href: paths.dashboard.shoppingLists,
     children: 'Your Shopping Lists',
     key: 'your-shopping-lists'
   },
