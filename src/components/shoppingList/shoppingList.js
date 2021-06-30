@@ -26,7 +26,6 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [listItems, setListItems] = useState(null)
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
-  const mountedRef = useRef(true)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
   const {
@@ -86,7 +85,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
 
     if (confirmed) {
-      performShoppingListDelete(listId, () => { mountedRef.current = false })
+      performShoppingListDelete(listId)
     } else {
       setFlashProps({
         type: 'info',
@@ -102,10 +101,6 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     const items = shoppingLists.find(obj => obj.id === listId).shopping_list_items
     setListItems(items)
   }, [shoppingLists])
-
-  useEffect(() => (
-    () => (mountedRef.current = false)
-  ))
 
   return(
     <div className={styles.root} style={styleVars}>
