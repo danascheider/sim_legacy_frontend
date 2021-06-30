@@ -3,8 +3,24 @@
   margin: 0 auto 32px;
 }
 
+.button {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--button-color);
+  color: var(--button-text-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 3px;
+  font-size: 1.1rem;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
 .fieldset {
   border: none;
+}
+
+.fieldsetDisabled * {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .input {
@@ -17,26 +33,15 @@
   border-radius: 3px;
 }
 
-.button {
-  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  background-color: var(--button-color);
-  color: var(--button-text-color);
-  border: 1px solid var(--button-border-color);
-  border-radius: 3px;
-  font-size: 1.1rem;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
 .button:hover {
   background-color: var(--button-hover-color)
 }
 
 .buttonDisabled {
-  opacity: 0.7;
-  cursor: auto;
+  background-color: #7c8388;
+  border-color: #4b5053;
 }
 
 .buttonDisabled:hover {
-  background-color: var(--button-color);
+  background-color: #7c8388;
 }

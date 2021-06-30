@@ -30,7 +30,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
   return(
     <div className={styles.root} style={colorVars}>
       <form className={styles.form} onSubmit={createShoppingList}>
-        <fieldset className={styles.fieldset} disabled={disabled}>
+        <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
           <input
             className={styles.input}
             type='text'
