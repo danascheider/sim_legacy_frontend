@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
@@ -24,15 +25,24 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [currentTitle, setCurrentTitle] = useState(title)
   const [listItems, setListItems] = useState(null)
   const slideTriggerRef = useRef(null)
+  const deleteTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
-  const { shoppingLists, performShoppingListUpdate } = useShoppingListContext()
+
+  const {
+    shoppingLists,
+    performShoppingListUpdate,
+    performShoppingListDelete,
+    setFlashProps,
+    setFlashVisible
+  } = useShoppingListContext()
 
   const originalTitle = title // to switch back in case of API error
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
+  const deleteTriggerRefContains = element => deleteTriggerRef.current && (deleteTriggerRef.current === element || deleteTriggerRef.current.contains(element))
   const componentRefContains = element => componentRef.current && (componentRef.current === element || componentRef.current.contains(element))
-  const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element)) && !componentRefContains(element)
+  const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element)) && !componentRefContains(element) && !deleteTriggerRefContains(element)
 
   const toggleListItems = (e) => {
     if (shouldToggleListItems(e.target)) {
@@ -69,6 +79,22 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     setIsComponentVisible(false)
   }
 
+  const deleteList = e => {
+    e.preventDefault()
+
+    const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
+
+    if (confirmed) {
+      performShoppingListDelete(listId)
+    } else {
+      setFlashProps({
+        type: 'info',
+        message: 'Your list was not deleted.'
+      })
+      setFlashVisible(true)
+    }
+  }
+
   useEffect(() => {
     if (shoppingLists === undefined) return // it'll run again when they populate
 
@@ -80,9 +106,15 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
-          {canEdit && <div ref={triggerRef}>
-            <FontAwesomeIcon className={styles.fa} icon={faEdit} />
-          </div>}
+          {canEdit &&
+          <>
+            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList}>
+              <FontAwesomeIcon className={styles.fa} icon={faTimes} />
+            </div>
+            <div className={styles.icon} ref={triggerRef}>
+              <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+            </div>
+          </>}
           {canEdit && isComponentVisible ?
             <ShoppingListEditForm
               formRef={componentRef}

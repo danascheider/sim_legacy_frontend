@@ -12,14 +12,14 @@ const cards = [
   {
     colorScheme: YELLOW,
     href: '#',
-    children: 'Your Shopping Lists',
-    key: 'card-1'
+    children: 'Your Games',
+    key: 'your-games'
   },
   {
     colorScheme: PINK,
     href: '#',
-    children: 'Nav Link 2',
-    key: 'card-2'
+    children: 'Your Shopping Lists',
+    key: 'your-shopping-lists'
   },
   {
     colorScheme: BLUE,

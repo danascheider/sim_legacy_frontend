@@ -210,16 +210,22 @@ On load, the `ShoppingListProvider` fetches all the user's shopping lists. It re
 * `shoppingLists`: the array of all the user's shopping lists, with the master list first
 * `shoppingListLoadingState`: whether the `shoppingLists` are 'loading' (waiting for the API call to resolve), 'done' (when the API call is finished), or 'error' (when the API call has thrown an honest-to-god, unexpected error - not just when it returns a 400-range error code)
 * `performShoppingListUpdate`: a function that updates the list specified through the API, also encompassing error handling logic. The function takes 4 arguments:
-  * `listId`: The ID (primary key in the database) of the list to be updated
-  * `newTitle`: The new title of the list taken from the form the user submitted
-  * `success`: An optional success callback that can be used for handling state within the component that calls the function
-  * `error`: An optional error callback that can be used to clean up state within the component that calls the function
-* `performShoppingListCreate`: a function that creates a shopping list for the authenticated user, also encompassing error handling logic. The function takes three arguments:
-  * `title`: The title of the new list
-  * `success`: An optional success callback that can be used for handling state within the component that calls the function
-  * `error`: An optional error callback that can be used to clean up state within the component that calls the function
-* `flashProps`: The props to be passed to the `FlashMessage` component when/if it is displayed
-* `flashVisible`: Whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
+  * `listId`: the ID (primary key in the database) of the list to be updated
+  * `newTitle`: the new title of the list taken from the form the user submitted
+  * `success`: an optional success callback that can be used for handling state within the component that calls the function
+  * `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `performShoppingListCreate`: a function that creates a shopping list for the authenticated user, also encompassing error handling logic. The function takes 3 arguments:
+  * `title`: the title of the new list
+  * `success`: an optional success callback that can be used for handling state within the component that calls the function
+  * `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `performShoppingListDelete`: a function that deletes the list specified through the API, also encompassing error handling logic. The function takes 3 arguments:
+  * `listId`: the ID (primary key in the database) of the list to be updated
+  * `success`: an optional success callback that can be used for handling state within the component that calls the function
+  * `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `flashProps`: the props to be passed to the `FlashMessage` component when/if it is displayed
+* `flashVisible`: whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
+* `setFlashProps`: a function to set the type and message in the `FlashMessage` component; takes an object argument
+* `setFlashVisible`: a function to set the visibility of the `FlashMessage` component; takes a boolean argument
 
 ### Testing
 

@@ -62,6 +62,20 @@ HappyPath.story = {
           ctx.status(200),
           ctx.json(returnData)
         )
+      }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({
+            master_list: {
+              id: 489,
+              title: 'Master',
+              master: true,
+              user_id: 24,
+              shopping_list_items: []
+            }
+          })
+        )
       })
     ]
   }
@@ -74,7 +88,7 @@ HappyPath.story = {
  * 
  */
 
-export const UpdateListNotFound = () => (
+export const ListNotFound = () => (
   <DashboardProvider overrideValue={dashboardContextOverrideValue}>
     <ShoppingListProvider>
       <ShoppingListPage />
@@ -82,7 +96,7 @@ export const UpdateListNotFound = () => (
   </DashboardProvider>
 )
 
-UpdateListNotFound.story = {
+ListNotFound.story = {
   parameters: {
     msw: [
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
@@ -106,6 +120,16 @@ UpdateListNotFound.story = {
         return res(
           ctx.status(404),
           ctx.json({ error: `Shopping list id=${listId} not found` })
+        )
+      }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        const listId = Number(req.params.id)
+
+        return res(
+          ctx.status(404),
+          ctx.json({
+            error: `Shopping list id=${listId} not found`
+          })
         )
       })
     ]
@@ -146,6 +170,22 @@ UnprocessableEntity.story = {
         return res(
           ctx.status(422),
           ctx.json({ errors: { title: ['is already taken'] } })
+        )
+      }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        const listId = Number(req.params.id)
+
+        return res(
+          ctx.status(200),
+          ctx.json({
+            master_list: {
+              id: 93,
+              title: 'Master',
+              master: true,
+              user_id: 24,
+              shopping_list_items: []
+            }
+          })
         )
       })
     ]
@@ -195,6 +235,13 @@ Empty.story = {
         return res(
           ctx.status(200),
           ctx.json(returnData)
+        )
+      }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        const listId = Number(req.params.id)
+
+        return res(
+          ctx.status(204)
         )
       })
     ]

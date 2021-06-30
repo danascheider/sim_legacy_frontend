@@ -13,7 +13,12 @@
 import { createContext, useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
-import { createShoppingList, fetchShoppingLists, updateShoppingList } from '../utils/simApi'
+import {
+  createShoppingList,
+  fetchShoppingLists,
+  updateShoppingList,
+  deleteShoppingList
+} from '../utils/simApi'
 import { useDashboardContext } from '../hooks/contexts'
 import paths from '../routing/paths'
 
@@ -129,11 +134,6 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       }) 
   }
 
-  // Note that the success callback will be executed if the API response didn't error
-  // out or return a 401. That means it will still run if the list could not be
-  // created. Only when the API call raises an actual error will the error callback
-  // be called instead. The error callback will not run on a 401 error because that
-  // triggers a redirect.
   const performShoppingListCreate = (title, success = null, error = null) => {
     createShoppingList(token, { title })
       .then(resp => resp.json())
@@ -167,8 +167,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             message: 'Success! Your list was created.'
           })
 
-          success && success()
           setFlashVisible(true)
+
+          success && success()
         } else if (data && data.errors && data.errors.title) {
           // The list couldn't be created because of errors. Since "title" is the only field
           // the UI provides where there could be errors, we'll just assume that's the only
@@ -180,6 +181,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             header: `${data.errors.title.length} error(s) prevented your shopping list from being created:`,
             message: data.errors.title.map(msg => `Title ${msg}`)
           })
+
           setFlashVisible(true)
 
           success && success()
@@ -215,13 +217,82 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
+  const performShoppingListDelete = (listId, success = null, error = null) => {
+    deleteShoppingList(token, listId)
+      .then(resp => {
+        if (resp.status === 405) {
+          // This should never happen given there isn't actually a way to even
+          // make this request on a master list through the UI.
+          throw new Error('You can\'t delete your master list as it is managed automatically.')
+        } else if (resp.status === 404) {
+          throw new Error('Shopping list could not be destroyed. Try refreshing to fix this problem.')
+        } else if (resp.status === 204) {
+          return null
+        } else {
+          return resp.json()
+        }
+      })
+      .then(data => {
+        if (!data) {
+          // This means that the list was the user's last shopping list and both
+          // it and the master list have been destroyed.
+          setShoppingLists([])
+          setFlashProps({
+            type: 'success',
+            header: 'Your shopping list has been deleted.',
+            message: 'Since it was your last list, your master list has been deleted as well.'
+          })
+
+          setFlashVisible(true)
+
+          success && success()
+        } else {
+          // This means that the master list has been updated and returned,
+          // to adjust for any items that were deleted with the other list.
+          const newShoppingLists = shoppingLists.map(list => (list.master === true ? data.master_list : list))
+                                                .filter(list => list.id !== listId)
+
+          setShoppingLists(newShoppingLists)
+
+          setFlashProps({
+            type: 'success',
+            message: 'Your shopping list has been deleted.'
+          })
+
+          setFlashVisible(true)
+
+          success && success()
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutWithGoogle(() => {
+            token && removeSessionCookie()
+            setShouldRedirectTo(paths.login)
+            mountedRef.current = false
+          })
+        } else {
+          setFlashProps({
+            type: 'error',
+            message: err.message
+          })
+
+          setFlashVisible(true)
+          error && error()
+        }
+      })
+  }
+
   const value = {
     shoppingLists,
     shoppingListLoadingState,
     performShoppingListUpdate,
     performShoppingListCreate,
+    performShoppingListDelete,
     flashProps,
     flashVisible,
+    setFlashProps,
+    setFlashVisible,
     ...overrideValue
   }
 

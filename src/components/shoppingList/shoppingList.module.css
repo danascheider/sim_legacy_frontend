@@ -50,6 +50,10 @@
   color: var(--scheme-color-lightest);
 }
 
+.icon:first-of-type {
+  margin-right: 8px;
+}
+
 .collapsible {
   border: 1px solid var(--border-color);
 }

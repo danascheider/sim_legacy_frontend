@@ -16,7 +16,7 @@ const colors = {
   [INFO]: {
     body: '#cce5ff',
     border: '#b3d8ff',
-    text: '#6289b2',
+    text: '#4e6d8e',
   },
   [ERROR]: {
     body: '#ffcccc',
