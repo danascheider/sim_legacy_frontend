@@ -62,6 +62,11 @@ HappyPath.story = {
           ctx.status(200),
           ctx.json(returnData)
         )
+      }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(204)
+        )
       })
     ]
   }

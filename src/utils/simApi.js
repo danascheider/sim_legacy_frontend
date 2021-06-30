@@ -63,7 +63,7 @@ export const fetchUserProfile = token => {
  *
  */
 
-// GET index
+// GET /shopping_lists
 export const fetchShoppingLists = token => {
   const uri = `${baseUri}/shopping_lists`
 
@@ -76,7 +76,7 @@ export const fetchShoppingLists = token => {
   )
 }
 
-// POST create
+// POST /shopping_lists
 export const createShoppingList = (token, attrs) => {
   const uri = `${baseUri}/shopping_lists`
   const body = JSON.stringify({ shopping_list: attrs })
@@ -92,7 +92,7 @@ export const createShoppingList = (token, attrs) => {
   })
 }
 
-// PATCH update
+// PATCH /shopping_lists/:id
 export const updateShoppingList = (token, listId, attrs) => {
   const uri = `${baseUri}/shopping_lists/${listId}`
 
@@ -106,6 +106,22 @@ export const updateShoppingList = (token, listId, attrs) => {
       method: 'PATCH',
       headers: combinedHeaders(token),
       body: body
+    })
+    .then(resp => {
+      if (resp.status === 401) throw new AuthorizationError()
+      return resp
+    })
+  )
+}
+
+// DELETE /shopping_lists/:id
+export const deleteShoppingList = (token, listId) => {
+  const uri = `${baseUri}/shopping_lists/${listId}`
+
+  return(
+    fetch(uri, {
+      method: 'DELETE',
+      headers: authHeader(token),
     })
     .then(resp => {
       if (resp.status === 401) throw new AuthorizationError()

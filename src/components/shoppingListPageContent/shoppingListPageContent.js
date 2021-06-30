@@ -24,6 +24,8 @@ const ShoppingListPageContent = () => {
    * 
    */
 
+  console.log('shoppingLists: ', shoppingLists)
+
   if (happyPathNonEmpty) {
     return(
       <>
