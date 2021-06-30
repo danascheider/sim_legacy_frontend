@@ -18,7 +18,7 @@
 }
 
 .button {
-  font-family: 'QuattrocentoSans', Arial, Helvetica, sans-serif;
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   background-color: var(--button-color);
   color: var(--button-text-color);
   border: 1px solid var(--button-border-color);
