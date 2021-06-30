@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { Redirect } from 'react-router-dom'
 import GoogleLogin from 'react-google-login'
 import { useCookies } from 'react-cookie'
@@ -17,8 +17,6 @@ const LoginPage = () => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
   const [loginErrorMessage, setLoginErrorMessage] = useState(null)
 
-  const mountedRef = useRef(true)
-
   const successCallback = (resp) => {
     const { tokenId } = resp
 
@@ -35,7 +33,6 @@ const LoginPage = () => {
         logOutWithGoogle(() => {
           cookies[sessionCookieName] && removeCookie(sessionCookieName)
           return <Redirect to={paths.home} />
-          mountedRef.current = false
         })
       })
     }
@@ -46,10 +43,6 @@ const LoginPage = () => {
     cookies[sessionCookieName] && removeCookie(sessionCookieName)
     setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }
-
-  useEffect(() => (
-    () => (mountedRef.current = false)
-  ))
 
   return(cookies[sessionCookieName] && !isStorybook() ?
     <Redirect to={paths.dashboard.main} /> :
