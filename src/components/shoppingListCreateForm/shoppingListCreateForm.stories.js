@@ -70,7 +70,7 @@ Enabled.story = {
 export const Disabled = () => (
   <DashboardProvider overrideValue={{ token: 'xxxxxx' }}>
     <ShoppingListProvider overrideValue={{ performCreateShoppingList }}>
-      <ShoppingListCreateForm disabled={false} />
+      <ShoppingListCreateForm disabled />
     </ShoppingListProvider>
   </DashboardProvider>
 )
