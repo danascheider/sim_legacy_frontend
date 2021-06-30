@@ -28,7 +28,14 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const deleteTriggerRef = useRef(null)
   const mountedRef = useRef(true)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
-  const { shoppingLists, performShoppingListUpdate, performShoppingListDelete } = useShoppingListContext()
+
+  const {
+    shoppingLists,
+    performShoppingListUpdate,
+    performShoppingListDelete,
+    setFlashProps,
+    setFlashVisible
+  } = useShoppingListContext()
 
   const originalTitle = title // to switch back in case of API error
 
@@ -76,7 +83,17 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const deleteList = e => {
     e.preventDefault()
 
-    performShoppingListDelete(listId, () => { mountedRef.current = false })
+    const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
+
+    if (confirmed) {
+      performShoppingListDelete(listId, () => { mountedRef.current = false })
+    } else {
+      setFlashProps({
+        type: 'info',
+        message: 'Your list was not deleted.'
+      })
+      setFlashVisible(true)
+    }
   }
 
   useEffect(() => {

@@ -17,15 +17,15 @@ import styles from './dashboardPage.module.css'
 const cards = [
   {
     colorScheme: YELLOW,
-    href: paths.dashboard.shoppingLists,
-    children: 'Your Shopping Lists',
-    key: 'shopping-lists'
+    href: '#',
+    children: 'Your Games',
+    key: 'your-games'
   },
   {
     colorScheme: PINK,
     href: '#',
-    children: 'Nav Link 2',
-    key: 'nav-link-2'
+    children: 'Your Shopping Lists',
+    key: 'your-shopping-lists'
   },
   {
     colorScheme: BLUE,
