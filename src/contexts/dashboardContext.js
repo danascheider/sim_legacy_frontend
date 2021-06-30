@@ -38,7 +38,7 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
 
   const mountedRef = useRef(true)
 
-  const removeSessionCookie = () => overrideValue.removeSessionCookie || removeCookie(sessionCookieName)
+  const removeSessionCookie = () => overrideValue.removeSessionCookie() || removeCookie(sessionCookieName)
   const setShouldRedirectTo = path => {
     setRedirectPath(path)
     mountedRef.current = false
