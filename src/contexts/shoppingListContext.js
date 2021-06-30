@@ -109,7 +109,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           overrideValue.setFlashVisible === undefined && setFlashVisible(true)
           overrideValue.setShoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done because no error thrown
           error && error()
-        } // no else because if data is null that's been dealt with
+        } else {
+          error && error()
+        }
       })
       .catch(err => {
         console.error(`Error updating shopping list ${listId}: `, err.message)
@@ -122,6 +124,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           })
         } else {
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
+          error && error()
         }
       }) 
   }
@@ -174,7 +177,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // if creation of this item fails.
           setFlashProps({
             type: 'error',
-            header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
+            header: `${data.errors.title.length} error(s) prevented your shopping list from being created:`,
             message: data.errors.title.map(msg => `Title ${msg}`)
           })
           setFlashVisible(true)
