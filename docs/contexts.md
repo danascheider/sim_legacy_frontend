@@ -72,7 +72,6 @@ The `DashboardProvider`'s value includes the following:
 * `token`: The JWT token assigned by Google and stored in the `_sim_google_session` cookie. The context provider gets the value from the cookie, not from Google directly.
 * `profileData`: The user's profile data returned from the API, which is fetched when the component renders provided there is a `token`.
 * `removeSessionCookie`: A function, which takes zero arguments and removes the `_sim_google_session` cookie. This is used in logout callbacks.
-* `setProfileData`: A setter function enabling the `profileData` value to be set.
 * `profileLoadState`: The status of profile data loading, either 'loading' or 'done'
 * `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in.
 
@@ -213,6 +212,10 @@ On load, the `ShoppingListProvider` fetches all the user's shopping lists. It re
 * `performShoppingListUpdate`: a function that updates the list specified through the API, also encompassing error handling logic. The function takes 4 arguments:
   * `listId`: The ID (primary key in the database) of the list to be updated
   * `newTitle`: The new title of the list taken from the form the user submitted
+  * `success`: An optional success callback that can be used for handling state within the component that calls the function
+  * `error`: An optional error callback that can be used to clean up state within the component that calls the function
+* `performShoppingListCreate`: a function that creates a shopping list for the authenticated user, also encompassing error handling logic. The function takes three arguments:
+  * `title`: The title of the new list
   * `success`: An optional success callback that can be used for handling state within the component that calls the function
   * `error`: An optional error callback that can be used to clean up state within the component that calls the function
 * `flashProps`: The props to be passed to the `FlashMessage` component when/if it is displayed

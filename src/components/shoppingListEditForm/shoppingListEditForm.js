@@ -4,9 +4,9 @@ import classnames from 'classnames'
 import { useColorScheme } from '../../hooks/contexts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons'
-import styles from './shoppingListForm.module.css'
+import styles from './shoppingListEditForm.module.css'
 
-const ShoppingListForm = ({ formRef, className, title, onSubmit }) => {
+const ShoppingListEditForm = ({ formRef, className, title, onSubmit }) => {
   const getInputTextWidth = (text) => {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
@@ -19,9 +19,7 @@ const ShoppingListForm = ({ formRef, className, title, onSubmit }) => {
   const [inputWidth, setInputWidth] = useState(`${getInputTextWidth(title)}px`)
   const inputRef = useRef(null)
 
-  const [ colorScheme ] = useColorScheme()
-
-  const { schemeColor, textColorPrimary, borderColor, schemeColorLightest } = colorScheme
+  const { schemeColor, textColorPrimary, borderColor, schemeColorLightest } = useColorScheme()
 
   const colorVars = {
     '--scheme-color': schemeColor,
@@ -59,7 +57,7 @@ const ShoppingListForm = ({ formRef, className, title, onSubmit }) => {
   )
 }
 
-ShoppingListForm.propTypes = {
+ShoppingListEditForm.propTypes = {
   formRef: PropTypes.shape({
     current: PropTypes.instanceOf(Element)
   }),
@@ -68,4 +66,4 @@ ShoppingListForm.propTypes = {
   title: PropTypes.string.isRequired
 }
 
-export default ShoppingListForm
+export default ShoppingListEditForm

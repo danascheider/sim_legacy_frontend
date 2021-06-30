@@ -53,27 +53,6 @@ HappyPath.story = {
   }
 }
 
-export const NoLists = () => (
-  <DashboardProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
-    <ShoppingListProvider>
-        <ShoppingListPageContent />
-    </ShoppingListProvider>
-  </DashboardProvider>
-)
-
-NoLists.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(emptyShoppingLists)
-        )
-      })
-    ]
-  }
-}
-
 export const Loading = () => (
   <DashboardProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
     <ShoppingListProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
@@ -89,26 +68,6 @@ Loading.story = {
         return res(
           ctx.status(200),
           ctx.json({})
-        )
-      })
-    ]
-  }
-}
-
-export const ErrorState = () => (
-  <DashboardProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
-    <ShoppingListProvider>
-      <ShoppingListPageContent />
-    </ShoppingListProvider>
-  </DashboardProvider>
-)
-
-ErrorState.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(500)
         )
       })
     ]

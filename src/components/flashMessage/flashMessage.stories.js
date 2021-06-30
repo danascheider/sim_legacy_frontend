@@ -3,6 +3,15 @@ import FlashMessage from './flashMessage'
 
 export default { title: 'FlashMessage' }
 
+export const Success = () => (
+  <FlashMessage
+    type='success'
+    header='Success!'
+    message='You have succeeded.'
+  />
+)
+
+
 export const Info = () => (
   <FlashMessage
     type='info'

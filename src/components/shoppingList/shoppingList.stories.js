@@ -36,7 +36,7 @@ export default { title: 'ShoppingList' }
 export const Default = () => (
   <DashboardProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ performUpdateShoppingList: (a, b, c = null, d = null) => {} }}>
+      <ShoppingListProvider overrideValue={{ performShoppingListUpdate: (a, b, c = null, d = null) => {} }}>
         <ShoppingList
           listId={1}
           title='My List 1'

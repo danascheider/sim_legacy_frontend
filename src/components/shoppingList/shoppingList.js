@@ -2,11 +2,10 @@ import React, { useState, useRef, useEffect } from 'react'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
 import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
-import { ColorProvider } from '../../contexts/colorContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import SlideToggle from 'react-slide-toggle'
-import ShoppingListForm from '../shoppingListForm/shoppingListForm'
+import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
 
@@ -16,7 +15,7 @@ const isValid = str => (
   // whitespace (which will be stripped before it is saved in the DB).
   // Any other characters (including non-space whitespace characters
   // that are not leading or trailing) will cause a validation error
-  // on the backend.
+  // on the backend. The title of a regular list may also not be "Master".
   !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str !== 'Master'
 )
 
@@ -24,33 +23,11 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
   const [listItems, setListItems] = useState(null)
-  const [colorScheme] = useColorScheme()
   const slideTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
   const { shoppingLists, performShoppingListUpdate } = useShoppingListContext()
 
   const originalTitle = title // to switch back in case of API error
-
-  const {
-    schemeColor,
-    hoverColor,
-    borderColor,
-    textColorPrimary,
-    schemeColorLighter,
-    hoverColorLighter,
-    schemeColorLightest,
-    textColorSecondary,
-    textColorTertiary,
-  } = colorScheme
-
-  const listItemColorScheme = {
-    schemeColor: schemeColorLighter,
-    hoverColor: hoverColorLighter,
-    borderColor: borderColor,
-    titleTextColor: textColorSecondary,
-    bodyBackgroundColor: schemeColorLightest,
-    bodyTextColor: textColorTertiary
-  }
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
@@ -62,6 +39,15 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       setToggleEvent(Date.now)
     }
   }
+
+  const {
+    schemeColor,
+    borderColor,
+    textColorPrimary,
+    hoverColor,
+    schemeColorLighter,
+    schemeColorLightest
+  } = useColorScheme()
 
   const styleVars = {
     '--scheme-color': schemeColor,
@@ -98,14 +84,12 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
             <FontAwesomeIcon className={styles.fa} icon={faEdit} />
           </div>}
           {canEdit && isComponentVisible ?
-            <ColorProvider colorScheme={colorScheme}>
-              <ShoppingListForm
-                formRef={componentRef}
-                className={styles.form}
-                title={title}
-                onSubmit={submitAndHideForm}
-              />
-            </ColorProvider> :
+            <ShoppingListEditForm
+              formRef={componentRef}
+              className={styles.form}
+              title={title}
+              onSubmit={submitAndHideForm}
+            /> :
             <h3 className={styles.title}>{currentTitle}</h3>}
         </div>
       </div>
@@ -121,7 +105,6 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
                   description={description}
                   quantity={quantity}
                   notes={notes}
-                  colorScheme={listItemColorScheme}
                 />
               )
             })}
