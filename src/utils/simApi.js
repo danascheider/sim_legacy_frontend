@@ -3,9 +3,9 @@
  * This module is an abstraction layer for the SIM API that handles making requests
  * to the API. These functions handle three things: (1) formulating the requests based
  * on which function it is and the args being passed in (including assembling both
- * headers and request body) and (2) throwing an authError object if the request fails.
- * The authError object, as you can see below, has the name 'Authorization Error', the
- * code 401, and a message that can be passed in and otherwise defaults to '401 Unauthorized'.
+ * headers and request body) and (2) throwing an AuthorizationError if the request fails.
+ * The AuthorizationError has name 'AuthorizationError', code 401, and either the
+ * message passed to the constructor or, by default, '401 Unauthorized'.
  * 
  * For more information on the SIM API, its endpoints, the requests it expects, or its
  * responses, please visit the backend API docs:
