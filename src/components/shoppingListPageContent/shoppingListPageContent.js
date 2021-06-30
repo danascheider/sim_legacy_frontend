@@ -17,7 +17,6 @@ const ShoppingListPageContent = () => {
 
   // Expected states
   const happyPathNonEmpty = shoppingLists && shoppingListLoadingState === 'done' && shoppingLists.length > 0
-  const happyPathEmpty = shoppingLists && shoppingListLoadingState === 'done' && shoppingLists.length === 0
 
   /*
    *
