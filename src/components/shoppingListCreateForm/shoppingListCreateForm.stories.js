@@ -33,15 +33,15 @@ const listItems = [
 
 export default { title: 'ShoppingListCreateForm' }
 
-export const Default = () => (
+export const Enabled = () => (
   <DashboardProvider overrideValue={{ token: 'xxxxxx' }}>
     <ShoppingListProvider overrideValue={{ performCreateShoppingList }}>
-      <ShoppingListCreateForm />
+      <ShoppingListCreateForm disabled={false} />
     </ShoppingListProvider>
   </DashboardProvider>
 )
 
-Default.story = {
+Enabled.story = {
   parameters: {
     msw: [
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
@@ -66,3 +66,39 @@ Default.story = {
     ]
   }
 }
+
+export const Disabled = () => (
+  <DashboardProvider overrideValue={{ token: 'xxxxxx' }}>
+    <ShoppingListProvider overrideValue={{ performCreateShoppingList }}>
+      <ShoppingListCreateForm disabled={false} />
+    </ShoppingListProvider>
+  </DashboardProvider>
+)
+
+Disabled.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            {
+              id: 1,
+              title: 'My List 1',
+              master: false,
+              shopping_list_items: listItems
+            },
+            {
+              id: 2,
+              title: 'My List 2',
+              master: true,
+              shopping_list_items: listItems
+            }
+          ])
+        )
+      })
+    ]
+  }
+}
+
+

@@ -56,6 +56,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             })
           } else {
             !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
+            setFlashProps({
+              type: 'error',
+              message: "There was an error loading your lists. It may have been on our end. We're sorry!"
+            })
+            setFlashVisible(true)
           }
         })
     }
@@ -175,9 +180,16 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           setFlashVisible(true)
 
           success && success()
+        } else if (data && data.message) {
+          // Something unexpected happened and it's going to tell us what
+          console.error('Error returned from the SIM API: ', data.message)
+          // Don't show the user the actual error message. In my present case
+          // it's "Cannot read property 'get' of undefined", which will surely
+          // be even more maddening for nontechnical users than it is for me.
+          throw new Error('There was an unexpected error creating your new list. Unfortunately, we don\'t know more than that yet. We\'re sorry!')
         } else {
-          // Something unexpected happened
-          throw Error('There was an unexpected error creating your new list.')
+          // Something unexpected happened and we don't know what
+          throw new Error('There was an unexpected error creating your new list. Unfortunately we don\'t know more than that yet. We\'re sorry!')
         }
       })
       .catch(err => {

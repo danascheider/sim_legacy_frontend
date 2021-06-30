@@ -25,9 +25,7 @@ const ShoppingListPageContent = () => {
    * 
    */
 
-  if (happyPathEmpty) {
-    return null
-  } else if (happyPathNonEmpty) {
+  if (happyPathNonEmpty) {
     return(
       <>
         {shoppingLists.map(({ id, title, master }, index) => {
@@ -53,7 +51,7 @@ const ShoppingListPageContent = () => {
   } else if (shoppingListLoadingState === 'loading') {
     return <Loading className={styles.loading} color={YELLOW.schemeColor} height='15%' width='15%' />
   } else {
-    return <p className={styles.error}>There was an error loading your lists. It may have been on our end. We're sorry!</p>
+    return null
   }
 }
 

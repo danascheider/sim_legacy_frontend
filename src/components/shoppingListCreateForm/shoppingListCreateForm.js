@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { BLUE } from '../../utils/colorSchemes'
 import { useShoppingListContext } from '../../hooks/contexts'
 import styles from './shoppingListCreateForm.module.css'
+import classNames from 'classnames'
 
-const ShoppingListCreateForm = () => {
+const ShoppingListCreateForm = ({ disabled }) => {
   const { performShoppingListCreate } = useShoppingListContext()
   const [inputValue, setInputValue] = useState('')
 
@@ -11,7 +13,7 @@ const ShoppingListCreateForm = () => {
     '--button-color': BLUE.schemeColorLighter,
     '--button-text-color': BLUE.textColorPrimary,
     '--button-border-color': BLUE.borderColor,
-    '--button-hover-color': BLUE.hoverColorLighter
+    '--button-hover-color': BLUE.hoverColorLighter,
   }
 
   const updateValue = e => {
@@ -28,18 +30,24 @@ const ShoppingListCreateForm = () => {
   return(
     <div className={styles.root} style={colorVars}>
       <form className={styles.form} onSubmit={createShoppingList}>
-        <input
-          className={styles.input}
-          type='text'
-          name='title'
-          placeholder='Title'
-          value={inputValue}
-          onChange={updateValue}
-        />
-        <button className={styles.button} type='submit'>Create</button>
+        <fieldset className={styles.fieldset} disabled={disabled}>
+          <input
+            className={styles.input}
+            type='text'
+            name='title'
+            placeholder='Title'
+            value={inputValue}
+            onChange={updateValue}
+          />
+          <button className={classNames(styles.button, { [styles.buttonDisabled]: disabled })} type='submit'>Create</button>
+        </fieldset>
       </form>
     </div>
   )
+}
+
+ShoppingListCreateForm.propTypes = {
+  disabled: PropTypes.bool.isRequired
 }
 
 export default ShoppingListCreateForm
