@@ -1,0 +1,86 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--base-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.root:hover {
+  background-color: var(--hover-color);
+}
+
+.triggerContainer {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.triggerButton {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+  width: 100%;
+  text-align: left;
+  color: var(--text-color-main);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 12px 0 12px 24px;
+}
+
+.triggerButton:hover {
+  text-decoration: underline;
+}
+
+.form {
+  padding: 24px;
+  background-color: var(--body-color);
+  color: var(--text-color-secondary);
+}
+
+.fieldset {
+  border: none;
+  padding: 4px 0;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+}
+
+.fieldset:last-of-type {
+  padding-bottom: 16px;
+}
+
+.input {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 8px;
+}
+
+.label {
+  font-size: 1rem;
+  margin: auto 0;
+}
+
+.submit {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--base-color);
+  color: var(--text-color-main);
+  border-radius: 3px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background-color: var(--hover-color);
+}
+
+@media (min-width: 768px) {
+  .fieldset {
+    grid-template-columns: 1fr 4fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fieldset {
+    grid-template-columns: 1fr 6fr;
+  }
+}
