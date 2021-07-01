@@ -232,8 +232,6 @@ Empty.story = {
         )
       }),
       rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
-        const listId = Number(req.params.id)
-
         return res(
           ctx.status(204)
         )
