@@ -124,19 +124,18 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             message: err.message
           })
 
-          setFlashVisible(true)
+          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           
           error && error()
         } else {
-          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
-
           setFlashProps({
             type: 'error',
             message: err.message
           })
-
+          
           overrideValue.setFlashVisible === undefined && setFlashVisible(true)
+          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
 
           error && error()
         }
