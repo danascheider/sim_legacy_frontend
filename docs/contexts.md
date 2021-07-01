@@ -2,11 +2,174 @@
 
 SIM uses [React contexts](https://reactjs.org/docs/context.html) for management of certain state. This prevents "smart" components that fetch data or control state from having to pass through props to their children, their children's children, and so on. There are currently two main contexts:
 
+* [AppContext](#dashboardcontext)
 * [ColorContext](#colorcontext)
-* [DashboardContext](#dashboardcontext)
 * [ShoppingListContext](#shoppinglistcontext)
 
 For each context, there is a [custom hook](/src/hooks/contexts.js) that can be used to invoke it in consumers.
+
+## AppContext
+
+The `AppContext` keeps track of dashboard and login data. It is used on all pages and also handles redirect behaviour for the entire app. Redirect behaviour is specified in individual components using the `setShouldRedirectTo` function that the context provider returns, and the provider then renders the redirect to the path specified. The `AppProvider` determines whether a user is logged in, and whether the user has visited an authenticated page (i.e., anything but home or login).
+
+The `AppProvider`'s value includes the following:
+
+* `token`: The JWT token assigned by Google and stored in the `_sim_google_session` cookie. The context provider gets the value from the cookie, not from Google directly.
+* `profileData`: The user's profile data returned from the API, which is fetched when the component renders provided there is a `token`.
+* `setSessionCookie`: A function, which takes a JWT token from Google as an argument and sets it as the value of the `_sim_google_session` cookie. This is used in the `LoginPage` component.
+* `removeSessionCookie`: A function, which takes zero arguments and removes the `_sim_google_session` cookie. This is used in logout callbacks.
+* `profileLoadState`: The status of profile data loading, either 'loading' or 'done'
+* `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in.
+
+### Redirect Behaviour
+
+#### Homepage
+
+When a user visits the homepage (`/`), the `AppProvider` checks for a token. If the `_sim_google_session` cookie is not set, the homepage is displayed. If the cookie is set, the homepage verifies that the token is still valid by checking with the back end. If it is valid, the user is redirected to the dashboard. If there is no cookie or the API returns a 401 error, the user stays on the homepage and the invalid cookie (if it exists) is removed.
+
+#### Login Page
+
+When a user visits the login page (`/login`) and the user is logged in with a cookie set, the Google OAuth success callback is run. If the user doesn't have a token and/or isn't logged in according to Google, they stay on the login page and are able to log (back) in.
+
+#### Dashboard Pages
+
+When a user visits the dashboard and is not logged in or doesn't have the `_sim_google_session` cookie set, they are redirected to the login page. Then, if Google determines the user is still logged in on their end, the OAuth success callback will run again and the user will be automatically redirected back to their dashboard. (This isn't necessarily desired behaviour or great UX, so we'll try to fix it in the future. This may be possible using the `useGoogleLogin` hook on dashboard pages to make sure the callback is called without redirecting.)
+
+#### Logout
+
+When the user logs out from their dashboard, they are redirected to the homepage.
+
+### Using the Context
+
+The `AppContext` follows a similar pattern to the `ColorContext`. Unlike the `ColorProvider`, the `AppProvider` doesn't have any required props as it generates all its own data. The `AppProvider` wraps all page components.
+
+For the sake of completeness, the use of the `AppProvider` is illustrated here:
+
+```js
+// wherever you render the page component - this should
+// ordinarily be done in /src/routing/pageRoutes.js, which
+// renders the provider automatically.
+
+import React from 'react'
+import { AppProvider } from '../contexts/dashboardContext'
+import { PageComponent } from '../pages/pageComponent.js'
+
+const Parent = () => (
+  <AppProvider><PageComponent /></AppProvider>
+)
+
+export default Parent
+
+// In /src/pages/pageComponent.js
+import React, { useEffect } from 'react'
+import { fetchShoppingLists } from '../utils/simApi'
+import { useAppContext } from '../hooks/contexts'
+
+const PageComponent = () => {
+  const { token } = useAppContext()
+
+  const fetchData = () => {
+    if (token) {
+      fetchShoppingLists(token).then(() => { /* do something */ })
+    }
+  }
+
+  useEffect(fetchData, [])
+
+  return(
+    <div>
+      Child components can use the useAppContext hook too.
+    </div>
+  )
+}
+
+export default PageComponent
+```
+
+### Logging the User Out
+
+The `AppProvider` provides the `removeSessionCookie` value, however, it is important to note that removing the session cookie does not log the user out with Google. For this, the [`logOutWithGoogle` function](/src/utils/logOutWithGoogle.js) should be used with `removeSessionCookie` passed in in the `success` callback.
+
+```js
+const { removeSessionCookie, setShouldRedirectTo } = useAppContext()
+
+// this is required in any component that calls
+// setShouldRedirectTo
+const mountedRef = useRef(true)
+
+const logout = () => {
+  logOutWithGoogle(() => {
+    removeSessionCookie()
+    setShouldRedirectTo(paths.login)
+    // Always set this to false after redirecting
+    mountedRef.current = false 
+  })
+}
+
+// This is also required in any component that
+// uses setShouldRedirectTo
+useEffect(() => {
+  return () => (mountedRef.current = false)
+}, [])
+```
+
+### Preventing Memory Leaks with `setShouldRedirectTo`
+
+When you use the `AppProvider`'s `setShouldRedirectTo` function from a consumer component, you will need to unmount the component after you do to prevent a memory leak. You do this using React's [`useRef`](https://reactjs.org/docs/hooks-reference.html#useref) and [`useEffect`](https://reactjs.org/docs/hooks-reference.html#useeffect) hooks.
+
+```js
+const Component = () => {
+  const { token, removeSessionCookie, setShouldRedirectTo } = useAppContext()
+  const mountedRef = useRef(true)
+  
+  const someCallback = () => {
+    makeApiCall(token)
+      .catch(error => {
+        // simApi functions always throw an error object with a 401 code
+        // if the error is a 401 response from the server.
+        if (error.code === 401) {
+          logOutWithGoogle(() => {
+            token && removeSessionCookie
+            setShouldRedirectTo(paths.login)
+
+            // Unmount the component
+            mountedRef.current = false
+          })
+        }
+      })
+  }
+
+  // This is critical to preventing the memory leak
+  useEffect(() => {
+    return () => (mountedRef.current = false)
+  }, [])
+}
+```
+The function returned from the `useEffect` hook works as a cleanup function, ensuring that the `mountedRef.current` is set to `false` at the end of the component's lifecycle.
+
+### Overriding Values for Testing
+
+The `AppProvider` has a built-in apparatus to make sure the desired values are present in Storybook: the `overrideValue` prop. You can use this prop to override some or all of the key-value pairs stored in the provider's `value` object (i.e., the object returned from `useAppContext`). Any value you don't specify will be given the value the provider computes.
+
+In general, you'll want to provide a `token` value (unless your story is intended to test what happens when there isn't a token - this should be rare since usually that case results in a redirect). Often you'll want to mock other values, such as `profileData`, as well. You can do this like so:
+```js
+// object imitates the data returned from the API
+const profileData = {
+  id: 348,
+  uid: 'dragonborn@gmail.com',
+  email: 'dragonborn@gmail.com',
+  name: 'Jane Doe',
+  image_url: null
+}
+
+export const Default = () => (
+  <AppProvider overrideValue={{token: 'xxxxxx', profileData }}>
+    <YourComponent />
+  </AppProvider>
+)
+```
+Now, the data rendered in your component will use the token value and profile data given. If an API call is used in your component, it should be mocked with [msw](https://mswjs.io/) to make sure a 401 isn't returned due to an invalid token.
+
 
 ## ColorContext
 
@@ -63,147 +226,11 @@ The variables you set in `styleVars` can then be used in the child's CSS:
 ```
 The `useColorScheme` hook can also be used to access the colour scheme in the child's children, as long as the same colour scheme is wanted for them.
 
-## DashboardContext
-
-The `DashboardContext` keeps track of dashboard and login data. It is used on all dashboard pages. The `DashboardProvider` fetches the user's profile data on load (in a `useEffect` hook) if it finds a session cookie, and if the API returns a 401 error or no cookie is found, redirects the user to the login page. For that reason, using it on the login page, although that page uses some of the functionality it provides, would result in infinite recursion.
-
-The `DashboardProvider`'s value includes the following:
-
-* `token`: The JWT token assigned by Google and stored in the `_sim_google_session` cookie. The context provider gets the value from the cookie, not from Google directly.
-* `profileData`: The user's profile data returned from the API, which is fetched when the component renders provided there is a `token`.
-* `removeSessionCookie`: A function, which takes zero arguments and removes the `_sim_google_session` cookie. This is used in logout callbacks.
-* `profileLoadState`: The status of profile data loading, either 'loading' or 'done'
-* `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in.
-
-### Using the Context
-
-The `DashboardContext` follows a similar pattern to the `ColorContext`. Unlike the `ColorProvider`, the `DashboardProvider` doesn't have any required props as it generates all its own data. The `DashboardProvider` should wrap a page component whose children use its data. In general, this is done automatically by rendering a `DashboardProvider` for all [page routes](/src/routing/pageRoutes.js) with the `useDashboardContext` property set to `true`.
-
-For the sake of completeness, the use of the `DashboardProvider` is illustrated here:
-
-```js
-// wherever you render the page component - this should
-// ordinarily be done in /src/routing/pageRoutes.js, which
-// renders the provider automatically.
-
-import React from 'react'
-import { DashboardProvider } from '../contexts/dashboardContext'
-import { PageComponent } from '../pages/pageComponent.js'
-
-const Parent = () => (
-  <DashboardProvider><PageComponent /></DashboardProvider>
-)
-
-export default Parent
-
-// In /src/pages/pageComponent.js
-import React from 'react'
-import { fetchShoppingLists } from '../utils/simApi'
-import { useDashboardContext } from '../hooks/contexts'
-
-const PageComponent = () => {
-  const { token } = useDashboardContext()
-
-  const fetchData = () => {
-    if (token) {
-      fetchShoppingLists(token).then(() => { /* do something */ })
-    }
-  }
-
-  return(
-    <div>
-      Child components can use the useDashboardContext hook too.
-    </div>
-  )
-}
-
-export default PageComponent
-```
-
-### Logging the User Out
-
-The `DashboardProvider` provides the `removeSessionCookie` value, however, it is important to note that removing the session cookie does not log the user out with Google. For this, the [`logOutWithGoogle` function](/src/utils/logOutWithGoogle.js) should be used with `removeSessionCookie` passed in in the `success` callback.
-
-```js
-const { removeSessionCookie, setShouldRedirectTo } = useDashboardContext()
-
-const mountedRef = useRef(true)
-
-const logout = () => {
-  logOutWithGoogle(() => {
-    removeSessionCookie()
-    setShouldRedirectTo(paths.login)
-    mountedRef.current = false // more on this below
-  })
-}
-
-useEffect(() => {
-  return () => (mountedRef.current = false)
-}, [])
-```
-
-### Preventing Memory Leaks with `setShouldRedirectTo`
-
-When you use the `DashboardProvider`'s `setShouldRedirectTo` function from a consumer component, you will need to unmount the component after you do to prevent a memory leak. You do this using React's [`useRef`](https://reactjs.org/docs/hooks-reference.html#useref) and [`useEffect`](https://reactjs.org/docs/hooks-reference.html#useeffect) hooks.
-
-```js
-const Component = () => {
-  const { token, removeSessionCookie, setShouldRedirectTo } = useDashboardContext()
-  const mountedRef = useRef(true)
-  
-  const someCallback = () => {
-    makeApiCall(token)
-      .catch(error => {
-        // simApi functions always throw an error object with a 401 code
-        // if the error is a 401 response from the server.
-        if (error.code === 401) {
-          logOutWithGoogle(() => {
-            token && removeSessionCookie
-            setShouldRedirectTo(paths.login)
-
-            // Unmount the component
-            mountedRef.current = false
-          })
-        }
-      })
-  }
-
-  // This is critical to preventing the memory leak
-  useEffect(() => {
-    return () => (mountedRef.current = false)
-  }, [])
-}
-```
-The function returned from the `useEffect` hook works as a cleanup function, ensuring that the `mountedRef.current` is set to `false` at the end of the component's lifecycle.
-
-### Overriding Values for Testing
-
-The `DashboardProvider` has a built-in apparatus to make sure the desired values are present in Storybook: the `overrideValue` prop. You can use this prop to override some or all of the key-value pairs stored in the provider's `value` object (i.e., the object returned from `useDashboardContext`). Any value you don't specify will be given the value the provider computes.
-
-In general, you'll want to provide a `token` value (unless your story is intended to test what happens when there isn't a token - this should be rare since usually that case results in a redirect). Often you'll want to mock other values, such as `profileData`, as well. You can do this like so:
-```js
-// object imitates the data returned from the API
-const profileData = {
-  id: 348,
-  uid: 'dragonborn@gmail.com',
-  email: 'dragonborn@gmail.com',
-  name: 'Jane Doe',
-  image_url: null
-}
-
-export const Default = () => (
-  <DashboardProvider overrideValue={{token: 'xxxxxx', profileData }}>
-    <YourComponent />
-  </DashboardProvider>
-)
-```
-Now, the data rendered in your component will use the token value and profile data given. If an API call is used in your component, it should be mocked with [msw](https://mswjs.io/) to make sure a 401 isn't returned due to an invalid token.
-
 ## ShoppingListContext
 
-The `ShoppingListContext` is used to fetch all the relevant shopping lists when the shopping list page renders. It uses some similar patterns to the `DashboardContext`, including the use of the `overrideValue` prop to set the value of the provider in Storybook.
+The `ShoppingListContext` is used to fetch all the relevant shopping lists when the shopping list page renders. It uses some similar patterns to the `AppContext`, including the use of the `overrideValue` prop to set the value of the provider in Storybook.
 
-The `ShoppingList` context is a consumer of the `DashboardContext`, implying that the `useShoppingListContext` hook can only be used inside a `ShoppingListProvider`. You will see an error to this effect if you try to implement it another way. From the `DashboardProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `removeSessionCookie` and `setShouldRedirectTo` functions. The latter two are used in the event an API call returns status 401 and thee user needs to be logged out. Like elsewhere, the `logOutWithGoogle` function is used for this, with the cookie being removed and the redirect set in the callback passed to that function.
+The `ShoppingList` context is a consumer of the `AppContext`, implying that the `useShoppingListContext` hook can only be used inside a `ShoppingListProvider`. You will see an error to this effect if you try to implement it another way. From the `AppProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `removeSessionCookie` and `setShouldRedirectTo` functions. The latter two are used in the event an API call returns status 401 and thee user needs to be logged out. Like elsewhere, the `logOutWithGoogle` function is used for this, with the cookie being removed and the redirect set in the callback passed to that function.
 
 On load, the `ShoppingListProvider` fetches all the user's shopping lists. It returns the following in its `value`:
 
@@ -229,4 +256,4 @@ On load, the `ShoppingListProvider` fetches all the user's shopping lists. It re
 
 ### Testing
 
-The `ShoppingListContext` is a little easier to test with in Storybook than the `DashboardContext`. While it still has an `overrideValues` prop, it isn't needed quite as much to make the basics work and you should only need it to, for example, set the loading state to 'loading' if a story needs to display that state. The rest of the testing can mostly be handled by mocking the API calls the provider makes using `msw`. Remember that the `ShoppingListProvider` component needs to be wrapped in a `DashboardProvider`, which will require override values for at least the token if not other values as well.
+The `ShoppingListContext` is a little easier to test with in Storybook than the `AppContext`. While it still has an `overrideValues` prop, it isn't needed quite as much to make the basics work and you should only need it to, for example, set the loading state to 'loading' if a story needs to display that state. The rest of the testing can mostly be handled by mocking the API calls the provider makes using `msw`. Remember that the `ShoppingListProvider` component needs to be wrapped in a `AppProvider`, which will require override values for at least the token if not other values as well.

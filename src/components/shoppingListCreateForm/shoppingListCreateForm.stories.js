@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
-import { DashboardProvider } from '../../contexts/dashboardContext'
+import { AppProvider } from '../../contexts/appContext'
 import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import ShoppingListCreateForm from './shoppingListCreateForm'
 
@@ -34,11 +34,11 @@ const listItems = [
 export default { title: 'ShoppingListCreateForm' }
 
 export const Enabled = () => (
-  <DashboardProvider overrideValue={{ token: 'xxxxxx' }}>
+  <AppProvider overrideValue={{ token: 'xxxxxx' }}>
     <ShoppingListProvider overrideValue={{ performCreateShoppingList }}>
       <ShoppingListCreateForm disabled={false} />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 Enabled.story = {
@@ -68,11 +68,11 @@ Enabled.story = {
 }
 
 export const Disabled = () => (
-  <DashboardProvider overrideValue={{ token: 'xxxxxx' }}>
+  <AppProvider overrideValue={{ token: 'xxxxxx' }}>
     <ShoppingListProvider overrideValue={{ performCreateShoppingList }}>
       <ShoppingListCreateForm disabled />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 Disabled.story = {

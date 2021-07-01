@@ -1,37 +1,46 @@
-import React, { useState } from 'react'
-import { Redirect } from 'react-router-dom'
+import React, { useEffect, useState, useRef } from 'react'
 import GoogleLogin from 'react-google-login'
-import { useCookies } from 'react-cookie'
 import {
   googleClientId,
-  frontendBaseUri,
-  sessionCookieName
+  frontendBaseUri
 } from '../../utils/config'
 import { authorize } from '../../utils/simApi'
 import isStorybook from '../../utils/isStorybook'
+import { useAppContext } from '../../hooks/contexts'
 import paths from '../../routing/paths'
 import styles from './loginPage.module.css'
 import logOutWithGoogle from '../../utils/logOutWithGoogle'
 
 const LoginPage = () => {
-  const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+  const {
+    token,
+    setSessionCookie,
+    removeSessionCookie,
+    setShouldRedirectTo
+  } = useAppContext()
+
   const [loginErrorMessage, setLoginErrorMessage] = useState(null)
+  const mountedRef = useRef(true)
 
   const successCallback = (resp) => {
     const { tokenId } = resp
 
-    if (cookies[sessionCookieName] !== tokenId) {
+    if (token !== tokenId) {
       authorize(tokenId)
         .then(response => {
           if (response.status === 204) {
-            setCookie(sessionCookieName, tokenId)
+            setSessionCookie(tokenId)
+            if (!isStorybook()) {
+              setShouldRedirectTo(paths.dashboard.main)
+              mountedRef.current = false
+            }
           }
         })
         .catch(error => {
           console.error('Error from /auth/verify_token: ', error.message)
 
           logOutWithGoogle(() => {
-            cookies[sessionCookieName] && removeCookie(sessionCookieName)
+            token && removeSessionCookie()
           })
         })
     }
@@ -39,12 +48,15 @@ const LoginPage = () => {
 
   const failureCallback = (resp) => {
     console.error('Login failure: ', resp)
-    cookies[sessionCookieName] && removeCookie(sessionCookieName)
+    token && removeSessionCookie()
     setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }
 
-  return(cookies[sessionCookieName] && !isStorybook() ?
-    <Redirect to={paths.dashboard.main} /> :
+  useEffect(() => (
+    () => (mountedRef.current = false)
+  ))
+
+  return(
     <div className={styles.root}>
       {loginErrorMessage ?
       <p className={styles.errorMessage}>{loginErrorMessage}</p> :

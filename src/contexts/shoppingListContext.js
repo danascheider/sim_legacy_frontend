@@ -19,7 +19,7 @@ import {
   updateShoppingList,
   deleteShoppingList
 } from '../utils/simApi'
-import { useDashboardContext } from '../hooks/contexts'
+import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
 
 const LOADING = 'loading'
@@ -33,7 +33,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   const [flashVisible, setFlashVisible] = useState(false)
   const [flashProps, setFlashProps] = useState({})
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
-  const { token, setShouldRedirectTo, removeSessionCookie } = useDashboardContext()
+  const { token, setShouldRedirectTo, removeSessionCookie } = useAppContext()
 
   const mountedRef = useRef(true)
   
@@ -296,7 +296,14 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue
   }
 
-  useEffect(fetchLists, [])
+  useEffect(fetchLists, [
+    overrideValue.shoppingListLoadingState,
+    overrideValue.shoppingLists,
+    setShouldRedirectTo,
+    removeSessionCookie,
+    token
+  ])
+
   useEffect(() => (
     () => { mountedRef.current = false }
   ))
