@@ -71,6 +71,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const submitAndHideForm = e => {
     e.preventDefault()
 
+    setFlashVisible(false)
+
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
     if (!newTitle || isValid(newTitle)) setCurrentTitle(newTitle)
@@ -84,6 +86,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
 
+    setFlashVisible(false)
+
     if (confirmed) {
       performShoppingListDelete(listId)
     } else {
@@ -93,6 +97,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       })
       setFlashVisible(true)
     }
+
   }
 
   useEffect(() => {
