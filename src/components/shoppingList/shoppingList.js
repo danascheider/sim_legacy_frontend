@@ -9,6 +9,7 @@ import SlideToggle from 'react-slide-toggle'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
+import ShoppingListItemCreateForm from '../shoppingListItemCreateForm/shoppingListItemCreateForm'
 
 const isValid = str => (
   // The title is valid if the entire string matches the regex. It can
@@ -132,6 +133,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
+            {canEdit && <ShoppingListItemCreateForm listId={listId} />}
             {listItems && listItems.map(({ id, description, quantity, notes }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
