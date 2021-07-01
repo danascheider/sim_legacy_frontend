@@ -1,5 +1,6 @@
 import React from 'react'
 import { rest } from 'msw'
+import { AppProvider } from '../../contexts/appContext'
 import LoginPage from './loginPage'
 
 const googleApiLink = 'https://apis.google.com/_/scs/apps-static/_/js/k=oz.gapi.en.g8agzr_oroM.O/m=auth2/rt=j/sv=1/d=1/ed=1/am=AQ/rs=AGLTcCP6z3gW3iZ5SpDBmGgDQznnZEz5gQ/cb=gapi.loaded_0'
@@ -7,7 +8,7 @@ const googleApiJsLink = 'https://apis.google.com/js/api.js'
 
 export default { title: 'LoginPage' }
 
-export const Default = () => <LoginPage />
+export const Default = () => <AppProvider><LoginPage /></AppProvider>
 
 Default.story = {
   parameters: {
@@ -25,7 +26,7 @@ Default.story = {
   }
 }
 
-export const SomethingWentWrong = () => <LoginPage />
+export const SomethingWentWrong = () => <AppProvider><LoginPage /></AppProvider>
 
 SomethingWentWrong.story = {
   parameters: {
