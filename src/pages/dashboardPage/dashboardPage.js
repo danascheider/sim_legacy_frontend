@@ -8,7 +8,7 @@ import {
   AQUA
 } from '../../utils/colorSchemes'
 import paths from '../../routing/paths'
-import { useDashboardContext } from '../../hooks/contexts'
+import { useAppContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import Loading from '../../components/loading/loading'
 import NavigationMosaic from '../../components/navigationMosaic/navigationMosaic'
@@ -48,7 +48,7 @@ const cards = [
 ]
 
 const DashboardPage = () => {
-  const { token, profileLoadState } = useDashboardContext()
+  const { token, profileLoadState } = useAppContext()
   
   return(token ?
     <DashboardLayout>

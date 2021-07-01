@@ -100,7 +100,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     const items = shoppingLists.find(obj => obj.id === listId).shopping_list_items
     setListItems(items)
-  }, [shoppingLists])
+  }, [shoppingLists, listId])
 
   return(
     <div className={styles.root} style={styleVars}>

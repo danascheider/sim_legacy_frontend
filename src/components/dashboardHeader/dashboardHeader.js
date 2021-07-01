@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import logOutWithGoogle from '../../utils/logOutWithGoogle'
 import paths from '../../routing/paths'
-import { useDashboardContext } from '../../hooks/contexts'
+import { useAppContext } from '../../hooks/contexts'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
 import anonymousAvatar from './anonymousAvatar.jpg'
 import styles from './dashboardHeader.module.css'
@@ -13,7 +13,7 @@ const DashboardHeader = () => {
     profileData,
     removeSessionCookie,
     setShouldRedirectTo
-  } = useDashboardContext()
+  } = useAppContext()
 
   const [dropdownVisible, setDropdownVisible] = useState(false)
   const mountedRef = useRef(true)

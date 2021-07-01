@@ -23,28 +23,24 @@ import paths from '../routing/paths'
 const LOADING = 'loading'
 const DONE = 'done'
 
-const DashboardContext = createContext()
+const AppContext = createContext()
 
 // overrideValue allows us to set the context value in Storybook.
 // I hate having the testing apparatus baked into the app code but
 // none of the solutions I found worked and I don't understand
 // Storybook decorators and whatnot enough to figure out how to
 // set the value for the context in the story,
-const DashboardProvider = ({ children, overrideValue = {} }) => {
-  const [cookies, , removeCookie] = useCookies([sessionCookieName])
+const AppProvider = ({ children, overrideValue = {} }) => {
+  const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
   const [profileData, setProfileData] = useState(overrideValue.profileData)
   const [redirectPath, setRedirectPath] = useState(overrideValue.shouldRedirectTo)
   const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
 
   const mountedRef = useRef(true)
 
-  const removeSessionCookie = () => {
-    if (typeof overrideValue.removeSessionCookie === 'function') {
-      overrideValue.removeSessionCookie()
-    } else {
-      removeCookie(sessionCookieName)
-    }
-  }
+  const removeSessionCookie = () => removeCookie(sessionCookieName)
+  const setSessionCookie = token => setCookie(sessionCookieName, token)
+
   const setShouldRedirectTo = path => {
     setRedirectPath(path)
     mountedRef.current = false
@@ -54,12 +50,15 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
     token: cookies[sessionCookieName],
     profileData,
     removeSessionCookie,
+    setSessionCookie,
     profileLoadState,
     setShouldRedirectTo,
     ...overrideValue // enables you to only change certain values
   }
 
-  const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName]
+  const onAuthenticatedPage = window.location.pathname !== paths.login && window.location.pathname !== paths.home
+
+  const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage
 
   const fetchProfileData = () => {
     if (shouldFetchProfileData) {
@@ -74,29 +73,35 @@ const DashboardProvider = ({ children, overrideValue = {} }) => {
 
           logOutWithGoogle(() => {
             cookies[sessionCookieName] && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
+            if (onAuthenticatedPage) {
+              setShouldRedirectTo(paths.login)
+              mountedRef.current = false
+            }
           })
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
       logOutWithGoogle(() => {
-        setShouldRedirectTo(paths.login)
+        if (onAuthenticatedPage) {
+          setShouldRedirectTo(paths.login)
+          mountedRef.current = false
+        }
       })
     } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
   }
 
-  useEffect(fetchProfileData, [])
+  useEffect(fetchProfileData, [onAuthenticatedPage])
   useEffect(() => (
     () => { mountedRef.current = false }
   ))
 
   return(
-    <DashboardContext.Provider value={value}>
+    <AppContext.Provider value={value}>
       {redirectPath ? <Redirect to={redirectPath} /> : children}
-    </DashboardContext.Provider>
+    </AppContext.Provider>
   )
 }
 
-DashboardProvider.propTypes = {
+AppProvider.propTypes = {
   children: PropTypes.node.isRequired,
   overrideValue: PropTypes.shape({
     token: PropTypes.string,
@@ -113,4 +118,4 @@ DashboardProvider.propTypes = {
   })
 }
 
-export { DashboardContext, DashboardProvider }
+export { AppContext, AppProvider }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { DashboardProvider } from '../../contexts/dashboardContext'
+import { AppProvider } from '../../contexts/appContext'
 import DashboardPage from './dashboardPage'
 
 const profileData = {
@@ -13,13 +13,13 @@ const profileData = {
 export default { title: 'DashboardPage' }
 
 export const Default = () => (
-  <DashboardProvider overrideValue={{ token: 'xxxxxx', profileData }}>
+  <AppProvider overrideValue={{ token: 'xxxxxx', profileData }}>
     <DashboardPage />
-  </DashboardProvider>
+  </AppProvider>
 )
 
 export const Loading = () => (
-  <DashboardProvider overrideValue={{ token: 'xxxxxx', profileLoadState: 'loading' }}>
+  <AppProvider overrideValue={{ token: 'xxxxxx', profileLoadState: 'loading' }}>
     <DashboardPage />
-  </DashboardProvider>
+  </AppProvider>
 )

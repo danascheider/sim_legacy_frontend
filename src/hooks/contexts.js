@@ -7,7 +7,7 @@
 
 import { useContext } from 'react'
 import { ColorContext } from '../contexts/colorContext'
-import { DashboardContext } from '../contexts/dashboardContext'
+import { AppContext } from '../contexts/appContext'
 import { ShoppingListContext } from '../contexts/shoppingListContext'
 
 const useCustomContext = (cxt, msg) => {
@@ -24,8 +24,8 @@ export const useColorScheme = () => (
   useCustomContext(ColorContext, 'useColorScheme must be used within a ColorProvider')
 )
 
-export const useDashboardContext = () => (
-  useCustomContext(DashboardContext, 'useDashboardContext must be used within a DashboardProvider')
+export const useAppContext = () => (
+  useCustomContext(AppContext, 'useAppContext must be used within a AppProvider')
 )
 
 export const useShoppingListContext = () => (

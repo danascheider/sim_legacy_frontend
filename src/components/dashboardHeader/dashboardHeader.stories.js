@@ -1,5 +1,5 @@
 import React from 'react'
-import { DashboardProvider } from '../../contexts/dashboardContext'
+import { AppProvider } from '../../contexts/appContext'
 import DashboardHeader from './dashboardHeader'
 
 const providerValue = {
@@ -16,4 +16,4 @@ const providerValue = {
 
 export default { title: 'DashboardHeader' }
 
-export const Default = () => <DashboardProvider overrideValue={providerValue}><DashboardHeader /></DashboardProvider>
+export const Default = () => <AppProvider overrideValue={providerValue}><DashboardHeader /></AppProvider>

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { DashboardProvider } from '../contexts/dashboardContext'
+import { AppProvider } from '../contexts/appContext'
 import DashboardPage from '../pages/dashboardPage/dashboardPage'
 import ShoppingListPage from '../pages/shoppingListPage/shoppingListPage'
 import HomePage from '../pages/homePage/homePage'
@@ -30,14 +30,14 @@ const pages = [
     pageId: 'dashboard',
     title: `${siteTitle} Dashboard`,
     description: 'Skyrim Inventory Management User Dashboard',
-    jsx: <DashboardProvider><DashboardPage /></DashboardProvider>,
+    jsx: <DashboardPage />,
     path: paths.dashboard.main
   },
   {
     pageId: 'shoppingLists',
     title: `${siteTitle} Manage Shopping Lists`,
     description: 'Manage Skyrim Shopping Lists',
-    jsx: <DashboardProvider><ShoppingListProvider><ShoppingListPage /></ShoppingListProvider></DashboardProvider>,
+    jsx: <ShoppingListProvider><ShoppingListPage /></ShoppingListProvider>,
     path: paths.dashboard.shoppingLists
   }
 ]
@@ -54,7 +54,9 @@ const PageRoutes = () => (
               <title>{title}</title>
               <meta name='description' content={description} />
             </Helmet>
-            {jsx}
+            <AppProvider>
+              {jsx}
+            </AppProvider>
           </Route>
         )
       }

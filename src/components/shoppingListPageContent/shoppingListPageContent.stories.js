@@ -1,11 +1,10 @@
 import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
-import { DashboardProvider } from '../../contexts/dashboardContext'
+import { AppProvider } from '../../contexts/appContext'
 import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import {
   profileData,
-  emptyShoppingLists,
   shoppingLists,
   shoppingListUpdateData1,
   shoppingListUpdateData2
@@ -15,11 +14,11 @@ import ShoppingListPageContent from './shoppingListPageContent'
 export default { title: 'ShoppingListPageContent' }
 
 export const HappyPath = () => (
-  <DashboardProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
+  <AppProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
     <ShoppingListProvider>
       <ShoppingListPageContent />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 HappyPath.story = {
@@ -54,11 +53,11 @@ HappyPath.story = {
 }
 
 export const Loading = () => (
-  <DashboardProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
+  <AppProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
     <ShoppingListProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
       <ShoppingListPageContent />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 Loading.story = {

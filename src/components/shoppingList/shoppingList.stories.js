@@ -4,7 +4,7 @@ import { PINK } from '../../utils/colorSchemes'
 import { backendBaseUri } from '../../utils/config'
 import { ColorProvider } from '../../contexts/colorContext'
 import { ShoppingListProvider } from '../../contexts/shoppingListContext'
-import { DashboardProvider } from '../../contexts/dashboardContext'
+import { AppProvider } from '../../contexts/appContext'
 import ShoppingList from './shoppingList'
 
 const listItems = [
@@ -34,7 +34,7 @@ const listItems = [
 export default { title: 'ShoppingList' }
 
 export const Default = () => (
-  <DashboardProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
+  <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
       <ShoppingListProvider overrideValue={{ performShoppingListUpdate: (a, b, c = null, d = null) => {} }}>
         <ShoppingList
@@ -43,7 +43,7 @@ export const Default = () => (
         />
       </ShoppingListProvider>
     </ColorProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 Default.story = {
@@ -75,7 +75,7 @@ Default.story = {
 }
 
 export const NotEditable = () => (
-  <DashboardProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
+  <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
       <ShoppingListProvider>
         <ShoppingList
@@ -85,7 +85,7 @@ export const NotEditable = () => (
         />
       </ShoppingListProvider>
     </ColorProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 NotEditable.story = {

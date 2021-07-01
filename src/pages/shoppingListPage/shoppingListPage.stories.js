@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
-import { DashboardProvider } from '../../contexts/dashboardContext'
+import { AppProvider } from '../../contexts/appContext'
 import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import {
   userData,
@@ -12,7 +12,7 @@ import ShoppingListPage from './shoppingListPage'
 
 export default { title: 'ShoppingListPage' }
 
-const dashboardContextOverrideValue = {
+const appContextOverrideValue = {
   token: 'xxxxxx',
   profileData: userData
 }
@@ -28,11 +28,11 @@ const dashboardContextOverrideValue = {
  */
 
 export const HappyPath = () => (
-  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+  <AppProvider overrideValue={appContextOverrideValue}>
     <ShoppingListProvider>
       <ShoppingListPage />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 HappyPath.story = {
@@ -89,11 +89,11 @@ HappyPath.story = {
  */
 
 export const ListNotFound = () => (
-  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+  <AppProvider overrideValue={appContextOverrideValue}>
     <ShoppingListProvider>
       <ShoppingListPage />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 ListNotFound.story = {
@@ -144,11 +144,11 @@ ListNotFound.story = {
  */
 
 export const UnprocessableEntity = () => (
-  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+  <AppProvider overrideValue={appContextOverrideValue}>
     <ShoppingListProvider>
       <ShoppingListPage />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 UnprocessableEntity.story = {
@@ -199,11 +199,11 @@ UnprocessableEntity.story = {
  */
 
 export const Empty = () => (
-  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+  <AppProvider overrideValue={appContextOverrideValue}>
     <ShoppingListProvider>
       <ShoppingListPage />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 Empty.story = {
@@ -251,11 +251,11 @@ Empty.story = {
 // When the API data is loading
 
 export const Loading = () => (
-  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+  <AppProvider overrideValue={appContextOverrideValue}>
     <ShoppingListProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
       <ShoppingListPage />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 Loading.story = {
@@ -274,11 +274,11 @@ Loading.story = {
 // When there is an error with the API response
 
 export const ErrorState = () => (
-  <DashboardProvider overrideValue={dashboardContextOverrideValue}>
+  <AppProvider overrideValue={appContextOverrideValue}>
     <ShoppingListProvider>
       <ShoppingListPage />
     </ShoppingListProvider>
-  </DashboardProvider>
+  </AppProvider>
 )
 
 ErrorState.story = {
