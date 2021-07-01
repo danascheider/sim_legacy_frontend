@@ -78,17 +78,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           case 200:
           case 422:
             return resp.json()
-          case 404:
-            setFlashProps({
-              type: 'error',
-              message: 'Shopping list could not be updated. Try refreshing to fix this problem.'
-            })
-
-            !overrideValue.setFlashVisible && setFlashVisible(true)
-
-            return null
           default:
-            throw Error(`Something unexpected went wrong while updating list ${listId}`)
+            throw Error('Something unexpected went wrong while updating your list.')
         }
       })
       .then(data => {
@@ -129,6 +120,14 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           })
         } else {
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
+
+          setFlashProps({
+            type: 'error',
+            message: err.message
+          })
+
+          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
+
           error && error()
         }
       }) 
@@ -220,13 +219,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   const performShoppingListDelete = (listId, success = null, error = null) => {
     deleteShoppingList(token, listId)
       .then(resp => {
-        if (resp.status === 405) {
-          // This should never happen given there isn't actually a way to even
-          // make this request on a master list through the UI.
-          throw new Error('You can\'t delete your master list as it is managed automatically.')
-        } else if (resp.status === 404) {
-          throw new Error('Shopping list could not be destroyed. Try refreshing to fix this problem.')
-        } else if (resp.status === 204) {
+        // Error responses, including 404 and 405 responses, result
+        // in a NotFoundError or MethodNotAllowedError to be thrown
+        // (respectively).
+        if (resp.status === 204) {
           return null
         } else {
           return resp.json()
