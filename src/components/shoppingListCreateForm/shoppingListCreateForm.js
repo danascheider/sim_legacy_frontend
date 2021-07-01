@@ -6,7 +6,11 @@ import styles from './shoppingListCreateForm.module.css'
 import classNames from 'classnames'
 
 const ShoppingListCreateForm = ({ disabled }) => {
-  const { performShoppingListCreate } = useShoppingListContext()
+  const {
+    performShoppingListCreate,
+    setFlashVisible
+  } = useShoppingListContext()
+
   const [inputValue, setInputValue] = useState('')
 
   const colorVars = {
@@ -23,6 +27,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
 
   const createShoppingList = e => {
     e.preventDefault()
+    setFlashVisible(false)
     const title = e.nativeEvent.target.children[0].children[0].defaultValue
     performShoppingListCreate(title, () => setInputValue(''))
   }
