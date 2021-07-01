@@ -118,6 +118,16 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             setShouldRedirectTo(paths.login)
             mountedRef.current = false
           })
+        } else if (err.code === 404) {
+          setFlashProps({
+            type: 'error',
+            message: err.message
+          })
+
+          setFlashVisible(true)
+          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+          
+          error && error()
         } else {
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
 

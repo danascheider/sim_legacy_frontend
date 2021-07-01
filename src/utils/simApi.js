@@ -131,7 +131,7 @@ export const deleteShoppingList = (token, listId) => {
     })
     .then(resp => {
       if (resp.status === 401) throw new AuthorizationError()
-      if (resp.status === 404) throw new NotFoundError('Shopping list not found. Try refreshing the page to resolve this issue')
+      if (resp.status === 404) throw new NotFoundError('Shopping list not found. Try refreshing the page to resolve this issue.')
       if (resp.status === 405) throw new MethodNotAllowedError('Master lists are managed automatically and cannot be deleted manually.')
       return resp
     })
