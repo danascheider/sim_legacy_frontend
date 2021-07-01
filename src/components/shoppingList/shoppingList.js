@@ -97,7 +97,6 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       })
       setFlashVisible(true)
     }
-
   }
 
   useEffect(() => {
