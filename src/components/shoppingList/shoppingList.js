@@ -55,6 +55,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     schemeColor,
     borderColor,
     textColorPrimary,
+    textColorSecondary,
     hoverColor,
     schemeColorLighter,
     schemeColorLightest
@@ -63,7 +64,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const styleVars = {
     '--scheme-color': schemeColor,
     '--border-color': borderColor,
-    '--text-color': textColorPrimary,
+    '--text-color-primary': textColorPrimary,
+    '--text-color-secondary': textColorSecondary,
     '--hover-color': hoverColor,
     '--scheme-color-lighter': schemeColorLighter,
     '--scheme-color-lightest': schemeColorLightest
@@ -133,8 +135,9 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
+            {!canEdit && (!listItems || listItems.length === 0) && <div className={styles.emptyList}>You have no shopping list items.</div>}
             {canEdit && <ShoppingListItemCreateForm listId={listId} />}
-            {listItems && listItems.map(({ id, description, quantity, notes }) => {
+            {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
               return(

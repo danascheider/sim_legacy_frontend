@@ -113,3 +113,43 @@ NotEditable.story = {
     ]
   }
 }
+
+export const EmptyMasterList = () => (
+  <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
+    <ColorProvider colorScheme={PINK}>
+      <ShoppingListProvider>
+        <ShoppingList
+          title='Master'
+          listId={1}
+          canEdit={false}
+        />
+      </ShoppingListProvider>
+    </ColorProvider>
+  </AppProvider>
+)
+
+EmptyMasterList.story = {
+  parameters: {
+    msw: [
+      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            {
+              id: 1,
+              title: 'My List 1',
+              master: false,
+              shopping_list_items: []
+            },
+            {
+              id: 2,
+              title: 'My List 2',
+              master: true,
+              shopping_list_items: []
+            }
+          ])
+        )
+      })
+    ]
+  }
+}
