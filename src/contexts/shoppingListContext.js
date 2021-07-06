@@ -17,7 +17,8 @@ import {
   createShoppingList,
   fetchShoppingLists,
   updateShoppingList,
-  deleteShoppingList
+  deleteShoppingList,
+  createShoppingListItem
 } from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
@@ -29,7 +30,7 @@ const ERROR = 'error'
 const ShoppingListContext = createContext()
 
 const ShoppingListProvider = ({ children, overrideValue = {} }) => {
-  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists)
+  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || null)
   const [flashVisible, setFlashVisible] = useState(false)
   const [flashProps, setFlashProps] = useState({})
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
@@ -280,12 +281,109 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
+  const performShoppingListItemCreate = (listId, attrs, success = null, error = null) => {
+    createShoppingListItem(token, listId, attrs)
+      .then(resp => resp.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          let [masterListItem, regularListItem] = data
+
+          let newLists = [...shoppingLists]
+          let masterList = shoppingLists[0]
+          let regularList = shoppingLists.find(list => list.id === listId)
+          let regularListPosition = shoppingLists.indexOf(regularList)
+
+          // Update the copy of the master list
+          let masterIndex
+          for (let i = 0; i < masterList.list_items.length; i++) {
+            if (masterList.list_items[i].id === masterListItem.id) {
+              masterIndex = i
+              break
+            }
+          }
+
+          let newMasterListItems = masterList.list_items
+          if (masterIndex) {
+            newMasterListItems.splice(masterIndex, 1, masterListItem)
+          } else {
+            newMasterListItems.unshift(masterListItem)
+          }
+
+          masterList.list_items = newMasterListItems
+          // Replace the master list with the new version of it that has the list
+          // item created/updated
+          newLists[0] = masterList
+
+          // Update the copy of the regular list
+          let regIndex
+          for (let i = 0; i < regularList.list_items.length; i++) {
+            if (regularList.list_items[i].id === regularListItem.id) {
+              regIndex = i
+              break
+            }
+          }
+
+          let newRegularListItems = regularList.list_items
+          if (regIndex) {
+            newRegularListItems.splice(regIndex, 1, regularListItem)
+          } else {
+            newRegularListItems.unshift(regularListItem)
+          }
+
+          regularList.list_items = newRegularListItems
+          newLists[regularListPosition] = regularList
+
+          setShoppingLists(newLists)
+
+          success && success()
+        } else if (data && typeof data === 'object' && data.errors) {
+          setFlashProps({
+            type: 'error',
+            header: `${data.errors.length} error(s) prevented your shopping list item from being created:`,
+            message: data.errors
+          })
+
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+
+          error && error()
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutWithGoogle(() => {
+            token && removeSessionCookie()
+            setShouldRedirectTo(paths.login)
+            mountedRef.current = false
+          })
+        } else if (err.code === 404) {
+          setFlashProps({
+            type: 'error',
+            message: "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem."
+          })
+          
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+        } else {
+          console.error('Unexpected error when creating shopping list item: ', err.message)
+
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+        }
+
+        error && error()
+      })
+  }
+
   const value = {
     shoppingLists,
     shoppingListLoadingState,
     performShoppingListUpdate,
     performShoppingListCreate,
     performShoppingListDelete,
+    performShoppingListItemCreate,
     flashProps,
     flashVisible,
     setFlashProps,
@@ -329,6 +427,9 @@ ShoppingListProvider.propTypes = {
     })),
     shoppingListLoadingState: PropTypes.string,
     performShoppingListUpdate: PropTypes.func,
+    performShoppingListCreate: PropTypes.func,
+    performShoppingListDelete: PropTypes.func,
+    performShoppingListItemCreate: PropTypes.func,
     flashProps: PropTypes.shape({
       type: PropTypes.string,
       header: PropTypes.string,

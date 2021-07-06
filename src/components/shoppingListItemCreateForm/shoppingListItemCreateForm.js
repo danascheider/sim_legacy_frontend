@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import SlideToggle from 'react-slide-toggle'
-import { useColorScheme } from '../../hooks/contexts'
+import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import styles from './shoppingListItemCreateForm.module.css'
 
 const ShoppingListItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
+  const { performShoppingListItemCreate } = useShoppingListContext()
   const {
     schemeColorLighter,
     hoverColorLighter,
@@ -14,6 +15,8 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     textColorSecondary,
     textColorTertiary
   } = useColorScheme()
+  
+  const formRef = useRef(null)
 
   const colorVars = {
     '--base-color': schemeColorLighter,
@@ -28,6 +31,20 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     setToggleEvent(Date.now)
   }
 
+  const createShoppingListItem = e => {
+    e.preventDefault()
+
+    const description = e.target.elements.description.value
+    const quantity = Number(e.target.elements.quantity.value)
+    const notes = e.target.elements.notes.value
+    const attrs = { description, quantity, notes }
+
+    performShoppingListItemCreate(listId, attrs, () => {
+      formRef.current.reset()
+      toggleForm()
+    })
+  }
+
   return(
     <div className={styles.root} style={colorVars}>
       <div className={styles.triggerContainer}>
@@ -38,7 +55,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            <form className={styles.form}>
+            <form className={styles.form} ref={formRef} onSubmit={createShoppingListItem}>
               <fieldset className={styles.fieldset}>
                 <label className={styles.label} htmlFor='description'>Description</label>
                 <input className={styles.input} type='text' name='description' placeholder='Description' />
