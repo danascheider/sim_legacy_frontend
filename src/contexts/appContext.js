@@ -38,7 +38,10 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   const mountedRef = useRef(true)
 
-  const removeSessionCookie = () => removeCookie(sessionCookieName)
+  const removeSessionCookie = () => {
+    console.log('Just adding some logging to make sure this is running at all')
+    removeCookie(sessionCookieName)
+  }
   const setSessionCookie = token => setCookie(sessionCookieName, token)
 
   const setShouldRedirectTo = path => {
