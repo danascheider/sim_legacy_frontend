@@ -195,9 +195,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             mountedRef.current = false
           })
         } else {
+          console.error('Unexpected error creating shopping list: ', err.message)
+
           setFlashProps({
             type: 'error',
-            message: err.message
+            message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           setFlashVisible(true)
