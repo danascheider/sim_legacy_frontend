@@ -88,24 +88,22 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           setShoppingLists(newShoppingLists)
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           success && success()
-        } else if (data && data.errors && data.errors.title) {
+        } else if (data && data.errors) {
           setFlashProps({
             type: 'error',
-            header: `${data.errors.title.length} error(s) prevented your changes from being saved:`,
-            message: data.errors.title.map(msg => `Title ${msg}`)
+            header: `${data.errors.length} error(s) prevented your changes from being saved:`,
+            message: data.errors
           })
           overrideValue.setFlashVisible === undefined && setFlashVisible(true)
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
           error && error()
-        } else if (data && data.errors) {
+        } else {
           setFlashProps({
             type: 'error',
             message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
           })
           overrideValue.setFlashVisible === undefined && setFlashVisible(true)
           overrideValue.setShoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done because no error thrown
-          error && error()
-        } else {
           error && error()
         }
       })
@@ -121,7 +119,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
-            message: err.message
+            message: "Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem."
           })
 
           overrideValue.setFlashVisible === undefined && setFlashVisible(true)
@@ -129,12 +127,6 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           
           error && error()
         } else {
-          setFlashProps({
-            type: 'error',
-            message: err.message
-          })
-          
-          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
 
           error && error()
@@ -146,7 +138,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     createShoppingList(token, { title })
       .then(resp => resp.json())
       .then(data => {
-        if (data.length === 2) {
+        if (Array.isArray(data) && data.length === 2) {
           // It is an array of shopping lists. It includes the shopping list that was
           // created and a master list that was created automatically. This case only
           // arises if there were no existing shopping lists, so in this case, we want
@@ -161,13 +153,13 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           setFlashVisible(true)
 
           success && success()
-        } else if (Array.isArray(data)) {
+        } else if (data && typeof data === 'object' && !data.errors) {
           // It is an array of shopping lists but it only contains one. This case means
           // that there was already a master list and only the list the user manually
           // created was created. The new list should be added to the existing shoppingLists
           // array in the second position (after the master list but before any of the others).
           const newShoppingLists = shoppingLists
-          newShoppingLists.splice(1, 0, data[0])
+          newShoppingLists.splice(1, 0, data)
           setShoppingLists(newShoppingLists)
 
           setFlashProps({
@@ -178,31 +170,19 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           setFlashVisible(true)
 
           success && success()
-        } else if (data && data.errors && data.errors.title) {
-          // The list couldn't be created because of errors. Since "title" is the only field
-          // the UI provides where there could be errors, we'll just assume that's the only
-          // place in this object to find the error messages. Note that in this case the response
-          // body will be an object and not an array, since the master list won't be created anyway
-          // if creation of this item fails.
+        } else if (data && typeof data === 'object' && data.errors ) {
           setFlashProps({
             type: 'error',
-            header: `${data.errors.title.length} error(s) prevented your shopping list from being created:`,
-            message: data.errors.title.map(msg => `Title ${msg}`)
+            header: `${data.errors.length} error(s) prevented your shopping list from being created:`,
+            message: data.errors
           })
 
           setFlashVisible(true)
 
           success && success()
-        } else if (data && data.message) {
-          // Something unexpected happened and it's going to tell us what
-          console.error('Error returned from the SIM API: ', data.message)
-          // Don't show the user the actual error message. In my present case
-          // it's "Cannot read property 'get' of undefined", which will surely
-          // be even more maddening for nontechnical users than it is for me.
-          throw new Error('There was an unexpected error creating your new list. Unfortunately, we don\'t know more than that yet. We\'re sorry!')
         } else {
           // Something unexpected happened and we don't know what
-          throw new Error('There was an unexpected error creating your new list. Unfortunately we don\'t know more than that yet. We\'re sorry!')
+          throw new Error('There was an unexpected error creating your new list. Unfortunately, we don\'t know more than that yet. We\'re sorry!')
         }
       })
       .catch(err => {
@@ -219,7 +199,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             type: 'error',
             message: err.message
           })
+
           setFlashVisible(true)
+
           error && error()
         }
       })
@@ -254,8 +236,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else {
           // This means that the master list has been updated and returned,
           // to adjust for any items that were deleted with the other list.
-          const newShoppingLists = shoppingLists.map(list => (list.master === true ? data.master_list : list))
-                                                .filter(list => list.id !== listId)
+          const newShoppingLists = shoppingLists.map(list => (list.master === true ? data : list))
+                                                .filter(list => list && list.id !== listId)
 
           setShoppingLists(newShoppingLists)
 
@@ -276,14 +258,22 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             setShouldRedirectTo(paths.login)
             mountedRef.current = false
           })
-        } else {
+        } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
-            message: err.message
+            message: "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem."
           })
 
           setFlashVisible(true)
           error && error()
+        } else {
+          console.error('Unexpected error deleting shopping list: ', err.message)
+
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
         }
       })
   }

@@ -118,18 +118,14 @@ ListNotFound.story = {
         const listId = Number(req.params.id)
 
         return res(
-          ctx.status(404),
-          ctx.json({ error: `Shopping list id=${listId} not found` })
+          ctx.status(404)
         )
       }),
       rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
         const listId = Number(req.params.id)
 
         return res(
-          ctx.status(404),
-          ctx.json({
-            error: `Shopping list id=${listId} not found`
-          })
+          ctx.status(404)
         )
       })
     ]
@@ -163,18 +159,16 @@ UnprocessableEntity.story = {
       rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(422),
-          ctx.json({ errors: { title: ['can only include alphanumeric characters and spaces'] } })
+          ctx.json({ errors: ['Title can only include alphanumeric characters and spaces'] })
         )
       }),
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(422),
-          ctx.json({ errors: { title: ['is already taken'] } })
+          ctx.json({ errors: ['Title is already taken'] })
         )
       }),
       rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
-        const listId = Number(req.params.id)
-
         return res(
           ctx.status(200),
           ctx.json({
@@ -287,18 +281,6 @@ ErrorState.story = {
       rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(500)
-        )
-      }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
-        const title = req.body.shopping_list.title || 'My List 3'
-        const returnData = [
-          { id: 33, user_id: 24, title: 'Master', master: true, shopping_list_items: [] },
-          { id: 32, user_id: 24, title: title, master: false, shopping_list_items: [] }
-        ]
-
-        return res(
-          ctx.status(201),
-          ctx.json(returnData)
         )
       })
     ]

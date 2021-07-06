@@ -21,8 +21,8 @@ import {
 } from './customErrors'
 
 const baseUri = backendBaseUri[process.env.NODE_ENV]
-const authHeader = token => ({ 'Authorization': `Bearer ${token}`})
 const contentTypeHeader = { 'Content-Type': 'application/json' }
+const authHeader = token => ({ 'Authorization': `Bearer ${token}`})
 const combinedHeaders = token => ({ ...authHeader(token), ...contentTypeHeader })
 
 /*
@@ -112,6 +112,8 @@ export const updateShoppingList = (token, listId, attrs) => {
       body: body
     })
     .then(resp => {
+      // It might return a 422 error too, but in that case we'll need the response
+      // JSON to handle the error
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError('Shopping list not found. Try refreshing the page to resolve this issue.')
       if (resp.status === 405) throw new MethodNotAllowedError('Master lists are managed automatically and cannot be updated manually.')

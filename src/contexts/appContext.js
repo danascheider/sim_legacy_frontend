@@ -72,14 +72,14 @@ const AppProvider = ({ children, overrideValue = {} }) => {
           console.error('Error returned while fetching profile data: ', error.message)
 
           logOutWithGoogle(() => {
-            cookies[sessionCookieName] && removeSessionCookie()
+            removeSessionCookie()
             if (onAuthenticatedPage) {
               setShouldRedirectTo(paths.login)
               mountedRef.current = false
             }
           })
         })
-    } else if (!cookies[sessionCookieName] && !isStorybook()) {
+    } else if (!isStorybook()) {
       logOutWithGoogle(() => {
         if (onAuthenticatedPage) {
           setShouldRedirectTo(paths.login)

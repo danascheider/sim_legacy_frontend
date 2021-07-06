@@ -18,13 +18,12 @@ const DashboardHeader = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false)
   const mountedRef = useRef(true)
 
-  const logOutUser = (e) => {
-    e.preventDefault()
-
+  const logOutFunction = (callback = null) => {
     setDropdownVisible(false);
 
     logOutWithGoogle(() => {
       token && removeSessionCookie()
+      callback && callback()
       setShouldRedirectTo(paths.home)
       mountedRef.current = false
     })
@@ -54,7 +53,7 @@ const DashboardHeader = () => {
         }
         <LogoutDropdown
           className={dropdownVisible ? styles.logoutDropdown : styles.hidden}
-          logOutUser={logOutUser}
+          logOutFunction={logOutFunction}
         />
       </div>
     </div>
