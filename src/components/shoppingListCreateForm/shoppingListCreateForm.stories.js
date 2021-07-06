@@ -52,13 +52,13 @@ Enabled.story = {
               id: 1,
               title: 'My List 1',
               master: false,
-              shopping_list_items: listItems
+              list_items: listItems
             },
             {
               id: 2,
               title: 'My List 2',
               master: true,
-              shopping_list_items: listItems
+              list_items: listItems
             }
           ])
         )
@@ -86,13 +86,13 @@ Disabled.story = {
               id: 1,
               title: 'My List 1',
               master: false,
-              shopping_list_items: listItems
+              list_items: listItems
             },
             {
               id: 2,
               title: 'My List 2',
               master: true,
-              shopping_list_items: listItems
+              list_items: listItems
             }
           ])
         )

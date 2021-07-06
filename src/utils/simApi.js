@@ -70,7 +70,6 @@ export const fetchUserProfile = token => {
 // GET /shopping_lists
 export const fetchShoppingLists = token => {
   const uri = `${baseUri}/shopping_lists`
-
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
@@ -146,6 +145,7 @@ export const deleteShoppingList = (token, listId) => {
  *
  */
 
+// POST /shopping_lists/:shopping_list_id/shopping_list_items
 export const createShoppingListItem = (token, listId, attrs) => {
   const uri = `${baseUri}/shopping_lists/${listId}/shopping_list_items`
 

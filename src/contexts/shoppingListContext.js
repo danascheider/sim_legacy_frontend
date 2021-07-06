@@ -50,8 +50,6 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           }
         })
         .catch(err => {
-          console.error('Error fetching shopping lists: ', err.message)
-
           if (err.code === 401) {
             logOutWithGoogle(() => {
               token && removeSessionCookie()
@@ -60,6 +58,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
               // Don't set the loading state to ERROR because it's redirecting anyway
             })
           } else {
+            if (process.env.NODE_ENV !== 'production') console.error('Unexpected error fetching shopping lists: ', err)
+
             !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
             setFlashProps({
               type: 'error',
@@ -319,7 +319,7 @@ ShoppingListProvider.propTypes = {
       id: PropTypes.number.isRequired,
       user_id: PropTypes.number,
       title: PropTypes.string.isRequired,
-      shoppingListItems: PropTypes.arrayOf({
+      list_items: PropTypes.arrayOf({
         id: PropTypes.number,
         shopping_list_id: PropTypes.number,
         description: PropTypes.string.isRequired,

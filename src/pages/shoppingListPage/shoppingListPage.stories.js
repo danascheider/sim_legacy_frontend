@@ -46,7 +46,7 @@ HappyPath.story = {
       }),
       rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 3'
-        const returnData = [{ id: 32, user_id: 24, title: title, master: false, shopping_list_items: [] }]
+        const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
 
         return res(
           ctx.status(201),
@@ -72,7 +72,7 @@ HappyPath.story = {
               title: 'Master',
               master: true,
               user_id: 24,
-              shopping_list_items: []
+              list_items: []
             }
           })
         )
@@ -107,7 +107,7 @@ ListNotFound.story = {
       }),
       rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 3'
-        const returnData = [{ id: 32, user_id: 24, title: title, master: false, shopping_list_items: [] }]
+        const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
 
         return res(
           ctx.status(201),
@@ -212,8 +212,8 @@ Empty.story = {
       rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 3'
         const returnData = [
-          { id: 33, user_id: 24, title: 'Master', master: true, shopping_list_items: [] },
-          { id: 32, user_id: 24, title: title, master: false, shopping_list_items: [] }
+          { id: 33, user_id: 24, title: 'Master', master: true, list_items: [] },
+          { id: 32, user_id: 24, title: title, master: false, list_items: [] }
         ]
 
         return res(
@@ -224,7 +224,7 @@ Empty.story = {
       rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
         const listId = Number(req.params.id)
         const title = req.body.shopping_list.title || 'My List 2'
-        const returnData = { id: listId, user_id: 24, title, master: false, shopping_list_items: [] }
+        const returnData = { id: listId, user_id: 24, title, master: false, list_items: [] }
 
         return res(
           ctx.status(200),

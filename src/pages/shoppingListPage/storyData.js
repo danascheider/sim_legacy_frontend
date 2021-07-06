@@ -10,11 +10,11 @@ export const emptyShoppingLists = []
 
 export const shoppingLists = [
   {
-    id: 2,
+    id: 1,
     user_id: 24,
     master: true,
     title: 'Master',
-    shopping_list_items: [
+    list_items: [
       {
         id: 2,
         shopping_list_id: 2,
@@ -32,11 +32,11 @@ export const shoppingLists = [
     ]
   },
   {
-    id: 1,
+    id: 2,
     user_id: 24,
     master: false,
     title: 'Heljarchen Hall',
-    shopping_list_items: [
+    list_items: [
       {
         id: 1,
         shopping_list_id: 1,
@@ -58,7 +58,7 @@ export const shoppingLists = [
     user_id: 24,
     master: false,
     title: 'Lakeview Manor',
-    shopping_list_items: [
+    list_items: [
       {
         id: 5,
         shopping_list_id: 3,

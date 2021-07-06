@@ -58,13 +58,13 @@ Default.story = {
                 id: 1,
                 title: 'My List 1',
                 master: false,
-                shopping_list_items: listItems
+                list_items: listItems
               },
               {
                 id: 2,
                 title: 'My List 2',
                 master: true,
-                shopping_list_items: listItems
+                list_items: listItems
               }
             ]
           )
@@ -99,13 +99,13 @@ NotEditable.story = {
               id: 1,
               title: 'My List 1',
               master: false,
-              shopping_list_items: listItems
+              list_items: listItems
             },
             {
               id: 2,
               title: 'My List 2',
               master: true,
-              shopping_list_items: listItems
+              list_items: listItems
             }
           ])
         )
@@ -139,13 +139,13 @@ EmptyMasterList.story = {
               id: 1,
               title: 'My List 1',
               master: false,
-              shopping_list_items: []
+              list_items: []
             },
             {
               id: 2,
               title: 'My List 2',
               master: true,
-              shopping_list_items: []
+              list_items: []
             }
           ])
         )
