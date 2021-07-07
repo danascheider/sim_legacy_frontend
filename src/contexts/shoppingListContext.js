@@ -49,18 +49,19 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
   const addOrUpdateListItem = (list, item) => {
     const originalItem = list.list_items.find(listItem => listItem.id === item.id)
+    const newListItems = [...list.list_items]
+    const newList = { ...list }
 
-    let newListItems
     if (originalItem) {
       const originalItemPosition = list.list_items.indexOf(originalItem)
-      newListItems = list.list_items.splice(originalItemPosition, 1, item)
+      newListItems.splice(originalItemPosition, 1, item)
     } else {
-      newListItems = list.list_items.unshift(item)
+      newListItems.unshift(item)
     }
 
-    list.list_items = newListItems
+    newList.list_items = newListItems
 
-    return list
+    return newList
   }
   
   const fetchLists = () => {
@@ -298,8 +299,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           const [masterListItem, regularListItem] = data
 
           const newLists = [...shoppingLists]
-          const masterList = { ...shoppingLists[0] }
-          const regularList = { ...shoppingLists.find(list => list.id === listId) }
+          const masterList = shoppingLists[0]
+          const regularList = shoppingLists.find(list => list.id === listId)
           const regularListPosition = shoppingLists.indexOf(regularList)
 
           const newMasterList = addOrUpdateListItem(masterList, masterListItem)
@@ -399,7 +400,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListItemUpdate = (itemId, attrs, success = null, error = nul) => {
+  const performShoppingListItemUpdate = (itemId, attrs, success = null, error = null) => {
     updateShoppingListItem(token, itemId, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -408,7 +409,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           const newShoppingLists = [...shoppingLists]
 
-          const regularList = shoppingList.find(list => list.id === regularListItem.list_id)
+          const regularList = shoppingLists.find(list => list.id === regularListItem.list_id)
           const regularListPosition = shoppingLists.indexOf(regularList)
 
           const newMasterList = addOrUpdateListItem(shoppingLists[0], masterListItem)
