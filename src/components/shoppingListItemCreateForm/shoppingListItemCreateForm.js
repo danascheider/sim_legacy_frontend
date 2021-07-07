@@ -6,7 +6,7 @@ import styles from './shoppingListItemCreateForm.module.css'
 
 const ShoppingListItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
-  const { performShoppingListItemCreate } = useShoppingListContext()
+  const { performShoppingListItemCreate, setFlashVisible } = useShoppingListContext()
   const {
     schemeColorLighter,
     hoverColorLighter,
@@ -33,6 +33,8 @@ const ShoppingListItemCreateForm = ({ listId }) => {
 
   const createShoppingListItem = e => {
     e.preventDefault()
+
+    setFlashVisible(false)
 
     const description = e.target.elements.description.value
     const quantity = Number(e.target.elements.quantity.value)
