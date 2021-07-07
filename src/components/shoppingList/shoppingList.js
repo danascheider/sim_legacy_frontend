@@ -9,6 +9,7 @@ import SlideToggle from 'react-slide-toggle'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
+import ShoppingListItemCreateForm from '../shoppingListItemCreateForm/shoppingListItemCreateForm'
 
 const isValid = str => (
   // The title is valid if the entire string matches the regex. It can
@@ -54,6 +55,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     schemeColor,
     borderColor,
     textColorPrimary,
+    textColorSecondary,
     hoverColor,
     schemeColorLighter,
     schemeColorLightest
@@ -62,7 +64,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const styleVars = {
     '--scheme-color': schemeColor,
     '--border-color': borderColor,
-    '--text-color': textColorPrimary,
+    '--text-color-primary': textColorPrimary,
+    '--text-color-secondary': textColorSecondary,
     '--hover-color': hoverColor,
     '--scheme-color-lighter': schemeColorLighter,
     '--scheme-color-lightest': schemeColorLightest
@@ -102,7 +105,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   useEffect(() => {
     if (shoppingLists === undefined) return // it'll run again when they populate
 
-    const items = shoppingLists.find(obj => obj.id === listId).shopping_list_items
+    const items = shoppingLists.find(obj => obj.id === listId).list_items
     setListItems(items)
   }, [shoppingLists, listId])
 
@@ -132,7 +135,9 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {listItems && listItems.map(({ id, description, quantity, notes }) => {
+            {!canEdit && (!listItems || listItems.length === 0) && <div className={styles.emptyList}>You have no shopping list items.</div>}
+            {canEdit && <ShoppingListItemCreateForm listId={listId} />}
+            {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
               return(

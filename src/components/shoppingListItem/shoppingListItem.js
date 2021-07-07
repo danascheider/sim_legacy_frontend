@@ -44,9 +44,7 @@ const ShoppingListItem = ({
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            <div className={styles.container}>
-              <p className={styles.notes}>{notes || 'No details available'}</p>
-            </div>
+            <p className={styles.notes}>{notes || 'No details available'}</p>
           </div>
         )}
       </SlideToggle>

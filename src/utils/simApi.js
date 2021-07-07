@@ -70,7 +70,6 @@ export const fetchUserProfile = token => {
 // GET /shopping_lists
 export const fetchShoppingLists = token => {
   const uri = `${baseUri}/shopping_lists`
-
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
@@ -135,6 +134,30 @@ export const deleteShoppingList = (token, listId) => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError('Shopping list not found. Try refreshing the page to resolve this issue.')
       if (resp.status === 405) throw new MethodNotAllowedError('Master lists are managed automatically and cannot be deleted manually.')
+      return resp
+    })
+  )
+}
+
+/*
+ *
+ * Shopping List Item Endpoints
+ *
+ */
+
+// POST /shopping_lists/:shopping_list_id/shopping_list_items
+export const createShoppingListItem = (token, listId, attrs) => {
+  const uri = `${baseUri}/shopping_lists/${listId}/shopping_list_items`
+
+  return(
+    fetch(uri, {
+      method: 'POST',
+      headers: combinedHeaders(token),
+      body: JSON.stringify({ shopping_list_item: attrs })
+    })
+    .then(resp => {
+      if (resp.status === 401) throw new AuthorizationError()
+      if (resp.status === 404) throw new NotFoundError("You tried to create an item on a list that doesn't exist. Try refreshing to resolve this issue.")
       return resp
     })
   )

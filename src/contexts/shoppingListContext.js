@@ -17,7 +17,8 @@ import {
   createShoppingList,
   fetchShoppingLists,
   updateShoppingList,
-  deleteShoppingList
+  deleteShoppingList,
+  createShoppingListItem
 } from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
@@ -29,7 +30,7 @@ const ERROR = 'error'
 const ShoppingListContext = createContext()
 
 const ShoppingListProvider = ({ children, overrideValue = {} }) => {
-  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists)
+  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || null)
   const [flashVisible, setFlashVisible] = useState(false)
   const [flashProps, setFlashProps] = useState({})
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
@@ -50,8 +51,6 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           }
         })
         .catch(err => {
-          console.error('Error fetching shopping lists: ', err.message)
-
           if (err.code === 401) {
             logOutWithGoogle(() => {
               token && removeSessionCookie()
@@ -60,6 +59,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
               // Don't set the loading state to ERROR because it's redirecting anyway
             })
           } else {
+            if (process.env.NODE_ENV !== 'production') console.error('Unexpected error fetching shopping lists: ', err)
+
             !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
             setFlashProps({
               type: 'error',
@@ -280,12 +281,125 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
+  const performShoppingListItemCreate = (listId, attrs, success = null, error = null) => {
+    createShoppingListItem(token, listId, attrs)
+      .then(resp => resp.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const [masterListItem, regularListItem] = data
+
+          const newLists = [...shoppingLists]
+          const masterList = { ...shoppingLists[0] }
+          const masterListItems = masterList.list_items
+          const regularList = { ...shoppingLists.find(list => list.id === listId) }
+          const regularListPosition = shoppingLists.indexOf(regularList)
+          const regularListItems = regularList.list_items
+
+          // Find the current location of the item on the master list. This is so
+          // the item at that index can be removed below and the replacement added
+          // at the top of the list.
+          let masterIndex
+          for (let i = 0; i < masterListItems.length; i++) {
+            if (masterListItems[i].id === masterListItem.id) {
+              masterIndex = i
+              break
+            }
+          }
+
+          // Check if it's null or undefined because `if (masterIndex) { ... }` was
+          // causing this block to be skipped when the masterIndex was 0
+          if (masterIndex !== null && masterIndex !== undefined) {
+            masterListItems.splice(masterIndex, 1)
+          }
+
+          masterListItems.unshift(masterListItem)
+
+          masterList.list_items = masterListItems
+
+          // Replace the master list with the new version of it that has the list
+          // item created/updated
+          newLists[0] = masterList
+
+          // Find the location of the updated list item in the regular list, if it
+          // exists. This will be used to remove the item from its current index and
+          // replace it with the updated version at the top of the list.
+          let regIndex
+          for (let i = 0; i < regularListItems.length; i++) {
+            if (regularListItems[i].id === regularListItem.id) {
+              regIndex = i
+              break
+            }
+          }
+
+          // Again, 0 will evaluate to false, so we have to check for null or
+          // undefined values instead of just `if (regIndex) { ... }`
+          if (regIndex !== null && regIndex !== undefined) {
+            regularListItems.splice(regIndex, 1)
+          }
+
+          // Replace the regular list item that was removed but place the replacement
+          // at the top of the list
+          regularListItems.unshift(regularListItem)
+
+          regularList.list_items = regularListItems
+
+          // In general, we want the most recently updated lists on top, however, I don't
+          // want the whole UI rearranging itself when a user has not yet refreshed the page.
+          // Seems like that would cause some frustration if you wanted to do more editing
+          // of a list and it moved out from under you.
+          newLists[regularListPosition] = regularList
+
+          setShoppingLists(newLists)
+
+          success && success()
+        } else if (data && typeof data === 'object' && data.errors) {
+          setFlashProps({
+            type: 'error',
+            header: `${data.errors.length} error(s) prevented your shopping list item from being created:`,
+            message: data.errors
+          })
+
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+
+          error && error()
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutWithGoogle(() => {
+            token && removeSessionCookie()
+            setShouldRedirectTo(paths.login)
+            mountedRef.current = false
+          })
+        } else if (err.code === 404) {
+          setFlashProps({
+            type: 'error',
+            message: "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem."
+          })
+          
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+        } else {
+          console.error('Unexpected error when creating shopping list item: ', err.message)
+
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+        }
+
+        error && error()
+      })
+  }
+
   const value = {
     shoppingLists,
     shoppingListLoadingState,
     performShoppingListUpdate,
     performShoppingListCreate,
     performShoppingListDelete,
+    performShoppingListItemCreate,
     flashProps,
     flashVisible,
     setFlashProps,
@@ -319,7 +433,7 @@ ShoppingListProvider.propTypes = {
       id: PropTypes.number.isRequired,
       user_id: PropTypes.number,
       title: PropTypes.string.isRequired,
-      shoppingListItems: PropTypes.arrayOf({
+      list_items: PropTypes.arrayOf({
         id: PropTypes.number,
         shopping_list_id: PropTypes.number,
         description: PropTypes.string.isRequired,
@@ -329,6 +443,9 @@ ShoppingListProvider.propTypes = {
     })),
     shoppingListLoadingState: PropTypes.string,
     performShoppingListUpdate: PropTypes.func,
+    performShoppingListCreate: PropTypes.func,
+    performShoppingListDelete: PropTypes.func,
+    performShoppingListItemCreate: PropTypes.func,
     flashProps: PropTypes.shape({
       type: PropTypes.string,
       header: PropTypes.string,
