@@ -24,7 +24,7 @@ const isValid = str => (
 const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
-  const [listItems, setListItems] = useState(null)
+  const [listItems, setListItems] = useState([])
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
@@ -106,7 +106,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     if (shoppingLists === undefined) return // it'll run again when they populate
 
     const items = shoppingLists.find(obj => obj.id === listId).list_items
-    setListItems(items)
+
+    setListItems([...items])
   }, [shoppingLists, listId])
 
   return(
@@ -135,7 +136,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {!canEdit && (!listItems || listItems.length === 0) && <div className={styles.emptyList}>You have no shopping list items.</div>}
+            {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>You have no shopping list items.</div>}
             {canEdit && <ShoppingListItemCreateForm listId={listId} />}
             {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
