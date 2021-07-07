@@ -143,6 +143,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
               return(
                 <ShoppingListItem
                   key={itemKey}
+                  itemId={id}
+                  canEdit={canEdit}
                   description={description}
                   quantity={quantity}
                   notes={notes}

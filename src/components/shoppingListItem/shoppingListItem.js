@@ -1,15 +1,20 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { useColorScheme } from '../../hooks/contexts'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
 const ShoppingListItem = ({
+  itemId,
+  canEdit,
   description,
   quantity,
   notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
     schemeColorLighter,
@@ -19,6 +24,8 @@ const ShoppingListItem = ({
     schemeColorLightest,
     textColorTertiary
   } = useColorScheme()
+
+  const { performShoppingListItemUpdate } = useShoppingListContext()
   
   const toggleDetails = () => {
     setToggleEvent(Date.now)
@@ -33,13 +40,32 @@ const ShoppingListItem = ({
     '--hover-color': hoverColorLighter
   }
 
+  const incrementQuantity = () => {
+    const oldQuantity = currentQuantity
+    const newQuantity = currentQuantity + 1
+
+    setCurrentQuantity(newQuantity)
+
+    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, null, () => { setCurrentQuantity(oldQuantity) })
+  }
+
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.headerContainer}>
         <button className={styles.button} onClick={toggleDetails}>
           <h4 className={styles.description}>{description}</h4>
         </button>
-        <span className={styles.quantity}>{quantity}</span>
+        <span className={styles.quantity}>
+          {canEdit && <div className={styles.icon}>
+            <FontAwesomeIcon className={styles.fa} icon={faAngleUp} onClick={incrementQuantity} />
+          </div>}
+          <div className={styles.quantityContent}>
+            {quantity}
+          </div>
+          {canEdit && <div className={styles.icon}>
+            <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
+          </div>}
+        </span>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
@@ -53,6 +79,8 @@ const ShoppingListItem = ({
 }
 
 ShoppingListItem.propTypes = {
+  itemId: PropTypes.number.isRequired,
+  canEdit: PropTypes.bool.isRequired,
   description: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
   notes: PropTypes.string
