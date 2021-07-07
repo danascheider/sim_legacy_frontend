@@ -28,7 +28,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
   const createShoppingList = e => {
     e.preventDefault()
     setFlashVisible(false)
-    const title = e.nativeEvent.target.children[0].children[0].defaultValue
+    const title = e.target.elements.title.value
     performShoppingListCreate(title, () => setInputValue(''))
   }
 

@@ -286,51 +286,67 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       .then(resp => resp.json())
       .then(data => {
         if (Array.isArray(data)) {
-          let [masterListItem, regularListItem] = data
+          const [masterListItem, regularListItem] = data
 
-          let newLists = [...shoppingLists]
-          let masterList = shoppingLists[0]
-          let regularList = shoppingLists.find(list => list.id === listId)
-          let regularListPosition = shoppingLists.indexOf(regularList)
+          const newLists = [...shoppingLists]
+          const masterList = { ...shoppingLists[0] }
+          const masterListItems = masterList.list_items
+          const regularList = { ...shoppingLists.find(list => list.id === listId) }
+          const regularListPosition = shoppingLists.indexOf(regularList)
+          const regularListItems = regularList.list_items
 
-          // Update the copy of the master list
+          // Find the current location of the item on the master list. This is so
+          // the item at that index can be removed below and the replacement added
+          // at the top of the list.
           let masterIndex
-          for (let i = 0; i < masterList.list_items.length; i++) {
-            if (masterList.list_items[i].id === masterListItem.id) {
+          for (let i = 0; i < masterListItems.length; i++) {
+            if (masterListItems[i].id === masterListItem.id) {
               masterIndex = i
               break
             }
           }
 
-          let newMasterListItems = masterList.list_items
-          if (masterIndex) {
-            newMasterListItems.splice(masterIndex, 1, masterListItem)
-          } else {
-            newMasterListItems.unshift(masterListItem)
+          // Check if it's null or undefined because `if (masterIndex) { ... }` was
+          // causing this block to be skipped when the masterIndex was 0
+          if (masterIndex !== null && masterIndex !== undefined) {
+            masterListItems.splice(masterIndex, 1)
           }
 
-          masterList.list_items = newMasterListItems
+          masterListItems.unshift(masterListItem)
+
+          masterList.list_items = masterListItems
+
           // Replace the master list with the new version of it that has the list
           // item created/updated
           newLists[0] = masterList
 
-          // Update the copy of the regular list
+          // Find the location of the updated list item in the regular list, if it
+          // exists. This will be used to remove the item from its current index and
+          // replace it with the updated version at the top of the list.
           let regIndex
-          for (let i = 0; i < regularList.list_items.length; i++) {
-            if (regularList.list_items[i].id === regularListItem.id) {
+          for (let i = 0; i < regularListItems.length; i++) {
+            if (regularListItems[i].id === regularListItem.id) {
               regIndex = i
               break
             }
           }
 
-          let newRegularListItems = regularList.list_items
-          if (regIndex) {
-            newRegularListItems.splice(regIndex, 1, regularListItem)
-          } else {
-            newRegularListItems.unshift(regularListItem)
+          // Again, 0 will evaluate to false, so we have to check for null or
+          // undefined values instead of just `if (regIndex) { ... }`
+          if (regIndex !== null && regIndex !== undefined) {
+            regularListItems.splice(regIndex, 1)
           }
 
-          regularList.list_items = newRegularListItems
+          // Replace the regular list item that was removed but place the replacement
+          // at the top of the list
+          regularListItems.unshift(regularListItem)
+
+          regularList.list_items = regularListItems
+
+          // In general, we want the most recently updated lists on top, however, I don't
+          // want the whole UI rearranging itself when a user has not yet refreshed the page.
+          // Seems like that would cause some frustration if you wanted to do more editing
+          // of a list and it moved out from under you.
           newLists[regularListPosition] = regularList
 
           setShoppingLists(newLists)
