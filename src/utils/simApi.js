@@ -162,3 +162,22 @@ export const createShoppingListItem = (token, listId, attrs) => {
     })
   )
 }
+
+// PATCH /shopping_list_items/:id
+export const updateShoppingListItem = (token, itemId, attrs) => {
+  const uri = `${baseUri}/shopping_list_items/${itemId}`
+
+  return(
+    fetch(uri, {
+      method: 'PATCH',
+      headers: combinedHeaders(token),
+      body: JSON.stringify({ shopping_list_item: attrs })
+    })
+    .then(resp => {
+      if (resp.status === 401) throw new AuthorizationError()
+      if (resp.status === 404) throw new NotFoundError("You tried to update a list item that doesn't exist. Try refreshing to fix this issue.")
+      if (resp.status === 405) throw new MethodNotAllowedError()
+      return resp
+    })
+  )
+}

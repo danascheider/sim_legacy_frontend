@@ -18,7 +18,8 @@ import {
   fetchShoppingLists,
   updateShoppingList,
   deleteShoppingList,
-  createShoppingListItem
+  createShoppingListItem,
+  updateShoppingListItem
 } from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
@@ -37,6 +38,30 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   const { token, setShouldRedirectTo, removeSessionCookie } = useAppContext()
 
   const mountedRef = useRef(true)
+
+  const logOutUser = () => {
+    logOutWithGoogle(() => {
+      token && removeSessionCookie()
+      setShouldRedirectTo(paths.login)
+      mountedRef.current = false
+    })
+  }
+
+  const addOrUpdateListItem = (list, item) => {
+    const originalItem = list.list_items.find(listItem => listItem.id === item.id)
+
+    let newListItems
+    if (originalItem) {
+      const originalItemPosition = list.list_items.indexOf(originalItem)
+      newListItems = list.list_items.splice(originalItemPosition, 1, item)
+    } else {
+      newListItems = list.list_items.unshift(item)
+    }
+
+    list.list_items = newListItems
+
+    return list
+  }
   
   const fetchLists = () => {
     if (token && !overrideValue.shoppingLists) {
@@ -52,12 +77,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         })
         .catch(err => {
           if (err.code === 401) {
-            logOutWithGoogle(() => {
-              token && removeSessionCookie()
-              setShouldRedirectTo(paths.home)
-              mountedRef.current = false
-              // Don't set the loading state to ERROR because it's redirecting anyway
-            })
+            logOutUser()
+            // Don't set the loading state because it's redirecting anyway
           } else {
             if (process.env.NODE_ENV !== 'production') console.error('Unexpected error fetching shopping lists: ', err)
 
@@ -109,14 +130,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        console.error(`Error updating shopping list ${listId}: `, err.message)
+        if (process.env.NODE_ENV !== 'production') console.error(`Error updating shopping list ${listId}: `, err.message)
 
         if (err.code === 401) {
-          return logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutUser()
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
@@ -187,14 +204,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        console.error('Error creating shopping list: ', err.message)
+        if (process.env.NODE_ENV !== 'production') console.error('Error creating shopping list: ', err.message)
 
         if (err.code === 401) {
-          logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutUser()
         } else {
           console.error('Unexpected error creating shopping list: ', err.message)
 
@@ -256,11 +269,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutUser()
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
@@ -290,64 +299,65 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           const newLists = [...shoppingLists]
           const masterList = { ...shoppingLists[0] }
-          const masterListItems = masterList.list_items
           const regularList = { ...shoppingLists.find(list => list.id === listId) }
           const regularListPosition = shoppingLists.indexOf(regularList)
-          const regularListItems = regularList.list_items
 
-          // Find the current location of the item on the master list. This is so
-          // the item at that index can be removed below and the replacement added
-          // at the top of the list.
-          let masterIndex
-          for (let i = 0; i < masterListItems.length; i++) {
-            if (masterListItems[i].id === masterListItem.id) {
-              masterIndex = i
-              break
-            }
-          }
+          const newMasterList = addOrUpdateListItem(masterList, masterListItem)
+          const newRegularList = addOrUpdateListItem(regularList, regularListItem)
 
-          // Check if it's null or undefined because `if (masterIndex) { ... }` was
-          // causing this block to be skipped when the masterIndex was 0
-          if (masterIndex !== null && masterIndex !== undefined) {
-            masterListItems.splice(masterIndex, 1)
-          }
+          // // Find the current location of the item on the master list. This is so
+          // // the item at that index can be removed below and the replacement added
+          // // at the top of the list.
+          // let masterIndex
+          // for (let i = 0; i < masterListItems.length; i++) {
+          //   if (masterListItems[i].id === masterListItem.id) {
+          //     masterIndex = i
+          //     break
+          //   }
+          // }
 
-          masterListItems.unshift(masterListItem)
+          // // Check if it's null or undefined because `if (masterIndex) { ... }` was
+          // // causing this block to be skipped when the masterIndex was 0
+          // if (masterIndex !== null && masterIndex !== undefined) {
+          //   masterListItems.splice(masterIndex, 1)
+          // }
 
-          masterList.list_items = masterListItems
+          // masterListItems.unshift(masterListItem)
+
+          // masterList.list_items = masterListItems
 
           // Replace the master list with the new version of it that has the list
           // item created/updated
-          newLists[0] = masterList
+          newLists[0] = newMasterList
 
-          // Find the location of the updated list item in the regular list, if it
-          // exists. This will be used to remove the item from its current index and
-          // replace it with the updated version at the top of the list.
-          let regIndex
-          for (let i = 0; i < regularListItems.length; i++) {
-            if (regularListItems[i].id === regularListItem.id) {
-              regIndex = i
-              break
-            }
-          }
+          // // Find the location of the updated list item in the regular list, if it
+          // // exists. This will be used to remove the item from its current index and
+          // // replace it with the updated version at the top of the list.
+          // let regIndex
+          // for (let i = 0; i < regularListItems.length; i++) {
+          //   if (regularListItems[i].id === regularListItem.id) {
+          //     regIndex = i
+          //     break
+          //   }
+          // }
 
-          // Again, 0 will evaluate to false, so we have to check for null or
-          // undefined values instead of just `if (regIndex) { ... }`
-          if (regIndex !== null && regIndex !== undefined) {
-            regularListItems.splice(regIndex, 1)
-          }
+          // // Again, 0 will evaluate to false, so we have to check for null or
+          // // undefined values instead of just `if (regIndex) { ... }`
+          // if (regIndex !== null && regIndex !== undefined) {
+          //   regularListItems.splice(regIndex, 1)
+          // }
 
-          // Replace the regular list item that was removed but place the replacement
-          // at the top of the list
-          regularListItems.unshift(regularListItem)
+          // // Replace the regular list item that was removed but place the replacement
+          // // at the top of the list
+          // regularListItems.unshift(regularListItem)
 
-          regularList.list_items = regularListItems
+          // regularList.list_items = regularListItems
 
           // In general, we want the most recently updated lists on top, however, I don't
           // want the whole UI rearranging itself when a user has not yet refreshed the page.
           // Seems like that would cause some frustration if you wanted to do more editing
           // of a list and it moved out from under you.
-          newLists[regularListPosition] = regularList
+          newLists[regularListPosition] = newRegularList
 
           setShoppingLists(newLists)
 
@@ -366,11 +376,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutUser()
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
@@ -393,6 +399,72 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
+  const performShoppingListItemUpdate = (itemId, attrs, success = null, error = nul) => {
+    updateShoppingListItem(token, itemId, attrs)
+      .then(resp => resp.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const [masterListItem, regularListItem] = data
+
+          const newShoppingLists = [...shoppingLists]
+
+          const regularList = shoppingList.find(list => list.id === regularListItem.list_id)
+          const regularListPosition = shoppingLists.indexOf(regularList)
+
+          const newMasterList = addOrUpdateListItem(shoppingLists[0], masterListItem)
+          const newRegularList = addOrUpdateListItem(regularList, regularListItem)
+          
+          newShoppingLists[0] = newMasterList
+          newShoppingLists[regularListPosition] = newRegularList
+
+          setShoppingLists(newShoppingLists)
+
+          success && success()
+        } else if (data && typeof data === 'object' && data.errors) {
+          setFlashProps({
+            type: 'error',
+            header: `${data.errors.length} error(s) prevented your shopping list item from being updated:`,
+            message: data.errors
+          })
+
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+
+          error && error()
+        } else {
+          throw new Error(`Something unexpected went wrong: could not update shopping list item id=${itemId}`)
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutUser()
+        } else if (err.code === 404) {
+          setFlashProps({
+            type: 'error',
+            message: "Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem."
+          })
+
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+
+          error && error()
+        } else if (err.code === 405) {
+          setFlashProps({
+            type: 'error',
+            message: 'Cannot manually edit item on a master list'
+          })
+        } else {
+          if (process.env.NODE_ENV !== 'production') console.error(`Unexpected error editing list item ${itemId}: `, err.message)
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          overrideValue.flashVisible === undefined && setFlashVisible(true)
+        }
+
+        error && error()
+      })
+  }
+
   const value = {
     shoppingLists,
     shoppingListLoadingState,
@@ -400,6 +472,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     performShoppingListCreate,
     performShoppingListDelete,
     performShoppingListItemCreate,
+    performShoppingListItemUpdate,
     flashProps,
     flashVisible,
     setFlashProps,
