@@ -181,3 +181,21 @@ export const updateShoppingListItem = (token, itemId, attrs) => {
     })
   )
 }
+
+// DELETE /shopping_list_items/:id
+export const destroyShoppingListItem = (token, itemId, attrs) => {
+  const uri = `${baseUri}/shopping_list_items/${itemId}`
+
+  return(
+    fetch(uri, {
+      method: 'DELETE',
+      headers: authHeader(token)
+    })
+    .then(resp => {
+      if (resp.status === 401) throw new AuthorizationError()
+      if (resp.status === 404) throw new NotFoundError("You tried to delete a list item that doesn't exist. Try refreshing to fix this issue.")
+      if (resp.status === 405) throw new MethodNotAllowedError()
+      return resp
+    })
+  )
+}
