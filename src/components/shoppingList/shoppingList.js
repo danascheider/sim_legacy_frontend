@@ -103,7 +103,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   }
 
   useEffect(() => {
-    if (shoppingLists === undefined) return // it'll run again when they populate
+    if (!shoppingLists) return // it'll run again when they populate
 
     const items = shoppingLists.find(obj => obj.id === listId).list_items
 
