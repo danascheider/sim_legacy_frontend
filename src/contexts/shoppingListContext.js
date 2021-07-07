@@ -50,8 +50,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
   const addOrUpdateListItem = (list, item) => {
     const originalItem = list.list_items.find(listItem => listItem.id === item.id)
-    const newListItems = list.list_items
-    const newList = list
+    const newListItems = [...list.list_items]
 
     if (originalItem) {
       const originalItemPosition = list.list_items.indexOf(originalItem)
@@ -60,9 +59,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       newListItems.unshift(item)
     }
 
-    newList.list_items = newListItems
+    list.list_items = newListItems
 
-    return newList
+    return { ...list }
   }
 
   const displayFlashError = (msg, header = null) => {
