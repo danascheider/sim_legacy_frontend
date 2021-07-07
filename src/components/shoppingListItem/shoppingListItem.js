@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
@@ -25,7 +25,12 @@ const ShoppingListItem = ({
     textColorTertiary
   } = useColorScheme()
 
-  const { performShoppingListItemUpdate } = useShoppingListContext()
+  const {
+    performShoppingListItemUpdate,
+    performShoppingListItemDestroy
+  } = useShoppingListContext()
+
+  const mountedRef = useRef(true)
   
   const toggleDetails = () => {
     setToggleEvent(Date.now)
@@ -49,6 +54,28 @@ const ShoppingListItem = ({
     performShoppingListItemUpdate(itemId, { quantity: newQuantity }, null, () => { setCurrentQuantity(oldQuantity) })
   }
 
+  const decrementQuantity = () => {
+    const oldQuantity = currentQuantity
+    const newQuantity = currentQuantity - 1
+
+    if (newQuantity > 0) {
+      setCurrentQuantity(newQuantity)
+      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, null, () => { setCurrentQuantity(oldQuantity) })
+    } else if (newQuantity === 0) {
+      const confirmed = window.confirm("Item quantity must be greater than zero. Delete the item instead?")
+
+      if (confirmed) {
+        performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
+      } else {
+        // show flash info message 'your item was not deleted' or something
+      }
+    }
+  }
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ))
+
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.headerContainer}>
@@ -56,13 +83,13 @@ const ShoppingListItem = ({
           <h4 className={styles.description}>{description}</h4>
         </button>
         <span className={styles.quantity}>
-          {canEdit && <div className={styles.icon}>
-            <FontAwesomeIcon className={styles.fa} icon={faAngleUp} onClick={incrementQuantity} />
+          {canEdit && <div className={styles.icon} onClick={incrementQuantity}>
+            <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
           </div>}
           <div className={styles.quantityContent}>
-            {quantity}
+            {currentQuantity}
           </div>
-          {canEdit && <div className={styles.icon}>
+          {canEdit && <div className={styles.icon} onClick={decrementQuantity}>
             <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
           </div>}
         </span>
