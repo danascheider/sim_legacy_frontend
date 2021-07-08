@@ -454,9 +454,10 @@ ShoppingListProvider.propTypes = {
       id: PropTypes.number.isRequired,
       user_id: PropTypes.number,
       title: PropTypes.string.isRequired,
+      master: PropTypes.bool.isRequired,
       list_items: PropTypes.arrayOf({
         id: PropTypes.number,
-        shopping_list_id: PropTypes.number,
+        list_id: PropTypes.number,
         description: PropTypes.string.isRequired,
         quantity: PropTypes.number.isRequired,
         notes: PropTypes.string
