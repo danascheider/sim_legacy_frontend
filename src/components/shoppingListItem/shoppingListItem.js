@@ -14,6 +14,9 @@ const ShoppingListItem = ({
   notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
+
+  // This enables us to set the quantity to the new quantity during the time between when
+  // the user increments/decrements the quantity and the time the API responds.
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
