@@ -27,7 +27,9 @@ const ShoppingListItem = ({
 
   const {
     performShoppingListItemUpdate,
-    performShoppingListItemDestroy
+    performShoppingListItemDestroy,
+    setFlashProps,
+    setFlashVisible
   } = useShoppingListContext()
 
   const mountedRef = useRef(true)
@@ -67,7 +69,10 @@ const ShoppingListItem = ({
       if (confirmed) {
         performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
       } else {
-        // show flash info message 'your item was not deleted' or something
+        setFlashProps({
+          type: 'info', message: 'Your item was not deleted.'
+        })
+        setFlashVisible(true)
       }
     }
   }
