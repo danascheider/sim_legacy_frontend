@@ -87,7 +87,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   const listFromListItemId = itemId => shoppingLists.find(list => !!list.list_items.find(item => item.id === itemId))
 
   const removeItemFromList = (list, itemId) => {
-    const newList = [...list]
+    const newList = { ...list }
     const newListItems = [...list.list_items]
 
     const item = list.list_items.find(item => item.id === itemId)
@@ -397,9 +397,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         newLists.splice(regularListIndex, 1, newRegularList)
 
         setShoppingLists(newLists)
-  
-        displayFlashSuccess('Your list item has been deleted. Your master list was updated to reflect the change.')
-        
+          
         success && success()
       })
       .catch(err => {
