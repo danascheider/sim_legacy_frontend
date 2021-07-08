@@ -10,21 +10,21 @@ const performCreateShoppingList = e => { e.preventDefault() }
 const listItems = [
   {
     id: 1,
-    shopping_list_id: 1,
+    list_id: 1,
     description: 'Ebony sword',
     quantity: 3,
     notes: 'Love those ebony swords'
   },
   {
     id: 2,
-    shopping_list_id: 1,
+    list_id: 1,
     description: 'Necklace',
     quantity: 4,
     notes: 'Any unenchanted necklaces for enchanting'
   },
   {
     id: 3,
-    shopping_list_id: 1,
+    list_id: 1,
     description: 'Iron ingot',
     quantity: 400,
     notes: 'Building Lakeview Manor takes some iron'

@@ -17,14 +17,14 @@ export const shoppingLists = [
     list_items: [
       {
         id: 2,
-        shopping_list_id: 2,
+        list_id: 2,
         description: 'Ebony sword',
         quantity: 2,
         notes: 'notes 1 -- notes 2'
       },
       {
         id: 4,
-        shopping_list_id: 2,
+        list_id: 2,
         description: 'Ingredients with "Frenzy" property',
         quantity: 4,
         notes: null
@@ -39,14 +39,14 @@ export const shoppingLists = [
     list_items: [
       {
         id: 1,
-        shopping_list_id: 1,
+        list_id: 1,
         description: 'Ebony sword',
         quantity: 1,
         notes: 'notes 1'
       },
       {
         id: 3,
-        shopping_list_id: 1,
+        list_id: 1,
         description: 'Ingredients with "Frenzy" property',
         quantity: 4,
         notes: null
@@ -61,7 +61,7 @@ export const shoppingLists = [
     list_items: [
       {
         id: 5,
-        shopping_list_id: 3,
+        list_id: 3,
         description: 'Ebony sword',
         quantity: 1,
         notes: 'notes 2'
@@ -77,14 +77,14 @@ export const shoppingListUpdateData1 = {
   list_items: [
     {
       id: 1,
-      shopping_list_id: 1,
+      list_id: 1,
       description: 'Ebony sword',
       quantity: 1,
       notes: 'notes 1'
     },
     {
       id: 3,
-      shopping_list_id: 1,
+      list_id: 1,
       description: 'Ingredients with "Frenzy" property',
       quantity: 4,
       notes: null
@@ -99,7 +99,7 @@ export const shoppingListUpdateData2 = {
   list_items: [
     {
       id: 5,
-      shopping_list_id: 3,
+      list_id: 3,
       description: 'Ebony sword',
       quantity: 1,
       notes: 'notes 2'
