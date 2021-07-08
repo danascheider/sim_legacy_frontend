@@ -37,7 +37,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     setFlashVisible
   } = useShoppingListContext()
 
-  const originalTitle = title // to switch back in case of API error
+  const originalTitle = title // to switch back in case of API error on update
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))

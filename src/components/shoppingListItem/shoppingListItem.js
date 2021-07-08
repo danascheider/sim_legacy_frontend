@@ -72,6 +72,10 @@ const ShoppingListItem = ({
     }
   }
 
+  useEffect(() => {
+    setCurrentQuantity(quantity)
+  }, [quantity])
+
   useEffect(() => (
     () => mountedRef.current = false
   ))
