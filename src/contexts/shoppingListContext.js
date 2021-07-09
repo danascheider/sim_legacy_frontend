@@ -17,7 +17,7 @@ import {
   createShoppingList,
   fetchShoppingLists,
   updateShoppingList,
-  deleteShoppingList,
+  destroyShoppingList,
   createShoppingListItem,
   updateShoppingListItem,
   destroyShoppingListItem
@@ -32,11 +32,14 @@ const ERROR = 'error'
 const ShoppingListContext = createContext()
 
 const ShoppingListProvider = ({ children, overrideValue = {} }) => {
-  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || null)
+  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
   const [flashVisible, setFlashVisible] = useState(false)
   const [flashProps, setFlashProps] = useState({})
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
   const { token, setShouldRedirectTo, removeSessionCookie } = useAppContext()
+
+  // Use this as the initial value only
+  overrideValue.shoppingLists && delete overrideValue.shoppingLists
 
   const mountedRef = useRef(true)
 
@@ -122,6 +125,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             displayFlashError("There was an error loading your lists. It may have been on our end. We're sorry!")
           }
         })
+    } else {
+      overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
     }
   }
 
@@ -223,8 +228,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListDelete = (listId, success = null, error = null) => {
-    deleteShoppingList(token, listId)
+  const performShoppingListDestroy = (listId, success = null, error = null) => {
+    destroyShoppingList(token, listId)
       .then(resp => {
         // Error responses, including 404 and 405 responses, result
         // in a NotFoundError or MethodNotAllowedError to be thrown
@@ -373,6 +378,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         return resp.json()
       })
       .then(data => {
+        
         const regularListToRemoveItemFrom = listFromListItemId(itemId)
         const regularListIndex = shoppingLists.indexOf(regularListToRemoveItemFrom)
         const newLists = [...shoppingLists]
@@ -418,7 +424,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     shoppingListLoadingState,
     performShoppingListUpdate,
     performShoppingListCreate,
-    performShoppingListDelete,
+    performShoppingListDestroy,
     performShoppingListItemCreate,
     performShoppingListItemUpdate,
     performShoppingListItemDestroy,
@@ -432,13 +438,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   useEffect(() => {
     fetchLists()
     return () => mountedRef.current = false
-  }, [
-    overrideValue.shoppingListLoadingState,
-    overrideValue.shoppingLists,
-    setShouldRedirectTo,
-    removeSessionCookie,
-    token
-  ])
+  }, [])
 
   return(
     <ShoppingListContext.Provider value={value}>
@@ -455,18 +455,18 @@ ShoppingListProvider.propTypes = {
       user_id: PropTypes.number,
       title: PropTypes.string.isRequired,
       master: PropTypes.bool.isRequired,
-      list_items: PropTypes.arrayOf({
+      list_items: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number,
         list_id: PropTypes.number,
         description: PropTypes.string.isRequired,
         quantity: PropTypes.number.isRequired,
         notes: PropTypes.string
-      }).isRequired
+      })).isRequired
     })),
     shoppingListLoadingState: PropTypes.string,
     performShoppingListUpdate: PropTypes.func,
     performShoppingListCreate: PropTypes.func,
-    performShoppingListDelete: PropTypes.func,
+    performShoppingListDestroy: PropTypes.func,
     performShoppingListItemCreate: PropTypes.func,
     performShoppingListItemDelete: PropTypes.func,
     flashProps: PropTypes.shape({

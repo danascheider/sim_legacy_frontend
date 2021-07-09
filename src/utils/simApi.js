@@ -122,7 +122,7 @@ export const updateShoppingList = (token, listId, attrs) => {
 }
 
 // DELETE /shopping_lists/:id
-export const deleteShoppingList = (token, listId) => {
+export const destroyShoppingList = (token, listId) => {
   const uri = `${baseUri}/shopping_lists/${listId}`
 
   return(
