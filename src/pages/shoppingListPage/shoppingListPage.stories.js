@@ -6,7 +6,11 @@ import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import {
   userData,
   emptyShoppingLists,
-  shoppingLists
+  shoppingLists,
+  findListByListItem,
+  adjustMasterListItem,
+  removeOrAdjustItemsOnListDestroy,
+  removeOrAdjustItemOnItemDestroy
 } from './storyData'
 import ShoppingListPage from './shoppingListPage'
 
@@ -29,7 +33,7 @@ const appContextOverrideValue = {
 
 export const HappyPath = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
-    <ShoppingListProvider>
+    <ShoppingListProvider overrideValue={{ shoppingLists }}>
       <ShoppingListPage />
     </ShoppingListProvider>
   </AppProvider>
@@ -63,6 +67,24 @@ HappyPath.story = {
           ctx.json(returnData)
         )
       }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        const listId = Number(req.params.id)
+        const regularList = shoppingLists.find(list => list.id === listId)
+        const items = regularList.list_items
+
+        const newMasterList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
+
+        if (newMasterList === null) {
+          return res(
+            ctx.status(204)
+          )
+        } else {
+          return res(
+            ctx.status(200),
+            ctx.json(newMasterList)
+          )
+        }
+      }),
       rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
         const description = req.body.shopping_list_item.description
         const quantity = Number(req.body.shopping_list_item.quantity || 1)
@@ -73,14 +95,14 @@ HappyPath.story = {
         const returnData = [
           {
             id: 57,
-            shopping_list_id: 1,
+            list_id: 1,
             description: description,
             quantity: quantity,
             notes: notes
           },
           {
             id: 58,
-            shopping_list_id: listId,
+            list_id: listId,
             description: description,
             quantity: quantity,
             notes: notes
@@ -92,19 +114,37 @@ HappyPath.story = {
           ctx.json(returnData)
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+        const itemId = Number(req.params.id)
+        const list = findListByListItem(shoppingLists, itemId)
+        const existingItem = list.list_items.find(item => item.id === itemId)
+        const newItem = { ...existingItem, ...req.body.shopping_list_item }
+        const deltaQuantity = newItem.quantity - existingItem.quantity
+        const masterListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
+        adjustMasterListItem(masterListItem, deltaQuantity, existingItem.notes, newItem.notes)
+
         return res(
           ctx.status(200),
-          ctx.json({
-            master_list: {
-              id: 489,
-              title: 'Master',
-              master: true,
-              user_id: 24,
-              list_items: []
-            }
-          })
+          ctx.json([masterListItem, newItem])
         )
+      }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+        const itemId = Number(req.params.id)
+        const list = findListByListItem(shoppingLists, itemId)
+        const item = list.list_items.find(listItem => listItem.id === itemId)
+        const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+        removeOrAdjustItemOnItemDestroy(masterListItem, item)
+
+        if (masterListItem) {
+          return res(
+            ctx.status(200),
+            ctx.json(masterListItem)
+          )
+        } else {
+          return res(
+            ctx.status(204)
+          )
+        }
       })
     ]
   }
