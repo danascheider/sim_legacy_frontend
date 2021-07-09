@@ -125,7 +125,7 @@ export const removeOrAdjustItemOnItemDestroy = (masterListItem, destroyedItem) =
   if (masterListItem.quantity === destroyedItem.quantity) return null
 
   masterListItem.quantity -= destroyedItem.quantity
-  masterListItem.notes.replace(destroyedItem.notes, '').replace(/^ --/, '').replace(/ -- $/, '')
+  if (masterListItem.notes) masterListItem.notes.replace(destroyedItem.notes, '').replace(/^ --/, '').replace(/ -- $/, '')
 
   return masterListItem
 }
@@ -160,7 +160,11 @@ export const adjustMasterListItem = (masterListItem, deltaQuantity, oldNotes, ne
   masterListItem.quantity = masterListItem.quantity + deltaQuantity
 
   if (oldNotes !== newNotes) {
-    masterListItem.notes.replace(oldNotes, newNotes)
+    if (masterListItem.notes) {
+      masterListItem.notes.replace(oldNotes, newNotes)
+    } else {
+      masterListItem.notes = newNotes
+    }
   }
 
   return masterListItem

@@ -83,9 +83,6 @@ HappyPath.story = {
         const masterListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
         const newMasterListItem = adjustMasterListItem(masterListItem, deltaQuantity, existingItem.notes, newItem.notes)
 
-        console.log('oldMasterListItem: ', masterListItem)
-        console.log('newMasterListItem: ', newMasterListItem)
-
         return res(
           ctx.status(200),
           ctx.json([newMasterListItem, newItem])
@@ -95,9 +92,8 @@ HappyPath.story = {
         const itemId = Number(req.params.id)
         const list = findListByListItem(shoppingLists, itemId)
         const item = list.list_items.find(listItem => listItem.id === itemId)
-        const itemIndex = list.list_items.indexOf(item)
-        list.list_items.splice(itemIndex, 1)
-        const masterListItem = removeOrAdjustItemOnItemDestroy(shoppingLists[0], [item])
+        const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+        removeOrAdjustItemOnItemDestroy(masterListItem, item)
 
         if (masterListItem) {
           return res(
