@@ -391,9 +391,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           // It's a bit of a pain in the ass to figure out which item to remove from the master list in
           // the case where it's been deleted. Might be something to think about for API development.
-          const masterListItem = shoppingLists[0].list_items.find(item => item.description.match(new RegExp(deletedItem.description, 'i')))
+          const masterListItem = shoppingLists[0].list_items.find(item => item.description.toLowerCase() === deletedItem.description.toLowerCase())
 
-          newMasterList = removeItemFromList(shoppingLists[0], masterListItem)
+          newMasterList = removeItemFromList(shoppingLists[0], masterListItem.id)
         }
 
         const newRegularList = removeItemFromList(regularListToRemoveItemFrom, itemId)
