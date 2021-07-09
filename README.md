@@ -52,9 +52,11 @@ The SIM front end components are tested extensively using [Storybook](https://st
 ```
 yarn storybook
 ```
-Storybook generally handles hot reloads easily. However, there are a few cases where certain types of changes completely bork the server. If that happens, kill and restart the server before you panic.
+Storybook generally handles hot reloads easily. However, there are a few cases where certain types of changes completely bork the server. If that happens, kill and restart the server before you panic. Sometimes, certain stories will also break on hot reloads (especially those that mock API calls). You don't always need to restart thew whole server to fix these - sometimes it's enough to reload the page.
 
 #### API Mocking
+
+We've tried to make sure that Storybook stories make the best use of API mocking to mimic component behaviour in the running application. Unfortunately, it has not been consistently possible to mimic this behaviour perfectly. That's due to the fact that many API calls are made from within context providers that set data dynamically. Within the stories, we don't have access to data internal to the providers. That means that we can't mock series of actions, such as when a user increments then decrements the quantity of an item on a list, or adds and removes multiple lists from a page. Behaviour in Storybook is unfortunately only useful for illustrative purposes and cannot be used for manual QA testing or verification that a component behaves as expected. Manual testing will need to be carried out by running both this application and the SIM API in your dev environment.
 
 There are a few considerations when writing stories for components that make API calls (and the components themselves). The first is mock data. For mocking, we use the [mock service worker Storybook addon](https://storybook.js.org/addons/msw-storybook-addon/). For an example of how the MSW addon is used, look at the story for the [dashboard header](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/components/dashboardHeader/dashboardHeader.stories.js), which makes a call to `/users/current` to get the user's profile information from the backend.
 
