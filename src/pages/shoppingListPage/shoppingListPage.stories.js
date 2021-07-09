@@ -42,13 +42,13 @@ export const HappyPath = () => (
 HappyPath.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(shoppingLists)
         )
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 3'
         const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
 
@@ -57,7 +57,7 @@ HappyPath.story = {
           ctx.json(returnData)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 1'
         const listId = Number(req.params.id)
         const returnData = { id: listId, user_id: 24, title: title, master: false, list_items: []}
@@ -67,7 +67,7 @@ HappyPath.story = {
           ctx.json(returnData)
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         const listId = Number(req.params.id)
         const regularList = shoppingLists.find(list => list.id === listId)
         const items = regularList.list_items
@@ -85,7 +85,7 @@ HappyPath.story = {
           )
         }
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
         const description = req.body.shopping_list_item.description
         const quantity = Number(req.body.shopping_list_item.quantity || 1)
         const notes = req.body.shopping_list_item.notes
@@ -114,7 +114,7 @@ HappyPath.story = {
           ctx.json(returnData)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         const itemId = Number(req.params.id)
         const list = findListByListItem(shoppingLists, itemId)
         const existingItem = list.list_items.find(item => item.id === itemId)
@@ -128,7 +128,7 @@ HappyPath.story = {
           ctx.json([masterListItem, newItem])
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         const itemId = Number(req.params.id)
         const list = findListByListItem(shoppingLists, itemId)
         const item = list.list_items.find(listItem => listItem.id === itemId)
@@ -168,13 +168,13 @@ export const ListNotFound = () => (
 ListNotFound.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(shoppingLists)
         )
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 3'
         const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
 
@@ -183,21 +183,21 @@ ListNotFound.story = {
           ctx.json(returnData)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
-      }),
+      })
     ]
   }
 }
@@ -220,25 +220,25 @@ export const UnprocessableEntity = () => (
 UnprocessableEntity.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(shoppingLists)
         )
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(422),
           ctx.json({ errors: ['Title can only include alphanumeric characters and spaces'] })
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(422),
           ctx.json({ errors: ['Title is already taken'] })
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json({
@@ -252,7 +252,7 @@ UnprocessableEntity.story = {
           })
         )
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
         return res(
           ctx.status(422),
           ctx.json({ errors: ['Quantity is not a number'] })
@@ -279,13 +279,13 @@ export const Empty = () => (
 Empty.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(emptyShoppingLists)
         )
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 3'
         const returnData = [
           { id: 33, user_id: 24, title: 'Master', master: true, list_items: [] },
@@ -297,7 +297,7 @@ Empty.story = {
           ctx.json(returnData)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         const listId = Number(req.params.id)
         const title = req.body.shopping_list.title || 'My List 2'
         const returnData = { id: listId, user_id: 24, title, master: false, list_items: [] }
@@ -307,7 +307,7 @@ Empty.story = {
           ctx.json(returnData)
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(204)
         )
@@ -329,7 +329,7 @@ export const Loading = () => (
 Loading.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(emptyShoppingLists)
@@ -352,7 +352,7 @@ export const ErrorState = () => (
 ErrorState.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(500)
         )

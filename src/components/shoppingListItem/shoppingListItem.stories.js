@@ -31,13 +31,13 @@ export const Editable = () => (
 Editable.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(shoppingLists)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/42`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_list_items/42`, (req, res, ctx) => {
         const newQty = req.body.shopping_list_item.quantity
 
         const returnData = [

@@ -76,7 +76,7 @@ export const Default = () => (
 Default.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(
@@ -97,7 +97,7 @@ Default.story = {
           )
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         const itemId = Number(req.params.id)
         const regularItem = regularListItems.find(item => item.id === itemId)
         const masterListItem = masterListItems.find(item => item.description === regularItem.description)
@@ -145,7 +145,7 @@ export const NotEditable = () => (
 NotEditable.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json([
@@ -185,7 +185,7 @@ export const EmptyMasterList = () => (
 EmptyMasterList.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json([

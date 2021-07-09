@@ -28,13 +28,13 @@ export const HappyPath = () => (
 HappyPath.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json(shoppingLists)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         const listId = Number(req.params.id)
         const returnData = shoppingListUpdateData
         returnData.title = req.body.shopping_list.title
@@ -45,7 +45,7 @@ HappyPath.story = {
           ctx.json(returnData)
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         const listId = Number(req.params.id)
         const regularList = shoppingLists.find(list => list.id === listId)
         const items = regularList.list_items
@@ -63,7 +63,7 @@ HappyPath.story = {
           )
         }
       }),
-      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
         const listId = Number(req.params.shopping_list_id)
         const list = shoppingLists.find(shoppingList => shoppingList.id === listId)
         const regularListItem = addOrCombineListItem(list, req.body.shopping_list_item)
@@ -74,7 +74,7 @@ HappyPath.story = {
           ctx.json([masterListItem, regularListItem])
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         const itemId = Number(req.params.id)
         const list = findListByListItem(shoppingLists, itemId)
         const existingItem = list.list_items.find(item => item.id === itemId)
@@ -88,7 +88,7 @@ HappyPath.story = {
           ctx.json([newMasterListItem, newItem])
         )
       }),
-      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         const itemId = Number(req.params.id)
         const list = findListByListItem(shoppingLists, itemId)
         const item = list.list_items.find(listItem => listItem.id === itemId)
@@ -121,7 +121,7 @@ export const Loading = () => (
 Loading.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json({})
