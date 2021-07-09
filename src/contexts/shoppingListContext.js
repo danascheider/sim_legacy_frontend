@@ -52,7 +52,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }
 
   const addOrUpdateListItem = (list, item) => {
-    const originalItem = list.list_items.find(listItem => listItem.id === item.id)
+    const originalItem = list.list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
     const newListItems = [...list.list_items]
 
     if (originalItem) {
@@ -378,7 +378,6 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         return resp.json()
       })
       .then(data => {
-        
         const regularListToRemoveItemFrom = listFromListItemId(itemId)
         const regularListIndex = shoppingLists.indexOf(regularListToRemoveItemFrom)
         const newLists = [...shoppingLists]
