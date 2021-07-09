@@ -6,8 +6,12 @@ import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import {
   profileData,
   shoppingLists,
-  shoppingListUpdateData1,
-  shoppingListUpdateData2
+  shoppingListUpdateData,
+  removeOrAdjustItemsOnListDestroy,
+  removeOrAdjustItemOnItemDestroy,
+  addOrCombineListItem,
+  findListByListItem,
+  adjustMasterListItem
 } from './storyData'
 import ShoppingListPageContent from './shoppingListPageContent'
 
@@ -15,7 +19,7 @@ export default { title: 'ShoppingListPageContent' }
 
 export const HappyPath = () => (
   <AppProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
-    <ShoppingListProvider>
+    <ShoppingListProvider overrideValue={{ shoppingLists }}>
       <ShoppingListPageContent />
     </ShoppingListProvider>
   </AppProvider>
@@ -30,23 +34,81 @@ HappyPath.story = {
           ctx.json(shoppingLists)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/1`, (req, res, ctx) => {
-        const returnData = shoppingListUpdateData1
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        const listId = Number(req.params.id)
+        const returnData = shoppingListUpdateData
         returnData.title = req.body.shopping_list.title
+        returnData.id = listId
 
         return res(
           ctx.status(200),
           ctx.json(returnData)
         )
       }),
-      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/3`, (req, res, ctx) => {
-        const returnData = shoppingListUpdateData2
-        returnData.title = req.body.shopping_list.title
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:id`, (req, res, ctx) => {
+        const listId = Number(req.params.id)
+        const regularList = shoppingLists.find(list => list.id === listId)
+        const items = regularList.list_items
+        
+        const newMasterList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
+
+        if (newMasterList === null) {
+          return res(
+            ctx.status(204)
+            )
+          } else {
+          return res(
+            ctx.status(200),
+            ctx.json(newMasterList)
+          )
+        }
+      }),
+      rest.post(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+        const listId = Number(req.params.shopping_list_id)
+        const list = shoppingLists.find(shoppingList => shoppingList.id === listId)
+        const regularListItem = addOrCombineListItem(list, req.body.shopping_list_item)
+        const masterListItem = addOrCombineListItem(shoppingLists[0], req.body.shopping_list_item)
 
         return res(
           ctx.status(200),
-          ctx.json(returnData)
+          ctx.json([masterListItem, regularListItem])
         )
+      }),
+      rest.patch(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+        const itemId = Number(req.params.id)
+        const list = findListByListItem(shoppingLists, itemId)
+        const existingItem = list.list_items.find(item => item.id === itemId)
+        const newItem = { ...existingItem, ...req.body.shopping_list_item }
+        const deltaQuantity = newItem.quantity - existingItem.quantity
+        const masterListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
+        const newMasterListItem = adjustMasterListItem(masterListItem, deltaQuantity, existingItem.notes, newItem.notes)
+
+        console.log('oldMasterListItem: ', masterListItem)
+        console.log('newMasterListItem: ', newMasterListItem)
+
+        return res(
+          ctx.status(200),
+          ctx.json([newMasterListItem, newItem])
+        )
+      }),
+      rest.delete(`${backendBaseUri[process.env.NODE_ENV]}/shopping_list_items/:id`, (req, res, ctx) => {
+        const itemId = Number(req.params.id)
+        const list = findListByListItem(shoppingLists, itemId)
+        const item = list.list_items.find(listItem => listItem.id === itemId)
+        const itemIndex = list.list_items.indexOf(item)
+        list.list_items.splice(itemIndex, 1)
+        const masterListItem = removeOrAdjustItemOnItemDestroy(shoppingLists[0], [item])
+
+        if (masterListItem) {
+          return res(
+            ctx.status(200),
+            ctx.json(masterListItem)
+          )
+        } else {
+          return res(
+            ctx.status(204)
+          )
+        }
       })
     ]
   }
