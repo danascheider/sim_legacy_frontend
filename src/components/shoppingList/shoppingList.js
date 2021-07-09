@@ -32,7 +32,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const {
     shoppingLists,
     performShoppingListUpdate,
-    performShoppingListDelete,
+    performShoppingListDestroy,
     setFlashProps,
     setFlashVisible
   } = useShoppingListContext()
@@ -92,7 +92,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     setFlashVisible(false)
 
     if (confirmed) {
-      performShoppingListDelete(listId)
+      performShoppingListDestroy(listId)
     } else {
       setFlashProps({
         type: 'info',
