@@ -268,6 +268,30 @@ UnprocessableEntity.story = {
           ctx.json({ errors: ['Quantity is not a number'] })
         )
       }),
+      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(422),
+          ctx.json({ errors: ['Quantity is required', 'Quantity is not a number'] })
+        )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+        const itemId = Number(req.params.id)
+        const list = findListByListItem(shoppingLists, itemId)
+        const item = list.list_items.find(listItem => listItem.id === itemId)
+        const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+        removeOrAdjustItemOnItemDestroy(masterListItem, item)
+
+        if (masterListItem) {
+          return res(
+            ctx.status(200),
+            ctx.json(masterListItem)
+          )
+        } else {
+          return res(
+            ctx.status(204)
+          )
+        }
+      })
     ]
   }
 }
@@ -298,8 +322,8 @@ Empty.story = {
       rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         const title = req.body.shopping_list.title || 'My List 3'
         const returnData = [
-          { id: 33, user_id: 24, title: 'Master', master: true, list_items: [] },
-          { id: 32, user_id: 24, title: title, master: false, list_items: [] }
+          { id: 32, user_id: 24, title: 'Master', master: true, list_items: [] },
+          { id: 33, user_id: 24, title: title, master: false, list_items: [] }
         ]
 
         return res(
@@ -321,7 +345,37 @@ Empty.story = {
         return res(
           ctx.status(204)
         )
-      })
+      }),
+      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+        const description = req.body.shopping_list_item.description
+        const quantity = Number(req.body.shopping_list_item.quantity || 1)
+        const notes = req.body.shopping_list_item.notes
+
+        const listId = Number(req.params.shopping_ist_id)
+
+        const returnData = [
+          {
+            id: 57,
+            list_id: 32,
+            description: description,
+            quantity: quantity,
+            notes: notes
+          },
+          {
+            id: 58,
+            list_id: listId,
+            description: description,
+            quantity: quantity,
+            notes: notes
+          }
+        ]
+
+        return res(
+          ctx.status(201),
+          ctx.json(returnData)
+        )
+      }),
+
     ]
   }
 }
