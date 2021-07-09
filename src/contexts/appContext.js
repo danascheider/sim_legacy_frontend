@@ -66,7 +66,6 @@ const AppProvider = ({ children, overrideValue = {} }) => {
       cookies[sessionCookieName] && removeSessionCookie()
       if (onAuthenticatedPage) {
         setShouldRedirectTo(paths.login)
-        mountedRef.current = false
       }
     })
   }
