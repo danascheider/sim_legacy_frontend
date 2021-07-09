@@ -157,7 +157,7 @@ HappyPath.story = {
  * 
  */
 
-export const ListNotFound = () => (
+export const ResourceNotFound = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
     <ShoppingListProvider>
       <ShoppingListPage />
@@ -165,7 +165,7 @@ export const ListNotFound = () => (
   </AppProvider>
 )
 
-ListNotFound.story = {
+ResourceNotFound.story = {
   parameters: {
     msw: [
       rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
@@ -194,6 +194,16 @@ ListNotFound.story = {
         )
       }),
       rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+        return res(
+          ctx.status(404)
+        )
+      }),
+      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(404)
+        )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
