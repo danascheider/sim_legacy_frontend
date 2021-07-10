@@ -250,7 +250,7 @@ Whether the `shoppingLists` are 'loading' (waiting for the API call to resolve),
 
 A function that creates a shopping list for the authenticated user and updates the master list to reflect the change, also encompassing error handling logic. The function takes 3 arguments:
 
-* `title`: the title of the new list
+* `title`: the title of the new list. Must be unique, contain only alphanumeric characters and spaces, and cannot be any form of "Master". Will be reformatted on the backend to use title casing
 * `success`: an optional success callback that can be used for handling state within the component that calls the function
 * `error`: an optional error callback that can be used to clean up state within the component that calls the function
 
