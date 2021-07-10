@@ -47,7 +47,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
 
     // 14px of left/right padding in the input
     setMaxTextWidth(maxTotalWidth - buttonRef.current.offsetWidth - 14)
-  }, [maxTotalWidth, buttonRef.current])
+  }, [maxTotalWidth])
 
   return(
     <form className={classnames(className, styles.root)} style={colorVars} ref={formRef} onSubmit={onSubmit}>
