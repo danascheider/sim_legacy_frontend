@@ -1,6 +1,6 @@
 # Contexts in SIM
 
-SIM uses [React contexts](https://reactjs.org/docs/context.html) for management of certain state. This prevents "smart" components that fetch data or control state from having to pass through props to their children, their children's children, and so on. There are currently two main contexts:
+SIM uses [React contexts](https://reactjs.org/docs/context.html) for management of certain state. This prevents "smart" components that fetch data or control state from having to pass through props to their children, their children's children, and so on. There are currently three contexts:
 
 * [AppContext](#dashboardcontext)
 * [ColorContext](#colorcontext)
