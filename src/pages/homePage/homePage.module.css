@@ -13,7 +13,8 @@
 .header {
   font-family: 'Cinzel Decorative', sans-serif;
   color: #fff;
-  margin: 0 auto;
+  margin: 0 auto 16px;
+  text-align: center;
 }
 
 .login {
