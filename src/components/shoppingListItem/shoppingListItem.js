@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import SlideToggle from 'react-slide-toggle'
@@ -92,7 +94,8 @@ const ShoppingListItem = ({
     <div className={styles.root} style={styleVars}>
       <div className={styles.headerContainer}>
         <button className={styles.button} onClick={toggleDetails}>
-          <h4 className={styles.description}>{description}</h4>
+          {canEdit && <div className={styles.icon}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>}
+          <h4 className={classNames(styles.description, { [styles.descriptionCanEdit]: canEdit })}>{description}</h4>
         </button>
         <span className={styles.quantity}>
           {canEdit && <div className={styles.icon} onClick={incrementQuantity}>
