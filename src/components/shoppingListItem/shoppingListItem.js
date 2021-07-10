@@ -23,6 +23,9 @@ const ShoppingListItem = ({
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
+    schemeColor,
+    textColorPrimary,
+    hoverColor,
     schemeColorLighter,
     hoverColorLighter,
     textColorSecondary,
@@ -92,6 +95,12 @@ const ShoppingListItem = ({
     setFlashVisible(false)
     setListItemEditFormProps({
       listTitle: listTitle,
+      buttonColor: {
+        schemeColor,
+        hoverColor,
+        borderColor,
+        textColorPrimary
+      },
       currentAttributes: {
         id: itemId,
         quantity: quantity,

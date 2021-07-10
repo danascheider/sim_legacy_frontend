@@ -1,27 +1,22 @@
 import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import colorSchemes from '../../utils/colorSchemes'
 import { useShoppingListContext } from '../../hooks/contexts'
 import styles from './shoppingListItemEditForm.module.css'
 
-const ShoppingListItemEditForm = ({ listTitle, elementRef, currentAttributes }) => {
+const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentAttributes }) => {
   const {
     performShoppingListItemUpdate
   } = useShoppingListContext()
-
-  // Enables us to use a random colour scheme for the button without having the colour scheme
-  // change every time the component rerenders
-  const colorScheme = useRef(colorSchemes[Math.floor(Math.random() * colorSchemes.length)])
 
   const mountedRef = useRef(true)
   const formRef = useRef(null)
   const inputRef = useRef(null)
 
   const colorVars = {
-    '--button-background-color': colorScheme.current.schemeColor,
-    '--button-text-color': colorScheme.current.textColorPrimary,
-    '--button-hover-color': colorScheme.current.hoverColor,
-    '--button-border-color': colorScheme.current.borderColor
+    '--button-background-color': buttonColor.schemeColor,
+    '--button-text-color': buttonColor.textColorPrimary,
+    '--button-hover-color': buttonColor.hoverColor,
+    '--button-border-color': buttonColor.borderColor
   }
 
   const updateItem = (e) => {
@@ -64,6 +59,12 @@ ShoppingListItemEditForm.propTypes = {
     current: PropTypes.instanceOf(Element)
   }),
   listTitle: PropTypes.string.isRequired,
+  buttonColor: PropTypes.shape({
+    schemeColor: PropTypes.string.isRequired,
+    textColorPrimary: PropTypes.string.isRequired,
+    hoverColor: PropTypes.string.isRequired,
+    borderColor: PropTypes.string.isRequired
+  }).isRequired,
   currentAttributes: PropTypes.shape({
     id: PropTypes.number.isRequired,
     description: PropTypes.string.isRequired,
