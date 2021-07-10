@@ -64,13 +64,19 @@
   padding: 32px 24px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   .root {
     width: 80%;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
+  .root {
+    width: 65%;
+  }
+}
+
+@media (min-width: 1201px) {
   .root {
     width: 50%;
   }

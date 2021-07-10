@@ -73,14 +73,14 @@
   background-color: var(--hover-color);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   .fieldset {
     grid-template-columns: 1fr 4fr;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1201px) {
   .fieldset {
-    grid-template-columns: 1fr 6fr;
+    grid-template-columns: 1fr 4fr;
   }
 }

@@ -6,6 +6,7 @@
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   background-color: #f0f0f0;
   padding: 24px;
+  max-width: 80%;
 }
 
 .header {
@@ -58,14 +59,14 @@
   background-color: var(--button-hover-color);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1025px) {
   .root {
-    max-width: 80%;
+    max-width: 50%;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1201px) {
   .root {
-    max-width: 50%;
+    max-width: 35%;
   }
 }
