@@ -31,6 +31,10 @@
   display: inline-block;
 }
 
+.destroyIcon {
+  margin-right: 8px;
+}
+
 .quantity {
   color: var(--title-text-color);
   margin: auto 0;
