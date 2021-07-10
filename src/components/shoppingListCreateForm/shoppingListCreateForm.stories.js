@@ -10,21 +10,21 @@ const performCreateShoppingList = e => { e.preventDefault() }
 const listItems = [
   {
     id: 1,
-    shopping_list_id: 1,
+    list_id: 1,
     description: 'Ebony sword',
     quantity: 3,
     notes: 'Love those ebony swords'
   },
   {
     id: 2,
-    shopping_list_id: 1,
+    list_id: 1,
     description: 'Necklace',
     quantity: 4,
     notes: 'Any unenchanted necklaces for enchanting'
   },
   {
     id: 3,
-    shopping_list_id: 1,
+    list_id: 1,
     description: 'Iron ingot',
     quantity: 400,
     notes: 'Building Lakeview Manor takes some iron'
@@ -44,7 +44,7 @@ export const Enabled = () => (
 Enabled.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json([
@@ -78,7 +78,7 @@ export const Disabled = () => (
 Disabled.story = {
   parameters: {
     msw: [
-      rest.get(`${backendBaseUri[process.env.NODE_ENV]}/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(200),
           ctx.json([

@@ -20,7 +20,6 @@ import {
   NotFoundError
 } from './customErrors'
 
-const baseUri = backendBaseUri[process.env.NODE_ENV]
 const contentTypeHeader = { 'Content-Type': 'application/json' }
 const authHeader = token => ({ 'Authorization': `Bearer ${token}`})
 const combinedHeaders = token => ({ ...authHeader(token), ...contentTypeHeader })
@@ -32,7 +31,7 @@ const combinedHeaders = token => ({ ...authHeader(token), ...contentTypeHeader }
  */
 
 export const authorize = token => {
-  const uri = `${baseUri}/auth/verify_token`
+  const uri = `${backendBaseUri}/auth/verify_token`
 
   return(
     fetch(uri, {  headers: authHeader(token) })
@@ -50,7 +49,7 @@ export const authorize = token => {
  */
 
 export const fetchUserProfile = token => {
-  const uri = `${baseUri}/users/current`
+  const uri = `${backendBaseUri}/users/current`
 
   return(
     fetch(uri, { headers: authHeader(token) })
@@ -69,7 +68,7 @@ export const fetchUserProfile = token => {
 
 // GET /shopping_lists
 export const fetchShoppingLists = token => {
-  const uri = `${baseUri}/shopping_lists`
+  const uri = `${backendBaseUri}/shopping_lists`
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
@@ -81,7 +80,7 @@ export const fetchShoppingLists = token => {
 
 // POST /shopping_lists
 export const createShoppingList = (token, attrs) => {
-  const uri = `${baseUri}/shopping_lists`
+  const uri = `${backendBaseUri}/shopping_lists`
   const body = JSON.stringify({ shopping_list: attrs })
 
   return fetch(uri, {
@@ -97,7 +96,7 @@ export const createShoppingList = (token, attrs) => {
 
 // PATCH /shopping_lists/:id
 export const updateShoppingList = (token, listId, attrs) => {
-  const uri = `${baseUri}/shopping_lists/${listId}`
+  const uri = `${backendBaseUri}/shopping_lists/${listId}`
 
   const body = JSON.stringify({
     id: listId,
@@ -122,8 +121,8 @@ export const updateShoppingList = (token, listId, attrs) => {
 }
 
 // DELETE /shopping_lists/:id
-export const deleteShoppingList = (token, listId) => {
-  const uri = `${baseUri}/shopping_lists/${listId}`
+export const destroyShoppingList = (token, listId) => {
+  const uri = `${backendBaseUri}/shopping_lists/${listId}`
 
   return(
     fetch(uri, {
@@ -147,7 +146,7 @@ export const deleteShoppingList = (token, listId) => {
 
 // POST /shopping_lists/:shopping_list_id/shopping_list_items
 export const createShoppingListItem = (token, listId, attrs) => {
-  const uri = `${baseUri}/shopping_lists/${listId}/shopping_list_items`
+  const uri = `${backendBaseUri}/shopping_lists/${listId}/shopping_list_items`
 
   return(
     fetch(uri, {
@@ -158,6 +157,43 @@ export const createShoppingListItem = (token, listId, attrs) => {
     .then(resp => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError("You tried to create an item on a list that doesn't exist. Try refreshing to resolve this issue.")
+      return resp
+    })
+  )
+}
+
+// PATCH /shopping_list_items/:id
+export const updateShoppingListItem = (token, itemId, attrs) => {
+  const uri = `${backendBaseUri}/shopping_list_items/${itemId}`
+
+  return(
+    fetch(uri, {
+      method: 'PATCH',
+      headers: combinedHeaders(token),
+      body: JSON.stringify({ shopping_list_item: attrs })
+    })
+    .then(resp => {
+      if (resp.status === 401) throw new AuthorizationError()
+      if (resp.status === 404) throw new NotFoundError("You tried to update a list item that doesn't exist. Try refreshing to fix this issue.")
+      if (resp.status === 405) throw new MethodNotAllowedError()
+      return resp
+    })
+  )
+}
+
+// DELETE /shopping_list_items/:id
+export const destroyShoppingListItem = (token, itemId, attrs) => {
+  const uri = `${backendBaseUri}/shopping_list_items/${itemId}`
+
+  return(
+    fetch(uri, {
+      method: 'DELETE',
+      headers: authHeader(token)
+    })
+    .then(resp => {
+      if (resp.status === 401) throw new AuthorizationError()
+      if (resp.status === 404) throw new NotFoundError("You tried to delete a list item that doesn't exist. Try refreshing to fix this issue.")
+      if (resp.status === 405) throw new MethodNotAllowedError()
       return resp
     })
   )

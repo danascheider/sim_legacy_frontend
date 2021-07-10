@@ -17,8 +17,10 @@ import {
   createShoppingList,
   fetchShoppingLists,
   updateShoppingList,
-  deleteShoppingList,
-  createShoppingListItem
+  destroyShoppingList,
+  createShoppingListItem,
+  updateShoppingListItem,
+  destroyShoppingListItem
 } from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
@@ -30,13 +32,75 @@ const ERROR = 'error'
 const ShoppingListContext = createContext()
 
 const ShoppingListProvider = ({ children, overrideValue = {} }) => {
-  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || null)
+  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
   const [flashVisible, setFlashVisible] = useState(false)
   const [flashProps, setFlashProps] = useState({})
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
   const { token, setShouldRedirectTo, removeSessionCookie } = useAppContext()
 
+  // Use this as the initial value only
+  overrideValue.shoppingLists && delete overrideValue.shoppingLists
+
   const mountedRef = useRef(true)
+
+  const logOutAndRedirect = () => {
+    logOutWithGoogle(() => {
+      token && removeSessionCookie()
+      setShouldRedirectTo(paths.login)
+      mountedRef.current = false
+    })
+  }
+
+  const addOrUpdateListItem = (list, item) => {
+    const originalItem = list.list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+    const newListItems = [...list.list_items]
+
+    if (originalItem) {
+      const originalItemPosition = list.list_items.indexOf(originalItem)
+      newListItems.splice(originalItemPosition, 1, item)
+    } else {
+      newListItems.unshift(item)
+    }
+
+    list.list_items = newListItems
+
+    return { ...list }
+  }
+
+  const displayFlashError = (msg, header = null) => {
+    setFlashProps({
+      type: 'error',
+      message: msg,
+      header: header
+    })
+
+    overrideValue.flashVisible === undefined && setFlashVisible(true)
+  }
+  
+  const displayFlashSuccess = (msg, header = null) => {
+    setFlashProps({
+      type: 'success',
+      message: msg,
+      header: header
+    })
+
+    overrideValue.flashVisible === undefined && setFlashVisible(true)
+  }
+
+  const listFromListItemId = itemId => shoppingLists.find(list => !!list.list_items.find(item => item.id === itemId))
+
+  const removeItemFromList = (list, itemId) => {
+    const newList = { ...list }
+    const newListItems = [...list.list_items]
+
+    const item = list.list_items.find(item => item.id === itemId)
+    const index = list.list_items.indexOf(item)
+
+    newListItems.splice(index, 1)
+    newList.list_items = newListItems
+    
+    return newList
+  }
   
   const fetchLists = () => {
     if (token && !overrideValue.shoppingLists) {
@@ -52,23 +116,17 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         })
         .catch(err => {
           if (err.code === 401) {
-            logOutWithGoogle(() => {
-              token && removeSessionCookie()
-              setShouldRedirectTo(paths.home)
-              mountedRef.current = false
-              // Don't set the loading state to ERROR because it's redirecting anyway
-            })
+            logOutAndRedirect()
+            // Don't set the loading state because it's redirecting anyway
           } else {
             if (process.env.NODE_ENV !== 'production') console.error('Unexpected error fetching shopping lists: ', err)
 
             !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
-            setFlashProps({
-              type: 'error',
-              message: "There was an error loading your lists. It may have been on our end. We're sorry!"
-            })
-            setFlashVisible(true)
+            displayFlashError("There was an error loading your lists. It may have been on our end. We're sorry!")
           }
         })
+    } else {
+      overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
     }
   }
 
@@ -90,40 +148,25 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           success && success()
         } else if (data && data.errors) {
-          setFlashProps({
-            type: 'error',
-            header: `${data.errors.length} error(s) prevented your changes from being saved:`,
-            message: data.errors
-          })
-          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
+          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your changes from being saved:`)
+
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
           error && error()
         } else {
-          setFlashProps({
-            type: 'error',
-            message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
-          })
-          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
+          displayFlashError('We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.')
+
           overrideValue.setShoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done because no error thrown
           error && error()
         }
       })
       .catch(err => {
-        console.error(`Error updating shopping list ${listId}: `, err.message)
+        if (process.env.NODE_ENV !== 'production') console.error(`Error updating shopping list ${listId}: `, err.message)
 
         if (err.code === 401) {
-          return logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutAndRedirect()
         } else if (err.code === 404) {
-          setFlashProps({
-            type: 'error',
-            message: "Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem."
-          })
+          displayFlashError("Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem.")
 
-          overrideValue.setFlashVisible === undefined && setFlashVisible(true)
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           
           error && error()
@@ -146,12 +189,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // to set the shopping lists array to the lists returned.
           setShoppingLists(data)
 
-          setFlashProps({
-            type: 'success',
-            message: 'Success! Your list was created, along with your new master shopping list.'
-          })
-
-          setFlashVisible(true)
+          displayFlashSuccess('Success! Your list was created, along with your new master shopping list.')
 
           success && success()
         } else if (data && typeof data === 'object' && !data.errors) {
@@ -163,22 +201,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           newShoppingLists.splice(1, 0, data)
           setShoppingLists(newShoppingLists)
 
-          setFlashProps({
-            type: 'success',
-            message: 'Success! Your list was created.'
-          })
-
-          setFlashVisible(true)
+          displayFlashSuccess('Success! Your list was created.')
 
           success && success()
         } else if (data && typeof data === 'object' && data.errors ) {
-          setFlashProps({
-            type: 'error',
-            header: `${data.errors.length} error(s) prevented your shopping list from being created:`,
-            message: data.errors
-          })
-
-          setFlashVisible(true)
+          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list from being created:`)
 
           success && success()
         } else {
@@ -187,31 +214,22 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        console.error('Error creating shopping list: ', err.message)
+        if (process.env.NODE_ENV !== 'production') console.error('Error creating shopping list: ', err.message)
 
         if (err.code === 401) {
-          logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutAndRedirect()
         } else {
-          console.error('Unexpected error creating shopping list: ', err.message)
+          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error creating shopping list: ', err.message)
 
-          setFlashProps({
-            type: 'error',
-            message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
-          })
-
-          setFlashVisible(true)
+          displayFlashError("Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
 
           error && error()
         }
       })
   }
 
-  const performShoppingListDelete = (listId, success = null, error = null) => {
-    deleteShoppingList(token, listId)
+  const performShoppingListDestroy = (listId, success = null, error = null) => {
+    destroyShoppingList(token, listId)
       .then(resp => {
         // Error responses, including 404 and 405 responses, result
         // in a NotFoundError or MethodNotAllowedError to be thrown
@@ -227,13 +245,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // This means that the list was the user's last shopping list and both
           // it and the master list have been destroyed.
           setShoppingLists([])
-          setFlashProps({
-            type: 'success',
-            header: 'Your shopping list has been deleted.',
-            message: 'Since it was your last list, your master list has been deleted as well.'
-          })
-
-          setFlashVisible(true)
+          
+          displayFlashSuccess(
+            'Since it was your last list, your master list has been deleted as well',
+            'Your shopping list has been deleted'
+          )
 
           success && success()
         } else {
@@ -244,40 +260,23 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           setShoppingLists(newShoppingLists)
 
-          setFlashProps({
-            type: 'success',
-            message: 'Your shopping list has been deleted.'
-          })
-
-          setFlashVisible(true)
+          displayFlashSuccess('Your shopping list has been deleted.')
 
           success && success()
         }
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutAndRedirect()
         } else if (err.code === 404) {
-          setFlashProps({
-            type: 'error',
-            message: "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem."
-          })
-
-          setFlashVisible(true)
-          error && error()
+          displayFlashError("Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
         } else {
-          console.error('Unexpected error deleting shopping list: ', err.message)
+          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error deleting shopping list: ', err.message)
 
-          setFlashProps({
-            type: 'error',
-            message: "Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
-          })
-
+          displayFlashError("Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
         }
+        
+        error && error()
       })
   }
 
@@ -288,105 +287,131 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (Array.isArray(data)) {
           const [masterListItem, regularListItem] = data
 
+          // Have to create an actual new object or the state change won't cause useEffect
+          // hooks to run.
           const newLists = [...shoppingLists]
-          const masterList = { ...shoppingLists[0] }
-          const masterListItems = masterList.list_items
-          const regularList = { ...shoppingLists.find(list => list.id === listId) }
+          const masterList = shoppingLists[0]
+          const regularList = shoppingLists.find(list => list.id === listId)
           const regularListPosition = shoppingLists.indexOf(regularList)
-          const regularListItems = regularList.list_items
 
-          // Find the current location of the item on the master list. This is so
-          // the item at that index can be removed below and the replacement added
-          // at the top of the list.
-          let masterIndex
-          for (let i = 0; i < masterListItems.length; i++) {
-            if (masterListItems[i].id === masterListItem.id) {
-              masterIndex = i
-              break
-            }
-          }
+          const newMasterList = addOrUpdateListItem(masterList, masterListItem)
+          const newRegularList = addOrUpdateListItem(regularList, regularListItem)
 
-          // Check if it's null or undefined because `if (masterIndex) { ... }` was
-          // causing this block to be skipped when the masterIndex was 0
-          if (masterIndex !== null && masterIndex !== undefined) {
-            masterListItems.splice(masterIndex, 1)
-          }
-
-          masterListItems.unshift(masterListItem)
-
-          masterList.list_items = masterListItems
-
-          // Replace the master list with the new version of it that has the list
-          // item created/updated
-          newLists[0] = masterList
-
-          // Find the location of the updated list item in the regular list, if it
-          // exists. This will be used to remove the item from its current index and
-          // replace it with the updated version at the top of the list.
-          let regIndex
-          for (let i = 0; i < regularListItems.length; i++) {
-            if (regularListItems[i].id === regularListItem.id) {
-              regIndex = i
-              break
-            }
-          }
-
-          // Again, 0 will evaluate to false, so we have to check for null or
-          // undefined values instead of just `if (regIndex) { ... }`
-          if (regIndex !== null && regIndex !== undefined) {
-            regularListItems.splice(regIndex, 1)
-          }
-
-          // Replace the regular list item that was removed but place the replacement
-          // at the top of the list
-          regularListItems.unshift(regularListItem)
-
-          regularList.list_items = regularListItems
-
-          // In general, we want the most recently updated lists on top, however, I don't
-          // want the whole UI rearranging itself when a user has not yet refreshed the page.
-          // Seems like that would cause some frustration if you wanted to do more editing
-          // of a list and it moved out from under you.
-          newLists[regularListPosition] = regularList
+          newLists[0] = newMasterList
+          newLists[regularListPosition] = newRegularList
 
           setShoppingLists(newLists)
 
           success && success()
         } else if (data && typeof data === 'object' && data.errors) {
-          setFlashProps({
-            type: 'error',
-            header: `${data.errors.length} error(s) prevented your shopping list item from being created:`,
-            message: data.errors
-          })
-
-          overrideValue.flashVisible === undefined && setFlashVisible(true)
+          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list item from being created:`)
 
           error && error()
         }
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutWithGoogle(() => {
-            token && removeSessionCookie()
-            setShouldRedirectTo(paths.login)
-            mountedRef.current = false
-          })
+          logOutAndRedirect()
         } else if (err.code === 404) {
-          setFlashProps({
-            type: 'error',
-            message: "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem."
-          })
-          
-          overrideValue.flashVisible === undefined && setFlashVisible(true)
+          displayFlashError("Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem.")
         } else {
-          console.error('Unexpected error when creating shopping list item: ', err.message)
+          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error when creating shopping list item: ', err.message)
 
-          setFlashProps({
-            type: 'error',
-            message: "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
-          })
+          displayFlashError("Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
+        }
 
-          overrideValue.flashVisible === undefined && setFlashVisible(true)
+        error && error()
+      })
+  }
+
+  const performShoppingListItemUpdate = (itemId, attrs, success = null, error = null) => {
+    updateShoppingListItem(token, itemId, attrs)
+      .then(resp => resp.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const [masterListItem, regularListItem] = data
+
+          let newShoppingLists = [...shoppingLists]
+
+          const regularList = shoppingLists.find(list => list.id === regularListItem.list_id)
+          const regularListPosition = shoppingLists.indexOf(regularList)
+
+          const newMasterList = addOrUpdateListItem(shoppingLists[0], masterListItem)
+          const newRegularList = addOrUpdateListItem(regularList, regularListItem)
+          
+          newShoppingLists[0] = newMasterList
+          newShoppingLists[regularListPosition] = newRegularList
+
+          setShoppingLists(newShoppingLists)
+
+          success && success()
+        } else if (data && typeof data === 'object' && data.errors) {
+          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list item from being updated:`)
+
+          error && error()
+        } else {
+          throw new Error(`Something unexpected went wrong: could not update shopping list item id=${itemId}`)
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect()
+        } else if (err.code === 404) {
+          displayFlashError("Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem.")
+        } else if (err.code === 405) {
+          displayFlashError('Cannot manually edit item on a master list')
+        } else {
+          if (process.env.NODE_ENV !== 'production') console.error(`Unexpected error editing list item ${itemId}: `, err.message)
+
+          displayFlashError("Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
+        }
+
+        error && error()
+      })
+  }
+
+  const performShoppingListItemDestroy = (itemId, success = null, error = null) => {
+    destroyShoppingListItem(token, itemId)
+      .then(resp => {
+        if (resp.status === 204) return null
+
+        return resp.json()
+      })
+      .then(data => {
+        const regularListToRemoveItemFrom = listFromListItemId(itemId)
+        const regularListIndex = shoppingLists.indexOf(regularListToRemoveItemFrom)
+        const newLists = [...shoppingLists]
+        let newMasterList
+
+        if (data && typeof data === 'object') {
+          // It is the master list item that was updated
+          newMasterList = addOrUpdateListItem(shoppingLists[0], data)
+        } else {
+          const deletedItem = regularListToRemoveItemFrom.list_items.find(item => item.id === itemId)
+
+          // It's a bit of a pain in the ass to figure out which item to remove from the master list in
+          // the case where it's been deleted. Might be something to think about for API development.
+          const masterListItem = shoppingLists[0].list_items.find(item => item.description.toLowerCase() === deletedItem.description.toLowerCase())
+
+          newMasterList = removeItemFromList(shoppingLists[0], masterListItem.id)
+        }
+
+        const newRegularList = removeItemFromList(regularListToRemoveItemFrom, itemId)
+
+        newLists[0] = newMasterList
+        newLists.splice(regularListIndex, 1, newRegularList)
+
+        setShoppingLists(newLists)
+          
+        success && success()
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect()
+        } else if (err.code === 404) {
+          displayFlashError("Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
+        } else if (err.code === 405) {
+          displayFlashError('Cannot manually remove an item from a master list')
         }
 
         error && error()
@@ -398,8 +423,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     shoppingListLoadingState,
     performShoppingListUpdate,
     performShoppingListCreate,
-    performShoppingListDelete,
+    performShoppingListDestroy,
     performShoppingListItemCreate,
+    performShoppingListItemUpdate,
+    performShoppingListItemDestroy,
     flashProps,
     flashVisible,
     setFlashProps,
@@ -407,17 +434,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue
   }
 
-  useEffect(fetchLists, [
-    overrideValue.shoppingListLoadingState,
-    overrideValue.shoppingLists,
-    setShouldRedirectTo,
-    removeSessionCookie,
-    token
-  ])
-
-  useEffect(() => (
-    () => { mountedRef.current = false }
-  ))
+  useEffect(() => {
+    fetchLists()
+    return () => mountedRef.current = false
+  }, [])
 
   return(
     <ShoppingListContext.Provider value={value}>
@@ -433,19 +453,22 @@ ShoppingListProvider.propTypes = {
       id: PropTypes.number.isRequired,
       user_id: PropTypes.number,
       title: PropTypes.string.isRequired,
-      list_items: PropTypes.arrayOf({
+      master: PropTypes.bool.isRequired,
+      list_items: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number,
-        shopping_list_id: PropTypes.number,
+        list_id: PropTypes.number,
         description: PropTypes.string.isRequired,
         quantity: PropTypes.number.isRequired,
         notes: PropTypes.string
-      }).isRequired
+      })).isRequired
     })),
     shoppingListLoadingState: PropTypes.string,
     performShoppingListUpdate: PropTypes.func,
     performShoppingListCreate: PropTypes.func,
-    performShoppingListDelete: PropTypes.func,
+    performShoppingListDestroy: PropTypes.func,
     performShoppingListItemCreate: PropTypes.func,
+    performShoppingListItemUpdate: PropTypes.func,
+    performShoppingListItemDelete: PropTypes.func,
     flashProps: PropTypes.shape({
       type: PropTypes.string,
       header: PropTypes.string,

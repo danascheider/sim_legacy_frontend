@@ -60,6 +60,15 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage
 
+  const logOutAndRedirect = () => {
+    logOutWithGoogle(() => {
+      cookies[sessionCookieName] && removeSessionCookie()
+      if (onAuthenticatedPage) {
+        setShouldRedirectTo(paths.login)
+      }
+    })
+  }
+
   const fetchProfileData = () => {
     if (shouldFetchProfileData) {
       fetchUserProfile(cookies[sessionCookieName])
@@ -71,25 +80,20 @@ const AppProvider = ({ children, overrideValue = {} }) => {
         .catch(error => {
           console.error('Error returned while fetching profile data: ', error.message)
 
-          logOutWithGoogle(() => {
-            cookies[sessionCookieName] && removeSessionCookie()
-            if (onAuthenticatedPage) {
-              setShouldRedirectTo(paths.login)
-              mountedRef.current = false
-            }
-          })
+          logOutAndRedirect()
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
-      logOutWithGoogle(() => {
-        if (onAuthenticatedPage) {
-          setShouldRedirectTo(paths.login)
-          mountedRef.current = false
-        }
-      })
+      logOutAndRedirect()
     } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
   }
 
-  useEffect(fetchProfileData, [onAuthenticatedPage])
+  useEffect(fetchProfileData, [
+                                onAuthenticatedPage,
+                                overrideValue.profileLoadState,
+                                shouldFetchProfileData,
+                                cookies
+                              ])
+
   useEffect(() => (
     () => { mountedRef.current = false }
   ))

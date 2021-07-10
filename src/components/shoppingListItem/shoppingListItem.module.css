@@ -26,8 +26,22 @@
 .quantity {
   color: var(--title-text-color);
   margin: auto 0;
-  padding: 0 24px 0 0;
-  text-align: right;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.quantityContent {
+  margin: auto;
+}
+
+.icon {
+  padding: 4px;
+  cursor: pointer;
+}
+
+.icon:hover .fa {
+  color: var(--body-background-color)
 }
 
 .description {

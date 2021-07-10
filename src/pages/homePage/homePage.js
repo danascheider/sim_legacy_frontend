@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { authorize } from '../../utils/simApi'
 import isStorybook from '../../utils/isStorybook'
@@ -10,21 +10,24 @@ import styles from './homePage.module.css'
 const HomePage = () => {
   const { token, setShouldRedirectTo, removeSessionCookie } = useAppContext()
 
+  const mountedRef = useRef(true)
+
   const verifyLogin = () => {
     if (token && !isStorybook()) {
       authorize(token)
-        .then((resp) => {
+        .then(() => {
           setShouldRedirectTo(paths.dashboard.main)
         })
-        .catch(err => {
-          logOutWithGoogle(() => {
-            removeSessionCookie()
-          })
+        .catch(() => {
+          logOutWithGoogle(() => removeSessionCookie())
         })
     }
   }
 
-  useEffect(verifyLogin, [])
+  useEffect(() => {
+    verifyLogin()
+    return () => mountedRef.current = false
+  }, [token])
 
   return(
     <div className={styles.root}>

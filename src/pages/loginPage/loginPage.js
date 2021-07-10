@@ -64,12 +64,12 @@ const LoginPage = () => {
       <div className={styles.container}>
         <GoogleLogin
           className={styles.button}
-          clientId={googleClientId[process.env.NODE_ENV]}
+          clientId={googleClientId}
           buttonText='Log In With Google'
           onSuccess={successCallback}
           onFailure={failureCallback}
           isSignedIn={true}
-          redirectUri={`${frontendBaseUri[process.env.NODE_ENV]}${paths.dashboard.main}`}
+          redirectUri={`${frontendBaseUri}${paths.dashboard.main}`}
         />
       </div>
     </div>

@@ -232,28 +232,98 @@ The `ShoppingListContext` is used to fetch all the relevant shopping lists when 
 
 The `ShoppingList` context is a consumer of the `AppContext`, implying that the `useShoppingListContext` hook can only be used inside a `ShoppingListProvider`. You will see an error to this effect if you try to implement it another way. From the `AppProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `removeSessionCookie` and `setShouldRedirectTo` functions. The latter two are used in the event an API call returns status 401 and thee user needs to be logged out. Like elsewhere, the `logOutWithGoogle` function is used for this, with the cookie being removed and the redirect set in the callback passed to that function.
 
-On load, the `ShoppingListProvider` fetches all the user's shopping lists. It returns the following in its `value`:
+On load, the `ShoppingListProvider` fetches all the user's shopping lists. 
 
-* `shoppingLists`: the array of all the user's shopping lists, with the master list first
-* `shoppingListLoadingState`: whether the `shoppingLists` are 'loading' (waiting for the API call to resolve), 'done' (when the API call is finished), or 'error' (when the API call has thrown an honest-to-god, unexpected error - not just when it returns a 400-range error code)
-* `performShoppingListUpdate`: a function that updates the list specified through the API, also encompassing error handling logic. The function takes 4 arguments:
-  * `listId`: the ID (primary key in the database) of the list to be updated
-  * `newTitle`: the new title of the list taken from the form the user submitted
-  * `success`: an optional success callback that can be used for handling state within the component that calls the function
-  * `error`: an optional error callback that can be used to clean up state within the component that calls the function
-* `performShoppingListCreate`: a function that creates a shopping list for the authenticated user, also encompassing error handling logic. The function takes 3 arguments:
-  * `title`: the title of the new list
-  * `success`: an optional success callback that can be used for handling state within the component that calls the function
-  * `error`: an optional error callback that can be used to clean up state within the component that calls the function
-* `performShoppingListDelete`: a function that deletes the list specified through the API, also encompassing error handling logic. The function takes 3 arguments:
-  * `listId`: the ID (primary key in the database) of the list to be updated
-  * `success`: an optional success callback that can be used for handling state within the component that calls the function
-  * `error`: an optional error callback that can be used to clean up state within the component that calls the function
-* `flashProps`: the props to be passed to the `FlashMessage` component when/if it is displayed
-* `flashVisible`: whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
-* `setFlashProps`: a function to set the type and message in the `FlashMessage` component; takes an object argument
-* `setFlashVisible`: a function to set the visibility of the `FlashMessage` component; takes a boolean argument
+### Value
 
-### Testing
+The value of the `ShoppingListProvider` includes the following.
 
-The `ShoppingListContext` is a little easier to test with in Storybook than the `AppContext`. While it still has an `overrideValues` prop, it isn't needed quite as much to make the basics work and you should only need it to, for example, set the loading state to 'loading' if a story needs to display that state. The rest of the testing can mostly be handled by mocking the API calls the provider makes using `msw`. Remember that the `ShoppingListProvider` component needs to be wrapped in a `AppProvider`, which will require override values for at least the token if not other values as well.
+#### `shoppingLists`
+
+The array of all the user's shopping lists, with the master list first.
+
+#### `shoppingListLoadingState`
+
+Whether the `shoppingLists` are 'loading' (waiting for the API call to resolve), 'done' (when the API call is finished), or 'error' (when the API call has returned or thrown an error).
+
+#### `performShoppingListCreate`
+
+A function that creates a shopping list for the authenticated user and updates the master list to reflect the change, also encompassing error handling logic. The function takes 3 arguments:
+
+* `title`: the title of the new list. Must be unique, contain only alphanumeric characters and spaces, and cannot be any form of "Master". Will be reformatted on the backend to use title casing
+* `success`: an optional success callback that can be used for handling state within the component that calls the function
+* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+
+#### `performShoppingListUpdate`
+
+A function that updates the list specified through the API, also encompassing error handling logic. The function takes 4 arguments:
+
+* `listId`: the ID (primary key in the database) of the list to be updated
+* `newTitle`: the new title of the list taken from the form the user submitted
+* `success`: an optional success callback that can be used for handling state within the component that calls the function
+* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+
+#### `performShoppingListDestroy`
+
+A function that deletes the list specified through the API, also encompassing error handling logic. The function takes 3 arguments:
+
+* `listId`: the ID (primary key in the database) of the list to be updated
+* `success`: an optional success callback that can be used for handling state within the component that calls the function
+* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+
+#### `performShoppingListItemCreate`
+
+A function that creates a shopping list item on the list specified (or combines the new attributes given with an existing item with the same description), also encompassing error handling logic. This will also cause the master list to update. The function takes four arguments:
+
+* `listId`: the ID of the shopping list the item should be added to
+* `attrs`: The attributes the item should be created with. Attributes can include:
+  * `description` (string, required, case-insensitively unique per list)
+  * `quantity` (integer, required, must be greater than 0)
+  * `notes` (any notes associated with other item - will be combined with existing notes if the item is combined with another existing item)
+* `success`: an optional success callback that can be used for handling state within the component that calls the function
+* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+
+#### `performShoppingListItemUpdate`
+
+A function that updates the specified shopping list item, also encompassing error handling logic. This will also cause the master list to update. The function takes four arguments:
+
+* `itemId`: the ID of the item to be updated
+* `attrs`: the attributes to be updated on the list item. Cannot update item `description`. Attributes can include:
+  * `quantity` (integer, greater than 0)
+  * `notes` (string)
+* `success`: an optional success callback that can be used for handling state within the component that calls the function
+* `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
+
+#### `performShoppingListItemDestroy`
+
+A function that destroys the specified shopping list item, also encompassing error handling logic. This also updates the master list to reflect the change. The function takes three arguments:
+
+* `itemId`: the ID of the item to be destroyed
+* `success`: an optional success callback that can be used for handling state within the component that calls the function
+* `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
+
+#### `flashProps`
+
+The props to be passed to the `FlashMessage` component when/if it is displayed.
+
+#### `flashVisible`
+
+Whether a `FlashMessage` should be visible.
+
+#### `setFlashProps`
+
+A function to set the type and message in the `FlashMessage` component; takes an object argument. The allowed keys in the object are:
+
+* `type`: one of 'success', 'error', or 'info'; determines the colour of the flash message (green for 'success', red for 'error', and blue for 'info')
+* `header`: the first line of the flash message (string)
+* `message`: the rest of the flash message. If given a string, the string will be rendered; if given an array of strings, they will be rendered as a bulleted list
+
+#### `setFlashVisible`
+
+A function to set the visibility of the `FlashMessage` component; takes a boolean argument
+
+### Testing Components in Storybook
+
+The `ShoppingListContext` is a little easier to work with in Storybook than the `AppContext`. While it still has an `overrideValues` prop, it isn't needed quite as much to make the basics work and you should only need it to, for example, set the loading state to 'loading' if a story needs to display that state. The rest of the testing can mostly be handled by mocking the API calls the provider makes using `msw`. Remember that the `ShoppingListProvider` component needs to be wrapped in a `AppProvider`, which will require override values for at least the token if not other values as well.
+
+**There are significant limitations to this approach.** Because MSW mocks do not have access to the internal state of the provider, mocked responses have to be based only on data included in the request itself or the initial values of the shopping lists and their items. For this reason, behaviour of components in Storybook should be considered primarily illustrative of component behaviour. Storybook cannot be used for testing edge cases and the components will behave strangely if you do anything too complicated.

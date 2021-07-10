@@ -24,7 +24,7 @@ const isValid = str => (
 const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
-  const [listItems, setListItems] = useState(null)
+  const [listItems, setListItems] = useState([])
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
@@ -32,12 +32,12 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const {
     shoppingLists,
     performShoppingListUpdate,
-    performShoppingListDelete,
+    performShoppingListDestroy,
     setFlashProps,
     setFlashVisible
   } = useShoppingListContext()
 
-  const originalTitle = title // to switch back in case of API error
+  const originalTitle = title // to switch back in case of API error on update
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
@@ -92,7 +92,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     setFlashVisible(false)
 
     if (confirmed) {
-      performShoppingListDelete(listId)
+      performShoppingListDestroy(listId)
     } else {
       setFlashProps({
         type: 'info',
@@ -103,10 +103,11 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   }
 
   useEffect(() => {
-    if (shoppingLists === undefined) return // it'll run again when they populate
+    if (!shoppingLists) return // it'll run again when they populate
 
     const items = shoppingLists.find(obj => obj.id === listId).list_items
-    setListItems(items)
+
+    setListItems([...items])
   }, [shoppingLists, listId])
 
   return(
@@ -135,7 +136,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {!canEdit && (!listItems || listItems.length === 0) && <div className={styles.emptyList}>You have no shopping list items.</div>}
+            {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>You have no shopping list items.</div>}
             {canEdit && <ShoppingListItemCreateForm listId={listId} />}
             {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
@@ -143,6 +144,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
               return(
                 <ShoppingListItem
                   key={itemKey}
+                  itemId={id}
+                  canEdit={canEdit}
                   description={description}
                   quantity={quantity}
                   notes={notes}

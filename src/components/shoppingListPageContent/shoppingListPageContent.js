@@ -16,7 +16,7 @@ const ShoppingListPageContent = () => {
    */
 
   // Expected states
-  const happyPathNonEmpty = shoppingLists && shoppingListLoadingState === 'done' && shoppingLists.length > 0
+  const listsLoadedAndNotEmpty = shoppingLists && shoppingListLoadingState === 'done' && shoppingLists.length > 0
 
   /*
    *
@@ -24,7 +24,7 @@ const ShoppingListPageContent = () => {
    * 
    */
 
-  if (happyPathNonEmpty) {
+  if (listsLoadedAndNotEmpty) {
     return(
       <>
         {shoppingLists.map(({ id, title, master }, index) => {
