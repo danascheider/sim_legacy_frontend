@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
-import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
@@ -45,11 +45,13 @@ const ShoppingListItem = ({
 
   const mountedRef = useRef(true)
   const editRef = useRef(null)
+  const deleteRef = useRef(null)
 
   const editRefContains = el => editRef.current && (editRef.current === el || editRef.current.contains(el))
+  const deleteRefContains = el => deleteRef.current && (deleteRef.current === el || deleteRef.current.contains(el))
   
   const toggleDetails = e => {
-    if (!e || !editRefContains(e.target)) setToggleEvent(Date.now)
+    if (!e || (!editRefContains(e.target) && !deleteRefContains(e.target))) setToggleEvent(Date.now)
   }
 
   const styleVars = {
@@ -91,6 +93,19 @@ const ShoppingListItem = ({
     }
   }
 
+  const destroyItem = () => {
+    const confirmed = window.confirm("Destroy shopping list item? Your master list will be updated to reflect the change. This action cannot be undone.")
+
+    if (confirmed) {
+      performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
+    } else {
+      setFlashProps({
+        type: 'info', message: 'Your item was not deleted'
+      })
+      setFlashVisible(true)
+    }
+  }
+
   const showEditForm = () => {
     setFlashVisible(false)
     setListItemEditFormProps({
@@ -123,7 +138,11 @@ const ShoppingListItem = ({
     <div className={styles.root} style={styleVars}>
       <div className={styles.headerContainer}>
         <button className={styles.button} onClick={toggleDetails}>
-          {canEdit && <div className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>}
+          {canEdit &&
+            <>
+              <div className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} /></div>
+              <div className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>
+            </>}
           <h4 className={classNames(styles.description, { [styles.descriptionCanEdit]: canEdit })}>{description}</h4>
         </button>
         <span className={styles.quantity}>
