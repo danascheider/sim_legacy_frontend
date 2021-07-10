@@ -27,10 +27,15 @@
   text-align: left;
 }
 
+.icon {
+  display: inline;
+}
+
 .form {
   margin-block-start: 7px;
   margin-block-end: 7px;
   margin-left: 16px;
+  max-width: 100%;
 }
 
 .title {

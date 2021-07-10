@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
-import useComponentVisible from '../../hooks/useComponentVisible'
 import PropTypes from 'prop-types'
-import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
+import useComponentVisible from '../../hooks/useComponentVisible'
+import useSize from '../../hooks/useSize'
+import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
@@ -24,9 +25,14 @@ const isValid = str => (
 const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
+  const [maxEditFormWidth, setMaxEditFormWidth] = useState(null)
   const [listItems, setListItems] = useState([])
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
+  const iconsRef = useRef(null)
+
+  const size = useSize(slideTriggerRef)
+
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
   const {
@@ -110,22 +116,29 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     setListItems([...items])
   }, [shoppingLists, listId])
 
+  useEffect(() => {
+    if (!size || !iconsRef.current) return
+
+    setMaxEditFormWidth(size.width - iconsRef.current.offsetWidth - 16)
+  }, [size, iconsRef.current])
+
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
-          <>
+          <span ref={iconsRef}>
             <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList}>
               <FontAwesomeIcon className={styles.fa} icon={faTimes} />
             </div>
             <div className={styles.icon} ref={triggerRef}>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
             </div>
-          </>}
+          </span>}
           {canEdit && isComponentVisible ?
             <ShoppingListEditForm
               formRef={componentRef}
+              maxTotalWidth={maxEditFormWidth}
               className={styles.form}
               title={title}
               onSubmit={submitAndHideForm}
