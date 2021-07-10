@@ -19,7 +19,7 @@ export const shoppingLists = [
     id: 1,
     title: 'Master',
     master: true,
-    listItems: [
+    list_items: [
       {
         ...listItemData,
         id: 839,
@@ -31,6 +31,6 @@ export const shoppingLists = [
     id: 2,
     title: 'Proudspire Manor',
     master: false,
-    listItems: [listItemData]
+    list_items: [listItemData]
   }
 ]
