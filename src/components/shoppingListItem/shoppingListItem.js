@@ -46,12 +46,18 @@ const ShoppingListItem = ({
   const mountedRef = useRef(true)
   const editRef = useRef(null)
   const deleteRef = useRef(null)
+  const incRef = useRef(null)
+  const decRef = useRef(null)
 
-  const editRefContains = el => editRef.current && (editRef.current === el || editRef.current.contains(el))
-  const deleteRefContains = el => deleteRef.current && (deleteRef.current === el || deleteRef.current.contains(el))
+  const refContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
+  const editRefContains = el => refContains(editRef, el)
+  const deleteRefContains = el => refContains(deleteRef, el)
+  const incRefContains = el => refContains(incRef, el)
+  const decRefContains = el => refContains(decRef, el)
+  const iconContains = el => editRefContains(el) || deleteRefContains(el) || incRefContains(el) || decRefContains(el)
   
   const toggleDetails = e => {
-    if (!e || (!editRefContains(e.target) && !deleteRefContains(e.target))) setToggleEvent(Date.now)
+    if (!e || !iconContains(e.target)) setToggleEvent(Date.now)
   }
 
   const styleVars = {
@@ -136,27 +142,28 @@ const ShoppingListItem = ({
 
   return(
     <div className={styles.root} style={styleVars}>
-      <div className={styles.headerContainer}>
-        <button className={styles.button} onClick={toggleDetails}>
+      <button className={styles.button} onClick={toggleDetails}>
+        <span className={styles.header}>
           {canEdit &&
             <>
-              <div className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} /></div>
+              <div className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
+              )} icon={faTimes} /></div>
               <div className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>
             </>}
           <h4 className={classNames(styles.description, { [styles.descriptionCanEdit]: canEdit })}>{description}</h4>
-        </button>
+        </span>
         <span className={styles.quantity}>
-          {canEdit && <div className={styles.icon} onClick={incrementQuantity}>
+          {canEdit && <div className={styles.icon} ref={incRef} onClick={incrementQuantity}>
             <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
           </div>}
           <div className={styles.quantityContent}>
             {currentQuantity}
           </div>
-          {canEdit && <div className={styles.icon} onClick={decrementQuantity}>
+          {canEdit && <div className={styles.icon} ref={decRef} onClick={decrementQuantity}>
             <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
           </div>}
         </span>
-      </div>
+      </button>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
