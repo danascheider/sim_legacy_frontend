@@ -467,6 +467,7 @@ ShoppingListProvider.propTypes = {
     performShoppingListCreate: PropTypes.func,
     performShoppingListDestroy: PropTypes.func,
     performShoppingListItemCreate: PropTypes.func,
+    performShoppingListItemUpdate: PropTypes.func,
     performShoppingListItemDelete: PropTypes.func,
     flashProps: PropTypes.shape({
       type: PropTypes.string,
