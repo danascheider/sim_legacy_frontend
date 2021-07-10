@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import SlideToggle from 'react-slide-toggle'
@@ -8,6 +10,7 @@ import styles from './shoppingListItem.module.css'
 
 const ShoppingListItem = ({
   itemId,
+  listTitle,
   canEdit,
   description,
   quantity,
@@ -20,6 +23,9 @@ const ShoppingListItem = ({
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
+    schemeColor,
+    textColorPrimary,
+    hoverColor,
     schemeColorLighter,
     hoverColorLighter,
     textColorSecondary,
@@ -32,13 +38,18 @@ const ShoppingListItem = ({
     performShoppingListItemUpdate,
     performShoppingListItemDestroy,
     setFlashProps,
-    setFlashVisible
+    setFlashVisible,
+    setListItemEditFormProps,
+    setListItemEditFormVisible
   } = useShoppingListContext()
 
   const mountedRef = useRef(true)
+  const editRef = useRef(null)
+
+  const editRefContains = el => editRef.current && (editRef.current === el || editRef.current.contains(el))
   
-  const toggleDetails = () => {
-    setToggleEvent(Date.now)
+  const toggleDetails = e => {
+    if (!e || !editRefContains(e.target)) setToggleEvent(Date.now)
   }
 
   const styleVars = {
@@ -56,7 +67,7 @@ const ShoppingListItem = ({
 
     setCurrentQuantity(newQuantity)
 
-    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, null, () => { setCurrentQuantity(oldQuantity) })
+    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
   }
 
   const decrementQuantity = () => {
@@ -65,7 +76,7 @@ const ShoppingListItem = ({
 
     if (newQuantity > 0) {
       setCurrentQuantity(newQuantity)
-      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, null, () => { setCurrentQuantity(oldQuantity) })
+      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
     } else if (newQuantity === 0) {
       const confirmed = window.confirm("Item quantity must be greater than zero. Delete the item instead?")
 
@@ -80,6 +91,26 @@ const ShoppingListItem = ({
     }
   }
 
+  const showEditForm = () => {
+    setFlashVisible(false)
+    setListItemEditFormProps({
+      listTitle: listTitle,
+      buttonColor: {
+        schemeColor,
+        hoverColor,
+        borderColor,
+        textColorPrimary
+      },
+      currentAttributes: {
+        id: itemId,
+        quantity: quantity,
+        description: description,
+        notes: notes,
+      }
+    })
+    setListItemEditFormVisible(true)
+  }
+
   useEffect(() => {
     setCurrentQuantity(quantity)
   }, [quantity])
@@ -92,7 +123,8 @@ const ShoppingListItem = ({
     <div className={styles.root} style={styleVars}>
       <div className={styles.headerContainer}>
         <button className={styles.button} onClick={toggleDetails}>
-          <h4 className={styles.description}>{description}</h4>
+          {canEdit && <div className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>}
+          <h4 className={classNames(styles.description, { [styles.descriptionCanEdit]: canEdit })}>{description}</h4>
         </button>
         <span className={styles.quantity}>
           {canEdit && <div className={styles.icon} onClick={incrementQuantity}>
@@ -119,6 +151,7 @@ const ShoppingListItem = ({
 
 ShoppingListItem.propTypes = {
   itemId: PropTypes.number.isRequired,
+  listTitle: PropTypes.string.isRequired,
   canEdit: PropTypes.bool.isRequired,
   description: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,

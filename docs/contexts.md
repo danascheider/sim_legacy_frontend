@@ -1,6 +1,6 @@
 # Contexts in SIM
 
-SIM uses [React contexts](https://reactjs.org/docs/context.html) for management of certain state. This prevents "smart" components that fetch data or control state from having to pass through props to their children, their children's children, and so on. There are currently two main contexts:
+SIM uses [React contexts](https://reactjs.org/docs/context.html) for management of certain state. This prevents "smart" components that fetch data or control state from having to pass through props to their children, their children's children, and so on. There are currently three contexts:
 
 * [AppContext](#dashboardcontext)
 * [ColorContext](#colorcontext)
@@ -291,6 +291,7 @@ A function that updates the specified shopping list item, also encompassing erro
 * `attrs`: the attributes to be updated on the list item. Cannot update item `description`. Attributes can include:
   * `quantity` (integer, greater than 0)
   * `notes` (string)
+* `showFlashOnSuccess`: whether a successful API call should result in a flash message being displayed (the flash message will always be displayed on failure)
 * `success`: an optional success callback that can be used for handling state within the component that calls the function
 * `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
 
@@ -301,6 +302,22 @@ A function that destroys the specified shopping list item, also encompassing err
 * `itemId`: the ID of the item to be destroyed
 * `success`: an optional success callback that can be used for handling state within the component that calls the function
 * `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
+
+#### `listItemEditFormProps`
+
+The props to be passed to the `ShoppingListItemEditForm` component if it is displayed.
+
+#### `listItemEditFormVisible`
+
+Whether the `ShoppingListItemEditForm` component should be visible.
+
+#### `setListItemEditFormProps`
+
+A setter function for shopping list item edit form props. Takes an object as an argument. The object should represent valid props for a `ShoppingListItemEditForm` (as indicated by [the component's PropTypes](/src/components/shoppingListItemEditForm/shoppingListItemEditForm.js)).
+
+#### `setListItemEditFormVisible`
+
+A setter function to indicate whether the `ShoppingListEditForm` component should be displayed or hidden. Takes a single boolean argument.
 
 #### `flashProps`
 

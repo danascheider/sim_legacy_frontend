@@ -33,13 +33,20 @@ const ShoppingListContext = createContext()
 
 const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
-  const [flashVisible, setFlashVisible] = useState(false)
+  const [listItemEditFormProps, setListItemEditFormProps] = useState({})
+  const [listItemEditFormVisible, setListItemEditFormVisible] = useState(false)
   const [flashProps, setFlashProps] = useState({})
+  const [flashVisible, setFlashVisible] = useState(false)
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
   const { token, setShouldRedirectTo, removeSessionCookie } = useAppContext()
 
   // Use this as the initial value only
-  overrideValue.shoppingLists && delete overrideValue.shoppingLists
+  let shoppingListsOverridden = false
+
+  if (overrideValue.shoppingLists) {
+    delete overrideValue.shoppingLists
+    shoppingListsOverridden = true
+  }
 
   const mountedRef = useRef(true)
 
@@ -103,7 +110,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }
   
   const fetchLists = () => {
-    if (token && !overrideValue.shoppingLists) {
+    if (token && !shoppingListsOverridden) {
       fetchShoppingLists(token)
         .then(resp => resp.json())
         .then(data => {
@@ -324,7 +331,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListItemUpdate = (itemId, attrs, success = null, error = null) => {
+  const performShoppingListItemUpdate = (itemId, attrs, showFlashOnSuccess, success = null, error = null) => {
     updateShoppingListItem(token, itemId, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -344,8 +351,12 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           setShoppingLists(newShoppingLists)
 
+          setListItemEditFormVisible(false)
+          showFlashOnSuccess && displayFlashSuccess('Success! Your shopping list item was updated.')
+
           success && success()
         } else if (data && typeof data === 'object' && data.errors) {
+          setListItemEditFormVisible(false)
           displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list item from being updated:`)
 
           error && error()
@@ -427,6 +438,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     performShoppingListItemCreate,
     performShoppingListItemUpdate,
     performShoppingListItemDestroy,
+    listItemEditFormVisible,
+    setListItemEditFormVisible,
+    listItemEditFormProps,
+    setListItemEditFormProps,
     flashProps,
     flashVisible,
     setFlashProps,
