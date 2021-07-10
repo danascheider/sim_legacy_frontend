@@ -8,10 +8,10 @@ const DashboardLayout = ({ title, children }) => {
     <div className={styles.root}>
       <div className={styles.container}>
         {title ?
-        <>
+        <div className={styles.titleContainer}>
           <h2 className={styles.title}>{title}</h2>
           <hr className={styles.hr} />
-        </> :
+        </div> :
         null}
         {children}
       </div>

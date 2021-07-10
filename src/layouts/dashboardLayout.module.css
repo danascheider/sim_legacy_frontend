@@ -21,9 +21,17 @@
   max-width: 90%;
 }
 
+.titleContainer {
+  padding-top: 64px;
+}
+
 @media (min-width: 769px) {
   .container {
     padding: 64px 0;
+  }
+
+  .titleContainer {
+    padding-top: 64px;
   }
 }
 

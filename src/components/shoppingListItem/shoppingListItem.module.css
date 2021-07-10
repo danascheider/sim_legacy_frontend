@@ -37,7 +37,7 @@
   color: var(--title-text-color);
   display: inline-block;
   margin: auto 0;
-  padding: 32px 24px;
+  padding: 32px 8px;
   display: flex;
   justify-content: space-between;
 }
@@ -77,4 +77,16 @@
 .notes {
   padding: 24px;
   margin: 0;
+}
+
+@media (min-width: 769px) {
+  .quantity {
+    padding: 32px 16px;
+  }
+}
+
+@media (min-width: 1201px) {
+  .quantity {
+    padding: 32px 24px;
+  }
 }
