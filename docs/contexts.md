@@ -241,17 +241,39 @@ On load, the `ShoppingListProvider` fetches all the user's shopping lists. It re
   * `newTitle`: the new title of the list taken from the form the user submitted
   * `success`: an optional success callback that can be used for handling state within the component that calls the function
   * `error`: an optional error callback that can be used to clean up state within the component that calls the function
-* `performShoppingListCreate`: a function that creates a shopping list for the authenticated user, also encompassing error handling logic. The function takes 3 arguments:
+* `performShoppingListCreate`: a function that creates a shopping list for the authenticated user and updates the master list to reflect the change, also encompassing error handling logic. The function takes 3 arguments:
   * `title`: the title of the new list
   * `success`: an optional success callback that can be used for handling state within the component that calls the function
   * `error`: an optional error callback that can be used to clean up state within the component that calls the function
-* `performShoppingListDelete`: a function that deletes the list specified through the API, also encompassing error handling logic. The function takes 3 arguments:
+* `performShoppingListDestroy`: a function that deletes the list specified through the API, also encompassing error handling logic. The function takes 3 arguments:
   * `listId`: the ID (primary key in the database) of the list to be updated
   * `success`: an optional success callback that can be used for handling state within the component that calls the function
   * `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `performShoppingListItemCreate`: a function that creates a shopping list item on the list specified (or combines the new attributes given with an existing item with the same description), also encompassing error handling logic. This will also cause the master list to update. The function takes four arguments:
+  * `listId`: the ID of the shopping list the item should be added to
+  * `attrs`: The attributes the item should be created with. Attributes can include:
+    * `description` (string, required, case-insensitively unique per list)
+    * `quantity` (integer, required, must be greater than 0)
+    * `notes` (any notes associated with other item - will be combined with existing notes if the item is combined with another existing item)
+  * `success`: an optional success callback that can be used for handling state within the component that calls the function
+  * `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `performShoppingListItemUpdate`: a function that updates the specified shopping list item, also encompassing error handling logic. This will also cause the master list to update. The function takes four arguments:
+  * `itemId`: the ID of the item to be updated
+  * `attrs`: the attributes to be updated on the list item. Cannot update item `description`. Attributes can include:
+    * `quantity` (integer, greater than 0)
+    * `notes` (string)
+  * `success`: an optional success callback that can be used for handling state within the component that calls the function
+  * `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
+* `performShoppingListItemDestroy`: a function that destroys the specified shopping list item, also encompassing error handling logic. This also updates the master list to reflect the change. The function takes three arguments:
+  * `itemId`: the ID of the item to be destroyed
+  * `success`: an optional success callback that can be used for handling state within the component that calls the function
+  * `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
 * `flashProps`: the props to be passed to the `FlashMessage` component when/if it is displayed
 * `flashVisible`: whether a `FlashMessage` should be visible (set to `true` if there's been some kind of error)
-* `setFlashProps`: a function to set the type and message in the `FlashMessage` component; takes an object argument
+* `setFlashProps`: a function to set the type and message in the `FlashMessage` component; takes an object argument. The allowed keys in the object are:
+  * `type`: one of 'success', 'error', or 'info'; determines the colour of the flash message (green for 'success', red for 'error', and blue for 'info')
+  * `header`: the first line of the flash message (string)
+  * `message`: the rest of the flash message. If given a string, the string will be rendered; if given an array of strings, they will be rendered as a bulleted list
 * `setFlashVisible`: a function to set the visibility of the `FlashMessage` component; takes a boolean argument
 
 ### Testing
