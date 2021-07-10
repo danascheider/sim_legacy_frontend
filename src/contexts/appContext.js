@@ -18,7 +18,6 @@ import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
 import isStorybook from '../utils/isStorybook'
-
 import paths from '../routing/paths'
 
 const LOADING = 'loading'
