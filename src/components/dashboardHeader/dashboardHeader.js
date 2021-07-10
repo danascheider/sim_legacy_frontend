@@ -38,7 +38,8 @@ const DashboardHeader = () => {
       <div className={styles.bar}>
         <span className={styles.headerContainer}>
           <h1 className={styles.header}>
-            <Link className={styles.headerLink} to={paths.dashboard.main}>Skyrim Inventory<br className={styles.bp} /> Management</Link>
+            <Link className={styles.headerLinkLarge} to={paths.dashboard.main}>Skyrim Inventory<br className={styles.bp} /> Management</Link>
+            <Link className={styles.headerLinkSmall} to={paths.dashboard.main}>S. I. M.</Link>
           </h1>
         </span>
         {!!profileData ?

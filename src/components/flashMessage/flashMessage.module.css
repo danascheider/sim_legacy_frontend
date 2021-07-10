@@ -29,13 +29,13 @@
   list-style-position: inside;
 }
 
-@media (min-width: 728px) {
+@media (min-width: 769px) {
   .root {
     max-width: 60%;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
   .root {
     max-width: 30%;
   }

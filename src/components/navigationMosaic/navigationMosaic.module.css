@@ -8,14 +8,14 @@
   justify-self: center;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   .root {
     grid-template-columns: 1fr 1fr;
     column-gap: 16px;
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1201px) {
   .root {
     grid-template-columns: 1fr 1fr 1fr;
   }
