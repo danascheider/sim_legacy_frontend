@@ -17,7 +17,7 @@
   cursor: pointer;
   padding: 0;
   display: grid;
-  grid-template-columns: 4fr 1fr;
+  grid-template-columns: 3fr 1fr;
 }
 
 .fa {
@@ -45,6 +45,8 @@
 }
 
 .quantity {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
   color: var(--title-text-color);
   display: inline-block;
   margin: auto 0;
@@ -95,6 +97,7 @@
 
   .quantity {
     padding: 32px 16px;
+    grid-template-columns: 4fr 1fr;
   }
 }
 
