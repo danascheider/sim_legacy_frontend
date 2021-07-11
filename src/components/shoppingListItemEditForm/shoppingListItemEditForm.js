@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useShoppingListContext } from '../../hooks/contexts'
 import styles from './shoppingListItemEditForm.module.css'
@@ -6,12 +6,9 @@ import styles from './shoppingListItemEditForm.module.css'
 const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentAttributes }) => {
   const { performShoppingListItemUpdate } = useShoppingListContext()
 
-  const [mouseOverNotes, setMouseOverNotes] = useState(false)
-
   const mountedRef = useRef(true)
   const formRef = useRef(null)
   const inputRef = useRef(null)
-  const textAreaRef = useRef(null)
 
   const colorVars = {
     '--button-background-color': buttonColor.schemeColor,
@@ -20,7 +17,7 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
     '--button-border-color': buttonColor.borderColor
   }
 
-  const updateItem = (e) => {
+  const updateItem = e => {
     e.preventDefault()
 
     const quantity = e.target.elements.quantity.value
@@ -33,37 +30,12 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
   }
 
   useEffect(() => {
-    const textAreaHasScrollbar = () => {
-      return textAreaRef.current.clientHeight < textAreaRef.current.scrollHeight
-    }
-
-    const handleKeyboardScroll = e => {
-      if ([38, 40].indexOf(e.code) !== -1) e.preventDefault()
-    }
-
-    const handleScroll = e => {
-      if (textAreaRef.current !== e.target && !textAreaRef.contains(e.target)) e.preventDefault()
-    }
-
-    const handleWheelScroll = e => {
-      if (!mouseOverNotes || !textAreaHasScrollbar()) {
-        e.preventDefault()
-      }
-    }
-
-    window.addEventListener('touchmove', handleScroll)
-    window.addEventListener('keydown', handleKeyboardScroll)
-    window.addEventListener('wheel', handleWheelScroll, { passive: false })
+    document.getElementsByTagName('body')[0].classList.add('modal-open')
+    inputRef && inputRef.current.focus()
 
     return () => {
-      window.removeEventListener('touchmove', handleScroll)
-      window.removeEventListener('keydown', handleKeyboardScroll)
-      window.removeEventListener('wheel', handleWheelScroll)
+      document.getElementsByTagName('body')[0].classList.remove('modal-open')
     }
-  }, [mouseOverNotes])
-
-  useEffect(() => {
-    inputRef && inputRef.current.focus()
   }, [])
 
   return(
@@ -81,10 +53,7 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
             className={styles.input}
             type='text'
             name='notes'
-            ref={textAreaRef}
             defaultValue={currentAttributes.notes}
-            onMouseEnter={() => setMouseOverNotes(true)}
-            onMouseOut={() => setMouseOverNotes(false)}
           />
         </fieldset>
         <button className={styles.submit}>Update Item</button>
