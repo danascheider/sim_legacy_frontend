@@ -4,12 +4,9 @@ import {
   googleClientId,
   frontendBaseUri
 } from '../../utils/config'
-import { authorize } from '../../utils/simApi'
-import isStorybook from '../../utils/isStorybook'
 import { useAppContext } from '../../hooks/contexts'
 import paths from '../../routing/paths'
 import styles from './loginPage.module.css'
-import logOutWithGoogle from '../../utils/logOutWithGoogle'
 
 const LoginPage = () => {
   const {
