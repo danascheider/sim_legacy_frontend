@@ -23,12 +23,16 @@ const ShoppingListPage = () => {
   const formRefContains = el => formRef.current && (formRef.current === el || formRef.current.contains(el))
 
   const hideForm = e => {
-    if (e.key === 'Escape' || !formRefContains(e.target)) setListItemEditFormVisible(false)
+    if (e.key === 'Escape' || !formRefContains(e.target)) {
+      setListItemEditFormVisible(false)
+    }
   }
 
   useEffect(() => {
     window.addEventListener('keyup', hideForm)
-  })
+
+    return () => window.removeEventListener('keyup', hideForm)
+  }, [hideForm])
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
