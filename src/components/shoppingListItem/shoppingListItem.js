@@ -145,14 +145,14 @@ const ShoppingListItem = ({
   return(
     <div className={styles.root} style={styleVars}>
       <button className={styles.button} onClick={toggleDetails}>
-        <span ref={headerRef} className={styles.header}>
+        <span ref={headerRef} className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
               <div className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
               )} icon={faTimes} /></div>
               <div className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>
             </span>}
-          <h4 className={classNames(styles.description, { [styles.descriptionCanEdit]: canEdit })}>{description}</h4>
+          <h4 className={styles.description}>{description}</h4>
         </span>
         <span className={styles.quantity}>
           {canEdit && <div className={styles.icon} ref={incRef} onClick={incrementQuantity}>
