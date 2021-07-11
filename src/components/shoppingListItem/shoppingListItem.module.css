@@ -97,15 +97,18 @@
 }
 
 @media (min-width: 769px) {
-  .button {
-    grid-template-columns: 4fr 1fr;
-  }
   .header {
     padding: 32px 16px;
   }
 
   .quantity {
     padding: 32px 16px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .button {
+    grid-template-columns: 4fr 1fr;
   }
 }
 
