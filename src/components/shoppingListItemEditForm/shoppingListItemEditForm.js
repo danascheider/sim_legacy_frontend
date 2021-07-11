@@ -33,16 +33,22 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
   }
 
   useEffect(() => {
+    const textAreaHasScrollbar = () => {
+      return textAreaRef.current.clientHeight < textAreaRef.current.scrollHeight
+    }
+
     const handleKeyboardScroll = e => {
       if ([38, 40].indexOf(e.code) !== -1) e.preventDefault()
     }
 
     const handleScroll = e => {
-      if (textAreaRef.current !== e.target && !textAreaRef.current.contains(e.target)) e.preventDefault()
+      if (textAreaRef.current !== e.target && !textAreaRef.contains(e.target)) e.preventDefault()
     }
 
     const handleWheelScroll = e => {
-      if (!mouseOverNotes) e.preventDefault()
+      if (!mouseOverNotes || !textAreaHasScrollbar()) {
+        e.preventDefault()
+      }
     }
 
     window.addEventListener('touchmove', handleScroll)
