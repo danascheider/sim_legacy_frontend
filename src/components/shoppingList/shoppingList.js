@@ -19,7 +19,7 @@ const isValid = str => (
   // Any other characters (including non-space whitespace characters
   // that are not leading or trailing) will cause a validation error
   // on the backend. The title of a regular list may also not be "Master".
-  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str !== 'Master'
+  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i) && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str !== 'Master'
 )
 
 const ShoppingList = ({ canEdit = true, listId, title}) => {
@@ -74,7 +74,8 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     '--text-color-secondary': textColorSecondary,
     '--hover-color': hoverColor,
     '--scheme-color-lighter': schemeColorLighter,
-    '--scheme-color-lightest': schemeColorLightest
+    '--scheme-color-lightest': schemeColorLightest,
+    '--max-title-width': `${maxEditFormWidth - 32}px`
   }
 
   const submitAndHideForm = e => {
@@ -120,14 +121,14 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     if (!size || !iconsRef.current) return
 
     setMaxEditFormWidth(size.width - iconsRef.current.offsetWidth - 16)
-  }, [size, iconsRef.current])
+  }, [size])
 
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.titleContainer}>
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
-          <span ref={iconsRef}>
+          <span className={styles.editIcons} ref={iconsRef}>
             <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList}>
               <FontAwesomeIcon className={styles.fa} icon={faTimes} />
             </div>
