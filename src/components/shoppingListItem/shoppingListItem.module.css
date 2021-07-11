@@ -17,7 +17,7 @@
   cursor: pointer;
   padding: 0;
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 2fr 1fr;
 }
 
 .fa {
@@ -90,18 +90,30 @@
   line-height: 1.25
 }
 
+@media (min-width: 601px) {
+  .button {
+    grid-template-columns: 3fr 1fr;
+  }
+}
+
 @media (min-width: 769px) {
+  .button {
+    grid-template-columns: 4fr 1fr;
+  }
   .header {
     padding: 32px 16px;
   }
 
   .quantity {
     padding: 32px 16px;
-    grid-template-columns: 4fr 1fr;
   }
 }
 
 @media (min-width: 1201px) {
+  .button {
+    grid-template-columns: 3fr 1fr;
+  }
+
   .quantity {
     padding: 32px 24px;
   }
