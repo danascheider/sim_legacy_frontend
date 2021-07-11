@@ -32,8 +32,12 @@
   padding-bottom: 16px;
 }
 
-.label {
+.quantityLabel {
   margin: auto 0;
+}
+
+.notesLabel {
+  margin-top: 2px;
 }
 
 .input {
@@ -42,6 +46,7 @@
   border: 1px solid #e0e0e0;
   padding: 8px;
   border-radius: 3px;
+  line-height: 1.25;
 }
 
 .submit {

@@ -73,6 +73,7 @@
   font-size: 1.025rem;
   color: var(--title-text-color);
   margin: auto 0;
+  line-height: 1.25;
 }
 
 .collapsible {
@@ -84,6 +85,7 @@
 .notes {
   padding: 24px;
   margin: 0;
+  line-height: 1.25
 }
 
 @media (min-width: 769px) {
