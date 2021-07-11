@@ -26,28 +26,14 @@ const LoginPage = () => {
     const { tokenId } = resp
 
     if (token !== tokenId) {
-      authorize(tokenId)
-        .then(response => {
-          if (response.status === 204) {
-            setSessionCookie(tokenId)
-            if (!isStorybook()) {
-              setShouldRedirectTo(paths.dashboard.main)
-              mountedRef.current = false
-            }
-          }
-        })
-        .catch(error => {
-          console.error('Error from /auth/verify_token: ', error.message)
-
-          logOutWithGoogle(() => {
-            token && removeSessionCookie()
-          })
-        })
+      setSessionCookie(tokenId)
+      setShouldRedirectTo(paths.dashboard.main)
+      mountedRef.current = false
     }
   }
 
   const failureCallback = (resp) => {
-    console.error('Login failure: ', resp)
+    if (process.env.NODE_ENV !== 'production') console.error('Login failure: ', resp)
     token && removeSessionCookie()
     setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }
@@ -68,7 +54,6 @@ const LoginPage = () => {
           buttonText='Log In With Google'
           onSuccess={successCallback}
           onFailure={failureCallback}
-          isSignedIn={true}
           redirectUri={`${frontendBaseUri}${paths.dashboard.main}`}
         />
       </div>
