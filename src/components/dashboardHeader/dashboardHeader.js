@@ -42,7 +42,7 @@ const DashboardHeader = () => {
             <Link className={styles.headerLinkSmall} to={paths.dashboard.main}>S. I. M.</Link>
           </h1>
         </span>
-        {!!profileData ?
+        {profileData ?
         <button className={styles.profile} onClick={() => setDropdownVisible(!dropdownVisible)}>
           <div className={styles.profileText}>
             <p className={styles.textTop}>{profileData.name}</p>
