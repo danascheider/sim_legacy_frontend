@@ -1,16 +1,17 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useShoppingListContext } from '../../hooks/contexts'
 import styles from './shoppingListItemEditForm.module.css'
 
 const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentAttributes }) => {
-  const {
-    performShoppingListItemUpdate
-  } = useShoppingListContext()
+  const { performShoppingListItemUpdate } = useShoppingListContext()
+
+  const [mouseOverNotes, setMouseOverNotes] = useState(false)
 
   const mountedRef = useRef(true)
   const formRef = useRef(null)
   const inputRef = useRef(null)
+  const textAreaRef = useRef(null)
 
   const colorVars = {
     '--button-background-color': buttonColor.schemeColor,
@@ -32,6 +33,30 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
   }
 
   useEffect(() => {
+    const handleKeyboardScroll = e => {
+      if ([38, 40].indexOf(e.code) !== -1) e.preventDefault()
+    }
+
+    const handleScroll = e => {
+      if (textAreaRef.current !== e.target && !textAreaRef.current.contains(e.target)) e.preventDefault()
+    }
+
+    const handleWheelScroll = e => {
+      if (!mouseOverNotes) e.preventDefault()
+    }
+
+    window.addEventListener('touchmove', handleScroll)
+    window.addEventListener('keydown', handleKeyboardScroll)
+    window.addEventListener('wheel', handleWheelScroll, { passive: false })
+
+    return () => {
+      window.removeEventListener('touchmove', handleScroll)
+      window.removeEventListener('keydown', handleKeyboardScroll)
+      window.removeEventListener('wheel', handleWheelScroll)
+    }
+  }, [mouseOverNotes])
+
+  useEffect(() => {
     inputRef && inputRef.current.focus()
   }, [])
 
@@ -41,12 +66,20 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
       <p className={styles.subheader}>{`On list "${listTitle}"`}</p>
       <form className={styles.form} ref={formRef} onSubmit={updateItem}>
         <fieldset className={styles.fieldset}>
-          <label className={styles.label} htmlFor='quantity'>Quantity</label>
+          <label className={styles.quantityLabel} htmlFor='quantity'>Quantity</label>
           <input className={styles.input} ref={inputRef} type='text' name='quantity' defaultValue={currentAttributes.quantity} />
         </fieldset>
         <fieldset className={styles.fieldset}>
-          <label className={styles.label} htmlFor='notes'>Notes</label>
-          <input className={styles.input} type='text' name='notes' defaultValue={currentAttributes.notes} />
+          <label className={styles.notesLabel} htmlFor='notes'>Notes</label>
+          <textarea
+            className={styles.input}
+            type='text'
+            name='notes'
+            ref={textAreaRef}
+            defaultValue={currentAttributes.notes}
+            onMouseEnter={() => setMouseOverNotes(true)}
+            onMouseOut={() => setMouseOverNotes(false)}
+          />
         </fieldset>
         <button className={styles.submit}>Update Item</button>
       </form>
