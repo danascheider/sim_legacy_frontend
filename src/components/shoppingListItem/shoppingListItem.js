@@ -144,28 +144,28 @@ const ShoppingListItem = ({
 
   return(
     <div className={styles.root} style={styleVars}>
-      <button className={styles.button} onClick={toggleDetails}>
+      <div className={styles.button} onClick={toggleDetails}>
         <span ref={headerRef} className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
-              <div className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
-              )} icon={faTimes} /></div>
-              <div className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>
+              <a className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
+              )} icon={faTimes} /></a>
+              <a className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></a>
             </span>}
           <h4 className={styles.description}>{description}</h4>
         </span>
         <span className={styles.quantity}>
-          {canEdit && <div className={styles.icon} ref={incRef} onClick={incrementQuantity}>
+          {canEdit && <a className={styles.icon} ref={incRef} onClick={incrementQuantity}>
             <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
-          </div>}
+          </a>}
           <div className={styles.quantityContent}>
             {currentQuantity}
           </div>
-          {canEdit && <div className={styles.icon} ref={decRef} onClick={decrementQuantity}>
+          {canEdit && <a className={styles.icon} ref={decRef} onClick={decrementQuantity}>
             <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
-          </div>}
+          </a>}
         </span>
-      </button>
+      </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
