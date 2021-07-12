@@ -1,6 +1,4 @@
 import React from 'react'
-import { rest } from 'msw'
-import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import ShoppingListCreateForm from './shoppingListCreateForm'
