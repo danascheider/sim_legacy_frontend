@@ -14,7 +14,7 @@ export default { title: 'ShoppingListItem' }
 
 export const Editable = () => (
   <AppProvider overrideValue={{ token }}>
-    <ShoppingListProvider overrideValue={{ shoppingLists: shoppingLists }}>
+    <ShoppingListProvider overrideValue={{ shoppingLists }}>
       <ColorProvider colorScheme={GREEN}>
         <ShoppingListItem
           itemId={42}
@@ -28,41 +28,39 @@ export const Editable = () => (
   </AppProvider>
 )
 
-Editable.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(shoppingLists)
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_list_items/42`, (req, res, ctx) => {
-        const newQty = req.body.shopping_list_item.quantity
+Editable.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json(shoppingLists)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_list_items/42`, (req, res, ctx) => {
+      const newQty = req.body.shopping_list_item.quantity
 
-        const returnData = [
-          {
-            id: 2,
-            list_id: 1,
-            description: 'Ebony sword',
-            quantity: newQty,
-            notes: 'Need some swords'
-          },
-          {
-            id: 42,
-            list_id: 2,
-            description: 'Ebony sword',
-            quantity: newQty,
-            notes: 'Need some swords'
-          }
-        ]
-        return res(
-          ctx.status(200),
-          ctx.json(returnData)
-        )
-      })
-    ]
-  }
+      const returnData = [
+        {
+          id: 2,
+          list_id: 1,
+          description: 'Ebony sword',
+          quantity: newQty,
+          notes: 'Need some swords'
+        },
+        {
+          id: 42,
+          list_id: 2,
+          description: 'Ebony sword',
+          quantity: newQty,
+          notes: 'Need some swords'
+        }
+      ]
+      return res(
+        ctx.status(200),
+        ctx.json(returnData)
+      )
+    })
+  ]
 }
 
 export const NotEditable = () => (

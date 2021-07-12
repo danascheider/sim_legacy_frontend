@@ -31,7 +31,7 @@ const LogoutDropdown = ({className, logOutFunction}) => {
 }
 
 LogoutDropdown.propTypes = {
-  className: PropTypes.string.isRequired,
+  className: PropTypes.string,
   logOutFunction: PropTypes.func.isRequired
 }
 

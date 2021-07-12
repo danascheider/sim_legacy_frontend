@@ -5,4 +5,4 @@ const noop = () => {}
 
 export default { title: 'LogoutDropdown' }
 
-export const Default = () => <LogoutDropdown successCallback={noop} failureCallback={noop} />
+export const Default = () => <LogoutDropdown logOutFunction={noop} />

@@ -8,7 +8,7 @@ export default { title: 'NavigationCard' }
 export const Default = () => (
   <ColorProvider colorScheme={GREEN}>
     <NavigationCard colorScheme={GREEN} href='#'>
-      Your Shopping List
+      Your Shopping Lists
     </NavigationCard>
   </ColorProvider>
 )
