@@ -55,7 +55,7 @@ const DashboardPage = () => {
       {profileLoadState === 'done' ? <div className={styles.root}>
         <NavigationMosaic cardArray={cards} />
       </div> :
-      <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColor} height='15%' width='15%' />}
+      <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColorDarkest} height='15%' width='15%' />}
     </DashboardLayout> :
     <Redirect to={paths.login} />
   )
