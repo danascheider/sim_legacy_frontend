@@ -195,11 +195,11 @@ import { useColorScheme } from '../../hooks/contexts'
 import styles from './child.module.css'
 
 const Child = () => {
-  const { schemeColor, hoverColor, textColorPrimary } = useColorScheme()
+  const { schemeColorDarkest, hoverColorDark, textColorPrimary } = useColorScheme()
 
   const styleVars = {
-    '--background-color': schemeColor,
-    '--hover-color': hoverColor,
+    '--background-color': schemeColorDarkest,
+    '--hover-color': hoverColorDark,
     '--text-color': textColorPrimary
   }
 
