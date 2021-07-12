@@ -49,7 +49,7 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
             className={styles.input}
             ref={inputRef}
             type='number'
-            inputmode='numeric'
+            inputMode='numeric'
             name='quantity'
             defaultValue={currentAttributes.quantity}
           />
