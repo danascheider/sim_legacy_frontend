@@ -14,10 +14,10 @@ const ShoppingListCreateForm = ({ disabled }) => {
   const [inputValue, setInputValue] = useState('')
 
   const colorVars = {
-    '--button-color': BLUE.schemeColorLighter,
+    '--button-color': BLUE.schemeColorDark,
     '--button-text-color': BLUE.textColorPrimary,
     '--button-border-color': BLUE.borderColor,
-    '--button-hover-color': BLUE.hoverColorLighter,
+    '--button-hover-color': BLUE.hoverColorLight,
   }
 
   const updateValue = e => {

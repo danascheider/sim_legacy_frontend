@@ -21,15 +21,17 @@ const ColorProvider = ({ colorScheme, children }) => {
 
 ColorProvider.propTypes = {
   colorScheme: PropTypes.shape({
-    schemeColor: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string.isRequired,
+    schemeColorDarkest: PropTypes.string.isRequired,
+    schemeColorDark: PropTypes.string.isRequired,
+    schemeColorLight: PropTypes.string.isRequired,
+    schemeColorLightest: PropTypes.string.isRequired,
+    hoverColorDark: PropTypes.string.isRequired,
+    hoverColorLight: PropTypes.string.isRequired,
+    hoverColorLightest: PropTypes.string.isRequired,
     textColorPrimary: PropTypes.string.isRequired,
-    borderColor: PropTypes.string,
-    schemeColorLighter: PropTypes.string,
-    hoverColorLighter: PropTypes.string,
-    schemeColorLightest: PropTypes.string,
     textColorSecondary: PropTypes.string,
-    textColorTertiary: PropTypes.string
+    textColorTertiary: PropTypes.string,
+    borderColor: PropTypes.string
   }).isRequired,
   children: PropTypes.node.isRequired
 }

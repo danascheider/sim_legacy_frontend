@@ -8,8 +8,8 @@ const ShoppingListItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const { performShoppingListItemCreate, setFlashVisible } = useShoppingListContext()
   const {
-    schemeColorLighter,
-    hoverColorLighter,
+    schemeColorDark,
+    hoverColorLight,
     schemeColorLightest,
     borderColor,
     textColorSecondary,
@@ -19,8 +19,8 @@ const ShoppingListItemCreateForm = ({ listId }) => {
   const formRef = useRef(null)
 
   const colorVars = {
-    '--base-color': schemeColorLighter,
-    '--hover-color': hoverColorLighter,
+    '--base-color': schemeColorDark,
+    '--hover-color': hoverColorLight,
     '--body-color': schemeColorLightest,
     '--border-color': borderColor,
     '--text-color-main': textColorSecondary,

@@ -27,10 +27,10 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   const inputRef = useRef(null)
   const buttonRef = useRef(null)
 
-  const { schemeColor, textColorPrimary, borderColor, schemeColorLightest } = useColorScheme()
+  const { schemeColorDarkest, textColorPrimary, borderColor, schemeColorLightest } = useColorScheme()
 
   const colorVars = {
-    '--scheme-color': schemeColor,
+    '--scheme-color': schemeColorDarkest,
     '--text-color': textColorPrimary,
     '--border-color': borderColor,
     '--icon-hover-color': schemeColorLightest

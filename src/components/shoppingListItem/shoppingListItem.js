@@ -23,11 +23,11 @@ const ShoppingListItem = ({
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
-    schemeColor,
+    schemeColorDarkest,
     textColorPrimary,
-    hoverColor,
-    schemeColorLighter,
-    hoverColorLighter,
+    hoverColorDark,
+    schemeColorDark,
+    hoverColorLight,
     textColorSecondary,
     borderColor,
     schemeColorLightest,
@@ -63,12 +63,12 @@ const ShoppingListItem = ({
   }
 
   const styleVars = {
-    '--main-color': schemeColorLighter,
+    '--main-color': schemeColorDark,
     '--title-text-color': textColorSecondary,
     '--border-color': borderColor,
     '--body-background-color': schemeColorLightest,
     '--body-text-color': textColorTertiary,
-    '--hover-color': hoverColorLighter
+    '--hover-color': hoverColorLight
   }
 
   const incrementQuantity = () => {
@@ -119,8 +119,8 @@ const ShoppingListItem = ({
     setListItemEditFormProps({
       listTitle: listTitle,
       buttonColor: {
-        schemeColor,
-        hoverColor,
+        schemeColorDarkest,
+        hoverColorDark,
         borderColor,
         textColorPrimary
       },

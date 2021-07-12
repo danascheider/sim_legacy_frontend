@@ -11,9 +11,9 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
   const inputRef = useRef(null)
 
   const colorVars = {
-    '--button-background-color': buttonColor.schemeColor,
+    '--button-background-color': buttonColor.schemeColorDarkest,
     '--button-text-color': buttonColor.textColorPrimary,
-    '--button-hover-color': buttonColor.hoverColor,
+    '--button-hover-color': buttonColor.hoverColorDark,
     '--button-border-color': buttonColor.borderColor
   }
 
@@ -49,7 +49,8 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
             className={styles.input}
             ref={inputRef}
             type='number'
-            inputMode='numeric'
+            inputM
+            ode='numeric'
             name='quantity'
             defaultValue={currentAttributes.quantity}
           />
