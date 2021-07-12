@@ -144,28 +144,28 @@ const ShoppingListItem = ({
 
   return(
     <div className={styles.root} style={styleVars}>
-      <button className={styles.button} onClick={toggleDetails}>
+      <div className={styles.toggle} onClick={toggleDetails}>
         <span ref={headerRef} className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
-              <div className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
-              )} icon={faTimes} /></div>
-              <div className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></div>
+              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
+              )} icon={faTimes} /></button>
+              <button className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></button>
             </span>}
           <h4 className={styles.description}>{description}</h4>
         </span>
         <span className={styles.quantity}>
-          {canEdit && <div className={styles.icon} ref={incRef} onClick={incrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity}>
             <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
-          </div>}
+          </button>}
           <div className={styles.quantityContent}>
             {currentQuantity}
           </div>
-          {canEdit && <div className={styles.icon} ref={decRef} onClick={decrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity}>
             <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
-          </div>}
+          </button>}
         </span>
-      </button>
+      </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
