@@ -49,8 +49,7 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
             className={styles.input}
             ref={inputRef}
             type='number'
-            inputM
-            ode='numeric'
+            inputMode='numeric'
             name='quantity'
             defaultValue={currentAttributes.quantity}
           />
@@ -76,9 +75,9 @@ ShoppingListItemEditForm.propTypes = {
   }),
   listTitle: PropTypes.string.isRequired,
   buttonColor: PropTypes.shape({
-    schemeColor: PropTypes.string.isRequired,
+    schemeColorDarkest: PropTypes.string.isRequired,
     textColorPrimary: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string.isRequired,
+    hoverColorDark: PropTypes.string.isRequired,
     borderColor: PropTypes.string.isRequired
   }).isRequired,
   currentAttributes: PropTypes.shape({

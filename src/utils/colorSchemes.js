@@ -5,6 +5,7 @@ export const YELLOW = {
   schemeColorLightest: '#fff2cc',
   hoverColorDark: '#e5ab00',
   hoverColorLight: '#ffc519',
+  hoverColorLightest: '#ffebb2',
   textColorPrimary: '#4c3900',
   textColorSecondary: '#4c3900',
   textColorTertiary: '#7f5700',
