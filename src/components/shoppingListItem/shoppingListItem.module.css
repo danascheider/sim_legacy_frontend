@@ -8,10 +8,8 @@
   background-color: var(--hover-color);
 }
 
-.button {
+.toggle {
   width: 100%;
-  background: none;
-  border: none;
   border-bottom: 1px solid var(--border-color);
   text-align: left;
   cursor: pointer;
@@ -61,6 +59,8 @@
 
 .icon {
   display: inline-block;
+  background: none;
+  border: none;
   padding: 4px;
   cursor: pointer;
 }
@@ -85,7 +85,7 @@
 }
 
 .notes {
-  padding: 24px;
+  padding: 24px 16px;
   margin: 0;
   line-height: 1.25
 }
@@ -103,6 +103,10 @@
 
   .quantity {
     padding: 32px 16px;
+  }
+
+  .notes {
+    padding: 24px 16px;
   }
 }
 

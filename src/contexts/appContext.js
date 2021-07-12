@@ -78,13 +78,15 @@ const AppProvider = ({ children, overrideValue = {} }) => {
           if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
         })
         .catch(error => {
-          console.error('Error returned while fetching profile data: ', error.message)
+          if (process.env.NODE_ENV !== 'production') console.error('Error returned while fetching profile data: ', error.message)
 
           logOutAndRedirect()
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {
       logOutAndRedirect()
-    } else if (isStorybook() && !overrideValue.profileLoadState) setProfileLoadState(DONE) 
+    } else if (isStorybook() && !overrideValue.profileLoadState) {
+      setProfileLoadState(DONE)
+    }
   }
 
   useEffect(fetchProfileData, [
