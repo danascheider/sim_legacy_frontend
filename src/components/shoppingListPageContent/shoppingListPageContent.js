@@ -48,7 +48,7 @@ const ShoppingListPageContent = () => {
       </>
     )
   } else if (shoppingListLoadingState === 'loading') {
-    return <Loading className={styles.loading} color={YELLOW.schemeColor} height='15%' width='15%' />
+    return <Loading className={styles.loading} color={YELLOW.schemeColorDarkest} height='15%' width='15%' />
   } else {
     return null
   }

@@ -11,9 +11,9 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
   const inputRef = useRef(null)
 
   const colorVars = {
-    '--button-background-color': buttonColor.schemeColor,
+    '--button-background-color': buttonColor.schemeColorDarkest,
     '--button-text-color': buttonColor.textColorPrimary,
-    '--button-hover-color': buttonColor.hoverColor,
+    '--button-hover-color': buttonColor.hoverColorDark,
     '--button-border-color': buttonColor.borderColor
   }
 
@@ -75,9 +75,9 @@ ShoppingListItemEditForm.propTypes = {
   }),
   listTitle: PropTypes.string.isRequired,
   buttonColor: PropTypes.shape({
-    schemeColor: PropTypes.string.isRequired,
+    schemeColorDarkest: PropTypes.string.isRequired,
     textColorPrimary: PropTypes.string.isRequired,
-    hoverColor: PropTypes.string.isRequired,
+    hoverColorDark: PropTypes.string.isRequired,
     borderColor: PropTypes.string.isRequired
   }).isRequired,
   currentAttributes: PropTypes.shape({

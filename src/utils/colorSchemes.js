@@ -1,61 +1,71 @@
 export const YELLOW = {
-  schemeColor: '#FFBF00',
-  hoverColor: '#E5AB00',
-  borderColor: '#CC9800',
-  textColorPrimary: '#000000',
-  schemeColorLighter: '#FFCB32',
-  hoverColorLighter: '#FFC519',
-  textColorSecondary: '#000000',
-  textColorTertiary: '#000000',
-  schemeColorLightest: '#FFF2CC'
+  schemeColorDarkest: '#ffbf00',
+  schemeColorDark: '#ffcb32',
+  schemeColorLight: '#ffd866',
+  schemeColorLightest: '#fff2cc',
+  hoverColorDark: '#e5ab00',
+  hoverColorLight: '#ffc519',
+  hoverColorLightest: '#ffebb2',
+  textColorPrimary: '#4c3900',
+  textColorSecondary: '#4c3900',
+  textColorTertiary: '#7f5700',
+  borderColor: '#cc9800',
 }
 
 export const PINK = {
-  schemeColor: '#E83F6F',
-  hoverColor: '#D03863',
-  borderColor: '#B93258',
-  textColorPrimary: '#FFFFFF',
-  schemeColorLighter: '#EC658B',
-  hoverColorLighter: '#EA527D',
-  textColorSecondary: '#FFFFFF',
-  textColorTertiary: '#000000',
-  schemeColorLightest: '#FAD8E2'
+  schemeColorDarkest: '#e83f6f',
+  schemeColorDark: '#ec658b',
+  schemeColorLight: '#f18ba8',
+  schemeColorLightest: '#fad8e2',
+  hoverColorDark: '#d03863',
+  hoverColorLight: '#ea527d',
+  hoverColorLightest: '#f5b2c5',
+  textColorPrimary: '#fff',
+  textColorSecondary: '#fff',
+  textColorTertiary: '#451221',
+  borderColor: '#b93258',
 }
 
 export const BLUE = {
-  schemeColor: '#2274A5',
-  hoverColor: '#1E6894',
-  borderColor: '#1B5C84',
-  textColorPrimary: '#FFFFFF',
-  schemeColorLighter: '#4E8FB7',
-  hoverColorLighter: '#3881AE',
-  textColorSecondary: '#FFFFFF',
-  textColorTertiary: '#000000',
-  schemeColorLightest: '#D2E3ED'
+  schemeColorDarkest: '#2274a5',
+  schemeColorDark: '#4e8fb7',
+  schemeColorLight: '#7aabc9',
+  schemeColorLightest: '#d2e3ed',
+  hoverColorDark: '#1e6894',
+  hoverColorLight: '#3881ae',
+  hoverColorLightest: '#bcd5e4',
+  textColorPrimary: '#fff',
+  textColorSecondary: '#fff',
+  textColorTertiary: '#0d2e42',
+  borderColor: '#1b5c84'
 }
 
 export const GREEN = {
-  schemeColor: '#00A323',
-  hoverColor: '#00921F',
-  borderColor: '#00821C',
-  textColorPrimary: '#FFFFFF',
-  schemeColorLighter: '#32B54E',
-  hoverColorLighter: '#19AC38',
-  textColorSecondary: '#FFFFFF',
-  textColorTertiary: '#000000',
-  schemeColorLightest: '#CCECD3'
+  schemeColorDarkest: '#00a323',
+  schemeColorDark: '#32b54e',
+  schemeColorLight: '#66c77b',
+  schemeColorLightest: '#ccecd3',
+  hoverColorDark: '#00921f',
+  hoverColorLight: '#19ac38',
+  hoverColorLightest: '#b2e3bd',
+  textColorPrimary: '#fff',
+  textColorSecondary: '#fff',
+  textColorTertiary: '#00410e',
+  borderColor: '#00821c'
 }
 
 export const AQUA = {
-  schemeColor: '#20E2E9',
-  hoverColor: '#1CCBD1',
-  borderColor: '#19B4BA',
-  textColorPrimary: '#000000',
-  schemeColorLighter: '#62EAEF',
-  hoverColorLighter: '#4CE7ED',
-  textColorSecondary: '#000000',
-  textColorTertiary: '#000000',
-  schemeColorLightest: '#D2F9FA'
+  schemeColorDarkest: '#20e2e9',
+  schemeColorDark: '#62eaef',
+  schemeColorLight: '#8ff0f4',
+  schemeColorLightest: '#d2f9fa',
+  hoverColorDark: '#11cbd1',
+  hoverColorLight: '#4ce7ed',
+  hoverColorLightest: '#bcf6f8',
+  textColorPrimary: '#094345',
+  textColorSecondary: '#094345',
+  textColorTertiary: '#094345',
+  borderColor: '#19b4ba'
 }
 
 const colorSchemes = [

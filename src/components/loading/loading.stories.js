@@ -7,7 +7,7 @@ export default { title: 'Loading' }
 export const Blank = () => (
   <Loading
     type='blank'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -16,7 +16,7 @@ export const Blank = () => (
 export const Balls = () => (
   <Loading
     type='balls'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -25,7 +25,7 @@ export const Balls = () => (
 export const Bars = () => (
   <Loading
     type='bars'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -34,7 +34,7 @@ export const Bars = () => (
 export const Bubbles = () => (
   <Loading
     type='bubbles'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -43,7 +43,7 @@ export const Bubbles = () => (
 export const Cubes = () => (
   <Loading
     type='cubes'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -52,7 +52,7 @@ export const Cubes = () => (
 export const Cylon = () => (
   <Loading
     type='cylon'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -61,7 +61,7 @@ export const Cylon = () => (
 export const Spin = () => (
   <Loading
     type='spin'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -70,7 +70,7 @@ export const Spin = () => (
 export const SpinningBubbles = () => (
   <Loading
     type='spinningBubbles'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />
@@ -79,7 +79,7 @@ export const SpinningBubbles = () => (
 export const Spokes = () => (
   <Loading
     type='spokes'
-    color={AQUA.schemeColor}
+    color={AQUA.schemeColorDarkest}
     height={667}
     width={375}
   />

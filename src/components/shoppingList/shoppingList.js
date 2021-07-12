@@ -58,22 +58,22 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   }
 
   const {
-    schemeColor,
+    schemeColorDarkest,
     borderColor,
     textColorPrimary,
     textColorSecondary,
-    hoverColor,
-    schemeColorLighter,
+    hoverColorDark,
+    schemeColorDark,
     schemeColorLightest
   } = useColorScheme()
 
   const styleVars = {
-    '--scheme-color': schemeColor,
+    '--scheme-color': schemeColorDarkest,
     '--border-color': borderColor,
     '--text-color-primary': textColorPrimary,
     '--text-color-secondary': textColorSecondary,
-    '--hover-color': hoverColor,
-    '--scheme-color-lighter': schemeColorLighter,
+    '--hover-color': hoverColorDark,
+    '--scheme-color-lighter': schemeColorDark,
     '--scheme-color-lightest': schemeColorLightest,
     '--max-title-width': `${maxEditFormWidth - 32}px`
   }

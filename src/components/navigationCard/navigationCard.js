@@ -5,11 +5,11 @@ import { useColorScheme } from '../../hooks/contexts'
 import styles from './navigationCard.module.css'
 
 const NavigationCard = ({ href, children }) => {
-  const { schemeColor, hoverColor, textColorPrimary} = useColorScheme()
+  const { schemeColorDarkest, hoverColorDark, textColorPrimary} = useColorScheme()
 
   const styleVars = {
-    '--background-color': schemeColor,
-    '--hover-color': hoverColor,
+    '--background-color': schemeColorDarkest,
+    '--hover-color': hoverColorDark,
     '--text-color': textColorPrimary
   }
 
