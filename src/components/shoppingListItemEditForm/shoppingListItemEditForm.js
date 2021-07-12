@@ -45,7 +45,7 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
       <form className={styles.form} ref={formRef} onSubmit={updateItem}>
         <fieldset className={styles.fieldset}>
           <label className={styles.quantityLabel} htmlFor='quantity'>Quantity</label>
-          <input className={styles.input} ref={inputRef} type='text' name='quantity' defaultValue={currentAttributes.quantity} />
+          <input className={styles.input} ref={inputRef} type='number' name='quantity' defaultValue={currentAttributes.quantity} />
         </fieldset>
         <fieldset className={styles.fieldset}>
           <label className={styles.notesLabel} htmlFor='notes'>Notes</label>
