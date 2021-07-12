@@ -12,8 +12,8 @@ export const shoppingLists = [
   {
     id: 1,
     user_id: 24,
-    master: true,
-    title: 'Master',
+    aggregate: true,
+    title: 'All Items',
     list_items: [
       {
         id: 2,
@@ -34,7 +34,7 @@ export const shoppingLists = [
   {
     id: 2,
     user_id: 24,
-    master: false,
+    aggregate: false,
     title: 'Heljarchen Hall',
     list_items: [
       {
@@ -56,7 +56,7 @@ export const shoppingLists = [
   {
     id: 3,
     user_id: 24,
-    master: false,
+    aggregate: false,
     title: 'Lakeview Manor',
     list_items: [
       {
@@ -79,41 +79,41 @@ export const findListByListItem = (lists, itemId) => {
   return null
 }
 
-export const adjustMasterListItem = (masterListItem, deltaQuantity, oldNotes, newNotes) => {
-  masterListItem.quantity = masterListItem.quantity + deltaQuantity
+export const adjustAggregateListItem = (aggregateListItem, deltaQuantity, oldNotes, newNotes) => {
+  aggregateListItem.quantity = aggregateListItem.quantity + deltaQuantity
 
   if (oldNotes !== newNotes) {
-    if (masterListItem.notes) {
-      masterListItem.notes.replace(oldNotes, newNotes)
+    if (aggregateListItem.notes) {
+      aggregateListItem.notes.replace(oldNotes, newNotes)
     } else {
-      masterListItem.notes = newNotes
+      aggregateListItem.notes = newNotes
     }
   }
 
-  return masterListItem
+  return aggregateListItem
 }
 
-export const removeOrAdjustItemsOnListDestroy = (masterList, items) => {
-  const newMasterListItems = []
+export const removeOrAdjustItemsOnListDestroy = (aggregateList, items) => {
+  const newAggregateListItems = []
 
   for (const item of items) {
-    const existingMasterListItem = masterList.list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
-    const masterListItem = removeOrAdjustItemOnItemDestroy(existingMasterListItem, item)
+    const existingAggregateListItem = aggregateList.list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+    const aggregateListItem = removeOrAdjustItemOnItemDestroy(existingAggregateListItem, item)
 
-    if (!masterListItem) continue // it should be removed from the array
+    if (!aggregateListItem) continue // it should be removed from the array
 
-    newMasterListItems.push(masterListItem)
+    newAggregateListItems.push(aggregateListItem)
   }
 
-  masterList.list_items = newMasterListItems
-  return newMasterListItems.length === 0 ? null : masterList
+  aggregateList.list_items = newAggregateListItems
+  return newAggregateListItems.length === 0 ? null : aggregateList
 }
 
-export const removeOrAdjustItemOnItemDestroy = (masterListItem, destroyedItem) => {
-  if (masterListItem.quantity === destroyedItem.quantity) return null
+export const removeOrAdjustItemOnItemDestroy = (aggregateListItem, destroyedItem) => {
+  if (aggregateListItem.quantity === destroyedItem.quantity) return null
 
-  masterListItem.quantity -= destroyedItem.quantity
-  if (masterListItem.notes) masterListItem.notes.replace(destroyedItem.notes, '').replace(/^ --/, '').replace(/ -- $/, '')
+  aggregateListItem.quantity -= destroyedItem.quantity
+  if (aggregateListItem.notes) aggregateListItem.notes.replace(destroyedItem.notes, '').replace(/^ --/, '').replace(/ -- $/, '')
 
-  return masterListItem
+  return aggregateListItem
 }

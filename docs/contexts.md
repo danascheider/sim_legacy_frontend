@@ -240,7 +240,7 @@ The value of the `ShoppingListProvider` includes the following.
 
 #### `shoppingLists`
 
-The array of all the user's shopping lists, with the master list first.
+The array of all the user's shopping lists, with the aggregate list first.
 
 #### `shoppingListLoadingState`
 
@@ -248,7 +248,7 @@ Whether the `shoppingLists` are 'loading' (waiting for the API call to resolve),
 
 #### `performShoppingListCreate`
 
-A function that creates a shopping list for the authenticated user and updates the master list to reflect the change, also encompassing error handling logic. The function takes 3 arguments:
+A function that creates a shopping list for the authenticated user and updates the aggregate list to reflect the change, also encompassing error handling logic. The function takes 3 arguments:
 
 * `title`: the title of the new list. Must be unique, contain only alphanumeric characters and spaces, and cannot be any form of "Master". Will be reformatted on the backend to use title casing
 * `success`: an optional success callback that can be used for handling state within the component that calls the function
@@ -273,7 +273,7 @@ A function that deletes the list specified through the API, also encompassing er
 
 #### `performShoppingListItemCreate`
 
-A function that creates a shopping list item on the list specified (or combines the new attributes given with an existing item with the same description), also encompassing error handling logic. This will also cause the master list to update. The function takes four arguments:
+A function that creates a shopping list item on the list specified (or combines the new attributes given with an existing item with the same description), also encompassing error handling logic. This will also cause the aggregate list to update. The function takes four arguments:
 
 * `listId`: the ID of the shopping list the item should be added to
 * `attrs`: The attributes the item should be created with. Attributes can include:
@@ -285,7 +285,7 @@ A function that creates a shopping list item on the list specified (or combines 
 
 #### `performShoppingListItemUpdate`
 
-A function that updates the specified shopping list item, also encompassing error handling logic. This will also cause the master list to update. The function takes four arguments:
+A function that updates the specified shopping list item, also encompassing error handling logic. This will also cause the aggregate list to update. The function takes four arguments:
 
 * `itemId`: the ID of the item to be updated
 * `attrs`: the attributes to be updated on the list item. Cannot update item `description`. Attributes can include:
@@ -297,7 +297,7 @@ A function that updates the specified shopping list item, also encompassing erro
 
 #### `performShoppingListItemDestroy`
 
-A function that destroys the specified shopping list item, also encompassing error handling logic. This also updates the master list to reflect the change. The function takes three arguments:
+A function that destroys the specified shopping list item, also encompassing error handling logic. This also updates the aggregate list to reflect the change. The function takes three arguments:
 
 * `itemId`: the ID of the item to be destroyed
 * `success`: an optional success callback that can be used for handling state within the component that calls the function

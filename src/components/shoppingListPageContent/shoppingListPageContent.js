@@ -27,7 +27,7 @@ const ShoppingListPageContent = () => {
   if (listsLoadedAndNotEmpty) {
     return(
       <>
-        {shoppingLists.map(({ id, title, master }, index) => {
+        {shoppingLists.map(({ id, title, aggregate }, index) => {
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
           const colorScheme = colorSchemes[colorSchemesIndex]
@@ -37,7 +37,7 @@ const ShoppingListPageContent = () => {
             <ColorProvider key={listKey} colorScheme={colorScheme}>
               <div className={styles.shoppingList}>
                 <ShoppingList
-                  canEdit={!master}
+                  canEdit={!aggregate}
                   listId={id}
                   title={title}
                 />
