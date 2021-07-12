@@ -7,4 +7,11 @@ const paths = {
   }
 }
 
+export const allPaths = [
+  '/',
+  '/login',
+  '/dashboard',
+  '/dashboard/shopping_lists'
+]
+
 export default paths

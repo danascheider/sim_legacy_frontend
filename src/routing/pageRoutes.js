@@ -6,6 +6,7 @@ import DashboardPage from '../pages/dashboardPage/dashboardPage'
 import ShoppingListPage from '../pages/shoppingListPage/shoppingListPage'
 import HomePage from '../pages/homePage/homePage'
 import LoginPage from '../pages/loginPage/loginPage'
+import NotFoundPage from '../pages/notFoundPage/notFoundPage'
 import paths from './paths'
 import { ShoppingListProvider } from '../contexts/shoppingListContext'
 
@@ -61,6 +62,17 @@ const PageRoutes = () => (
         )
       }
     )}
+    <Route key='notFound'>
+      <Helmet>
+        <html lang='en' />
+
+        <title>Skyrim Inventory Management | Page Not Found</title>
+        <meta name='description' content='Skyrim Inventory Management could not find the page you were looking for' />
+      </Helmet>
+      <AppProvider>
+        <NotFoundPage />
+      </AppProvider>
+    </Route>
   </Switch>
 )
 
