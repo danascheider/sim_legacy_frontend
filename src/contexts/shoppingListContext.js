@@ -191,19 +191,19 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       .then(data => {
         if (Array.isArray(data) && data.length === 2) {
           // It is an array of shopping lists. It includes the shopping list that was
-          // created and a master list that was created automatically. This case only
+          // created and an aggregate list that was created automatically. This case only
           // arises if there were no existing shopping lists, so in this case, we want
           // to set the shopping lists array to the lists returned.
           setShoppingLists(data)
 
-          displayFlashSuccess('Success! Your list was created, along with your new master shopping list.')
+          displayFlashSuccess('Success! Your list was created, along with your new aggregate shopping list.')
 
           success && success()
         } else if (data && typeof data === 'object' && !data.errors) {
           // It is an array of shopping lists but it only contains one. This case means
-          // that there was already a master list and only the list the user manually
+          // that there was already an aggregate list and only the list the user manually
           // created was created. The new list should be added to the existing shoppingLists
-          // array in the second position (after the master list but before any of the others).
+          // array in the second position (after the aggregate list but before any of the others).
           const newShoppingLists = shoppingLists
           newShoppingLists.splice(1, 0, data)
           setShoppingLists(newShoppingLists)
@@ -250,19 +250,19 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       .then(data => {
         if (!data) {
           // This means that the list was the user's last shopping list and both
-          // it and the master list have been destroyed.
+          // it and the aggregate list have been destroyed.
           setShoppingLists([])
           
           displayFlashSuccess(
-            'Since it was your last list, your master list has been deleted as well',
+            'Since it was your last list, your aggregate list has been deleted as well',
             'Your shopping list has been deleted'
           )
 
           success && success()
         } else {
-          // This means that the master list has been updated and returned,
+          // This means that the aggregate list has been updated and returned,
           // to adjust for any items that were deleted with the other list.
-          const newShoppingLists = shoppingLists.map(list => (list.master === true ? data : list))
+          const newShoppingLists = shoppingLists.map(list => (list.aggregate === true ? data : list))
                                                 .filter(list => list && list.id !== listId)
 
           setShoppingLists(newShoppingLists)
@@ -292,19 +292,19 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       .then(resp => resp.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const [masterListItem, regularListItem] = data
+          const [aggregateListItem, regularListItem] = data
 
           // Have to create an actual new object or the state change won't cause useEffect
           // hooks to run.
           const newLists = [...shoppingLists]
-          const masterList = shoppingLists[0]
+          const aggregateList = shoppingLists[0]
           const regularList = shoppingLists.find(list => list.id === listId)
           const regularListPosition = shoppingLists.indexOf(regularList)
 
-          const newMasterList = addOrUpdateListItem(masterList, masterListItem)
+          const newAggregateList = addOrUpdateListItem(aggregateList, aggregateListItem)
           const newRegularList = addOrUpdateListItem(regularList, regularListItem)
 
-          newLists[0] = newMasterList
+          newLists[0] = newAggregateList
           newLists[regularListPosition] = newRegularList
 
           setShoppingLists(newLists)
@@ -336,17 +336,17 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       .then(resp => resp.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const [masterListItem, regularListItem] = data
+          const [aggregateListItem, regularListItem] = data
 
           let newShoppingLists = [...shoppingLists]
 
           const regularList = shoppingLists.find(list => list.id === regularListItem.list_id)
           const regularListPosition = shoppingLists.indexOf(regularList)
 
-          const newMasterList = addOrUpdateListItem(shoppingLists[0], masterListItem)
+          const newAggregateList = addOrUpdateListItem(shoppingLists[0], aggregateListItem)
           const newRegularList = addOrUpdateListItem(regularList, regularListItem)
           
-          newShoppingLists[0] = newMasterList
+          newShoppingLists[0] = newAggregateList
           newShoppingLists[regularListPosition] = newRegularList
 
           setShoppingLists(newShoppingLists)
@@ -370,7 +370,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           displayFlashError("Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem.")
         } else if (err.code === 405) {
-          displayFlashError('Cannot manually edit item on a master list')
+          displayFlashError('Cannot manually edit item on an aggregate list')
         } else {
           if (process.env.NODE_ENV !== 'production') console.error(`Unexpected error editing list item ${itemId}: `, err.message)
 
@@ -392,24 +392,24 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         const regularListToRemoveItemFrom = listFromListItemId(itemId)
         const regularListIndex = shoppingLists.indexOf(regularListToRemoveItemFrom)
         const newLists = [...shoppingLists]
-        let newMasterList
+        let newAggregateList
 
         if (data && typeof data === 'object') {
-          // It is the master list item that was updated
-          newMasterList = addOrUpdateListItem(shoppingLists[0], data)
+          // It is the aggregate list item that was updated
+          newAggregateList = addOrUpdateListItem(shoppingLists[0], data)
         } else {
           const deletedItem = regularListToRemoveItemFrom.list_items.find(item => item.id === itemId)
 
-          // It's a bit of a pain in the ass to figure out which item to remove from the master list in
+          // It's a bit of a pain in the ass to figure out which item to remove from the aggregate list in
           // the case where it's been deleted. Might be something to think about for API development.
-          const masterListItem = shoppingLists[0].list_items.find(item => item.description.toLowerCase() === deletedItem.description.toLowerCase())
+          const aggregateListItem = shoppingLists[0].list_items.find(item => item.description.toLowerCase() === deletedItem.description.toLowerCase())
 
-          newMasterList = removeItemFromList(shoppingLists[0], masterListItem.id)
+          newAggregateList = removeItemFromList(shoppingLists[0], aggregateListItem.id)
         }
 
         const newRegularList = removeItemFromList(regularListToRemoveItemFrom, itemId)
 
-        newLists[0] = newMasterList
+        newLists[0] = newAggregateList
         newLists.splice(regularListIndex, 1, newRegularList)
 
         setShoppingLists(newLists)
@@ -422,7 +422,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           displayFlashError("Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
         } else if (err.code === 405) {
-          displayFlashError('Cannot manually remove an item from a master list')
+          displayFlashError('Cannot manually remove an item from an aggregate list')
         }
 
         error && error()
@@ -468,7 +468,7 @@ ShoppingListProvider.propTypes = {
       id: PropTypes.number.isRequired,
       user_id: PropTypes.number,
       title: PropTypes.string.isRequired,
-      master: PropTypes.bool.isRequired,
+      aggregate: PropTypes.bool.isRequired,
       list_items: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.number,
         list_id: PropTypes.number,

@@ -2,8 +2,8 @@ export const shoppingLists = [
   {
     id: 1,
     user_id: 24,
-    master: true,
-    title: 'Master',
+    aggregate: true,
+    title: 'All Items',
     list_items: [
       {
         id: 2,
@@ -17,7 +17,7 @@ export const shoppingLists = [
   {
     id: 2,
     user_id: 24,
-    master: false,
+    aggregate: false,
     title: 'Heljarchen Hall',
     list_items: [
       {

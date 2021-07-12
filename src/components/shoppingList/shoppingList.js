@@ -18,8 +18,9 @@ const isValid = str => (
   // whitespace (which will be stripped before it is saved in the DB).
   // Any other characters (including non-space whitespace characters
   // that are not leading or trailing) will cause a validation error
-  // on the backend. The title of a regular list may also not be "Master".
-  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i) && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str !== 'Master'
+  // on the backend. The title of a regular list may also not be "All
+  // Items".
+  !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i) && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str.toLowerCase() !== 'all items'
 )
 
 const ShoppingList = ({ canEdit = true, listId, title}) => {

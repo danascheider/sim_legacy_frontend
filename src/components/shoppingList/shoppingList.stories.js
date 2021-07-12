@@ -24,7 +24,7 @@ const regularListItems = [
   }
 ]
 
-const masterListItems = [
+const aggregateListItems = [
   {
     id: 3,
     list_id: 1,
@@ -45,15 +45,15 @@ const shoppingLists = [
   {
     id: 1,
     user_id: 24,
-    title: 'Master',
-    master: true,
-    list_items: masterListItems
+    title: 'All Items',
+    aggregate: true,
+    list_items: aggregateListItems
   },
   {
     id: 2,
     user_id: 24,
     title: 'My List 1',
-    master: false,
+    aggregate: false,
     list_items: regularListItems
   }
 ]
@@ -82,14 +82,14 @@ Default.parameters = {
           [
             {
               id: 1,
-              title: 'Master',
-              master: true,
-              list_items: masterListItems
+              title: 'All Items',
+              aggregate: true,
+              list_items: aggregateListItems
             },
             {
               id: 2,
               title: 'My List 1',
-              master: false,
+              aggregate: false,
               list_items: regularListItems
             }
           ]
@@ -99,16 +99,16 @@ Default.parameters = {
     rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
       const itemId = Number(req.params.id)
       const regularItem = regularListItems.find(item => item.id === itemId)
-      const masterListItem = masterListItems.find(item => item.description === regularItem.description)
+      const aggregateListItem = aggregateListItems.find(item => item.description === regularItem.description)
       const newQty = req.body.shopping_list_item.quantity
 
       const returnData = [
         {
-          id: masterListItem.id,
+          id: aggregateListItem.id,
           list_id: 1,
-          description: masterListItem.description,
+          description: aggregateListItem.description,
           quantity: newQty,
-          notes: masterListItem.notes
+          notes: aggregateListItem.notes
         },
         {
           id: itemId,
@@ -131,7 +131,7 @@ export const NotEditable = () => (
     <ColorProvider colorScheme={PINK}>
       <ShoppingListProvider overrideValue={{ shoppingLists }}>
         <ShoppingList
-          title='Master'
+          title='All Items'
           listId={1}
           canEdit={false}
         />
@@ -148,14 +148,14 @@ NotEditable.parameters = {
         ctx.json([
           {
             id: 1,
-            title: 'Master',
-            master: true,
-            list_items: masterListItems
+            title: 'All Items',
+            aggregate: true,
+            list_items: aggregateListItems
           },
           {
             id: 2,
             title: 'My List 1',
-            master: false,
+            aggregate: false,
             list_items: regularListItems
           }
         ])
@@ -167,17 +167,17 @@ NotEditable.parameters = {
 const emptyShoppingLists = [
   {
     id: 1,
-    title: 'Master',
+    title: 'All Items',
     user_id: 24,
     list_items: [],
-    master: true
+    aggregate: true
   },
   {
     id: 2,
     title: 'Severin Manor',
     user_id: 24,
     list_items: [],
-    master: false
+    aggregate: false
   }
 ]
 
@@ -195,12 +195,12 @@ export const EmptyList = () => (
   </AppProvider>
 )
 
-export const EmptyMasterList = () => (
+export const EmptyAggregateList = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
       <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
         <ShoppingList
-          title='Master'
+          title='All Items'
           listId={1}
           canEdit={false}
         />

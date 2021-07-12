@@ -32,14 +32,14 @@ const listItems = [
 const shoppingLists = [
   {
     id: 1,
-    title: 'Master',
-    master: true,
+    title: 'All Items',
+    aggregate: true,
     list_items: listItems
   },
   {
     id: 1,
     title: 'My List 2',
-    master: false,
+    aggregate: false,
     list_items: listItems
   }
 ]

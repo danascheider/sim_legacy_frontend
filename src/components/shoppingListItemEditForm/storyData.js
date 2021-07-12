@@ -17,8 +17,8 @@ export const listItemData = {
 export const shoppingLists = [
   {
     id: 1,
-    title: 'Master',
-    master: true,
+    title: 'All Items',
+    aggregate: true,
     list_items: [
       {
         ...listItemData,
@@ -30,7 +30,7 @@ export const shoppingLists = [
   {
     id: 2,
     title: 'Proudspire Manor',
-    master: false,
+    aggregate: false,
     list_items: [listItemData]
   }
 ]

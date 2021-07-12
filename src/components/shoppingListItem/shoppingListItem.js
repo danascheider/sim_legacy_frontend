@@ -102,7 +102,7 @@ const ShoppingListItem = ({
   }
 
   const destroyItem = () => {
-    const confirmed = window.confirm("Destroy shopping list item? Your master list will be updated to reflect the change. This action cannot be undone.")
+    const confirmed = window.confirm("Destroy shopping list item? Your aggregate list will be updated to reflect the change. This action cannot be undone.")
 
     if (confirmed) {
       performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })

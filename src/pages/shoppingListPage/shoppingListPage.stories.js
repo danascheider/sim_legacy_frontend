@@ -8,7 +8,7 @@ import {
   emptyShoppingLists,
   shoppingLists,
   findListByListItem,
-  adjustMasterListItem,
+  adjustAggregateListItem,
   removeOrAdjustItemsOnListDestroy,
   removeOrAdjustItemOnItemDestroy
 } from './storyData'
@@ -43,7 +43,7 @@ HappyPath.parameters = {
   msw: [
     rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
       const title = req.body.shopping_list.title || 'My List 3'
-      const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
+      const returnData = [{ id: 32, user_id: 24, title: title, aggregate: false, list_items: [] }]
 
       return res(
         ctx.status(201),
@@ -53,7 +53,7 @@ HappyPath.parameters = {
     rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
       const title = req.body.shopping_list.title || 'My List 1'
       const listId = Number(req.params.id)
-      const returnData = { id: listId, user_id: 24, title: title, master: false, list_items: []}
+      const returnData = { id: listId, user_id: 24, title: title, aggregate: false, list_items: []}
 
       return res(
         ctx.status(200),
@@ -65,16 +65,16 @@ HappyPath.parameters = {
       const regularList = shoppingLists.find(list => list.id === listId)
       const items = regularList.list_items
 
-      const newMasterList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
+      const newAggregateList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
 
-      if (newMasterList === null) {
+      if (newAggregateList === null) {
         return res(
           ctx.status(204)
         )
       } else {
         return res(
           ctx.status(200),
-          ctx.json(newMasterList)
+          ctx.json(newAggregateList)
         )
       }
     }),
@@ -113,25 +113,25 @@ HappyPath.parameters = {
       const existingItem = list.list_items.find(item => item.id === itemId)
       const newItem = { ...existingItem, ...req.body.shopping_list_item }
       const deltaQuantity = newItem.quantity - existingItem.quantity
-      const masterListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
-      adjustMasterListItem(masterListItem, deltaQuantity, existingItem.notes, newItem.notes)
+      const aggregateListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
+      adjustAggregateListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes)
 
       return res(
         ctx.status(200),
-        ctx.json([masterListItem, newItem])
+        ctx.json([aggregateListItem, newItem])
       )
     }),
     rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
       const itemId = Number(req.params.id)
       const list = findListByListItem(shoppingLists, itemId)
       const item = list.list_items.find(listItem => listItem.id === itemId)
-      const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
-      removeOrAdjustItemOnItemDestroy(masterListItem, item)
+      const aggregateListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+      removeOrAdjustItemOnItemDestroy(aggregateListItem, item)
 
-      if (masterListItem) {
+      if (aggregateListItem) {
         return res(
           ctx.status(200),
-          ctx.json(masterListItem)
+          ctx.json(aggregateListItem)
         )
       } else {
         return res(
@@ -167,7 +167,7 @@ ResourceNotFound.parameters = {
     }),
     rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
       const title = req.body.shopping_list.title || 'My List 3'
-      const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
+      const returnData = [{ id: 32, user_id: 24, title: title, aggregate: false, list_items: [] }]
 
       return res(
         ctx.status(201),
@@ -235,10 +235,10 @@ UnprocessableEntity.parameters = {
       return res(
         ctx.status(200),
         ctx.json({
-          master_list: {
+          aggregate_list: {
             id: 93,
-            title: 'Master',
-            master: true,
+            title: 'All Items',
+            aggregate: true,
             user_id: 24,
             list_items: []
           }
@@ -261,13 +261,13 @@ UnprocessableEntity.parameters = {
       const itemId = Number(req.params.id)
       const list = findListByListItem(shoppingLists, itemId)
       const item = list.list_items.find(listItem => listItem.id === itemId)
-      const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
-      removeOrAdjustItemOnItemDestroy(masterListItem, item)
+      const aggregateListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+      removeOrAdjustItemOnItemDestroy(aggregateListItem, item)
 
-      if (masterListItem) {
+      if (aggregateListItem) {
         return res(
           ctx.status(200),
-          ctx.json(masterListItem)
+          ctx.json(aggregateListItem)
         )
       } else {
         return res(
@@ -297,8 +297,8 @@ Empty.parameters = {
     rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
       const title = req.body.shopping_list.title || 'My List 3'
       const returnData = [
-        { id: 32, user_id: 24, title: 'Master', master: true, list_items: [] },
-        { id: 33, user_id: 24, title: title, master: false, list_items: [] }
+        { id: 32, user_id: 24, title: 'All Items', aggregate: true, list_items: [] },
+        { id: 33, user_id: 24, title: title, aggregate: false, list_items: [] }
       ]
 
       return res(
@@ -309,7 +309,7 @@ Empty.parameters = {
     rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
       const listId = Number(req.params.id)
       const title = req.body.shopping_list.title || 'My List 2'
-      const returnData = { id: listId, user_id: 24, title, master: false, list_items: [] }
+      const returnData = { id: listId, user_id: 24, title, aggregate: false, list_items: [] }
 
       return res(
         ctx.status(200),
