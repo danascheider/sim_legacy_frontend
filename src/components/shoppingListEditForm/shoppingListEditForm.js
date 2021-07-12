@@ -13,8 +13,9 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
     context.font = '21px Quattrocento Sans'
 
     const max = (maxTextWidth || maxTotalWidth)
+    const textWidth = context.measureText(text).width * 1.1
 
-    return Math.min(context.measureText(text).width, max)
+    return Math.min(textWidth, max)
   }
 
   const [inputValue, setInputValue] = useState(title)
@@ -46,7 +47,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
     if (!buttonRef.current) return setMaxTextWidth(maxTotalWidth)
 
     // 14px of left/right padding in the input
-    setMaxTextWidth(maxTotalWidth - buttonRef.current.offsetWidth - 14)
+    setMaxTextWidth(maxTotalWidth - buttonRef.current.offsetWidth)
   }, [maxTotalWidth])
 
   return(
