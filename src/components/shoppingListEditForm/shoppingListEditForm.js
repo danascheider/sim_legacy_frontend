@@ -13,6 +13,9 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
     context.font = '21px Quattrocento Sans'
 
     const max = (maxTextWidth || maxTotalWidth)
+    
+    // The 1.1 proved necessary to prevent text from scrolling out of the
+    // view prematurely in Safari
     const textWidth = context.measureText(text).width * 1.1
 
     return Math.min(textWidth, max)
@@ -46,7 +49,6 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   useEffect(() => {
     if (!buttonRef.current) return setMaxTextWidth(maxTotalWidth)
 
-    // 14px of left/right padding in the input
     setMaxTextWidth(maxTotalWidth - buttonRef.current.offsetWidth)
   }, [maxTotalWidth])
 
