@@ -10,41 +10,37 @@ export default { title: 'LoginPage' }
 
 export const Default = () => <AppProvider><LoginPage /></AppProvider>
 
-Default.story = {
-  parameters: {
-    msw: [
-      rest.get(googleApiLink, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json({})
-        )
-      }),
-      rest.get(googleApiJsLink, (req, res, ctx) => {
-        return res(ctx.status(200))
-      })
-    ]
-  }
+Default.parameters = {
+  msw: [
+    rest.get(googleApiLink, (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({})
+      )
+    }),
+    rest.get(googleApiJsLink, (req, res, ctx) => {
+      return res(ctx.status(200))
+    })
+  ]
 }
 
 export const SomethingWentWrong = () => <AppProvider><LoginPage /></AppProvider>
 
-SomethingWentWrong.story = {
-  parameters: {
-    msw: [
-      rest.get(googleApiLink, (req, res, ctx) => {
-        return res(
-          ctx.status(401),
-          ctx.json({
-            error: 'popup_closed_by_user',
-            details: 'You closed the popup'
-          })
-        )
-      }),
-      rest.get(googleApiJsLink, (req, res, ctx) => {
-        return res(
-          ctx.status(500)
-        )
-      })
-    ]
-  }
+SomethingWentWrong.parameters = {
+  msw: [
+    rest.get(googleApiLink, (req, res, ctx) => {
+      return res(
+        ctx.status(401),
+        ctx.json({
+          error: 'popup_closed_by_user',
+          details: 'You closed the popup'
+        })
+      )
+    }),
+    rest.get(googleApiJsLink, (req, res, ctx) => {
+      return res(
+        ctx.status(500)
+      )
+    })
+  ]
 }

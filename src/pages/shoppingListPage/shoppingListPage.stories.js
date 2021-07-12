@@ -39,115 +39,107 @@ export const HappyPath = () => (
   </AppProvider>
 )
 
-HappyPath.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+HappyPath.parameters = {
+  msw: [
+    rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      const title = req.body.shopping_list.title || 'My List 3'
+      const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
+
+      return res(
+        ctx.status(201),
+        ctx.json(returnData)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      const title = req.body.shopping_list.title || 'My List 1'
+      const listId = Number(req.params.id)
+      const returnData = { id: listId, user_id: 24, title: title, master: false, list_items: []}
+
+      return res(
+        ctx.status(200),
+        ctx.json(returnData)
+      )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      const listId = Number(req.params.id)
+      const regularList = shoppingLists.find(list => list.id === listId)
+      const items = regularList.list_items
+
+      const newMasterList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
+
+      if (newMasterList === null) {
+        return res(
+          ctx.status(204)
+        )
+      } else {
         return res(
           ctx.status(200),
-          ctx.json(shoppingLists)
+          ctx.json(newMasterList)
         )
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        const title = req.body.shopping_list.title || 'My List 3'
-        const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
+      }
+    }),
+    rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      const description = req.body.shopping_list_item.description
+      const quantity = Number(req.body.shopping_list_item.quantity || 1)
+      const notes = req.body.shopping_list_item.notes
 
-        return res(
-          ctx.status(201),
-          ctx.json(returnData)
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        const title = req.body.shopping_list.title || 'My List 1'
-        const listId = Number(req.params.id)
-        const returnData = { id: listId, user_id: 24, title: title, master: false, list_items: []}
+      const listId = Number(req.params.shopping_ist_id)
 
-        return res(
-          ctx.status(200),
-          ctx.json(returnData)
-        )
-      }),
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        const listId = Number(req.params.id)
-        const regularList = shoppingLists.find(list => list.id === listId)
-        const items = regularList.list_items
-
-        const newMasterList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
-
-        if (newMasterList === null) {
-          return res(
-            ctx.status(204)
-          )
-        } else {
-          return res(
-            ctx.status(200),
-            ctx.json(newMasterList)
-          )
+      const returnData = [
+        {
+          id: 57,
+          list_id: 1,
+          description: description,
+          quantity: quantity,
+          notes: notes
+        },
+        {
+          id: 58,
+          list_id: listId,
+          description: description,
+          quantity: quantity,
+          notes: notes
         }
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
-        const description = req.body.shopping_list_item.description
-        const quantity = Number(req.body.shopping_list_item.quantity || 1)
-        const notes = req.body.shopping_list_item.notes
+      ]
 
-        const listId = Number(req.params.shopping_ist_id)
+      return res(
+        ctx.status(201),
+        ctx.json(returnData)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      const itemId = Number(req.params.id)
+      const list = findListByListItem(shoppingLists, itemId)
+      const existingItem = list.list_items.find(item => item.id === itemId)
+      const newItem = { ...existingItem, ...req.body.shopping_list_item }
+      const deltaQuantity = newItem.quantity - existingItem.quantity
+      const masterListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
+      adjustMasterListItem(masterListItem, deltaQuantity, existingItem.notes, newItem.notes)
 
-        const returnData = [
-          {
-            id: 57,
-            list_id: 1,
-            description: description,
-            quantity: quantity,
-            notes: notes
-          },
-          {
-            id: 58,
-            list_id: listId,
-            description: description,
-            quantity: quantity,
-            notes: notes
-          }
-        ]
+      return res(
+        ctx.status(200),
+        ctx.json([masterListItem, newItem])
+      )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      const itemId = Number(req.params.id)
+      const list = findListByListItem(shoppingLists, itemId)
+      const item = list.list_items.find(listItem => listItem.id === itemId)
+      const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+      removeOrAdjustItemOnItemDestroy(masterListItem, item)
 
-        return res(
-          ctx.status(201),
-          ctx.json(returnData)
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-        const itemId = Number(req.params.id)
-        const list = findListByListItem(shoppingLists, itemId)
-        const existingItem = list.list_items.find(item => item.id === itemId)
-        const newItem = { ...existingItem, ...req.body.shopping_list_item }
-        const deltaQuantity = newItem.quantity - existingItem.quantity
-        const masterListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
-        adjustMasterListItem(masterListItem, deltaQuantity, existingItem.notes, newItem.notes)
-
+      if (masterListItem) {
         return res(
           ctx.status(200),
-          ctx.json([masterListItem, newItem])
+          ctx.json(masterListItem)
         )
-      }),
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-        const itemId = Number(req.params.id)
-        const list = findListByListItem(shoppingLists, itemId)
-        const item = list.list_items.find(listItem => listItem.id === itemId)
-        const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
-        removeOrAdjustItemOnItemDestroy(masterListItem, item)
-
-        if (masterListItem) {
-          return res(
-            ctx.status(200),
-            ctx.json(masterListItem)
-          )
-        } else {
-          return res(
-            ctx.status(204)
-          )
-        }
-      })
-    ]
-  }
+      } else {
+        return res(
+          ctx.status(204)
+        )
+      }
+    })
+  ]
 }
 
 /*
@@ -165,51 +157,49 @@ export const ResourceNotFound = () => (
   </AppProvider>
 )
 
-ResourceNotFound.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(shoppingLists)
-        )
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        const title = req.body.shopping_list.title || 'My List 3'
-        const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
+ResourceNotFound.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json(shoppingLists)
+      )
+    }),
+    rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      const title = req.body.shopping_list.title || 'My List 3'
+      const returnData = [{ id: 32, user_id: 24, title: title, master: false, list_items: [] }]
 
-        return res(
-          ctx.status(201),
-          ctx.json(returnData)
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(404)
-        )
-      }),
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(404)
-        )
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
-        return res(
-          ctx.status(404)
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(404)
-        )
-      }),
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(404)
-        )
-      })
-    ]
-  }
+      return res(
+        ctx.status(201),
+        ctx.json(returnData)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    })
+  ]
 }
 
 /*
@@ -221,79 +211,71 @@ ResourceNotFound.story = {
 
 export const UnprocessableEntity = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
-    <ShoppingListProvider>
+    <ShoppingListProvider overrideValue={{ shoppingLists }}>
       <ShoppingListPage />
     </ShoppingListProvider>
   </AppProvider>
 )
 
-UnprocessableEntity.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(shoppingLists)
-        )
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(422),
-          ctx.json({ errors: ['Title can only include alphanumeric characters and spaces'] })
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(422),
-          ctx.json({ errors: ['Title is already taken'] })
-        )
-      }),
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json({
-            master_list: {
-              id: 93,
-              title: 'Master',
-              master: true,
-              user_id: 24,
-              list_items: []
-            }
-          })
-        )
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
-        return res(
-          ctx.status(422),
-          ctx.json({ errors: ['Quantity is not a number'] })
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(422),
-          ctx.json({ errors: ['Quantity is required', 'Quantity is not a number'] })
-        )
-      }),
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-        const itemId = Number(req.params.id)
-        const list = findListByListItem(shoppingLists, itemId)
-        const item = list.list_items.find(listItem => listItem.id === itemId)
-        const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
-        removeOrAdjustItemOnItemDestroy(masterListItem, item)
+UnprocessableEntity.parameters = {
+  msw: [
+    rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(422),
+        ctx.json({ errors: ['Title can only include alphanumeric characters and spaces'] })
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(422),
+        ctx.json({ errors: ['Title is already taken'] })
+      )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          master_list: {
+            id: 93,
+            title: 'Master',
+            master: true,
+            user_id: 24,
+            list_items: []
+          }
+        })
+      )
+    }),
+    rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      return res(
+        ctx.status(422),
+        ctx.json({ errors: ['Quantity is not a number'] })
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(422),
+        ctx.json({ errors: ['Quantity is required', 'Quantity is not a number'] })
+      )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      const itemId = Number(req.params.id)
+      const list = findListByListItem(shoppingLists, itemId)
+      const item = list.list_items.find(listItem => listItem.id === itemId)
+      const masterListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+      removeOrAdjustItemOnItemDestroy(masterListItem, item)
 
-        if (masterListItem) {
-          return res(
-            ctx.status(200),
-            ctx.json(masterListItem)
-          )
-        } else {
-          return res(
-            ctx.status(204)
-          )
-        }
-      })
-    ]
-  }
+      if (masterListItem) {
+        return res(
+          ctx.status(200),
+          ctx.json(masterListItem)
+        )
+      } else {
+        return res(
+          ctx.status(204)
+        )
+      }
+    })
+  ]
 }
 
 /*
@@ -304,104 +286,83 @@ UnprocessableEntity.story = {
 
 export const Empty = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
-    <ShoppingListProvider>
+    <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
       <ShoppingListPage />
     </ShoppingListProvider>
   </AppProvider>
 )
 
-Empty.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(emptyShoppingLists)
-        )
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        const title = req.body.shopping_list.title || 'My List 3'
-        const returnData = [
-          { id: 32, user_id: 24, title: 'Master', master: true, list_items: [] },
-          { id: 33, user_id: 24, title: title, master: false, list_items: [] }
-        ]
+Empty.parameters = {
+  msw: [
+    rest.post(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      const title = req.body.shopping_list.title || 'My List 3'
+      const returnData = [
+        { id: 32, user_id: 24, title: 'Master', master: true, list_items: [] },
+        { id: 33, user_id: 24, title: title, master: false, list_items: [] }
+      ]
 
-        return res(
-          ctx.status(201),
-          ctx.json(returnData)
-        )
-      }),
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        const listId = Number(req.params.id)
-        const title = req.body.shopping_list.title || 'My List 2'
-        const returnData = { id: listId, user_id: 24, title, master: false, list_items: [] }
+      return res(
+        ctx.status(201),
+        ctx.json(returnData)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      const listId = Number(req.params.id)
+      const title = req.body.shopping_list.title || 'My List 2'
+      const returnData = { id: listId, user_id: 24, title, master: false, list_items: [] }
 
-        return res(
-          ctx.status(200),
-          ctx.json(returnData)
-        )
-      }),
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(204)
-        )
-      }),
-      rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
-        const description = req.body.shopping_list_item.description
-        const quantity = Number(req.body.shopping_list_item.quantity || 1)
-        const notes = req.body.shopping_list_item.notes
+      return res(
+        ctx.status(200),
+        ctx.json(returnData)
+      )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(204)
+      )
+    }),
+    rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
+      const description = req.body.shopping_list_item.description
+      const quantity = Number(req.body.shopping_list_item.quantity || 1)
+      const notes = req.body.shopping_list_item.notes
 
-        const listId = Number(req.params.shopping_ist_id)
+      const listId = Number(req.params.shopping_ist_id)
 
-        const returnData = [
-          {
-            id: 57,
-            list_id: 32,
-            description: description,
-            quantity: quantity,
-            notes: notes
-          },
-          {
-            id: 58,
-            list_id: listId,
-            description: description,
-            quantity: quantity,
-            notes: notes
-          }
-        ]
+      const returnData = [
+        {
+          id: 57,
+          list_id: 32,
+          description: description,
+          quantity: quantity,
+          notes: notes
+        },
+        {
+          id: 58,
+          list_id: listId,
+          description: description,
+          quantity: quantity,
+          notes: notes
+        }
+      ]
 
-        return res(
-          ctx.status(201),
-          ctx.json(returnData)
-        )
-      }),
+      return res(
+        ctx.status(201),
+        ctx.json(returnData)
+      )
+    }),
 
-    ]
-  }
+  ]
 }
 
 // When the API data is loading
 
 export const Loading = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
-    <ShoppingListProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
+    <ShoppingListProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'loading' }}>
       <ShoppingListPage />
     </ShoppingListProvider>
   </AppProvider>
 )
-
-Loading.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json(emptyShoppingLists)
-        )
-      })
-    ]
-  }
-}
 
 // When there is an error with the API response
 
@@ -413,14 +374,12 @@ export const ErrorState = () => (
   </AppProvider>
 )
 
-ErrorState.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(500)
-        )
-      })
-    ]
-  }
+ErrorState.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(500)
+      )
+    })
+  ]
 }

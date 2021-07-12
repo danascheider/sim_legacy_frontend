@@ -31,74 +31,35 @@ const listItems = [
   }
 ]
 
+const shoppingLists = [
+  {
+    id: 1,
+    title: 'Master',
+    master: true,
+    list_items: listItems
+  },
+  {
+    id: 1,
+    title: 'My List 2',
+    master: false,
+    list_items: listItems
+  }
+]
+
 export default { title: 'ShoppingListCreateForm' }
 
 export const Enabled = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx' }}>
-    <ShoppingListProvider overrideValue={{ performCreateShoppingList }}>
+    <ShoppingListProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
       <ShoppingListCreateForm disabled={false} />
     </ShoppingListProvider>
   </AppProvider>
 )
 
-Enabled.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            {
-              id: 1,
-              title: 'My List 1',
-              master: false,
-              list_items: listItems
-            },
-            {
-              id: 2,
-              title: 'My List 2',
-              master: true,
-              list_items: listItems
-            }
-          ])
-        )
-      })
-    ]
-  }
-}
-
 export const Disabled = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx' }}>
-    <ShoppingListProvider overrideValue={{ performCreateShoppingList }}>
+    <ShoppingListProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
       <ShoppingListCreateForm disabled />
     </ShoppingListProvider>
   </AppProvider>
 )
-
-Disabled.story = {
-  parameters: {
-    msw: [
-      rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            {
-              id: 1,
-              title: 'My List 1',
-              master: false,
-              list_items: listItems
-            },
-            {
-              id: 2,
-              title: 'My List 2',
-              master: true,
-              list_items: listItems
-            }
-          ])
-        )
-      })
-    ]
-  }
-}
-
-
