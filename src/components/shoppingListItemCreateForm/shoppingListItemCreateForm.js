@@ -65,7 +65,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
 
               <fieldset className={styles.fieldset}>
                 <label className={styles.label} htmlFor='quantity'>Quantity</label>
-                <input className={styles.input} type='number' name='quantity' placeholder='Quantity' />
+                <input className={styles.input} type='number' pattern='\d+' name='quantity' defaultValue={1} />
               </fieldset>
 
               <fieldset className={styles.fieldset}>
