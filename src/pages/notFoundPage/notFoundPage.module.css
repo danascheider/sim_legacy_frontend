@@ -14,10 +14,9 @@
   font-family: 'Cinzel Decorative', Arial, Helvetica, sans-serif;
   color: #fff;
   margin: 0 auto 16px;
-  text-align: center;
 }
 
-.login {
+.link {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   font-size: 1.1rem;
   color: #fff;
@@ -25,6 +24,6 @@
   margin: 0 auto;
 }
 
-.login:hover {
+.link:hover {
   text-decoration: underline;
 }

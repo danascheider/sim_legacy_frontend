@@ -18,7 +18,7 @@ import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
 import isStorybook from '../utils/isStorybook'
-import paths from '../routing/paths'
+import paths, { allPaths } from '../routing/paths'
 
 const LOADING = 'loading'
 const DONE = 'done'
@@ -56,7 +56,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue // enables you to only change certain values
   }
 
-  const onAuthenticatedPage = window.location.pathname !== paths.login && window.location.pathname !== paths.home
+  const onAuthenticatedPage = window.location.pathname !== paths.login && window.location.pathname !== paths.home && allPaths.indexOf(window.location.pathname) !== -1
 
   const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage
 
