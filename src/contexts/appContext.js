@@ -51,6 +51,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const displayFlash = useCallback((type, message, header = null) => {
     setFlashProps({ type, message, header })
     setFlashVisible(true)
+    window.scrollTo(0, 0)
   }, [setFlashProps, setFlashVisible])
 
   const hideFlash = useCallback(() => { setFlashVisible(false) }, [setFlashVisible])
