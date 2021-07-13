@@ -32,7 +32,7 @@ const ShoppingListPage = () => {
     if (e.key === 'Escape' || !formRefContains(e.target)) {
       setListItemEditFormVisible(false)
     }
-  }, [])
+  }, [setListItemEditFormVisible])
 
   useEffect(() => {
     window.addEventListener('keyup', hideForm)
