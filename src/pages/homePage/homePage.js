@@ -15,10 +15,18 @@ const HomePage = () => {
   const verifyLogin = () => {
     if (token && !isStorybook()) {
       authorize(token)
-        .then(() => {
-          setShouldRedirectTo(paths.dashboard.main)
+        .then(resp => resp.status === 500 ? resp.json() : null)
+        .then(data => {
+          if (data) {
+            throw new Error('Internal Server Error: ', data.errors[0])
+          } else {
+            setShouldRedirectTo(paths.dashboard.main)
+            mountedRef.current = false
+          }
         })
-        .catch(() => {
+        .catch(err => {
+          if (process.env.NODE_ENV !== 'production') console.error(err.message)
+
           logOutWithGoogle(() => removeSessionCookie())
         })
     }
