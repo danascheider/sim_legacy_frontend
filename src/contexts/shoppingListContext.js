@@ -114,11 +114,12 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       fetchShoppingLists(token)
         .then(resp => resp.json())
         .then(data => {
-          if(data) {
+          if(data && !data.errors) {
             setShoppingLists(data)
             overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           } else {
-            throw new Error('No shopping list data returned from the SIM API')
+            const message = data && data.errors ? 'Internal ServerError: ' + data.errors[0] : 'No shopping list data returned from the SIM API'
+            throw new Error(message)
           }
         })
         .catch(err => {
@@ -143,6 +144,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         switch(resp.status) {
           case 200:
           case 422:
+          case 500:
             return resp.json()
           default:
             throw Error('Something unexpected went wrong while updating your list.')
@@ -155,7 +157,15 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           success && success()
         } else if (data && data.errors) {
-          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your changes from being saved:`)
+          // Since only the title can be updated, any validation errors should start with 'Title'.
+          // If all the validation errors start with 'Title', assume it's a validation error. If
+          // not, assume it's a 500 error.
+          if (data.errors.filter(msg => msg.match(/^Title/)).length === data.errors.length) {
+            displayFlashError(data.errors, `${data.errors.length} error(s) prevented your changes from being saved:`)
+          } else {
+            // 500 errors only return a single error message so data.errors[0] is all of them
+            throw new Error('Internal Server Error: ' + data.errors[0])
+          }
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
           error && error()
@@ -167,7 +177,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        if (process.env.NODE_ENV !== 'production') console.error(`Error updating shopping list ${listId}: `, err.message)
+        if (process.env.NODE_ENV !== 'production') console.error(`Error updating shopping list ${listId}: `, err)
 
         if (err.code === 401) {
           logOutAndRedirect()
@@ -178,7 +188,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           
           error && error()
         } else {
-          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
+          displayFlashError("Something unexpected happened while trying to update your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
+
+          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
 
           error && error()
         }
@@ -212,22 +224,28 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           success && success()
         } else if (data && typeof data === 'object' && data.errors ) {
-          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list from being created:`)
-
-          success && success()
+          // Since we're only setting the title here, all validation errors should start with 'Title'.
+          // If all errors start with 'Title', assume it's a validation error. Otherwise, assume it's a
+          // 500. This will mess up if the 500 error message starts with 'Title', but I see that scenario
+          // as unlikely.
+          if (data.errors.filter(msg => msg.match(/^Title/)).length === data.errors.length) {
+            displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list from being created:`)
+            success && success()
+          } else {
+            // 500 responses return only one error message so this is all of them.
+            throw new Error('Internal Server Error: ' + data.errors[0])
+          }
         } else {
           // Something unexpected happened and we don't know what
           throw new Error('There was an unexpected error creating your new list. Unfortunately, we don\'t know more than that yet. We\'re sorry!')
         }
       })
       .catch(err => {
-        if (process.env.NODE_ENV !== 'production') console.error('Error creating shopping list: ', err.message)
+        if (process.env.NODE_ENV !== 'production') console.error('Error creating shopping list: ', err)
 
         if (err.code === 401) {
           logOutAndRedirect()
         } else {
-          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error creating shopping list: ', err.message)
-
           displayFlashError("Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
 
           error && error()
@@ -259,6 +277,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           )
 
           success && success()
+        } else if (data && data.errors) {
+          throw new Error('Internal Server Error: ' + data.errors[0])
         } else {
           // This means that the aggregate list has been updated and returned,
           // to adjust for any items that were deleted with the other list.
@@ -288,6 +308,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }
 
   const performShoppingListItemCreate = (listId, attrs, success = null, error = null) => {
+    const allowedAttributes = ['Description', 'Quantity', 'Notes']
+
     createShoppingListItem(token, listId, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -311,9 +333,14 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           success && success()
         } else if (data && typeof data === 'object' && data.errors) {
-          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list item from being created:`)
-
-          error && error()
+          // If all the errors returned start with one of the allowed attributes, it's a safe bet that
+          // this is a validation error. Otherwise, assume it is a 500.
+          if (data.errors.filter(msg => allowedAttributes.indexOf(msg.split(' ')[0]) !== -1).length === data.errors.length) {
+            displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list item from being created:`)
+            error && error()
+          } else {
+            throw new Error('Internal Server Error: ' + data.errors[0])
+          }
         }
       })
       .catch(err => {
@@ -332,6 +359,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }
 
   const performShoppingListItemUpdate = (itemId, attrs, showFlashOnSuccess, success = null, error = null) => {
+    const allowedAttributes = ['Quantity', 'Notes']
+
     updateShoppingListItem(token, itemId, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -356,10 +385,16 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           success && success()
         } else if (data && typeof data === 'object' && data.errors) {
-          setListItemEditFormVisible(false)
-          displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list item from being updated:`)
-
-          error && error()
+          // If all the errors returned start with one of the allowed attributes, then it's safe to say it's
+          // a validation error. If not, assume it's a 500.
+          if (data.errors.filter(msg => allowedAttributes.indexOf(msg.split(' ')[0]) !== -1).length === data.errors.length) {
+            setListItemEditFormVisible(false)
+            displayFlashError(data.errors, `${data.errors.length} error(s) prevented your shopping list item from being updated:`)
+            error && error()
+          } else {
+            setListItemEditFormVisible(false)
+            throw new Error('Internal Server Error: ' + data.errors[0])
+          }
         } else {
           throw new Error(`Something unexpected went wrong: could not update shopping list item id=${itemId}`)
         }
@@ -372,7 +407,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 405) {
           displayFlashError('Cannot manually edit item on an aggregate list')
         } else {
-          if (process.env.NODE_ENV !== 'production') console.error(`Unexpected error editing list item ${itemId}: `, err.message)
+          if (process.env.NODE_ENV !== 'production') console.error(`Unexpected error editing list item ${itemId}: `, err)
 
           displayFlashError("Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
         }
@@ -394,9 +429,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         const newLists = [...shoppingLists]
         let newAggregateList
 
-        if (data && typeof data === 'object') {
+        if (data && typeof data === 'object' && !data.errors) {
           // It is the aggregate list item that was updated
           newAggregateList = addOrUpdateListItem(shoppingLists[0], data)
+        } else if (data && typeof data === 'object' && data.errors) {
+          throw new Error('Internal Server Error: ' + data.errors[0])
         } else {
           const deletedItem = regularListToRemoveItemFrom.list_items.find(item => item.id === itemId)
 
@@ -423,6 +460,9 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           displayFlashError("Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
         } else if (err.code === 405) {
           displayFlashError('Cannot manually remove an item from an aggregate list')
+        } else {
+          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error destroying shopping list item: ', err)
+          displayFlashError("Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
         }
 
         error && error()

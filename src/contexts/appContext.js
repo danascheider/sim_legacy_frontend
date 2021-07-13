@@ -74,12 +74,20 @@ const AppProvider = ({ children, overrideValue = {} }) => {
       fetchUserProfile(cookies[sessionCookieName])
         .then(response => response.json())
         .then(data => {
-          setProfileData(data)
-          if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
+          if (data.errors) {
+            throw new Error('Internal Server Error: ', data.errors[0])
+          } else {
+            setProfileData(data)
+            if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
+          }
         })
         .catch(error => {
           if (process.env.NODE_ENV !== 'production') console.error('Error returned while fetching profile data: ', error.message)
 
+          // I feel like this might not be the right behaviour if the error was a 500,
+          // but I also can't think of a case where an error like this would occur and
+          // not be a 401, given the user profile will be created during the authorization
+          // step if it doesn't exist already.
           logOutAndRedirect()
         })
     } else if (!cookies[sessionCookieName] && !isStorybook()) {

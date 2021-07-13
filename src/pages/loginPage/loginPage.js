@@ -22,7 +22,7 @@ const LoginPage = () => {
   const successCallback = (resp) => {
     const { tokenId } = resp
 
-    if (token !== tokenId) {
+    if (tokenId) {
       setSessionCookie(tokenId)
       setShouldRedirectTo(paths.dashboard.main)
       mountedRef.current = false
