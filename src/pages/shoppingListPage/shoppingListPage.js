@@ -22,12 +22,6 @@ const ShoppingListPage = () => {
 
   const formRefContains = el => formRef.current && (formRef.current === el || formRef.current.contains(el))
 
-  // const hideForm = e => {
-  //   if (e.key === 'Escape' || !formRefContains(e.target)) {
-  //     setListItemEditFormVisible(false)
-  //   }
-  // }
-
   const hideForm = useCallback(e => {
     if (e.key === 'Escape' || !formRefContains(e.target)) {
       setListItemEditFormVisible(false)

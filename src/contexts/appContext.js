@@ -67,15 +67,6 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     })
   }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
 
-  // const logOutAndRedirect = () => {
-  //   logOutWithGoogle(() => {
-  //     cookies[sessionCookieName] && removeSessionCookie()
-  //     if (onAuthenticatedPage) {
-  //       setShouldRedirectTo(paths.login)
-  //     }
-  //   })
-  // }
-
   const fetchProfileData = () => {
     if (shouldFetchProfileData) {
       fetchUserProfile(cookies[sessionCookieName])
