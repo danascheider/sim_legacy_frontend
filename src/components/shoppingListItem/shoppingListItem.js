@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
@@ -23,6 +23,11 @@ const ShoppingListItem = ({
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
+    displayFlash,
+    hideFlash,
+  } = useAppContext()
+
+  const {
     schemeColorDarkest,
     textColorPrimary,
     hoverColorDark,
@@ -37,8 +42,6 @@ const ShoppingListItem = ({
   const {
     performShoppingListItemUpdate,
     performShoppingListItemDestroy,
-    setFlashProps,
-    setFlashVisible,
     setListItemEditFormProps,
     setListItemEditFormVisible
   } = useShoppingListContext()
@@ -93,10 +96,7 @@ const ShoppingListItem = ({
       if (confirmed) {
         performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
       } else {
-        setFlashProps({
-          type: 'info', message: 'Your item was not deleted.'
-        })
-        setFlashVisible(true)
+        displayFlash('info', 'Your item was not deleted.')
       }
     }
   }
@@ -107,15 +107,12 @@ const ShoppingListItem = ({
     if (confirmed) {
       performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
     } else {
-      setFlashProps({
-        type: 'info', message: 'Your item was not deleted'
-      })
-      setFlashVisible(true)
+      displayFlash('info', 'Your item was not deleted.')
     }
   }
 
   const showEditForm = () => {
-    setFlashVisible(false)
+    hideFlash()
     setListItemEditFormProps({
       listTitle: listTitle,
       buttonColor: {

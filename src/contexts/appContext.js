@@ -32,6 +32,8 @@ const AppContext = createContext()
 // set the value for the context in the story,
 const AppProvider = ({ children, overrideValue = {} }) => {
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+  const [flashProps, setFlashProps] = useState({})
+  const [flashVisible, setFlashVisible] = useState(false)
   const [profileData, setProfileData] = useState(overrideValue.profileData)
   const [redirectPath, setRedirectPath] = useState(overrideValue.shouldRedirectTo)
   const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
@@ -46,6 +48,14 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     mountedRef.current = false
   }, [mountedRef])
 
+  const displayFlash = useCallback((type, message, header = null) => {
+    setFlashProps({ type, message, header })
+    setFlashVisible(true)
+    window.scrollTo(0, 0)
+  }, [setFlashProps, setFlashVisible])
+
+  const hideFlash = useCallback(() => { setFlashVisible(false) }, [setFlashVisible])
+
   const value = {
     token: cookies[sessionCookieName],
     profileData,
@@ -53,6 +63,10 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     setSessionCookie,
     profileLoadState,
     setShouldRedirectTo,
+    flashVisible,
+    flashProps,
+    displayFlash,
+    hideFlash,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -121,13 +135,21 @@ AppProvider.propTypes = {
     profileData: PropTypes.shape({
       id: PropTypes.number,
       uid: PropTypes.string,
-      email: PropTypes.string,
-      name: PropTypes.string,
+      email: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
       image_url: PropTypes.string
     }),
     setSessionCookie: PropTypes.func,
     removeSessionCookie: PropTypes.func,
-    setProfileData: PropTypes.func
+    setProfileData: PropTypes.func,
+    flashVisible: PropTypes.bool,
+    flashProps: PropTypes.shape({
+      type: PropTypes.oneOf(['error', 'info', 'success']).isRequired,
+      message: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]).isRequired,
+      header: PropTypes.string
+    }),
+    displayFlash: PropTypes.func,
+    hideFlash: PropTypes.func
   })
 }
 
