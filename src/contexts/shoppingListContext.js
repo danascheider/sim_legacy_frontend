@@ -10,7 +10,7 @@
  *
  */
 
-import { createContext, useState, useEffect, useRef } from 'react'
+import { createContext, useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
 import {
@@ -50,13 +50,13 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
   const mountedRef = useRef(true)
 
-  const logOutAndRedirect = () => {
+  const logOutAndRedirect = useCallback(() => {
     logOutWithGoogle(() => {
       token && removeSessionCookie()
       setShouldRedirectTo(paths.login)
       mountedRef.current = false
     })
-  }
+  }, [token, removeSessionCookie, setShouldRedirectTo])
 
   const addOrUpdateListItem = (list, item) => {
     const originalItem = list.list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
@@ -74,7 +74,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     return { ...list }
   }
 
-  const displayFlashError = (msg, header = null) => {
+  const displayFlashError = useCallback((msg, header = null) => {
     setFlashProps({
       type: 'error',
       message: msg,
@@ -82,7 +82,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     })
 
     overrideValue.flashVisible === undefined && setFlashVisible(true)
-  }
+  }, [setFlashProps, overrideValue.flashVisible])
   
   const displayFlashSuccess = (msg, header = null) => {
     setFlashProps({
@@ -109,7 +109,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     return newList
   }
   
-  const fetchLists = () => {
+  const fetchLists = useCallback(() => {
     if (token && !shoppingListsOverridden) {
       fetchShoppingLists(token)
         .then(resp => resp.json())
@@ -136,7 +136,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     } else {
       overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
     }
-  }
+  }, [token, shoppingListsOverridden, overrideValue.shoppingListLoadingState, displayFlashError, logOutAndRedirect])
 
   const performShoppingListUpdate = (listId, newTitle, success = null, error = null) => {
     updateShoppingList(token, listId, { title: newTitle })
@@ -492,7 +492,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   useEffect(() => {
     fetchLists()
     return () => mountedRef.current = false
-  }, [])
+  }, [fetchLists])
 
   return(
     <ShoppingListContext.Provider value={value}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { useShoppingListContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
@@ -22,11 +22,11 @@ const ShoppingListPage = () => {
 
   const formRefContains = el => formRef.current && (formRef.current === el || formRef.current.contains(el))
 
-  const hideForm = e => {
+  const hideForm = useCallback(e => {
     if (e.key === 'Escape' || !formRefContains(e.target)) {
       setListItemEditFormVisible(false)
     }
-  }
+  }, [setListItemEditFormVisible])
 
   useEffect(() => {
     window.addEventListener('keyup', hideForm)
