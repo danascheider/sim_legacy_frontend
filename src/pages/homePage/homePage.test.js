@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { cleanup, waitFor } from '@testing-library/react'
+import {  waitFor, screen, fireEvent } from '@testing-library/react'
 import { renderWithRouter } from '../../setupTests'
 import { AppProvider } from '../../contexts/appContext'
 import HomePage from './homePage'
@@ -42,7 +42,29 @@ describe('HomePage', () => {
     it('stays on the homepage', async () => {
       const { history } = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
 
-      await waitFor(() => { expect(history.location.pathname).toEqual('/') })
+      await waitFor(() => expect(history.location.pathname).toEqual('/'))
+    })
+
+    it('displays the homepage title', async () => {
+      renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+      
+      expect(screen.getByText(/skyrim inventory management/i)).toBeInTheDocument()
+    })
+
+    it('links to the login page', async () => {
+      renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+
+      expect(screen.getByText(/log in with google/i)).toBeInTheDocument()
+    })
+
+    describe('clicking the login link', () => {
+      it('goes to the login page', async () => {
+        const { history } = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+
+        const link = await screen.getByText(/log in with google/i)
+        fireEvent.click(link)
+        await waitFor(() => expect(history.location.pathname).toEqual('/login'))
+      })
     })
   })
 })
