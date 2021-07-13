@@ -14,7 +14,6 @@ const appProviderOverrideValues = {
   profileData
 }
 
-const noop = () => {}
 
 const containerStyle = {
   position: 'absolute',
@@ -29,7 +28,7 @@ export default { title: 'ShoppingListItemEditForm' }
 
 export const Default = () => (
   <AppProvider overrideValue={appProviderOverrideValues}>
-    <ShoppingListProvider overrideValue={{ shoppingLists, setFlashProps: noop, setFlashVisible: noop }}>
+    <ShoppingListProvider overrideValue={{ shoppingLists }}>
       <div style={containerStyle}>
         <ShoppingListItemEditForm listTitle={shoppingLists[1].title} buttonColor={GREEN} currentAttributes={listItemData} />
       </div>
