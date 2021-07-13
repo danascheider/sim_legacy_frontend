@@ -10,7 +10,7 @@
  * 
  */
 
-import { createContext, useEffect, useState, useRef } from 'react'
+import { createContext, useEffect, useState, useRef, useCallback } from 'react'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -38,13 +38,13 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   const mountedRef = useRef(true)
 
-  const removeSessionCookie = () => removeCookie(sessionCookieName)
+  const removeSessionCookie = useCallback(() => removeCookie(sessionCookieName), [removeCookie])
   const setSessionCookie = token => setCookie(sessionCookieName, token)
 
-  const setShouldRedirectTo = path => {
+  const setShouldRedirectTo = useCallback(path => {
     setRedirectPath(path)
     mountedRef.current = false
-  }
+  }, [mountedRef])
 
   const value = {
     token: cookies[sessionCookieName],
@@ -60,14 +60,21 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage
 
-  const logOutAndRedirect = () => {
+  const logOutAndRedirect = useCallback(() => {
     logOutWithGoogle(() => {
       cookies[sessionCookieName] && removeSessionCookie()
-      if (onAuthenticatedPage) {
-        setShouldRedirectTo(paths.login)
-      }
+      onAuthenticatedPage && setShouldRedirectTo(paths.login)
     })
-  }
+  }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
+
+  // const logOutAndRedirect = () => {
+  //   logOutWithGoogle(() => {
+  //     cookies[sessionCookieName] && removeSessionCookie()
+  //     if (onAuthenticatedPage) {
+  //       setShouldRedirectTo(paths.login)
+  //     }
+  //   })
+  // }
 
   const fetchProfileData = () => {
     if (shouldFetchProfileData) {
@@ -99,6 +106,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   useEffect(fetchProfileData, [
                                 onAuthenticatedPage,
+                                logOutAndRedirect,
                                 overrideValue.profileLoadState,
                                 shouldFetchProfileData,
                                 cookies

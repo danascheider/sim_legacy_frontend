@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { authorize } from '../../utils/simApi'
 import isStorybook from '../../utils/isStorybook'
@@ -12,7 +12,7 @@ const HomePage = () => {
 
   const mountedRef = useRef(true)
 
-  const verifyLogin = () => {
+  const verifyLogin = useCallback(() => {
     if (token && !isStorybook()) {
       authorize(token)
         .then(resp => resp.status === 500 ? resp.json() : null)
@@ -30,12 +30,12 @@ const HomePage = () => {
           logOutWithGoogle(() => removeSessionCookie())
         })
     }
-  }
+  }, [token, removeSessionCookie, setShouldRedirectTo])
 
   useEffect(() => {
     verifyLogin()
     return () => mountedRef.current = false
-  }, [token])
+  }, [token, verifyLogin])
 
   return(
     <div className={styles.root}>
