@@ -71,6 +71,35 @@ export const Default = () => <DashboardProvider overrideValue={overrideValue}><D
 ```
 For other cases where you absolutely must change app behaviour for Storybook, you can use the [`isStorybook`](/src/utils/isStorybook.js) function. Use of this function should be considered a code smell and avoided when possible.
 
+### Testing with Jest
+
+[Jest](https://jestjs.io/) has been set up with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro) to handle testing of components. We are in the process of [retrofitting tests](https://trello.com/c/ulddni7U/78-testing-with-jest) to the application, so tests will be added to components that don't currently have them.
+
+It is recommended, per the docs, to take a behaviour-based approach to testing with Jest, using the React Testing Library tooling to interact with elements like a user would. It's important that we write these tests with an eye to ensuring complete coverage of underlying logic, however. Most of the logic in the SIM front-end is in contexts and hooks, not in the components themselves, and we should make sure the tests simulate situations that will trigger this logic to run and test the outcome.
+
+To run the Jest tests, you'll need to first run `yarn install` to make sure your dependencies are installed and up-to-date. To run the tests, run:
+```
+yarn test
+```
+This will run the tests in watch mode, running tests every time you save a file. Not all tests will run on every save - by default, Jest only reruns tests touching files that have changed since the last commit. You can press `q` to exit watch mode and go back to your terminal.
+
+#### API Mocking
+
+We use [MSW](https://mswjs.io/docs/getting-started) for mocking API calls in Jest (as well as Storybook). While MSW recommends mocking all API calls centrally, we have opted not to do that. The reason for this is that the outcome of our API calls cannot be determined solely by the request, but also by the state of records in the database and token validation. It's too hard to make centralised handlers that cover all the needed cases, so it's better to just set up a mock server in each of the tests where one is required and define the handlers there. For an example of this, see the [homepage test file](/src/pages/homePage/homePage.test.js).
+
+### GitHub Actions
+
+Jest has been configured to run in CI with GitHub actions. It runs against all pull requests against `main`, as well as when `main` is merged. After merging new code, make sure the build has passed before deploying to Heroku.
+
+When working on an epic on a feature branch, you may want to configure GitHub Actions to run against PRs against the feature branch (or merges to that branch) and not just `main`. This can be done in the [pipeline definition file](/.github/workflows/ci.yml) by changing the following block:
+```yml
+on:
+  push:
+    branches: [main, your-feature-branch]
+  pull_request:
+    branches: [main, your-feature-branch]
+```
+
 ### Deployment
 
 The SIM front end is deployed to [Heroku](https://heroku.com) under the app name `obscure-reaches-80056`. Deployment is done manually via the command line and Git. It is recommended to install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) to work with Heroku.
