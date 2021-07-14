@@ -1,10 +1,8 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { useCookies } from 'react-cookie'
 import { waitFor, screen, fireEvent } from '@testing-library/react'
 import { renderWithRouter } from '../../setupTests'
-import { sessionCookieName } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import DashboardPage from './dashboardPage'
 
