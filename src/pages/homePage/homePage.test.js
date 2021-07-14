@@ -7,6 +7,11 @@ import { AppProvider } from '../../contexts/appContext'
 import HomePage from './homePage'
 
 describe('HomePage', () => {
+  beforeEach(() => {
+    jest.resetModules()
+    jest.resetAllMocks()
+  })
+
   describe('when the user is signed in', () => {
     const server = setupServer(
       rest.get('http://localhost:3000/auth/verify_token', (req, res, ctx) => {
