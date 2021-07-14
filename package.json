@@ -75,5 +75,9 @@
   },
   "msw": {
     "workerDirectory": "public"
+  },
+  "jest": {
+    "resetMocks": true,
+    "resetModules": true
   }
 }
