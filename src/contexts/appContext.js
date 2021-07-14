@@ -46,7 +46,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const setShouldRedirectTo = useCallback(path => {
     setRedirectPath(path)
     mountedRef.current = false
-  }, [mountedRef])
+  }, [])
 
   const displayFlash = useCallback((type, message, header = null) => {
     setFlashProps({ type, message, header })
@@ -88,7 +88,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
         .then(data => {
           if (data.errors) {
             throw new Error('Internal Server Error: ', data.errors[0])
-          } else {
+          } else if (mountedRef.current === true) {
             setProfileData(data)
             if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
           }

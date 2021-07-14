@@ -14,3 +14,22 @@ export const renderWithRouter = (ui, { route = '/', history = createMemoryHistor
     history
   }
 }
+
+export const mockCookies = value => {
+  Object.defineProperty(window.document, 'cookie', { writable: true, value: value })
+}
+
+export const mockWindowLocation = value => {
+  const oldLocation = window.location
+  delete window.location
+  window.location = Object.defineProperties(
+    {},
+    {
+      ...Object.getOwnPropertyDescriptors(oldLocation),
+      pathname: {
+        configurable: true,
+        value: value
+      }
+    }
+  )
+}
