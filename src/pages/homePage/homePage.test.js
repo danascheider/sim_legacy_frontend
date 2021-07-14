@@ -25,7 +25,7 @@ describe('HomePage', () => {
     })
   })
 
-  describe('when the user is not signed in', () => {
+  describe('when the user token is expired or invalid', () => {
     const server = setupServer(
       rest.get('http://localhost:3000/auth/verify_token', (req, res, ctx) => {
         return res(
@@ -60,6 +60,36 @@ describe('HomePage', () => {
     describe('clicking the login link', () => {
       it('goes to the login page', async () => {
         const { history } = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+
+        const link = await screen.getByText(/log in with google/i)
+        fireEvent.click(link)
+        await waitFor(() => expect(history.location.pathname).toEqual('/login'))
+      })
+    })
+  })
+
+  describe('when the user is not signed in', () => {
+    it('stays on the homepage', async () => {
+      const { history } = renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
+
+      await waitFor(() => expect(history.location.pathname).toEqual('/'))
+    })
+
+    it('displays the homepage title', async () => {
+      renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
+
+      expect(screen.getByText(/skyrim inventory management/i)).toBeInTheDocument()
+    })
+
+    it('links to the login page', async () => {
+      renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
+
+      expect(screen.getByText(/log in with google/i)).toBeInTheDocument()
+    })
+
+    describe('clicking the login link', () => {
+      it('goes to the login page', async () => {
+        const { history } = renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
 
         const link = await screen.getByText(/log in with google/i)
         fireEvent.click(link)
