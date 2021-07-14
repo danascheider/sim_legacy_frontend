@@ -30,7 +30,7 @@ const LoginPage = () => {
   }
 
   const failureCallback = (resp) => {
-    if (process.env.NODE_ENV !== 'production') console.error('Login failure: ', resp)
+    if (process.env.NODE_ENV === 'development') console.error('Login failure: ', resp)
     token && removeSessionCookie()
     setLoginErrorMessage('Something went wrong! Please try logging in again.')
   }

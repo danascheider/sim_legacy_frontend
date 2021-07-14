@@ -25,7 +25,7 @@ const HomePage = () => {
           }
         })
         .catch(err => {
-          if (process.env.NODE_ENV !== 'production') console.error(err.message)
+          if (process.env.NODE_ENV === 'development') console.error(err.message)
 
           logOutWithGoogle(() => removeSessionCookie())
         })

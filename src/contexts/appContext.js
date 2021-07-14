@@ -94,7 +94,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
           }
         })
         .catch(error => {
-          if (process.env.NODE_ENV !== 'production') console.error('Error returned while fetching profile data: ', error.message)
+          if (process.env.NODE_ENV === 'development') console.error('Error returned while fetching profile data: ', error.message)
 
           // I feel like this might not be the right behaviour if the error was a 500,
           // but I also can't think of a case where an error like this would occur and
@@ -117,9 +117,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
                                 cookies
                               ])
 
-  useEffect(() => (
-    () => { mountedRef.current = false }
-  ))
+  useEffect(() => (() => mountedRef.current = false))
 
   return(
     <AppContext.Provider value={value}>

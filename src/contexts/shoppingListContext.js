@@ -111,7 +111,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             logOutAndRedirect()
             // Don't set the loading state because it's redirecting anyway
           } else {
-            if (process.env.NODE_ENV !== 'production') console.error('Unexpected error fetching shopping lists: ', err)
+            if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
             !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
             displayFlash('error', "There was an error loading your lists. It may have been on our end. We're sorry!")
@@ -161,7 +161,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        if (process.env.NODE_ENV !== 'production') console.error(`Error updating shopping list ${listId}: `, err)
+        if (process.env.NODE_ENV === 'development') console.error(`Error updating shopping list ${listId}: `, err)
 
         if (err.code === 401) {
           logOutAndRedirect()
@@ -225,7 +225,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        if (process.env.NODE_ENV !== 'production') console.error('Error creating shopping list: ', err)
+        if (process.env.NODE_ENV === 'development') console.error('Error creating shopping list: ', err)
 
         if (err.code === 401) {
           logOutAndRedirect()
@@ -283,7 +283,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
         } else {
-          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error deleting shopping list: ', err.message)
+          if (process.env.NODE_ENV === 'development') console.error('Unexpected error deleting shopping list: ', err.message)
 
           displayFlash('error', "Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
         }
@@ -334,7 +334,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem.")
         } else {
-          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error when creating shopping list item: ', err.message)
+          if (process.env.NODE_ENV === 'development') console.error('Unexpected error when creating shopping list item: ', err.message)
 
           displayFlash('error', "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
         }
@@ -392,7 +392,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 405) {
           displayFlash('error', 'Cannot manually edit item on an aggregate list')
         } else {
-          if (process.env.NODE_ENV !== 'production') console.error(`Unexpected error editing list item ${itemId}: `, err)
+          if (process.env.NODE_ENV === 'development') console.error(`Unexpected error editing list item ${itemId}: `, err)
 
           displayFlash('error', "Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
         }
@@ -446,7 +446,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 405) {
           displayFlash('error', 'Cannot manually remove an item from an aggregate list')
         } else {
-          if (process.env.NODE_ENV !== 'production') console.error('Unexpected error destroying shopping list item: ', err)
+          if (process.env.NODE_ENV === 'development') console.error('Unexpected error destroying shopping list item: ', err)
           displayFlash('error', "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
         }
 

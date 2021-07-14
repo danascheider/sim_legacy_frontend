@@ -54,10 +54,11 @@ const DashboardPage = () => {
   useEffect(() => {
     if (!token && !isStorybook()) {
       setShouldRedirectTo(paths.login)
+      mountedRef.current = false
     }
 
     return () => mountedRef.current = false
-  }, [token])
+  }, [token, setShouldRedirectTo])
   
   return(
     <DashboardLayout>
