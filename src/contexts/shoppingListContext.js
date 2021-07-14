@@ -12,7 +12,6 @@
 
 import { createContext, useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import logOutWithGoogle from '../utils/logOutWithGoogle'
 import {
   createShoppingList,
   fetchShoppingLists,
@@ -38,8 +37,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
   const {
     token,
-    setShouldRedirectTo,
-    removeSessionCookie,
+    logOutAndRedirect,
     displayFlash
   } = useAppContext()
 
@@ -53,14 +51,6 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }
 
   const mountedRef = useRef(true)
-
-  const logOutAndRedirect = useCallback(() => {
-    logOutWithGoogle(() => {
-      token && removeSessionCookie()
-      setShouldRedirectTo(paths.login)
-      mountedRef.current = false
-    })
-  }, [token, removeSessionCookie, setShouldRedirectTo])
 
   const addOrUpdateListItem = (list, item) => {
     const originalItem = list.list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
@@ -108,7 +98,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         })
         .catch(err => {
           if (err.code === 401) {
-            logOutAndRedirect()
+            logOutAndRedirect(paths.login, () => mountedRef.current = false)
             // Don't set the loading state because it's redirecting anyway
           } else {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
@@ -164,7 +154,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (process.env.NODE_ENV === 'development') console.error(`Error updating shopping list ${listId}: `, err)
 
         if (err.code === 401) {
-          logOutAndRedirect()
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem.")
 
@@ -228,7 +218,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (process.env.NODE_ENV === 'development') console.error('Error creating shopping list: ', err)
 
         if (err.code === 401) {
-          logOutAndRedirect()
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else {
           displayFlash('error', "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
 
@@ -279,7 +269,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect()
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
         } else {
@@ -330,7 +320,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect()
+          logOutAndRedirect(paths.login, mountedRef.current = false)
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem.")
         } else {
@@ -386,7 +376,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect()
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem.")
         } else if (err.code === 405) {
@@ -440,7 +430,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect()
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
         } else if (err.code === 405) {

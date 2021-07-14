@@ -56,6 +56,18 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   const hideFlash = useCallback(() => { setFlashVisible(false) }, [setFlashVisible])
 
+  const onAuthenticatedPage = window.location.pathname !== paths.login && window.location.pathname !== paths.home && allPaths.indexOf(window.location.pathname) !== -1
+
+  const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage
+
+  const logOutAndRedirect = useCallback((path = paths.login, callback = null) => {
+    logOutWithGoogle(() => {
+      cookies[sessionCookieName] && removeSessionCookie()
+      callback && callback()
+      onAuthenticatedPage && setShouldRedirectTo(path)
+    })
+  }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
+
   const value = {
     token: cookies[sessionCookieName],
     profileData,
@@ -63,23 +75,13 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     setSessionCookie,
     profileLoadState,
     setShouldRedirectTo,
+    logOutAndRedirect,
     flashVisible,
     flashProps,
     displayFlash,
     hideFlash,
     ...overrideValue // enables you to only change certain values
   }
-
-  const onAuthenticatedPage = window.location.pathname !== paths.login && window.location.pathname !== paths.home && allPaths.indexOf(window.location.pathname) !== -1
-
-  const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage
-
-  const logOutAndRedirect = useCallback(() => {
-    logOutWithGoogle(() => {
-      cookies[sessionCookieName] && removeSessionCookie()
-      onAuthenticatedPage && setShouldRedirectTo(paths.login)
-    })
-  }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
 
   const fetchProfileData = () => {
     if (shouldFetchProfileData) {
@@ -147,7 +149,8 @@ AppProvider.propTypes = {
       header: PropTypes.string
     }),
     displayFlash: PropTypes.func,
-    hideFlash: PropTypes.func
+    hideFlash: PropTypes.func,
+    logOutAndRedirect: PropTypes.func
   })
 }
 
