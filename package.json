@@ -71,9 +71,14 @@
     "@storybook/preset-create-react-app": "^3.2.0",
     "@storybook/react": "^6.3.4",
     "msw": "^0.29.0",
-    "msw-storybook-addon": "^1.1.0"
+    "msw-storybook-addon": "^1.1.0",
+    "universal-cookie": "^4.0.4"
   },
   "msw": {
     "workerDirectory": "public"
+  },
+  "jest": {
+    "resetMocks": true,
+    "resetModules": true
   }
 }

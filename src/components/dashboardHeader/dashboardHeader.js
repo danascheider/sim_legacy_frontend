@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import logOutWithGoogle from '../../utils/logOutWithGoogle'
 import paths from '../../routing/paths'
 import { useAppContext } from '../../hooks/contexts'
 import LogoutDropdown from '../logoutDropdown/logoutDropdown'
@@ -9,25 +8,21 @@ import styles from './dashboardHeader.module.css'
 
 const DashboardHeader = () => {
   const {
-    token,
     profileData,
-    removeSessionCookie,
-    setShouldRedirectTo
+    logOutAndRedirect
   } = useAppContext()
 
   const [dropdownVisible, setDropdownVisible] = useState(false)
   const mountedRef = useRef(true)
 
-  const logOutFunction = (callback = null) => {
+  const logOutFunction = useCallback((callback = null) => {
     setDropdownVisible(false);
 
-    logOutWithGoogle(() => {
-      token && removeSessionCookie()
+    logOutAndRedirect(paths.home, () => {
       callback && callback()
-      setShouldRedirectTo(paths.home)
       mountedRef.current = false
     })
-  }
+  }, [logOutAndRedirect])
 
   useEffect(() => {
     return () => (mountedRef.current = false)

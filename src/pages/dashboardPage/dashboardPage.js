@@ -1,5 +1,4 @@
-import React from 'react'
-import { Redirect } from 'react-router-dom'
+import React, { useRef, useEffect } from 'react'
 import {
   YELLOW,
   PINK,
@@ -7,6 +6,7 @@ import {
   GREEN,
   AQUA
 } from '../../utils/colorSchemes'
+import { isStorybook } from '../../utils/isTestEnv'
 import paths from '../../routing/paths'
 import { useAppContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
@@ -48,16 +48,25 @@ const cards = [
 ]
 
 const DashboardPage = () => {
-  const { token, profileLoadState } = useAppContext()
+  const { token, profileLoadState, setShouldRedirectTo } = useAppContext()
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    if (!token && !isStorybook) {
+      setShouldRedirectTo(paths.login)
+      mountedRef.current = false
+    }
+
+    return () => mountedRef.current = false
+  }, [token, setShouldRedirectTo])
   
-  return(token ?
+  return(
     <DashboardLayout>
       {profileLoadState === 'done' ? <div className={styles.root}>
         <NavigationMosaic cardArray={cards} />
       </div> :
       <Loading className={styles.loading} type='bubbles' color={YELLOW.schemeColorDarkest} height='15%' width='15%' />}
-    </DashboardLayout> :
-    <Redirect to={paths.login} />
+    </DashboardLayout>
   )
 }
 

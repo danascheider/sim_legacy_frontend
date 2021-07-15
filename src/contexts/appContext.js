@@ -12,12 +12,12 @@
 
 import { createContext, useEffect, useState, useRef, useCallback } from 'react'
 import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
+import { Redirect, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
-import isStorybook from '../utils/isStorybook'
+import { isTestEnv } from '../utils/isTestEnv'
 import paths, { allPaths } from '../routing/paths'
 
 const LOADING = 'loading'
@@ -31,6 +31,7 @@ const AppContext = createContext()
 // Storybook decorators and whatnot enough to figure out how to
 // set the value for the context in the story,
 const AppProvider = ({ children, overrideValue = {} }) => {
+  const { pathname } = useLocation()
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
@@ -46,15 +47,31 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const setShouldRedirectTo = useCallback(path => {
     setRedirectPath(path)
     mountedRef.current = false
-  }, [mountedRef])
+  }, [])
 
   const displayFlash = useCallback((type, message, header = null) => {
     setFlashProps({ type, message, header })
     setFlashVisible(true)
     window.scrollTo(0, 0)
-  }, [setFlashProps, setFlashVisible])
+  }, [])
 
-  const hideFlash = useCallback(() => { setFlashVisible(false) }, [setFlashVisible])
+  const hideFlash = useCallback(() => { setFlashVisible(false) }, [])
+
+  const onAuthenticatedPage = useCallback(() => {
+    return pathname !== paths.login && pathname !== paths.home && allPaths.indexOf(pathname) !== -1
+  }, [pathname])
+
+  const shouldFetchProfileData = useCallback(() => {
+    return !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage()
+  }, [overrideValue.profileData, cookies, onAuthenticatedPage])
+
+  const logOutAndRedirect = useCallback((path = paths.login, callback = null) => {
+    logOutWithGoogle(() => {
+      cookies[sessionCookieName] && removeSessionCookie()
+      callback && callback()
+      onAuthenticatedPage() && setShouldRedirectTo(path)
+    })
+  }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
 
   const value = {
     token: cookies[sessionCookieName],
@@ -63,6 +80,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     setSessionCookie,
     profileLoadState,
     setShouldRedirectTo,
+    logOutAndRedirect,
     flashVisible,
     flashProps,
     displayFlash,
@@ -70,31 +88,20 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue // enables you to only change certain values
   }
 
-  const onAuthenticatedPage = window.location.pathname !== paths.login && window.location.pathname !== paths.home && allPaths.indexOf(window.location.pathname) !== -1
-
-  const shouldFetchProfileData = !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage
-
-  const logOutAndRedirect = useCallback(() => {
-    logOutWithGoogle(() => {
-      cookies[sessionCookieName] && removeSessionCookie()
-      onAuthenticatedPage && setShouldRedirectTo(paths.login)
-    })
-  }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
-
   const fetchProfileData = () => {
-    if (shouldFetchProfileData) {
+    if (shouldFetchProfileData()) {
       fetchUserProfile(cookies[sessionCookieName])
         .then(response => response.json())
         .then(data => {
           if (data.errors) {
             throw new Error('Internal Server Error: ', data.errors[0])
-          } else {
+          } else if (mountedRef.current === true) {
             setProfileData(data)
             if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
           }
         })
         .catch(error => {
-          if (process.env.NODE_ENV !== 'production') console.error('Error returned while fetching profile data: ', error.message)
+          if (process.env.NODE_ENV === 'development') console.error('Error returned while fetching profile data: ', error.message)
 
           // I feel like this might not be the right behaviour if the error was a 500,
           // but I also can't think of a case where an error like this would occur and
@@ -102,12 +109,14 @@ const AppProvider = ({ children, overrideValue = {} }) => {
           // step if it doesn't exist already.
           logOutAndRedirect()
         })
-    } else if (!cookies[sessionCookieName] && !isStorybook()) {
-      logOutAndRedirect()
-    } else if (isStorybook() && !overrideValue.profileLoadState) {
+    } else if (isTestEnv && !overrideValue.profileLoadState) {
       setProfileLoadState(DONE)
     }
   }
+
+  useEffect(() => {
+    if (onAuthenticatedPage() && !cookies[sessionCookieName] && mountedRef.current) logOutAndRedirect()
+  }, [onAuthenticatedPage, cookies, logOutAndRedirect])
 
   useEffect(fetchProfileData, [
                                 onAuthenticatedPage,
@@ -117,9 +126,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
                                 cookies
                               ])
 
-  useEffect(() => (
-    () => { mountedRef.current = false }
-  ))
+  useEffect(() => (() => mountedRef.current = false))
 
   return(
     <AppContext.Provider value={value}>
@@ -149,7 +156,8 @@ AppProvider.propTypes = {
       header: PropTypes.string
     }),
     displayFlash: PropTypes.func,
-    hideFlash: PropTypes.func
+    hideFlash: PropTypes.func,
+    logOutAndRedirect: PropTypes.func
   })
 }
 
