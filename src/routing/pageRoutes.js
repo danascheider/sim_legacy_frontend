@@ -55,7 +55,7 @@ const PageRoutes = () => (
               <title>{title}</title>
               <meta name='description' content={description} />
             </Helmet>
-            <AppProvider startingPath={path}>
+            <AppProvider>
               {jsx}
             </AppProvider>
           </Route>
