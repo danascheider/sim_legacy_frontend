@@ -79,7 +79,6 @@
   },
   "jest": {
     "resetMocks": true,
-    "resetModules": true,
-    "testURL": "http://localhost:3001"
+    "resetModules": true
   }
 }
