@@ -19,7 +19,12 @@ The `AppProvider`'s value includes the following:
 * `setSessionCookie`: A function, which takes a JWT token from Google as an argument and sets it as the value of the `_sim_google_session` cookie. This is used in the `LoginPage` component.
 * `removeSessionCookie`: A function, which takes zero arguments and removes the `_sim_google_session` cookie. This is used in logout callbacks.
 * `profileLoadState`: The status of profile data loading, either 'loading' or 'done'
-* `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in.
+* `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in. If you are logging the user out, you should use the `logOutAndRedirect` function instead.
+* `logOutAndRedirect`: A function that logs the user out with Google, redirects to the `path` passed in, unmounts the context provider, and runs a callback function if one is given. The callback function takes no arguments and can be used to clean up refs/unmount consumer components following the redirect.
+* `flashVisible`: Whether the flash message element (if any) should be visible on the page
+* `flashProps`: The props with which to render the flash message element (if any)
+* `displayFlash`: A function that enables you to pass in the flash type, message (or array of messages), and optional header to display a flash message with those values. Calls the `setFlashProps` and `setFlashVisible` functions.
+* `hideFlash`: A function that hides any flash message currently visible on a consumer page.
 
 ### Redirect Behaviour
 
@@ -33,7 +38,7 @@ When a user visits the login page (`/login`) and the user is logged in with a co
 
 #### Dashboard Pages
 
-When a user visits the dashboard and is not logged in or doesn't have the `_sim_google_session` cookie set, they are redirected to the login page. Then, if Google determines the user is still logged in on their end, the OAuth success callback will run again and the user will be automatically redirected back to their dashboard. (This isn't necessarily desired behaviour or great UX, so we'll try to fix it in the future. This may be possible using the `useGoogleLogin` hook on dashboard pages to make sure the callback is called without redirecting.)
+When a user visits the dashboard and is not logged in or doesn't have the `_sim_google_session` cookie set, they are redirected to the login page.
 
 #### Logout
 
@@ -88,22 +93,17 @@ export default PageComponent
 
 ### Logging the User Out
 
-The `AppProvider` provides the `removeSessionCookie` value, however, it is important to note that removing the session cookie does not log the user out with Google. For this, the [`logOutWithGoogle` function](/src/utils/logOutWithGoogle.js) should be used with `removeSessionCookie` passed in in the `success` callback.
+The `AppProvider` provides the `removeSessionCookie` value, however, it is important to note that removing the session cookie does not log the user out with Google. For this, the [`logOutWithGoogle` function](/src/utils/logOutWithGoogle.js) should be used with `removeSessionCookie` passed in in the `success` callback. The `logOutAndRedirect` function provided by the `AppContext` wraps this function and automatically redirects to the path specified after logout.
 
 ```js
-const { removeSessionCookie, setShouldRedirectTo } = useAppContext()
+const { logOutAndRedirect } = useAppContext()
 
 // this is required in any component that calls
 // setShouldRedirectTo
 const mountedRef = useRef(true)
 
-const logout = () => {
-  logOutWithGoogle(() => {
-    removeSessionCookie()
-    setShouldRedirectTo(paths.login)
-    // Always set this to false after redirecting
-    mountedRef.current = false 
-  })
+const logoutAndUnmount = () => {
+  logOutAndRedirect(paths.login, () => mountedRef.current = false)
 }
 
 // This is also required in any component that
@@ -111,6 +111,12 @@ const logout = () => {
 useEffect(() => {
   return () => (mountedRef.current = false)
 }, [])
+
+return(
+  <div className={styles.root}>
+    <button onClick={logOutAndUnmount}>Sign Out</button>
+  </div>
+)
 ```
 
 ### Preventing Memory Leaks with `setShouldRedirectTo`
@@ -132,7 +138,7 @@ const Component = () => {
             token && removeSessionCookie
             setShouldRedirectTo(paths.login)
 
-            // Unmount the component
+            // Unmount the component here
             mountedRef.current = false
           })
         }
@@ -140,18 +146,20 @@ const Component = () => {
   }
 
   // This is critical to preventing the memory leak
-  useEffect(() => {
-    return () => (mountedRef.current = false)
-  }, [])
+  useEffect(() => (
+    () => mountedRef.current = false
+  ))
 }
 ```
 The function returned from the `useEffect` hook works as a cleanup function, ensuring that the `mountedRef.current` is set to `false` at the end of the component's lifecycle.
 
-### Overriding Values for Testing
+Note that it is necessary to include `mountedRef.current = false` in both places where it appears in this example - the `useEffect` cleanup function will only run at the end of the component lifecycle.
 
-The `AppProvider` has a built-in apparatus to make sure the desired values are present in Storybook: the `overrideValue` prop. You can use this prop to override some or all of the key-value pairs stored in the provider's `value` object (i.e., the object returned from `useAppContext`). Any value you don't specify will be given the value the provider computes.
+### Overriding Values for Testing in Storybook
 
-In general, you'll want to provide a `token` value (unless your story is intended to test what happens when there isn't a token - this should be rare since usually that case results in a redirect). Often you'll want to mock other values, such as `profileData`, as well. You can do this like so:
+The `AppProvider` has a built-in apparatus to make sure the desired values are present in Storybook (or Jest, but mostly Storybook): the `overrideValue` prop. You can use this prop to override some or all of the key-value pairs stored in the provider's `value` object (i.e., the object returned from `useAppContext`). Any value you don't specify will be given the value the provider computes.
+
+In general, you'll want to provide a `token` value (unless your story is intended to test what happens when there isn't a token - this should be rare since usually that case results in a redirect, which is better tested with Jest). Often you'll want to mock other values, such as `profileData`, as well. You can do this like so:
 ```js
 // object imitates the data returned from the API
 const profileData = {
@@ -318,26 +326,6 @@ A setter function for shopping list item edit form props. Takes an object as an 
 #### `setListItemEditFormVisible`
 
 A setter function to indicate whether the `ShoppingListEditForm` component should be displayed or hidden. Takes a single boolean argument.
-
-#### `flashProps`
-
-The props to be passed to the `FlashMessage` component when/if it is displayed.
-
-#### `flashVisible`
-
-Whether a `FlashMessage` should be visible.
-
-#### `setFlashProps`
-
-A function to set the type and message in the `FlashMessage` component; takes an object argument. The allowed keys in the object are:
-
-* `type`: one of 'success', 'error', or 'info'; determines the colour of the flash message (green for 'success', red for 'error', and blue for 'info')
-* `header`: the first line of the flash message (string)
-* `message`: the rest of the flash message. If given a string, the string will be rendered; if given an array of strings, they will be rendered as a bulleted list
-
-#### `setFlashVisible`
-
-A function to set the visibility of the `FlashMessage` component; takes a boolean argument
 
 ### Testing Components in Storybook
 
