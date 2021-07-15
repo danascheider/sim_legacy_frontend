@@ -17,7 +17,7 @@ import PropTypes from 'prop-types'
 import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
-import { isTestEnv, isStorybook, isJest } from '../utils/isTestEnv'
+import { isTestEnv } from '../utils/isTestEnv'
 import paths, { allPaths } from '../routing/paths'
 
 const LOADING = 'loading'
