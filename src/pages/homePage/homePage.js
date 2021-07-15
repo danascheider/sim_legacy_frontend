@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { authorize } from '../../utils/simApi'
-import isStorybook from '../../utils/isStorybook'
+import { isStorybook } from '../../utils/isTestEnv'
 import logOutWithGoogle from '../../utils/logOutWithGoogle'
 import { useAppContext } from '../../hooks/contexts'
 import paths from '../../routing/paths'
@@ -13,7 +13,7 @@ const HomePage = () => {
   const mountedRef = useRef(true)
 
   const verifyLogin = useCallback(() => {
-    if (token && !isStorybook()) {
+    if (token && !isStorybook) {
       authorize(token)
         .then(resp => resp.status === 500 ? resp.json() : null)
         .then(data => {

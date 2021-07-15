@@ -2,18 +2,24 @@ import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import { waitFor, screen, fireEvent } from '@testing-library/react'
-import { renderWithRouter, mockCookies, mockWindowLocation } from '../../setupTests'
+import { cleanCookies } from 'universal-cookie/lib/utils'
+import { Cookies, CookiesProvider } from 'react-cookie'
+import { renderWithRouter } from '../../setupTests'
 import { AppProvider } from '../../contexts/appContext'
 import DashboardPage from './dashboardPage'
 
 describe('DashboardPage', () => {
   let component
 
+  beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
   describe('when the user is not signed in', () => {
+    const cookies = new Cookies()
+    cookies.HAS_DOCUMENT_COOKIE = false
+
     it('redirects to the login page', async () => {
-      const { history } = component = renderWithRouter(<AppProvider overrideValue={{ token: null }}><DashboardPage /></AppProvider>, { route: '/dashboard' })
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -29,14 +35,15 @@ describe('DashboardPage', () => {
       })
     )
 
+    const cookies = new Cookies('_sim_google_session="xxxxxx"')
+    cookies.HAS_DOCUMENT_COOKIE = false
+
     beforeAll(() => server.listen())
-    beforeEach(() => {
-      server.resetHandlers()
-    })
+    beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
     it('redirects to the login page', async () => {
-      const { history } = component = renderWithRouter(<AppProvider><DashboardPage /></AppProvider>, { route: '/dashboard' })
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -60,53 +67,55 @@ describe('DashboardPage', () => {
       })
     )
 
-    const oldWindowLocation = window.location
-    const oldCookies = window.document.cookies
+    const cookies = new Cookies('_sim_google_session="xxxxxx"')
+    cookies.HAS_DOCUMENT_COOKIE = false
 
-    beforeAll(() => {
-      server.listen()
-
-      // Fix window location pathname because it was always evaluating to '/' in the AppProvider
-      mockWindowLocation('/dashboard')
-      mockCookies('_sim_google_session=xxxxxx')
-    })
-
-    beforeEach(() => {
-      server.resetHandlers()
-    })
-
-    afterAll(() => {
-      server.close()
-      window.document.cookie = oldCookies
-      window.location = oldWindowLocation
-    })
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
 
     it('stays on the dashboard', async () => {
-      const { history } = component = renderWithRouter(<AppProvider><DashboardPage /></AppProvider>, { route: '/dashboard' })
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
       await waitFor(() => expect(history.location.pathname).toEqual('/dashboard'))
     })
 
     it('displays the user name', async () => {
-      component = renderWithRouter(<AppProvider><DashboardPage /></AppProvider>, { route: '/dashboard' })
+      component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
       expect(await screen.findByText('Jane Doe')).toBeInTheDocument()
     })
 
     it('displays the user email', async () => {
-      component = renderWithRouter(<AppProvider><DashboardPage /></AppProvider>, { route: '/dashboard' })
+      component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
       expect(await screen.findByText('dragonborn@gmail.com')).toBeInTheDocument()
     })
 
     it('displays the link to the shopping list page', async () => {
-      const { history } = component = renderWithRouter(<AppProvider><DashboardPage /></AppProvider>, { route: '/dashboard' })
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
       const element = await screen.findByText(/shopping lists/i)
 
       fireEvent.click(element)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/shopping_lists'))
+    })
+
+    describe('logging out', () => {
+      it('redirects to the homepage', async () => {
+        const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider path='/dashboard'><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
+
+        const profile = await screen.findByText('Jane Doe')
+
+        fireEvent.click(profile)
+
+        const dropdown = await screen.findByText(/log out with google/i)
+
+        fireEvent.click(dropdown)
+        
+        await waitFor(() => expect(history.location.pathname).toEqual('/'))
+      })
     })
   })
 })

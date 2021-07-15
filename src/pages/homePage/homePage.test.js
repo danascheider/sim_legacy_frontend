@@ -2,6 +2,8 @@ import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import {  waitFor, screen, fireEvent } from '@testing-library/react'
+import { cleanCookies } from 'universal-cookie/lib/utils'
+import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
 import { AppProvider } from '../../contexts/appContext'
 import HomePage from './homePage'
@@ -9,6 +11,7 @@ import HomePage from './homePage'
 describe('HomePage', () => {
   let component
 
+  beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
   describe('when the user is signed in', () => {
@@ -30,12 +33,15 @@ describe('HomePage', () => {
       })
     )
 
+    const cookies = new Cookies('_sim_google_session="xxxxxx"')
+    cookies.HAS_DOCUMENT_COOKIE = false
+
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
     it('redirects to the dashboard', async () => {
-      const { history } = component = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/dashboard'))
     })
@@ -51,31 +57,34 @@ describe('HomePage', () => {
       })
     )
 
+    const cookies = new Cookies('_sim_google_session="xxxxxx"')
+    cookies.HAS_DOCUMENT_COOKIE = false
+
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
     it('stays on the homepage', async () => {
-      const { history } = component = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/'))
     })
 
     it('displays the homepage title', async () => {
-      component = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
-      
+      component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
+
       expect(screen.getByText(/skyrim inventory management/i)).toBeInTheDocument()
     })
 
     it('links to the login page', async () => {
-      component = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+      component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
       expect(screen.getByText(/log in with google/i)).toBeInTheDocument()
     })
 
     describe('clicking the login link', () => {
       it('goes to the login page', async () => {
-        const { history } = component = renderWithRouter(<AppProvider overrideValue={{ token: 'xxxxxx' }}><HomePage /></AppProvider>)
+        const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
         const link = await screen.getByText(/log in with google/i)
         fireEvent.click(link)
@@ -85,27 +94,30 @@ describe('HomePage', () => {
   })
 
   describe('when the user is not signed in', () => {
+    const cookies = new Cookies()
+    cookies.HAS_DOCUMENT_COOKIE = false
+
     it('stays on the homepage', async () => {
-      const { history } = component = renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/'))
     })
 
     it('displays the homepage title', async () => {
-      component = renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
+      component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
       expect(screen.getByText(/skyrim inventory management/i)).toBeInTheDocument()
     })
 
     it('links to the login page', async () => {
-      component = renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
+      component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
       expect(screen.getByText(/log in with google/i)).toBeInTheDocument()
     })
 
     describe('clicking the login link', () => {
       it('goes to the login page', async () => {
-        const { history } = component = renderWithRouter(<AppProvider overrideValue={{ token: null }}><HomePage /></AppProvider>)
+        const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><HomePage /></AppProvider></CookiesProvider>)
 
         const link = screen.getByText(/log in with google/i)
         fireEvent.click(link)

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import paths from '../../routing/paths'
 import { useAppContext } from '../../hooks/contexts'
@@ -15,14 +15,14 @@ const DashboardHeader = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false)
   const mountedRef = useRef(true)
 
-  const logOutFunction = (callback = null) => {
+  const logOutFunction = useCallback((callback = null) => {
     setDropdownVisible(false);
 
     logOutAndRedirect(paths.home, () => {
       callback && callback()
       mountedRef.current = false
     })
-  }
+  }, [logOutAndRedirect])
 
   useEffect(() => {
     return () => (mountedRef.current = false)
