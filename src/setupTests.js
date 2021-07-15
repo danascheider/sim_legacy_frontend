@@ -14,19 +14,3 @@ export const renderWithRouter = (ui, { route = '/', history = createMemoryHistor
     history
   }
 }
-
-export const mockWindowLocationPathname = value => {
-  const oldLocation = window.location
-  delete window.location
-  window.location = Object.defineProperties(
-    {},
-    {
-      ...Object.getOwnPropertyDescriptors(oldLocation),
-      pathname: {
-        configurable: true,
-        writable: true,
-        value: value
-      }
-    }
-  )
-}
