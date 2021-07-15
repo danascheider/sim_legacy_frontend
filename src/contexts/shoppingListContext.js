@@ -320,7 +320,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, mountedRef.current = false)
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
           displayFlash('error', "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem.")
         } else {
