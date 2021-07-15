@@ -6,7 +6,7 @@ import {
   GREEN,
   AQUA
 } from '../../utils/colorSchemes'
-import { isTestEnv } from '../../utils/isTestEnv'
+import { isStorybook } from '../../utils/isTestEnv'
 import paths from '../../routing/paths'
 import { useAppContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
@@ -52,7 +52,7 @@ const DashboardPage = () => {
   const mountedRef = useRef(true)
 
   useEffect(() => {
-    if (!token && !isTestEnv) {
+    if (!token && !isStorybook) {
       setShouldRedirectTo(paths.login)
       mountedRef.current = false
     }
