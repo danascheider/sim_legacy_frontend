@@ -1,0 +1,27 @@
+import React from 'react'
+import { rest } from 'msw'
+import { backendBaseUri } from '../../utils/config'
+import { AppProvider } from '../../contexts/appContext'
+import { profileData, emptyGames, games } from './storyData'
+import GamesPage from './gamesPage'
+
+const appContextOverrideValue = {
+  token: 'xxxxxx',
+  profileData
+}
+
+export default { title: 'GamesPage' }
+
+/*
+ *
+ * When the user is logged in, has games, and games are able to be
+ * created and updated without incident (pending addition of this
+ * functionality).
+ * 
+ */
+
+export const HappyPath = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesPage />
+  </AppProvider>
+)
