@@ -2,7 +2,7 @@ import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
-import { profileData, emptyGames, games } from './storyData'
+import { profileData, emptyGames, games } from './testData'
 import GamesPage from './gamesPage'
 
 const appContextOverrideValue = {
