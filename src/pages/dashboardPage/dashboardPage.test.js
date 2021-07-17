@@ -30,7 +30,7 @@ describe('DashboardPage', () => {
       rest.get('http://localhost:3000/users/current', (req, res, ctx) => {
         return res(
           ctx.status(401),
-          ctx.json({ errors: ['Google OAuth token validation error'] })
+          ctx.json({ errors: ['Google OAuth token validation failed'] })
         )
       })
     )

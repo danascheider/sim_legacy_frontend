@@ -42,6 +42,7 @@
 }
 
 .profileText {
+  font-size: 1.025rem;
   margin: auto 0;
   display: grid;
 }
@@ -96,6 +97,10 @@
 }
 
 @media (min-width: 769px) {
+  .profileText {
+    font-size: 1.125rem;
+  }
+
   .bp {
     display: none;
   }

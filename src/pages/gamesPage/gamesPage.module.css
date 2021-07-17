@@ -1,0 +1,16 @@
+.root {
+  width: 100%;
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+}
+
+.noGames {
+  font-size: 1.025rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+@media (min-width: 769px) {
+  .noGames {
+    font-size: 1.125rem;
+  }
+}
