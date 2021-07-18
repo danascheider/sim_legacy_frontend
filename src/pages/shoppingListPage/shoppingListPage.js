@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useCallback } from 'react'
 import { useAppContext, useShoppingListContext } from '../../hooks/contexts'
+import { shoppingListLoadingStates } from '../../contexts/shoppingListContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingListCreateForm from '../../components/shoppingListCreateForm/shoppingListCreateForm'
 import ShoppingListPageContent from '../../components/shoppingListPageContent/shoppingListPageContent'
 import styles from './shoppingListPage.module.css'
 import ShoppingListItemEditForm from '../../components/shoppingListItemEditForm/shoppingListItemEditForm'
+
+const { LOADING, ERROR }
 
 const ShoppingListPage = () => {
   const { flashProps, flashVisible } = useAppContext()
@@ -17,7 +20,7 @@ const ShoppingListPage = () => {
     shoppingListLoadingState
   } = useShoppingListContext()
 
-  const shouldDisableForm = shoppingListLoadingState === 'loading' || shoppingListLoadingState === 'error'
+  const shouldDisableForm = shoppingListLoadingState === LOADING || shoppingListLoadingState === ERROR
   const formRef = useRef(null)
 
   const formRefContains = el => formRef.current && (formRef.current === el || formRef.current.contains(el))

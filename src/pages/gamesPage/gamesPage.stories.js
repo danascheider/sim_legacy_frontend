@@ -2,6 +2,7 @@ import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
+import { GamesProvider } from '../../contexts/gamesContext'
 import { profileData, emptyGames, games } from './testData'
 import GamesPage from './gamesPage'
 
@@ -22,7 +23,9 @@ export default { title: 'GamesPage' }
 
 export const HappyPath = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
-    <GamesPage />
+    <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
+      <GamesPage />
+    </GamesProvider>
   </AppProvider>
 )
 
@@ -45,7 +48,9 @@ HappyPath.parameters = {
 
 export const Empty = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
-    <GamesPage />
+    <GamesProvider overrideValue={{ gameLoadingState: 'done', games: emptyGames }}>
+      <GamesPage />
+    </GamesProvider>
   </AppProvider>
 )
 
@@ -62,6 +67,20 @@ Empty.parameters = {
 
 /*
  *
+ * When the games are loading
+ *
+ */
+
+export const Loading = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ gameLoadingState: 'loading', games: emptyGames }}>
+      <GamesPage />
+    </GamesProvider>
+  </AppProvider>
+)
+
+/*
+ *
  * When the server returns a 500 error or another unexpected
  * error is raised
  *
@@ -69,7 +88,9 @@ Empty.parameters = {
 
 export const Error = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
-    <GamesPage />
+    <GamesProvider>
+      <GamesPage />
+    </GamesProvider>
   </AppProvider>
 )
 

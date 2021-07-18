@@ -2,6 +2,7 @@ import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { AppProvider } from '../contexts/appContext'
+import { GamesProvider } from '../contexts/gamesContext'
 // import { ShoppingListProvider } from '../contexts/shoppingListContext'
 import HomePage from '../pages/homePage/homePage'
 import LoginPage from '../pages/loginPage/loginPage'
@@ -39,7 +40,7 @@ const pages = [
     pageId: 'games',
     title: `${siteTitle} Your Games`,
     description: 'Manage Skyrim Games',
-    jsx: <GamesPage />,
+    jsx: <GamesProvider><GamesPage /></GamesProvider>,
     path: paths.dashboard.games
   },
   // {

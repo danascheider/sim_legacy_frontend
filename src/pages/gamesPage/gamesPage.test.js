@@ -13,6 +13,7 @@ import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
 import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
+import { GamesProvider } from '../../contexts/gamesContext'
 import { profileData, games, emptyGames } from './testData'
 import GamesPage from './gamesPage'
 
@@ -28,7 +29,7 @@ describe('GamesPage', () => {
 
     it('redirects to the login page', async () => {
       act(() => {
-        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
         return undefined
       })
       const { history } = component
@@ -62,7 +63,7 @@ describe('GamesPage', () => {
 
     it('redirects to the login page', async () => {
       act(() => {
-        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
         return undefined
       })
       const { history } = component
@@ -98,7 +99,7 @@ describe('GamesPage', () => {
 
         it('stays on the games page', async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
           const { history } = component
@@ -108,7 +109,7 @@ describe('GamesPage', () => {
 
         it('displays the games page', async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -119,7 +120,7 @@ describe('GamesPage', () => {
 
         it('displays a message that there are no games', async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -130,7 +131,7 @@ describe('GamesPage', () => {
 
         it("doesn't display an error message", async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -160,7 +161,7 @@ describe('GamesPage', () => {
 
         it('stays on the games page', async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
           const { history } = component
@@ -170,7 +171,7 @@ describe('GamesPage', () => {
 
         it('displays the games page', async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -181,7 +182,7 @@ describe('GamesPage', () => {
 
         it('displays the list of games', async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -194,7 +195,7 @@ describe('GamesPage', () => {
 
         it("doesn't display the 'You have no games' message", async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -203,7 +204,7 @@ describe('GamesPage', () => {
 
         it("doesn't display an error message", async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -212,7 +213,7 @@ describe('GamesPage', () => {
 
         it("doesn't display the descriptions to start with", async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -222,7 +223,7 @@ describe('GamesPage', () => {
 
         it('expands one description at a time', async () => {
           act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
           })
 
@@ -270,7 +271,7 @@ describe('GamesPage', () => {
 
       it('stays on the games page', async () => {
         act(() => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
           return undefined
         })
         const { history } = component
@@ -280,7 +281,7 @@ describe('GamesPage', () => {
 
       it("doesn't display the 'You have no games' message", async () => {
         act(() => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
           return undefined
         })
 
@@ -289,7 +290,7 @@ describe('GamesPage', () => {
 
       it('displays an error message', async () => {
         act(() => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
           return undefined
         })
 

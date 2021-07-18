@@ -8,6 +8,7 @@
 import { useContext } from 'react'
 import { ColorContext } from '../contexts/colorContext'
 import { AppContext } from '../contexts/appContext'
+import { GamesContext } from '../contexts/gamesContext'
 import { ShoppingListContext } from '../contexts/shoppingListContext'
 
 const useCustomContext = (cxt, msg) => {
@@ -30,4 +31,8 @@ export const useAppContext = () => (
 
 export const useShoppingListContext = () => (
   useCustomContext(ShoppingListContext, 'useShoppingListContext must be used within a ShoppingListProvider')
+)
+
+export const useGamesContext = () => (
+  useCustomContext(GamesContext, 'useGamesContext must be used within a GamesProvider')
 )

@@ -2,9 +2,12 @@ import React from 'react'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import { useShoppingListContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
+import { shoppingListLoadingStates } from '../../contexts/shoppingListContext'
 import Loading from '../loading/loading'
 import ShoppingList from '../shoppingList/shoppingList'
 import styles from './shoppingListPageContent.module.css'
+
+const { LOADING, DONE } = shoppingListLoadingStates
 
 const ShoppingListPageContent = () => {
   const { shoppingLists, shoppingListLoadingState } = useShoppingListContext()
@@ -16,7 +19,7 @@ const ShoppingListPageContent = () => {
    */
 
   // Expected states
-  const listsLoadedAndNotEmpty = shoppingLists && shoppingListLoadingState === 'done' && shoppingLists.length > 0
+  const listsLoadedAndNotEmpty = shoppingLists && shoppingListLoadingState === DONE && shoppingLists.length > 0
 
   /*
    *
@@ -47,7 +50,7 @@ const ShoppingListPageContent = () => {
         })}
       </>
     )
-  } else if (shoppingListLoadingState === 'loading') {
+  } else if (shoppingListLoadingState === LOADING) {
     return <Loading className={styles.loading} color={YELLOW.schemeColorDarkest} height='15%' width='15%' />
   } else {
     return null

@@ -28,6 +28,8 @@ const LOADING = 'loading'
 const DONE = 'done'
 const ERROR = 'error'
 
+const shoppingListLoadingStates = { LOADING, DONE, ERROR }
+
 const ShoppingListContext = createContext()
 
 const ShoppingListProvider = ({ children, overrideValue = {} }) => {
@@ -45,7 +47,8 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   
   if (overrideValue.shoppingLists) {
     // Use this as the initial value only so that the shopping
-    // lists can be updated when we interact in Storybook
+    // lists can be updated when we interact in Storybook or other
+    // tests
     delete overrideValue.shoppingLists
     shoppingListsOverridden.current = true
   }
@@ -92,7 +95,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
             setShoppingLists(data)
             overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           } else {
-            const message = data && data.errors ? 'Internal ServerError: ' + data.errors[0] : 'No shopping list data returned from the SIM API'
+            const message = data && data.errors ? `Internal ServerError: ${data.errors[0]}` : 'No shopping list data returned from the SIM API'
             throw new Error(message)
           }
         })
@@ -488,7 +491,7 @@ ShoppingListProvider.propTypes = {
         notes: PropTypes.string
       })).isRequired
     })),
-    shoppingListLoadingState: PropTypes.string,
+    shoppingListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
     performShoppingListUpdate: PropTypes.func,
     performShoppingListCreate: PropTypes.func,
     performShoppingListDestroy: PropTypes.func,
@@ -498,4 +501,4 @@ ShoppingListProvider.propTypes = {
   })
 }
 
-export { ShoppingListContext, ShoppingListProvider}
+export { ShoppingListContext, ShoppingListProvider, shoppingListLoadingStates }
