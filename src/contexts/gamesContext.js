@@ -87,7 +87,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           success && success()
         } else if (data && data.errors) {
           if (data.errors.filter(msg => msg.match(/^(Name|Description)/)).length === data.errors.length) {
-            displayFlash('error', data.errors, `${data.errors.length} errors prevented your game from being created:`)
+            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being created:`)
             success && success()
           } else {
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
@@ -119,7 +119,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
   useEffect(() => {
     fetchUserGames()
-    return () => (mountedRef.current = false && console.log('this is where it got unmounted'))
+    return () => mountedRef.current = false
   }, [fetchUserGames])
 
   return(

@@ -288,6 +288,60 @@ describe('GamesPage', () => {
           expect(newGame).toBeVisible()
         })
       })
+
+      describe('creating a game with invalid attributes', () => {
+        const server = setupServer(
+          rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(profileData)
+            )
+          }),
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+            const returnData = { errors: ['Name must be unique'] }
+
+            return res(
+              ctx.status(422),
+              ctx.json(returnData)
+            )
+          })
+        )
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it("displays the error message", async () => {
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+
+          const nameInput = await screen.findByLabelText('Name')
+          const descInput = await screen.findByLabelText('Description')
+          const form = await screen.findByTestId('game-create-form')
+
+          fireEvent.change(nameInput, { target: { value: 'Another Game' } })
+          fireEvent.change(descInput, { target: { value: 'New game description' } })
+
+          act(() => {
+            fireEvent.submit(form)
+            return undefined
+          })
+
+          const newGameEl = await screen.queryByText('Another Game')
+          const errorEl = await screen.findByText(/Name must be unique/)
+
+          expect(newGameEl).not.toBeInTheDocument()
+          expect(errorEl).toBeVisible()
+        })
+      })
     })
 
     describe('when there is an error fetching the games', () => {

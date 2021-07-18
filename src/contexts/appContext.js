@@ -50,9 +50,10 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   }, [])
 
   const displayFlash = useCallback((type, message, header = null) => {
-    setFlashProps({ type, message, header })
-    setFlashVisible(true)
-    window.scrollTo(0, 0)
+    if (mountedRef.current) {
+      setFlashProps({ type, message, header })
+      setFlashVisible(true)
+    }
   }, [])
 
   const hideFlash = useCallback(() => { setFlashVisible(false) }, [])
@@ -126,7 +127,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
                                 cookies
                               ])
 
-  useEffect(() => (() => mountedRef.current = false))
+  useEffect(() => (() => mountedRef.current = false), [])
 
   return(
     <AppContext.Provider value={value}>
