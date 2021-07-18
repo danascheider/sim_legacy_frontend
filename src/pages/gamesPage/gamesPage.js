@@ -5,6 +5,7 @@ import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import Loading from '../../components/loading/loading'
+import FlashMessage from '../../components/flashMessage/flashMessage'
 import styles from './gamesPage.module.css'
 import paths from '../../routing/paths'
 
@@ -13,7 +14,14 @@ const DONE = 'done'
 const ERROR = 'error'
 
 const GamesPage = () => {
-  const { token, logOutAndRedirect, setShouldRedirectTo } = useAppContext()
+  const {
+    token,
+    logOutAndRedirect,
+    setShouldRedirectTo,
+    displayFlash,
+    flashProps,
+    flashVisible
+  } = useAppContext()
 
   const [games, setGames] = useState(null)
   const [gameLoadingState, setGameLoadingState] = useState(LOADING)
@@ -45,7 +53,10 @@ const GamesPage = () => {
           } else {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching games: ', err.message)
 
-            setGameLoadingState(ERROR)
+            if (mountedRef.current) {
+              setGameLoadingState(ERROR)
+              displayFlash('error', "There was an error loading your games. It may have been on our end. We're sorry!")
+            }
           }
         })
     }
@@ -56,6 +67,7 @@ const GamesPage = () => {
   return(
     <DashboardLayout title='Your Games'>
       <div className={styles.root}>
+        {flashVisible && <FlashMessage {...flashProps} />}
         {games && games.length === 0 && gameLoadingState === DONE && <div className={styles.noGames}>You have no games.</div>}
         {games && games.length > 0 && gameLoadingState === DONE && <ul className={styles.gameContent}>
           {games.map(({ name }) => (

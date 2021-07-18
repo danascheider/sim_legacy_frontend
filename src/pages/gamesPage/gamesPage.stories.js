@@ -53,3 +53,20 @@ Empty.parameters = {
     })
   ]
 }
+
+export const Error = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesPage />
+  </AppProvider>
+)
+
+Error.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+      return res(
+        ctx.status(500),
+        ctx.json({ errors: ['Something went horribly wrong'] })
+      )
+    })
+  ]
+}

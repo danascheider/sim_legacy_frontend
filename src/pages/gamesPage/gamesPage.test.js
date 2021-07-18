@@ -205,9 +205,18 @@ describe('GamesPage', () => {
         })
       )
 
-      beforeAll(() => server.listen())
+      const originalScrollTo = window.scrollTo
+
+      beforeAll(() => {
+        server.listen()
+        window.scrollTo = () => {}
+      })
+
       beforeEach(() => server.resetHandlers())
-      afterAll(() => server.close())
+      afterAll(() => {
+        server.close()
+        window.scrollTo = originalScrollTo
+      })
 
       it('stays on the games page', async () => {
         act(() => {
@@ -226,6 +235,17 @@ describe('GamesPage', () => {
         })
 
         await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
+      })
+
+      it('displays an error message', async () => {
+        act(() => {
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          return undefined
+        })
+
+        const el = await screen.findByText(/error/i)
+
+        expect(el).toBeInTheDocument()
       })
     })
   })
