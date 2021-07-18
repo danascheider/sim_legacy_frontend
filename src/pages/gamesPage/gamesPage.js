@@ -4,8 +4,9 @@ import { fetchGames } from '../../utils/simApi'
 import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext } from '../../hooks/contexts'
 import DashboardLayout from '../../layouts/dashboardLayout'
-import Loading from '../../components/loading/loading'
 import FlashMessage from '../../components/flashMessage/flashMessage'
+import Game from '../../components/game/game'
+import Loading from '../../components/loading/loading'
 import styles from './gamesPage.module.css'
 import paths from '../../routing/paths'
 
@@ -25,8 +26,14 @@ const GamesPage = () => {
 
   const [games, setGames] = useState(null)
   const [gameLoadingState, setGameLoadingState] = useState(LOADING)
+  const [toggleEvent, setToggleEvent] = useState(0)
 
   const mountedRef = useRef(true)
+  const slideTriggerRef = useRef(null)
+
+  const toggleDescription = () => {
+    setToggleEvent(Date.now())
+  }
 
   useEffect(() => {
     if (!token && !isStorybook) {
@@ -62,18 +69,16 @@ const GamesPage = () => {
     }
     
     return () => mountedRef.current = false
-  }, [token, logOutAndRedirect])
+  }, [token, logOutAndRedirect, setShouldRedirectTo, displayFlash])
 
   return(
     <DashboardLayout title='Your Games'>
       <div className={styles.root}>
         {flashVisible && <FlashMessage {...flashProps} />}
-        {games && games.length === 0 && gameLoadingState === DONE && <div className={styles.noGames}>You have no games.</div>}
-        {games && games.length > 0 && gameLoadingState === DONE && <ul className={styles.gameContent}>
-          {games.map(({ name }) => (
-            <li key={name} className={styles.game}>{name}</li>
-        ))}
-        </ul>}
+        {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}
+        {games && games.length > 0 && gameLoadingState === DONE && <>
+          {games.map(({ name, description }) => <Game key={name} name={name} description={description} />)}
+        </>}
         {gameLoadingState === LOADING && <Loading type='bubbles' className={styles.loading} color={YELLOW.schemeColorDarkest} height='15%' width='15%' />}
       </div>
     </DashboardLayout>

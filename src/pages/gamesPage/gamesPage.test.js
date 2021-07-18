@@ -186,6 +186,16 @@ describe('GamesPage', () => {
 
           await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
         })
+
+        it("doesn't display the descriptions to start with", async () => {
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+
+          await waitFor(() => expect(screen.queryByText(games[0].description)).not.toBeVisible())
+          await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
+        })
       })
     })
 
@@ -205,6 +215,9 @@ describe('GamesPage', () => {
         })
       )
 
+      // It was giving me errors about this not being defined and I'm
+      // thinking of removing this from the flash display function anyway
+      // so I decided to just turn it into a noop here
       const originalScrollTo = window.scrollTo
 
       beforeAll(() => {
