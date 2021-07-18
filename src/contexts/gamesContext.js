@@ -103,7 +103,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
-          displayFlash('error', "Something unexpected happened while trying to create your game. Unfortunately, we don't know more than that yet. We're working on it!")
+          displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
 
           error && error()
         }

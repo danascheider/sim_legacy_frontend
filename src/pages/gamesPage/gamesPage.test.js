@@ -317,7 +317,7 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it("displays the error message", async () => {
+        it('displays the error message', async () => {
           act(() => {
             component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
             return undefined
@@ -342,6 +342,61 @@ describe('GamesPage', () => {
           expect(errorEl).toBeVisible()
         })
       })
+
+      describe('creating a game when something unexpected goes wrong', () => {
+        const server = setupServer(
+          rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(profileData)
+            )
+          }),
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+            const returnData = { errors: ['Something went horribly wrong'] }
+
+            return res(
+              ctx.status(500),
+              ctx.json(returnData)
+            )
+          })
+        )
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it('displays a generic error message', async () => {
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+
+          const nameInput = await screen.findByLabelText('Name')
+          const descInput = await screen.findByLabelText('Description')
+          const form = await screen.findByTestId('game-create-form')
+
+          fireEvent.change(nameInput, { target: { value: 'Another Game' } })
+          fireEvent.change(descInput, { target: { value: 'New game description' } })
+
+          act(() => {
+            fireEvent.submit(form)
+            return undefined
+          })
+
+          const newGameEl = await screen.queryByText('Another Game')
+          const errorEl = await screen.findByText(/unexpected error/i)
+
+          expect(newGameEl).not.toBeInTheDocument()
+          expect(errorEl).toBeVisible()
+        })
+      })
+
     })
 
     describe('when there is an error fetching the games', () => {
