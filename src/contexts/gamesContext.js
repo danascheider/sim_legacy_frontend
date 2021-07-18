@@ -73,7 +73,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, overrideValue.gameLoadingState, displayFlash, logOutAndRedirect])
 
-  const performGameCreate = useCallback((attrs, success = null, error = null) => {
+  const performGameCreate = useCallback((attrs, onSuccess = null, onErrorResponse = null, onFatalError = null) => {
     createGame(token, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -84,11 +84,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             setGames(newGames)
           }
 
-          success && success()
+          onSuccess && onSuccess()
         } else if (data && data.errors) {
           if (data.errors.filter(msg => msg.match(/^(Name|Description)/)).length === data.errors.length) {
             displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being created:`)
-            success && success()
+            onErrorResponse && onErrorResponse()
           } else {
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
           }
@@ -105,7 +105,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
 
-          error && error()
+          onFatalError && onFatalError()
         }
       })
   }, [token, games, displayFlash, logOutAndRedirect])

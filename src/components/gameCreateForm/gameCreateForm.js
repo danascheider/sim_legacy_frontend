@@ -33,10 +33,12 @@ const GameCreateForm = ({ disabled }) => {
       description: e.target.elements.description.value
     }
 
-    performGameCreate(attrs, () => {
+    const onSuccessOrFatalError = () => {
       formRef.current.reset()
       toggleForm()
-    })
+    }
+
+    performGameCreate(attrs, onSuccessOrFatalError, null, onSuccessOrFatalError)
   }
 
   return(
