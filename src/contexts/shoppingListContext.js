@@ -28,6 +28,8 @@ const LOADING = 'loading'
 const DONE = 'done'
 const ERROR = 'error'
 
+const shoppingListLoadingStates = { LOADING, DONE, ERROR }
+
 const ShoppingListContext = createContext()
 
 const ShoppingListProvider = ({ children, overrideValue = {} }) => {
@@ -499,4 +501,4 @@ ShoppingListProvider.propTypes = {
   })
 }
 
-export { ShoppingListContext, ShoppingListProvider }
+export { ShoppingListContext, ShoppingListProvider, shoppingListLoadingStates }
