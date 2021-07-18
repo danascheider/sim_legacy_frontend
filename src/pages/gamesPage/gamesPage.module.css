@@ -1,0 +1,46 @@
+.root {
+  width: 100%;
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+}
+
+.noGames {
+  font-size: 1.025rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.games {
+  margin: 0 auto;
+}
+
+.loading {
+  margin: 0 auto;
+}
+
+@media (min-width: 601px) {
+  .games {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 769px) {
+  .noGames {
+    font-size: 1.125rem;
+  }
+
+  .games {
+    max-width: 75%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .games {
+    max-width: 60%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .games {
+    max-width: 50%;
+  }
+}

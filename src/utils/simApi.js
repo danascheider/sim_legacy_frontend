@@ -62,13 +62,33 @@ export const fetchUserProfile = token => {
 
 /*
  *
- * Shopping List Endpoints (Scoped to Authenticated User)
+ * Game Endpoints (Scoped to Authenticated User)
+ * 
+ */
+
+// GET /games
+export const fetchGames = token => {
+  const uri = `${backendBaseUri}/games`
+
+  return(
+    fetch(uri, { headers: authHeader(token) })
+      .then(resp => {
+        if (resp.status === 401) throw new AuthorizationError()
+        return resp
+      })
+  )
+}
+
+/*
+ *
+ * Shopping List Endpoints (Scoped to Game)
  *
  */
 
 // GET /shopping_lists
 export const fetchShoppingLists = token => {
   const uri = `${backendBaseUri}/shopping_lists`
+
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {

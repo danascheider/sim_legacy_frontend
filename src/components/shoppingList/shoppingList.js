@@ -52,7 +52,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const componentRefContains = element => componentRef.current && (componentRef.current === element || componentRef.current.contains(element))
   const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element)) && !componentRefContains(element) && !deleteTriggerRefContains(element)
 
-  const toggleListItems = (e) => {
+  const toggleListItems = e => {
     if (shouldToggleListItems(e.target)) {
       setToggleEvent(Date.now)
     }

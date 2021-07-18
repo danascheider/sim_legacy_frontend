@@ -1,0 +1,30 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  margin: 16px auto 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.root:first-of-type .name {
+  margin-top: 0;
+}
+
+.name {
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.description {
+  font-size: 1.025rem;
+  padding-bottom: 16px;
+  margin: 0;
+}
+
+@media (min-width: 769px) {
+  .description {
+    font-size: 1.125rem;
+  }
+}
