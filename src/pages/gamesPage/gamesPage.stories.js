@@ -37,6 +37,12 @@ HappyPath.parameters = {
   ]
 }
 
+/*
+ *
+ * When the user is logged in and has no games but everything works
+ * 
+ */
+
 export const Empty = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
     <GamesPage />
@@ -53,6 +59,13 @@ Empty.parameters = {
     })
   ]
 }
+
+/*
+ *
+ * When the server returns a 500 error or another unexpected
+ * error is raised
+ *
+ */
 
 export const Error = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
