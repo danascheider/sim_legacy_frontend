@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import { BLUE } from '../../utils/colorSchemes'
 import { useAppContext, useShoppingListContext } from '../../hooks/contexts'
 import styles from './shoppingListCreateForm.module.css'
-import classNames from 'classnames'
 
 const ShoppingListCreateForm = ({ disabled }) => {
   const { hideFlash } = useAppContext()

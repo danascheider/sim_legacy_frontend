@@ -1,0 +1,98 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
+}
+
+.slideToggleTrigger {
+  cursor: pointer;
+  margin-top: 0;
+}
+
+.slideToggleTrigger:hover {
+  text-decoration: underline;
+}
+
+.fieldset {
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+  display: grid;
+}
+
+.fieldsetDisabled * {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.label {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
+  margin-bottom: 8px;
+}
+
+.input {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
+  padding: 8px 12px;
+  border: 1px solid #5f5f5f;
+  border-radius: 3px;
+}
+
+.button {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--button-color);
+  color: var(--button-text-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 3px;
+  font-size: 1.025rem;
+  padding: 8px 12px;
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: var(--button-hover-color)
+}
+
+.buttonDisabled {
+  background-color: #7c8388;
+  border-color: #4b5053;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.buttonDisabled:hover {
+  background-color: #7c8388;
+}
+
+@media (min-width: 601px) {
+  .fieldset {
+    grid-template-columns: 2fr 6fr;
+  }
+
+  .label {
+    margin: auto 0;
+  }
+}
+
+@media (min-width: 769px) {
+  .fieldset {
+    max-width: 75%;
+  }
+
+  .root, .label, .input, .button {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .fieldset {
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .fieldset {
+    max-width: 40%;
+  }
+}

@@ -12,7 +12,7 @@
 
 import { createContext, useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { fetchGames } from '../utils/simApi'
+import { fetchGames, createGame } from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
 
@@ -33,7 +33,9 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
   const mountedRef = useRef(true)
   const gamesOverridden = useRef(false)
 
-  if (overrideValue.games) {
+  // Check if undefined or null because an empty array would evaluate to false
+
+  if (overrideValue.games !== undefined && overrideValue.games !== null) {
     // Use this as the initial value only so that the games can be
     // updated when we interact in Storybook or other tests
     delete overrideValue.games
@@ -71,9 +73,46 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, overrideValue.gameLoadingState, displayFlash, logOutAndRedirect])
 
+  const performGameCreate = useCallback((attrs, success = null, error = null) => {
+    createGame(token, attrs)
+      .then(resp => resp.json())
+      .then(data => {
+        if (data && !data.errors) {
+          if (mountedRef.current) {
+            const oldGames = games
+            setGames(oldGames.unshift(data))
+          }
+
+          success && success()
+        } else if (data && data.errors) {
+          if (data.errors.filter(msg => msg.match(/^(Name|Description)/)).length === data.errors.length) {
+            displayFlash('error', data.errors, `${data.errors.length} errors prevented your game from being created:`)
+            success && success()
+          } else {
+            throw new Error(`Internal Server Error: ${data.errors[0]}`)
+          }
+        } else {
+          // Something unexpected happened and we don't know what.
+          throw new Error("There was an unexpected error creating your new game. Unfortunately, we don't know more than that yet. We're sorry!")
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
+
+          displayFlash('error', "Something unexpected happened while trying to create your game. Unfortunately, we don't know more than that yet. We're working on it!")
+
+          error && error()
+        }
+      })
+  }, [token, games, displayFlash, logOutAndRedirect])
+
   const value = {
     games,
     gameLoadingState,
+    performGameCreate,
     ...overrideValue
   }
 
@@ -98,7 +137,8 @@ GamesProvider.propTypes = {
       name: PropTypes.string.isRequired,
       description: PropTypes.string
     })),
-    gameLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR])
+    gameLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
+    performGameCreate: PropTypes.func
   })
 }
 
