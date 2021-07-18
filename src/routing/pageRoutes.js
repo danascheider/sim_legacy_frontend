@@ -3,10 +3,11 @@ import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { AppProvider } from '../contexts/appContext'
 // import { ShoppingListProvider } from '../contexts/shoppingListContext'
-import DashboardPage from '../pages/dashboardPage/dashboardPage'
-// import ShoppingListPage from '../pages/shoppingListPage/shoppingListPage'
 import HomePage from '../pages/homePage/homePage'
 import LoginPage from '../pages/loginPage/loginPage'
+import DashboardPage from '../pages/dashboardPage/dashboardPage'
+import GamesPage from '../pages/gamesPage/gamesPage'
+// import ShoppingListPage from '../pages/shoppingListPage/shoppingListPage'
 import NotFoundPage from '../pages/notFoundPage/notFoundPage'
 import paths from './paths'
 
@@ -34,13 +35,13 @@ const pages = [
     jsx: <DashboardPage />,
     path: paths.dashboard.main
   },
-  // {
-  //   pageId: 'games',
-  //   title: `${siteTitle} Your Games`,
-  //   description: 'Manage Skyrim Games',
-  //   jsx: <GamesPage />,
-  //   path: paths.dashboard.games
-  // },
+  {
+    pageId: 'games',
+    title: `${siteTitle} Your Games`,
+    description: 'Manage Skyrim Games',
+    jsx: <GamesPage />,
+    path: paths.dashboard.games
+  },
   // {
   //   pageId: 'shoppingLists',
   //   title: `${siteTitle} Manage Shopping Lists`,
@@ -48,6 +49,8 @@ const pages = [
   //   jsx: <ShoppingListProvider><ShoppingListPage /></ShoppingListProvider>,
   //   path: paths.dashboard.shoppingLists
   // }
+
+
 ]
 
 const PageRoutes = () => (

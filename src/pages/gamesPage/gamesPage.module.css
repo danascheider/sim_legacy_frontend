@@ -9,6 +9,10 @@
   text-align: center;
 }
 
+.loading {
+  margin: 0 auto;
+}
+
 @media (min-width: 769px) {
   .noGames {
     font-size: 1.125rem;

@@ -5,6 +5,7 @@ import { waitFor, screen } from '@testing-library/react'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
+import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import { profileData, games, emptyGames } from './testData'
 import GamesPage from './gamesPage'
@@ -57,13 +58,13 @@ describe('GamesPage', () => {
     describe('when the games are fetched successfully', () => {
       describe('when there are no games', () => {
         const server = setupServer(
-          rest.get('http://localhost:3000/users/current', (req, res, ctx) => {
+          rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
             return res(
               ctx.status(200),
               ctx.json(profileData)
             )
           }),
-          rest.get('http://localhost:3000/users/games', (req, res, ctx) => {
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
             return res(
               ctx.status(200),
               ctx.json(emptyGames)
@@ -95,6 +96,51 @@ describe('GamesPage', () => {
           const el = await screen.findByText(/no games/i)
 
           expect(el).toBeInTheDocument()
+        })
+      })
+
+      describe('when there are games', () => {
+        const server = setupServer(
+          rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(profileData)
+            )
+          }),
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          })
+        )
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it('stays on the games page', async () => {
+          const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+
+          await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
+        })
+
+        it('displays the games page', async () => {
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+
+          const el = await screen.findByText(/your games/i)
+
+          expect(el).toBeInTheDocument()
+        })
+
+        it('displays the list of games', async () => {
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+
+          const el1 = await screen.findByText(games[0].name)
+          const el2 = await screen.findByText(games[1].name)
+
+          expect(el1).toBeInTheDocument()
+          expect(el2).toBeInTheDocument()
         })
       })
     })

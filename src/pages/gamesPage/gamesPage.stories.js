@@ -25,3 +25,31 @@ export const HappyPath = () => (
     <GamesPage />
   </AppProvider>
 )
+
+HappyPath.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json(games)
+      )
+    })
+  ]
+}
+
+export const Empty = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesPage />
+  </AppProvider>
+)
+
+Empty.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json(emptyGames)
+      )
+    })
+  ]
+}
