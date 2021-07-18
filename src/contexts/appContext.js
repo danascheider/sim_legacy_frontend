@@ -67,7 +67,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   const logOutAndRedirect = useCallback((path = paths.login, callback = null) => {
     logOutWithGoogle(() => {
-      cookies[sessionCookieName] && removeSessionCookie()
+      removeSessionCookie()
       callback && callback()
       onAuthenticatedPage() && setShouldRedirectTo(path)
     })
