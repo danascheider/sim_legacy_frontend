@@ -9,40 +9,38 @@
   text-align: center;
 }
 
+.games {
+  margin: 0 auto;
+}
+
 .loading {
   margin: 0 auto;
 }
 
-.game {
-  margin: 16px auto 8px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ccc;
-}
-
-.game:first-of-type {
-  margin-top: 0;
-}
-
-.game:last-of-type {
-  margin-bottom: 0;
-}
-
-.gameHeader {
-  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  margin-top: 0px;
-}
-
-.headerLink {
-  text-decoration: none;
-  color: #000036;
-}
-
-.gameDescription {
-  margin-bottom: 0;
+@media (min-width: 601px) {
+  .games {
+    max-width: 90%;
+  }
 }
 
 @media (min-width: 769px) {
   .noGames {
     font-size: 1.125rem;
+  }
+
+  .games {
+    max-width: 75%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .games {
+    max-width: 60%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .games {
+    max-width: 50%;
   }
 }
