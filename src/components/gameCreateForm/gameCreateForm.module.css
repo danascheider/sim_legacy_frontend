@@ -9,7 +9,6 @@
 .slideToggleTrigger {
   cursor: pointer;
   font-size: 1.15rem;
-  margin-top: 0;
 }
 
 .slideToggleTrigger:hover {
@@ -38,7 +37,7 @@
   padding: 8px 12px;
   border: 1px solid #5f5f5f;
   border-radius: 3px;
-  width: 100%;
+  width: calc(100% - 24px); /* make it 100% of the parent including padding */
 }
 
 .button {
