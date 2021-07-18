@@ -92,8 +92,15 @@ describe('DashboardPage', () => {
       expect(await screen.findByText('dragonborn@gmail.com')).toBeInTheDocument()
     })
 
+    // it('displays the link to the shopping list page', async () => {
+    //   const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
+    //   const element = await screen.findByText(/shopping lists/i)
 
+    //   fireEvent.click(element)
+
+    //   await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/shopping_lists'))
+    // })
 
     describe('logging out', () => {
       it('redirects to the homepage', async () => {
