@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import SlideToggle from 'react-slide-toggle'
 import styles from './game.module.css'
 
