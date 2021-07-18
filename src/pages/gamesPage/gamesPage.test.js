@@ -8,6 +8,7 @@ import {
   waitForElementToBeRemoved,
   fireEvent
 } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
@@ -233,6 +234,58 @@ describe('GamesPage', () => {
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).toBeVisible())
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
+        })
+      })
+
+      describe('creating a game successfully', () => {
+        const server = setupServer(
+          rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(profileData)
+            )
+          }),
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+            const returnData = { id: 27, user_id: profileData.id, name: 'Another Game', description: 'New game description' }
+
+            return res(
+              ctx.status(201),
+              ctx.json(returnData)
+            )
+          })
+        )
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it('adds the game to the list', async () => {
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+
+          const nameInput = await screen.findByLabelText('Name')
+          const descInput = await screen.findByLabelText('Description')
+          const form = await screen.findByTestId('game-create-form')
+
+          fireEvent.change(nameInput, { target: { value: 'Another Game' } })
+          fireEvent.change(descInput, { target: { value: 'New game description' } })
+
+          act(() => {
+            fireEvent.submit(form)
+            return undefined
+          })
+
+          const newGame = await screen.findByText('Another Game', { timeout: 7000 })
+
+          expect(newGame).toBeVisible()
         })
       })
     })

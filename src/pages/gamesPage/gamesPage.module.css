@@ -20,6 +20,7 @@
 @media (min-width: 601px) {
   .games {
     max-width: 90%;
+    margin: unset;
   }
 }
 

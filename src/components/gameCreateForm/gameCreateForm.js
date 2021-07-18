@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
@@ -12,6 +12,8 @@ const GameCreateForm = ({ disabled }) => {
 
   const [toggleEvent, setToggleEvent] = useState(0)
 
+  const formRef = useRef(null)
+
   const colorVars = {
     '--button-color': BLUE.schemeColorDark,
     '--button-text-color': BLUE.textColorPrimary,
@@ -23,6 +25,7 @@ const GameCreateForm = ({ disabled }) => {
 
   const createGame = e => {
     e.preventDefault()
+
     hideFlash()
 
     const attrs = {
@@ -30,37 +33,44 @@ const GameCreateForm = ({ disabled }) => {
       description: e.target.elements.description.value
     }
 
-    performGameCreate(attrs)
+    performGameCreate(attrs, () => {
+      formRef.current.reset()
+      toggleForm()
+    })
   }
 
   return(
     <div className={styles.root} style={colorVars}>
-      <p className={styles.slideToggleTrigger} onClick={toggleForm}>Create Game...</p>
+      <h3 className={styles.slideToggleTrigger} onClick={toggleForm}>Create Game...</h3>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
-          <form ref={setCollapsibleElement} className={styles.form} onSubmit={createGame}>
-            <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
-              <label htmlFor='name' className={styles.label}>Name</label>
-              <input
-                className={styles.input}
-                type='text'
-                name='name'
-                placeholder='Name'
-              />
-            </fieldset>
-            <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
-              <label htmlFor='name' className={styles.label}>Description</label>
-              <input
-                className={styles.input}
-                type='text'
-                name='description'
-                placeholder='Description'
-              />
-            </fieldset>
-            <button className={classNames(styles.button, { [styles.buttonDisabled]: disabled })} type='submit' disabled={disabled}>
-              Create
-            </button>
-          </form>
+          /* Include this div so we can set the form ref to something else */
+          <div ref={setCollapsibleElement}>
+            {/* Unfortunately, setting data-testid seems the only way to test this since fireEvent.click doesn't work */}
+            <form ref={formRef} className={styles.form} data-testid='game-create-form' onSubmit={createGame}>
+              <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
+                <input
+                  className={styles.input}
+                  type='text'
+                  name='name'
+                  placeholder='Name'
+                  aria-label='Name'
+                />
+              </fieldset>
+              <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
+                <input
+                  className={styles.input}
+                  type='text'
+                  name='description'
+                  placeholder='Description'
+                  aria-label='Description'
+                />
+              </fieldset>
+              <button className={classNames(styles.button, { [styles.buttonDisabled]: disabled })} type='submit' disabled={disabled}>
+                Create
+              </button>
+            </form>
+          </div>
         )}
       </SlideToggle>
     </div>

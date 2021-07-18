@@ -79,8 +79,9 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       .then(data => {
         if (data && !data.errors) {
           if (mountedRef.current) {
-            const oldGames = games
-            setGames(oldGames.unshift(data))
+            const newGames = [...games]
+            newGames.unshift(data)
+            setGames(newGames)
           }
 
           success && success()
@@ -118,7 +119,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
   useEffect(() => {
     fetchUserGames()
-    return () => mountedRef.current = false
+    return () => (mountedRef.current = false && console.log('this is where it got unmounted'))
   }, [fetchUserGames])
 
   return(
