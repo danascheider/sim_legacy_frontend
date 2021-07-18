@@ -127,6 +127,15 @@ describe('GamesPage', () => {
 
           expect(el).toBeInTheDocument()
         })
+
+        it("doesn't display an error message", async () => {
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+
+          await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
+        })
       })
 
       describe('when there are games', () => {
@@ -190,6 +199,15 @@ describe('GamesPage', () => {
           })
 
           await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
+        })
+
+        it("doesn't display an error message", async () => {
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+
+          await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
         })
 
         it("doesn't display the descriptions to start with", async () => {
