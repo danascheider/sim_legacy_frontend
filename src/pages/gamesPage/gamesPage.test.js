@@ -283,7 +283,7 @@ describe('GamesPage', () => {
             return undefined
           })
 
-          const newGame = await screen.findByText('Another Game', { timeout: 7000 })
+          const newGame = await screen.findByText('Another Game')
 
           expect(newGame).toBeVisible()
         })
