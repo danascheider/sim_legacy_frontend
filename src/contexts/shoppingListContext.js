@@ -491,7 +491,7 @@ ShoppingListProvider.propTypes = {
         notes: PropTypes.string
       })).isRequired
     })),
-    shoppingListLoadingState: PropTypes.oneOf(['loading', 'done', 'error']),
+    shoppingListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
     performShoppingListUpdate: PropTypes.func,
     performShoppingListCreate: PropTypes.func,
     performShoppingListDestroy: PropTypes.func,

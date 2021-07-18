@@ -98,7 +98,7 @@ GamesProvider.propTypes = {
       name: PropTypes.string.isRequired,
       description: PropTypes.string
     })),
-    gameLoadingState: PropTypes.oneOf(['loading', 'done', 'error'])
+    gameLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR])
   })
 }
 
