@@ -237,6 +237,10 @@ describe('GamesPage', () => {
         it('adds the game to the list', async () => {
           renderComponentWithMockCookies(cookies)
 
+          const toggleLink = await screen.findByText('Create Game...')
+
+          fireEvent.click(toggleLink)
+
           const nameInput = await screen.findByLabelText('Name')
           const descInput = await screen.findByLabelText('Description')
           const form = await screen.findByTestId('game-create-form')
@@ -282,6 +286,10 @@ describe('GamesPage', () => {
 
         it('displays the error message', async () => {
           renderComponentWithMockCookies(cookies)
+
+          const toggleLink = await screen.findByText('Create Game...')
+
+          fireEvent.click(toggleLink)
 
           const nameInput = await screen.findByLabelText('Name')
           const descInput = await screen.findByLabelText('Description')
@@ -330,6 +338,10 @@ describe('GamesPage', () => {
 
         it('displays a generic error message', async () => {
           renderComponentWithMockCookies(cookies)
+
+          const toggleLink = await screen.findByText('Create Game...')
+
+          fireEvent.click(toggleLink)
 
           const nameInput = await screen.findByLabelText('Name')
           const descInput = await screen.findByLabelText('Description')
