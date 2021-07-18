@@ -42,6 +42,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
             type='text'
             name='title'
             placeholder='Title'
+            aria-label='Title'
             value={inputValue}
             onChange={updateValue}
           />

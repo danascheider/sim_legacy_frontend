@@ -60,6 +60,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
         onChange={updateInputWidth}
         type='text'
         name='title'
+        aria-label='Title'
         ref={inputRef}
         style={{width: inputWidth}}
         value={inputValue}
