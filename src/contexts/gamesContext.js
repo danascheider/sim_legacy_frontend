@@ -34,7 +34,6 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
   const gamesOverridden = useRef(false)
 
   // Check if undefined or null because an empty array would evaluate to false
-
   if (overrideValue.games !== undefined && overrideValue.games !== null) {
     // Use this as the initial value only so that the games can be
     // updated when we interact in Storybook or other tests
