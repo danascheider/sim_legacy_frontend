@@ -3,8 +3,9 @@
 SIM uses [React contexts](https://reactjs.org/docs/context.html) for management of certain state. This prevents "smart" components that fetch data or control state from having to pass through props to their children, their children's children, and so on. There are currently three contexts:
 
 * [AppContext](#dashboardcontext)
-* [ColorContext](#colorcontext)
+* [GamesContext](#gamescontext)
 * [ShoppingListContext](#shoppinglistcontext)
+* [ColorContext](#colorcontext)
 
 For each context, there is a [custom hook](/src/hooks/contexts.js) that can be used to invoke it in consumers.
 
@@ -179,68 +180,26 @@ export const Default = () => (
 Now, the data rendered in your component will use the token value and profile data given. If an API call is used in your component, it should be mocked with [msw](https://mswjs.io/) to make sure a 401 isn't returned due to an invalid token.
 
 
-## ColorContext
 
-The `ColorContext` keeps track of colour schemes. Set the colour scheme in the provider and then access it in the child/consumer component:
-```js
-// /src/components/parent/parent.js
-import React from 'react'
-import { ColorProvider } from '../../contexts/colorContext'
-import { GREEN } from '../../utils/colorSchemes'
-import Child from '../child/child'
+## GamesContext
 
-const Parent = () => (
-  <ColorProvider colorScheme={GREEN}>
-    <Child />
-  </ColorProvider>
-)
+The `GamesContext` is used to fetch all of a user's games when any page that uses them renders. Like the `AppContext`, it has an `overrideValue` prop that can be used for testing purposes. Setting `overrideValue.games` prevents games from being fetched on initial render.
 
-export default Parent
+The `GamesContext` is a consumer of the `AppContext`, implying that the `GamesProvider` must be rendered inside an `AppProvider`. From the `AppProvider`, the context takes the `token` (which it needs to make API calls) as well as the `logOutAndRedirect` function. The latter is used in the event an API call returns status 401 and the user needs to be logged out.
 
-// /src/components/child/child.js
-import React from 'react'
-import { useColorScheme } from '../../hooks/contexts'
-import styles from './child.module.css'
+On render, the `GamesProvider` fetches all the user's games.
 
-const Child = () => {
-  const { schemeColorDarkest, hoverColorDark, textColorPrimary } = useColorScheme()
+### Value
 
-  const styleVars = {
-    '--background-color': schemeColorDarkest,
-    '--hover-color': hoverColorDark,
-    '--text-color': textColorPrimary
-  }
-
-  return(
-    <div className={styles.root} style={styleVars}>
-      Content or child components go here.
-    </div>
-  )
-}
-
-export default Child
-```
-The variables you set in `styleVars` can then be used in the child's CSS:
-```css
-/* /src/components/child/child.module.css */
-.root {
-  color: var(--text-color);
-  background-color: var(--background-color);
-}
-
-.root:hover {
-  background-color: var(--hover-color);
-}
-```
-The `useColorScheme` hook can also be used to access the colour scheme in the child's children, as long as the same colour scheme is wanted for them.
+The value of the `GamesProvider` consists of a `games` value that is set to all of the user's games retrieved from the API. There is also a `gameLoadingState` value, which is set to one of `'loading'`, `'done'`, or `'error'`, depending on whether games have loaded successfully. Additional functions and values will be provided as games functionality is fleshed out. 
 
 ## ShoppingListContext
 
 The `ShoppingListContext` is used to fetch all the relevant shopping lists when the shopping list page renders. It uses some similar patterns to the `AppContext`, including the use of the `overrideValue` prop to set the value of the provider in Storybook.
 
-The `ShoppingList` context is a consumer of the `AppContext`, implying that the `useShoppingListContext` hook can only be used inside a `ShoppingListProvider`. You will see an error to this effect if you try to implement it another way. From the `AppProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `removeSessionCookie` and `setShouldRedirectTo` functions. The latter two are used in the event an API call returns status 401 and thee user needs to be logged out. Like elsewhere, the `logOutWithGoogle` function is used for this, with the cookie being removed and the redirect set in the callback passed to that function.
+The `ShoppingList` context is a consumer of the `AppContext` and the `GamesContext`, implying that the `ShoppingListProvider` can only be rendered inside both an `AppProvider` and a `GamesProvider`. You will see an error to this effect if you try to implement it another way. From the `AppProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `logOutAndRedirect` function. The latter is used in the event an API call returns status 401 and the user needs to be logged out. From the `GamesProvider`, the context takes the list of the user's games, which is used to determine how to populate the dropdown on the shopping lists page and which shopping lists to display.
 
-On load, the `ShoppingListProvider` fetches all the user's shopping lists. 
+On render, the `ShoppingListProvider` fetches all the user's shopping lists. 
 
 ### Value
 
@@ -332,3 +291,58 @@ A setter function to indicate whether the `ShoppingListEditForm` component shoul
 The `ShoppingListContext` is a little easier to work with in Storybook than the `AppContext`. While it still has an `overrideValues` prop, it isn't needed quite as much to make the basics work and you should only need it to, for example, set the loading state to 'loading' if a story needs to display that state. The rest of the testing can mostly be handled by mocking the API calls the provider makes using `msw`. Remember that the `ShoppingListProvider` component needs to be wrapped in a `AppProvider`, which will require override values for at least the token if not other values as well.
 
 **There are significant limitations to this approach.** Because MSW mocks do not have access to the internal state of the provider, mocked responses have to be based only on data included in the request itself or the initial values of the shopping lists and their items. For this reason, behaviour of components in Storybook should be considered primarily illustrative of component behaviour. Storybook cannot be used for testing edge cases and the components will behave strangely if you do anything too complicated.
+
+## ColorContext
+
+The `ColorContext` keeps track of colour schemes. Set the colour scheme in the provider and then access it in the child/consumer component:
+```js
+// /src/components/parent/parent.js
+import React from 'react'
+import { ColorProvider } from '../../contexts/colorContext'
+import { GREEN } from '../../utils/colorSchemes'
+import Child from '../child/child'
+
+const Parent = () => (
+  <ColorProvider colorScheme={GREEN}>
+    <Child />
+  </ColorProvider>
+)
+
+export default Parent
+
+// /src/components/child/child.js
+import React from 'react'
+import { useColorScheme } from '../../hooks/contexts'
+import styles from './child.module.css'
+
+const Child = () => {
+  const { schemeColorDarkest, hoverColorDark, textColorPrimary } = useColorScheme()
+
+  const styleVars = {
+    '--background-color': schemeColorDarkest,
+    '--hover-color': hoverColorDark,
+    '--text-color': textColorPrimary
+  }
+
+  return(
+    <div className={styles.root} style={styleVars}>
+      Content or child components go here.
+    </div>
+  )
+}
+
+export default Child
+```
+The variables you set in `styleVars` can then be used in the child's CSS:
+```css
+/* /src/components/child/child.module.css */
+.root {
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+.root:hover {
+  background-color: var(--hover-color);
+}
+```
+The `useColorScheme` hook can also be used to access the colour scheme in the child's children, as long as the same colour scheme is wanted for them.
