@@ -18,6 +18,13 @@
 }
 
 .description {
+  font-size: 1.025rem;
   padding-bottom: 16px;
   margin: 0;
+}
+
+@media (min-width: 769px) {
+  .description {
+    font-size: 1.125rem;
+  }
 }
