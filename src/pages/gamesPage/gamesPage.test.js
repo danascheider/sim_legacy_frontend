@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { waitFor, screen } from '@testing-library/react'
+import { waitFor, screen, waitForElementToBeRemoved } from '@testing-library/react'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
@@ -141,6 +141,12 @@ describe('GamesPage', () => {
 
           expect(el1).toBeInTheDocument()
           expect(el2).toBeInTheDocument()
+        })
+
+        it("doesn't display the 'You have no games' message", async () => {
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+
+          await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
         })
       })
     })
