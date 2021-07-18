@@ -56,11 +56,11 @@ Storybook generally handles hot reloads easily. However, there are a few cases w
 
 #### API Mocking
 
-We've tried to make sure that Storybook stories make the best use of API mocking to mimic component behaviour in the running application. Unfortunately, it has not been consistently possible to mimic this behaviour perfectly. That's due to the fact that many API calls are made from within context providers that set data dynamically. Within the stories, we don't have access to data internal to the providers. That means that we can't mock series of actions, such as when a user increments then decrements the quantity of an item on a list, or adds and removes multiple lists from a page. Behaviour in Storybook is unfortunately only useful for illustrative purposes and cannot be used for manual QA testing or verification that a component behaves as expected. Manual testing will need to be carried out by running both this application and the SIM API in your dev environment.
+We've tried to make sure that Storybook stories make the best use of API mocking to mimic component behaviour in the running application. Unfortunately, it has not been consistently possible to mimic this behaviour perfectly. That's due to the fact that many API calls are made from within context providers that set data dynamically. Within the stories, we don't have access to data internal to the providers. That means that we can't mock series of actions, such as when a user increments then decrements the quantity of an item on a list, or adds and removes multiple lists from a page. Storybook should be considered as a development tool and not a testing one. If you need to test UI functionality, use [Jest](https://jestjs.io/docs/tutorial-react).
 
 There are a few considerations when writing stories for components that make API calls (and the components themselves). The first is mock data. For mocking, we use the [mock service worker Storybook addon](https://storybook.js.org/addons/msw-storybook-addon/). For an example of how the MSW addon is used, look at the story for the [dashboard header](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/components/dashboardHeader/dashboardHeader.stories.js), which makes a call to `/users/current` to get the user's profile information from the backend.
 
-SIM components that make API calls typically first check for the presence of the `_sim_google_session` cookie beforee doing so. This is an issue in Storybook because Storybook doesn't set cookies and there doesn't seem to be a great solution out there for mocking them with decorators or addons. For this reason, I have configured the `yarn storybook` script to set an environment variable, `STORYBOOK`, to `true`. There is a utility function, [`isStorybook`](https://github.com/danascheider/skyrim_inventory_management_frontend/blob/main/src/utils/isStorybook.js), that checks whether this variable is set to a truthy value and returns `true` if so and `false` otherwise. Components that check for the presence of an auth token can set this using the `DashboardContext` and the `overrideValue` for the `DashboardProvider` for components that use it:
+SIM components that make API calls typically first check for the presence of the `_sim_google_session` cookie before doing so. This is an issue in Storybook because Storybook doesn't set cookies and there doesn't seem to be a great solution out there for mocking them with decorators or addons. Components that check for the presence of an auth token can set this using the `AppContext` and the `overrideValue` for the `AppProvider` for components that use it:
 
 ```js
 const overrideValue = { token: 'xxxxxx', profileData: data }
@@ -69,7 +69,7 @@ export default { title: 'DashboardHeader' }
 
 export const Default = () => <DashboardProvider overrideValue={overrideValue}><DashboardHeader /></DashboardProvider>
 ```
-For other cases where you absolutely must change app behaviour for Storybook, you can use the [`isStorybook`](/src/utils/isStorybook.js) function. Use of this function should be considered a code smell and avoided when possible.
+For other cases where you absolutely must change app behaviour for Storybook, you can use the [`isStorybook`](/src/utils/isTestEnv.js) function. (There are also an `isJest` function, which identifies if the code is running in Jest, and an `isTestEnv` function that determines whether it is in either Storybook or Jest.) Use of these functions should be considered a code smell and avoided when possible.
 
 ### Testing with Jest
 
