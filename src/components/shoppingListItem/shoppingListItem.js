@@ -47,7 +47,6 @@ const ShoppingListItem = ({
   } = useShoppingListContext()
 
   const mountedRef = useRef(true)
-  const headerRef = useRef(null)
   const iconsRef = useRef(null)
   const editRef = useRef(null)
   const deleteRef = useRef(null)
@@ -62,7 +61,7 @@ const ShoppingListItem = ({
   const iconContains = el => editRefContains(el) || deleteRefContains(el) || incRefContains(el) || decRefContains(el)
   
   const toggleDetails = e => {
-    if (!e || !iconContains(e.target)) setToggleEvent(Date.now)
+    if (!iconContains(e.target)) setToggleEvent(Date.now)
   }
 
   const styleVars = {
@@ -142,7 +141,7 @@ const ShoppingListItem = ({
   return(
     <div className={styles.root} style={styleVars}>
       <div className={styles.toggle} onClick={toggleDetails}>
-        <span ref={headerRef} className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
+        <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
               <button className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
