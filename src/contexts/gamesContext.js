@@ -20,6 +20,8 @@ const LOADING = 'loading'
 const DONE = 'done'
 const ERROR = 'error'
 
+const gameLoadingStates = { LOADING, DONE, ERROR }
+
 const GamesContext = createContext()
 
 const GamesProvider = ({ children, overrideValue = {} }) => {
@@ -100,4 +102,4 @@ GamesProvider.propTypes = {
   })
 }
 
-export { GamesContext, GamesProvider }
+export { GamesContext, GamesProvider, gameLoadingStates }
