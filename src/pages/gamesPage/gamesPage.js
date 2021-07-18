@@ -26,14 +26,8 @@ const GamesPage = () => {
 
   const [games, setGames] = useState(null)
   const [gameLoadingState, setGameLoadingState] = useState(LOADING)
-  const [toggleEvent, setToggleEvent] = useState(0)
 
   const mountedRef = useRef(true)
-  const slideTriggerRef = useRef(null)
-
-  const toggleDescription = () => {
-    setToggleEvent(Date.now())
-  }
 
   useEffect(() => {
     if (!token && !isStorybook) {
