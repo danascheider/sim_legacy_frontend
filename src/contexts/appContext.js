@@ -71,7 +71,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
       callback && callback()
       onAuthenticatedPage() && setShouldRedirectTo(path)
     })
-  }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
+  }, [removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
 
   const value = {
     token: cookies[sessionCookieName],
