@@ -1,6 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import { act } from 'react-dom/test-utils'
 import { waitFor, screen, waitForElementToBeRemoved } from '@testing-library/react'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
@@ -21,7 +22,11 @@ describe('GamesPage', () => {
     cookies.HAS_DOCUMENT_COOKIE = false
 
     it('redirects to the login page', async () => {
-      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+      act(() => {
+        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+        return undefined
+      })
+      const { history } = component
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -29,7 +34,13 @@ describe('GamesPage', () => {
 
   describe('when the user token is expired or invalid', () => {
     const server = setupServer(
-      rest.get('http://localhost:3000/users/current', (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(401),
+          ctx.json({ errors: ['Google OAuth token validation failed'] })
+        )
+      }),
+      rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({ errors: ['Google OAuth token validation failed'] })
@@ -45,8 +56,12 @@ describe('GamesPage', () => {
     afterAll(() => server.close())
 
     it('redirects to the login page', async () => {
-      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-      
+      act(() => {
+        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+        return undefined
+      })
+      const { history } = component
+
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
   })
@@ -77,13 +92,20 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+          const { history } = component
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
 
           const el = await screen.findByText(/your games/i)
 
@@ -91,7 +113,10 @@ describe('GamesPage', () => {
         })
 
         it('displays a message that there are no games', async () => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
 
           const el = await screen.findByText(/no games/i)
 
@@ -120,13 +145,20 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+          const { history } = component
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
 
           const el = await screen.findByText(/your games/i)
 
@@ -134,7 +166,10 @@ describe('GamesPage', () => {
         })
 
         it('displays the list of games', async () => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
 
           const el1 = await screen.findByText(games[0].name)
           const el2 = await screen.findByText(games[1].name)
@@ -144,7 +179,10 @@ describe('GamesPage', () => {
         })
 
         it("doesn't display the 'You have no games' message", async () => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
 
           await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
         })
@@ -153,19 +191,42 @@ describe('GamesPage', () => {
 
     describe('when there is an error fetching the games', () => {
       const server = setupServer(
-        rest.get('http://localhost:3000/users/current', (req, res, ctx) => {
+        rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
           return res(
             ctx.status(200),
             ctx.json(profileData)
           )
         }),
-        rest.get('http://localhost:3000/users/games', (req, res, ctx) => {
+        rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
           return res(
             ctx.status(500),
             ctx.json({ errors: ['Something went horribly wrong'] })
           )
         })
       )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('stays on the games page', async () => {
+        act(() => {
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          return undefined
+        })
+        const { history } = component
+
+        await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
+      })
+
+      it("doesn't display the 'You have no games' message", async () => {
+        act(() => {
+          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+          return undefined
+        })
+
+        await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
+      })
     })
   })
 })
