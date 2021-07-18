@@ -218,11 +218,12 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        if (process.env.NODE_ENV === 'development') console.error('Error creating shopping list: ', err)
 
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else {
+          if (process.env.NODE_ENV === 'development') console.error('Error creating shopping list: ', err)
+          
           displayFlash('error', "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
 
           error && error()

@@ -9,6 +9,7 @@
 }
 
 .name {
+  font-size: 1.15rem;
   cursor: pointer;
   margin-bottom: 1rem;
 }

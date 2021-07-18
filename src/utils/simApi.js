@@ -79,6 +79,22 @@ export const fetchGames = token => {
   )
 }
 
+// POST /games
+export const createGame = (token, attrs) => {
+  const uri = `${backendBaseUri}/games`
+  const body = JSON.stringify({ game: attrs })
+
+  return fetch(uri, {
+    method: 'POST',
+    headers: combinedHeaders(token),
+    body: body
+  })
+  .then(resp => {
+    if (resp.status === 401) throw new AuthorizationError()
+    return resp
+  })
+}
+
 /*
  *
  * Shopping List Endpoints (Scoped to Game)

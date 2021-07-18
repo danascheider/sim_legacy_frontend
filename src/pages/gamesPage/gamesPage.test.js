@@ -20,6 +20,15 @@ import GamesPage from './gamesPage'
 describe('GamesPage', () => {
   let component
 
+  const renderComponentWithMockCookies = cookies => {
+    act(() => {
+        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+        return undefined
+    })
+
+    return component
+  }
+
   beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
@@ -28,11 +37,7 @@ describe('GamesPage', () => {
     cookies.HAS_DOCUMENT_COOKIE = false
 
     it('redirects to the login page', async () => {
-      act(() => {
-        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-        return undefined
-      })
-      const { history } = component
+      const { history } = renderComponentWithMockCookies(cookies)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -76,15 +81,19 @@ describe('GamesPage', () => {
     const cookies = new Cookies('_sim_google_session="xxxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
 
+    const sharedHandlers = [
+      rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json(profileData)
+        )
+      })
+    ]
+
     describe('when the games are fetched successfully', () => {
       describe('when there are no games', () => {
-        const server = setupServer(
-          rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
-            return res(
-              ctx.status(200),
-              ctx.json(profileData)
-            )
-          }),
+        const handlers = [...sharedHandlers]
+        handlers.push(
           rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
             return res(
               ctx.status(200),
@@ -93,25 +102,20 @@ describe('GamesPage', () => {
           })
         )
 
+        const server = setupServer.apply(null, handlers)
+
         beforeAll(() => server.listen())
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
-          const { history } = component
+          const { history } = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/your games/i)
 
@@ -119,10 +123,7 @@ describe('GamesPage', () => {
         })
 
         it('displays a message that there are no games', async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/no games/i)
 
@@ -130,23 +131,15 @@ describe('GamesPage', () => {
         })
 
         it("doesn't display an error message", async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
         })
       })
 
       describe('when there are games', () => {
-        const server = setupServer(
-          rest.get(`${backendBaseUri}/users/current`, (req, res, ctx) => {
-            return res(
-              ctx.status(200),
-              ctx.json(profileData)
-            )
-          }),
+        const handlers = [...sharedHandlers]
+        handlers.push(
           rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
             return res(
               ctx.status(200),
@@ -155,25 +148,20 @@ describe('GamesPage', () => {
           })
         )
 
+        const server = setupServer.apply(null, handlers)
+
         beforeAll(() => server.listen())
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
-          const { history } = component
+          const { history } = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/your games/i)
 
@@ -181,10 +169,7 @@ describe('GamesPage', () => {
         })
 
         it('displays the list of games', async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           const el1 = await screen.findByText(games[0].name)
           const el2 = await screen.findByText(games[1].name)
@@ -194,38 +179,26 @@ describe('GamesPage', () => {
         })
 
         it("doesn't display the 'You have no games' message", async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
         })
 
         it("doesn't display an error message", async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
         })
 
         it("doesn't display the descriptions to start with", async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).not.toBeVisible())
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
         })
 
         it('expands one description at a time', async () => {
-          act(() => {
-            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-            return undefined
-          })
+          renderComponentWithMockCookies(cookies)
 
           const titleEl = await screen.findByText(games[0].name)
 
@@ -235,6 +208,161 @@ describe('GamesPage', () => {
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
         })
       })
+
+      describe('creating a game successfully', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+            const returnData = { id: 27, user_id: profileData.id, name: 'Another Game', description: 'New game description' }
+
+            return res(
+              ctx.status(201),
+              ctx.json(returnData)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it('adds the game to the list', async () => {
+          renderComponentWithMockCookies(cookies)
+
+          const toggleLink = await screen.findByText('Create Game...')
+
+          fireEvent.click(toggleLink)
+
+          const nameInput = await screen.findByLabelText('Name')
+          const descInput = await screen.findByLabelText('Description')
+          const form = await screen.findByTestId('game-create-form')
+
+          fireEvent.change(nameInput, { target: { value: 'Another Game' } })
+          fireEvent.change(descInput, { target: { value: 'New game description' } })
+
+          act(() => {
+            fireEvent.submit(form)
+            return undefined
+          })
+
+          const newGame = await screen.findByText('Another Game')
+
+          expect(newGame).toBeVisible()
+        })
+      })
+
+      describe('creating a game with invalid attributes', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+            const returnData = { errors: ['Name must be unique'] }
+
+            return res(
+              ctx.status(422),
+              ctx.json(returnData)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it('displays the error message', async () => {
+          renderComponentWithMockCookies(cookies)
+
+          const toggleLink = await screen.findByText('Create Game...')
+
+          fireEvent.click(toggleLink)
+
+          const nameInput = await screen.findByLabelText('Name')
+          const descInput = await screen.findByLabelText('Description')
+          const form = await screen.findByTestId('game-create-form')
+
+          fireEvent.change(nameInput, { target: { value: 'Another Game' } })
+          fireEvent.change(descInput, { target: { value: 'New game description' } })
+
+          act(() => {
+            fireEvent.submit(form)
+            return undefined
+          })
+
+          const newGameEl = await screen.queryByText('Another Game')
+          const errorEl = await screen.findByText(/Name must be unique/)
+
+          expect(newGameEl).not.toBeInTheDocument()
+          expect(errorEl).toBeVisible()
+        })
+      })
+
+      describe('creating a game when something unexpected goes wrong', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+            const returnData = { errors: ['Something went horribly wrong'] }
+
+            return res(
+              ctx.status(500),
+              ctx.json(returnData)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it('displays a generic error message', async () => {
+          renderComponentWithMockCookies(cookies)
+
+          const toggleLink = await screen.findByText('Create Game...')
+
+          fireEvent.click(toggleLink)
+
+          const nameInput = await screen.findByLabelText('Name')
+          const descInput = await screen.findByLabelText('Description')
+          const form = await screen.findByTestId('game-create-form')
+
+          fireEvent.change(nameInput, { target: { value: 'Another Game' } })
+          fireEvent.change(descInput, { target: { value: 'New game description' } })
+
+          act(() => {
+            fireEvent.submit(form)
+            return undefined
+          })
+
+          const newGameEl = await screen.queryByText('Another Game')
+          const errorEl = await screen.findByText(/unexpected error/i)
+
+          expect(newGameEl).not.toBeInTheDocument()
+          expect(errorEl).toBeVisible()
+        })
+      })
+
     })
 
     describe('when there is an error fetching the games', () => {
@@ -280,19 +408,13 @@ describe('GamesPage', () => {
       })
 
       it("doesn't display the 'You have no games' message", async () => {
-        act(() => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-          return undefined
-        })
+        renderComponentWithMockCookies(cookies)
 
         await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
       })
 
       it('displays an error message', async () => {
-        act(() => {
-          component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-          return undefined
-        })
+        renderComponentWithMockCookies(cookies)
 
         const el = await screen.findByText(/error/i)
 

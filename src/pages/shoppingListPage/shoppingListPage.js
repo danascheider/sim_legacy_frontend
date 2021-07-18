@@ -8,7 +8,7 @@ import ShoppingListPageContent from '../../components/shoppingListPageContent/sh
 import styles from './shoppingListPage.module.css'
 import ShoppingListItemEditForm from '../../components/shoppingListItemEditForm/shoppingListItemEditForm'
 
-const { LOADING, ERROR }
+const { LOADING, ERROR } = shoppingListLoadingStates
 
 const ShoppingListPage = () => {
   const { flashProps, flashVisible } = useAppContext()
