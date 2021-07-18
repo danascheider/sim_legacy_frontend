@@ -8,7 +8,6 @@ import {
   waitForElementToBeRemoved,
   fireEvent
 } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
