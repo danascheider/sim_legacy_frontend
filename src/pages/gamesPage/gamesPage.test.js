@@ -2,7 +2,12 @@ import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import { act } from 'react-dom/test-utils'
-import { waitFor, screen, waitForElementToBeRemoved } from '@testing-library/react'
+import {
+  waitFor,
+  screen,
+  waitForElementToBeRemoved,
+  fireEvent
+} from '@testing-library/react'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
@@ -194,6 +199,20 @@ describe('GamesPage', () => {
           })
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).not.toBeVisible())
+          await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
+        })
+
+        it('expands one description at a time', async () => {
+          act(() => {
+            component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesPage /></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+            return undefined
+          })
+
+          const titleEl = await screen.findByText(games[0].name)
+
+          fireEvent.click(titleEl)
+
+          await waitFor(() => expect(screen.queryByText(games[0].description)).toBeVisible())
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
         })
       })
