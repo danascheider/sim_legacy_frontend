@@ -191,7 +191,52 @@ On render, the `GamesProvider` fetches all the user's games.
 
 ### Value
 
-The value of the `GamesProvider` consists of a `games` value that is set to all of the user's games retrieved from the API. There is also a `gameLoadingState` value, which is set to one of `'loading'`, `'done'`, or `'error'`, depending on whether games have loaded successfully. Additional functions and values will be provided as games functionality is fleshed out. 
+The value of the `GamesProvider` consists of the following.
+
+#### `games`
+
+All of the user's games retrieved from the API.
+
+#### `gameLoadingState`
+
+Whether games have loaded successfully. Possible values are `'loading'`, `'done'`, and `'error'`.
+
+#### `performGameCreate`
+
+Function to create a game. Takes four possible arguments:
+
+* `attrs` (required): The attributes to be used to create the game. Can contain `"name"` and `"description"`. Both keys are optional.
+* `onSuccess`: An optional success callback taking no arguments.
+* `onErrorResponse`: An optional callback taking no arguments, called when the server returns a 422 error or other nonfatal error response (i.e., not 500).
+* `onFatalError`: An optional callback taking no arguments, called when a fatal error is raised (i.e., 500 response from the server, or another unexpected or unhandled error).
+
+#### `performGameUpdate`
+
+Function to update a game. Takes five possible arguments:
+
+* `gameId` (required): The ID of the game to update.
+* `attrs` (required): The new attributes to update the game with. Can contain `"name"` and `"description"`. Both keys are optional.
+* `onSuccess`: An optional success callback taking no arguments.
+* `onErrorResponse`: An optional callback taking no arguments, called when the server returns a 422 error or other nonfatal error response (fatal errors for this function are 404 and 500).
+* `onFatalError`: An optional callback taking no arguments, called when a fatal error is raised (i.e., 404, 500, or another unexpected or unhandled error).
+
+Note that no callbacks are run if the server returns a 401 error.
+
+#### `gameEditFormVisible`
+
+A boolean value indicating whether the modal with the game edit form should be visible.
+
+#### `setGameEditFormVisible`
+
+A setter function that sets a boolean value for `gameEditFormVisible`.
+
+#### `gameEditFormProps`
+
+The props with which to render the game edit form. Possible values include:
+
+* `gameId` (required): The ID of the game the edit form edits
+* `currentAttributes` (required): The current `name` (required) and `description` of the game
+* `elementRef`: A ref that will be applied to the top-level element of the form
 
 ## ShoppingListContext
 

@@ -12,7 +12,7 @@
 
 import { createContext, useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { fetchGames, createGame } from '../utils/simApi'
+import { fetchGames, createGame, updateGame } from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
 
@@ -29,6 +29,8 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
   const [games, setGames] = useState(overrideValue.games || [])
   const [gameLoadingState, setGameLoadingState] = useState(overrideValue.gameLoadingState || LOADING)
+  const [gameEditFormVisible, setGameEditFormVisible] = useState(false)
+  const [gameEditFormProps, setGameEditFormProps] = useState({})
 
   const mountedRef = useRef(true)
   const gamesOverridden = useRef(false)
@@ -40,6 +42,8 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     delete overrideValue.games
     gamesOverridden.current = true
   }
+
+  const allErrorsAreValidationErrors = errors => errors.filter(msg => msg.match(/^(Name|Description)/)).length === errors.length
 
   const fetchUserGames = useCallback(() => {
     if (token && !gamesOverridden.current) {
@@ -85,7 +89,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           onSuccess && onSuccess()
         } else if (data && data.errors) {
-          if (data.errors.filter(msg => msg.match(/^(Name|Description)/)).length === data.errors.length) {
+          if (allErrorsAreValidationErrors(data.errors)) {
             displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being created:`)
             onErrorResponse && onErrorResponse()
           } else {
@@ -109,10 +113,49 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, games, displayFlash, logOutAndRedirect])
 
+  const performGameUpdate = useCallback((gameId, attrs, onSuccess = null, onErrorResponse = null, onFatalError = null) => {
+    updateGame(token, gameId, attrs)
+      .then(resp => resp.json())
+      .then(data => {
+        if (data && !data.errors) {
+          if (mountedRef.current) {
+            const newGames = games.map(game => game.id === gameId ? data : game)
+            setGames(newGames)
+          }
+        } else if (data && data.errors) {
+          if (allErrorsAreValidationErrors(data.errors)) {
+            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being updated:`)
+            onErrorResponse && onErrorResponse()
+          } else {
+            // Something unexpected happened and we don't know what
+            throw new Error(`Internal Server Error: ${data.errors[0]}`)
+          }
+        } else {
+          throw new Error("There was an unexpected error creating your new game. Unfortunately, we don't know more than that yet. We're sorry!")
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
+
+          displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
+
+          onFatalError && onFatalError()
+        }
+      })
+  })
+
   const value = {
     games,
     gameLoadingState,
     performGameCreate,
+    performGameUpdate,
+    gameEditFormVisible,
+    setGameEditFormVisible,
+    gameEditFormProps,
+    setGameEditFormProps,
     ...overrideValue
   }
 

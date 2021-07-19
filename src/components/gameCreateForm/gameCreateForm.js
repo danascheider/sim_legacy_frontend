@@ -13,6 +13,7 @@ const GameCreateForm = ({ disabled }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const formRef = useRef(null)
+  const mountedRef = useRef(false)
 
   const colorVars = {
     '--button-color': BLUE.schemeColorDark,
@@ -21,7 +22,7 @@ const GameCreateForm = ({ disabled }) => {
     '--button-hover-color': BLUE.hoverColorLight,
   }
 
-  const toggleForm = () => setToggleEvent(Date.now)
+  const toggleForm = () => mountedRef.current && setToggleEvent(Date.now)
 
   const createGame = e => {
     e.preventDefault()
@@ -36,6 +37,7 @@ const GameCreateForm = ({ disabled }) => {
     const onSuccessOrFatalError = () => {
       formRef.current.reset()
       toggleForm()
+      mountedRef.current = false
     }
 
     performGameCreate(attrs, onSuccessOrFatalError, null, onSuccessOrFatalError)

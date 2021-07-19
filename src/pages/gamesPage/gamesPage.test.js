@@ -21,12 +21,13 @@ describe('GamesPage', () => {
   let component
 
   const renderComponentWithMockCookies = cookies => {
+    let el
     act(() => {
-        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+        el = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
         return undefined
     })
 
-    return component
+    return el
   }
 
   beforeEach(() => cleanCookies())
@@ -37,7 +38,7 @@ describe('GamesPage', () => {
     cookies.HAS_DOCUMENT_COOKIE = false
 
     it('redirects to the login page', async () => {
-      const { history } = renderComponentWithMockCookies(cookies)
+      const { history } = component = renderComponentWithMockCookies(cookies)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -67,11 +68,7 @@ describe('GamesPage', () => {
     afterAll(() => server.close())
 
     it('redirects to the login page', async () => {
-      act(() => {
-        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-        return undefined
-      })
-      const { history } = component
+      const { history } = component = renderComponentWithMockCookies(cookies)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -109,13 +106,13 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          const { history } = renderComponentWithMockCookies(cookies)
+          const { history } = component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/your games/i)
 
@@ -123,7 +120,7 @@ describe('GamesPage', () => {
         })
 
         it('displays a message that there are no games', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/no games/i)
 
@@ -131,7 +128,7 @@ describe('GamesPage', () => {
         })
 
         it("doesn't display an error message", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
         })
@@ -155,13 +152,13 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          const { history } = renderComponentWithMockCookies(cookies)
+          const { history } = component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/your games/i)
 
@@ -169,7 +166,7 @@ describe('GamesPage', () => {
         })
 
         it('displays the list of games', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el1 = await screen.findByText(games[0].name)
           const el2 = await screen.findByText(games[1].name)
@@ -179,26 +176,26 @@ describe('GamesPage', () => {
         })
 
         it("doesn't display the 'You have no games' message", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
         })
 
         it("doesn't display an error message", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
         })
 
         it("doesn't display the descriptions to start with", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).not.toBeVisible())
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
         })
 
         it('expands one description at a time', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const titleEl = await screen.findByText(games[0].name)
 
@@ -235,7 +232,7 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('adds the game to the list', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
 
@@ -285,7 +282,7 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('displays the error message', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
 
@@ -337,7 +334,7 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('displays a generic error message', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
 
@@ -363,6 +360,27 @@ describe('GamesPage', () => {
         })
       })
 
+      describe('editing a game successfully', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it('updates the game', () => {
+          renderComponentWithMockCookies(cookies)
+        })
+      })
     })
 
     describe('when there is an error fetching the games', () => {
@@ -381,21 +399,9 @@ describe('GamesPage', () => {
         })
       )
 
-      // It was giving me errors about this not being defined and I'm
-      // thinking of removing this from the flash display function anyway
-      // so I decided to just turn it into a noop here
-      const originalScrollTo = window.scrollTo
-
-      beforeAll(() => {
-        server.listen()
-        window.scrollTo = () => {}
-      })
-
+      beforeAll(() => server.listen())
       beforeEach(() => server.resetHandlers())
-      afterAll(() => {
-        server.close()
-        window.scrollTo = originalScrollTo
-      })
+      afterAll(() => server.close())
 
       it('stays on the games page', async () => {
         act(() => {
@@ -408,13 +414,13 @@ describe('GamesPage', () => {
       })
 
       it("doesn't display the 'You have no games' message", async () => {
-        renderComponentWithMockCookies(cookies)
+        component = renderComponentWithMockCookies(cookies)
 
         await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
       })
 
       it('displays an error message', async () => {
-        renderComponentWithMockCookies(cookies)
+        component = renderComponentWithMockCookies(cookies)
 
         const el = await screen.findByText(/error/i)
 
