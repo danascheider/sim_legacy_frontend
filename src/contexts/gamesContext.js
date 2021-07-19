@@ -12,7 +12,7 @@
 
 import { createContext, useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { fetchGames, createGame } from '../utils/simApi'
+import { fetchGames, createGame, updateGame } from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
 
@@ -29,6 +29,8 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
   const [games, setGames] = useState(overrideValue.games || [])
   const [gameLoadingState, setGameLoadingState] = useState(overrideValue.gameLoadingState || LOADING)
+  const [gameEditFormVisible, setGameEditFormVisible] = useState(false)
+  const [gameEditFormProps, setGameEditFormProps] = useState({})
 
   const mountedRef = useRef(true)
   const gamesOverridden = useRef(false)
@@ -40,6 +42,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     delete overrideValue.games
     gamesOverridden.current = true
   }
+
+  const allErrorsAreValidationErrors = useCallback(errors => (
+      errors.filter(msg => msg.match(/^(Name|Description)/)).length === errors.length
+    ), [])
 
   const fetchUserGames = useCallback(() => {
     if (token && !gamesOverridden.current) {
@@ -72,7 +78,9 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, overrideValue.gameLoadingState, displayFlash, logOutAndRedirect])
 
-  const performGameCreate = useCallback((attrs, onSuccess = null, onErrorResponse = null, onFatalError = null) => {
+  const performGameCreate = useCallback((attrs, callbacks) => {
+    const { onSuccess, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
     createGame(token, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -85,9 +93,9 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           onSuccess && onSuccess()
         } else if (data && data.errors) {
-          if (data.errors.filter(msg => msg.match(/^(Name|Description)/)).length === data.errors.length) {
+          if (allErrorsAreValidationErrors(data.errors)) {
             displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being created:`)
-            onErrorResponse && onErrorResponse()
+            onUnprocessableEntity && onUnprocessableEntity()
           } else {
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
           }
@@ -99,27 +107,87 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       .catch(err => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          onUnauthorized && onUnauthorized()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
           displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
 
-          onFatalError && onFatalError()
+          onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, displayFlash, logOutAndRedirect])
+  }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
+
+  const performGameUpdate = useCallback((gameId, attrs, callbacks) => {
+    const { onSuccess, onUnprocessableEntity, onNotFound, onInternalServerError, onUnauthorized } = callbacks
+
+    updateGame(token, gameId, attrs)
+      .then(resp => resp.json())
+      .then(data => {
+        if (data && !data.errors) {
+          if (mountedRef.current) {
+            const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
+            setGames(newGames)
+            setGameEditFormVisible(false)
+            displayFlash('success', 'Success! Your game was updated.')
+          }
+
+          onSuccess && onSuccess()
+        } else if (data && data.errors) {
+          if (allErrorsAreValidationErrors(data.errors)) {
+            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being updated:`)
+            onUnprocessableEntity && onUnprocessableEntity()
+          } else {
+            // Something unexpected happened and we don't know what
+            throw new Error(`Internal Server Error: ${data.errors[0]}`)
+          }
+        } else {
+          throw new Error("There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're sorry!")
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+
+          onUnauthorized && onUnauthorized()
+        } else if (err.code === 404) {
+          displayFlash('error', 'The game you wanted to update could not be found. Try refreshing to fix this problem.')
+
+          setGameEditFormVisible(false)
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
+
+          displayFlash('error', "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!")
+
+          setGameEditFormVisible(false)
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
 
   const value = {
     games,
     gameLoadingState,
     performGameCreate,
+    performGameUpdate,
+    gameEditFormVisible,
+    setGameEditFormVisible,
+    gameEditFormProps,
+    setGameEditFormProps,
     ...overrideValue
   }
 
   useEffect(() => {
-    fetchUserGames()
+    mountedRef.current && fetchUserGames()
     return () => mountedRef.current = false
   }, [fetchUserGames])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
     <GamesContext.Provider value={value}>

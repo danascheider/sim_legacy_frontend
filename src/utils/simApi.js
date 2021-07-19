@@ -95,6 +95,22 @@ export const createGame = (token, attrs) => {
   })
 }
 
+export const updateGame = (token, gameId, attrs) => {
+  const uri = `${backendBaseUri}/games/${gameId}`
+  const body = JSON.stringify({ game: attrs })
+
+  return fetch(uri, {
+    method: 'PATCH',
+    headers: combinedHeaders(token),
+    body: body
+  })
+  .then(resp => {
+    if (resp.status === 401) throw new AuthorizationError()
+    if (resp.status === 404) throw new NotFoundError()
+    return resp
+  })
+}
+
 /*
  *
  * Shopping List Endpoints (Scoped to Game)
