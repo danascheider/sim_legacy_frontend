@@ -8,6 +8,8 @@ import {
   waitForElementToBeRemoved,
   fireEvent
 } from '@testing-library/react'
+import { within } from '@testing-library/dom'
+import userEvent from '@testing-library/user-event'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
@@ -21,12 +23,13 @@ describe('GamesPage', () => {
   let component
 
   const renderComponentWithMockCookies = cookies => {
+    let el
     act(() => {
-        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-        return undefined
+      el = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+      return undefined
     })
 
-    return component
+    return el
   }
 
   beforeEach(() => cleanCookies())
@@ -37,7 +40,7 @@ describe('GamesPage', () => {
     cookies.HAS_DOCUMENT_COOKIE = false
 
     it('redirects to the login page', async () => {
-      const { history } = renderComponentWithMockCookies(cookies)
+      const { history } = component = renderComponentWithMockCookies(cookies)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -67,11 +70,7 @@ describe('GamesPage', () => {
     afterAll(() => server.close())
 
     it('redirects to the login page', async () => {
-      act(() => {
-        component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-        return undefined
-      })
-      const { history } = component
+      const { history } = component = renderComponentWithMockCookies(cookies)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
@@ -109,13 +108,13 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          const { history } = renderComponentWithMockCookies(cookies)
+          const { history } = component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/your games/i)
 
@@ -123,7 +122,7 @@ describe('GamesPage', () => {
         })
 
         it('displays a message that there are no games', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/no games/i)
 
@@ -131,7 +130,7 @@ describe('GamesPage', () => {
         })
 
         it("doesn't display an error message", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
         })
@@ -155,13 +154,13 @@ describe('GamesPage', () => {
         afterAll(() => server.close())
 
         it('stays on the games page', async () => {
-          const { history } = renderComponentWithMockCookies(cookies)
+          const { history } = component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
         })
 
         it('displays the games page', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el = await screen.findByText(/your games/i)
 
@@ -169,7 +168,7 @@ describe('GamesPage', () => {
         })
 
         it('displays the list of games', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const el1 = await screen.findByText(games[0].name)
           const el2 = await screen.findByText(games[1].name)
@@ -179,26 +178,26 @@ describe('GamesPage', () => {
         })
 
         it("doesn't display the 'You have no games' message", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
         })
 
         it("doesn't display an error message", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(/error/i)).not.toBeInTheDocument())
         })
 
         it("doesn't display the descriptions to start with", async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).not.toBeVisible())
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
         })
 
         it('expands one description at a time', async () => {
-          renderComponentWithMockCookies(cookies)
+          component = renderComponentWithMockCookies(cookies)
 
           const titleEl = await screen.findByText(games[0].name)
 
@@ -234,8 +233,8 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('adds the game to the list', async () => {
-          renderComponentWithMockCookies(cookies)
+        it('adds the game to the list and hides the form', async () => {
+          component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
 
@@ -256,6 +255,7 @@ describe('GamesPage', () => {
           const newGame = await screen.findByText('Another Game')
 
           expect(newGame).toBeVisible()
+          await waitFor(() => expect(form).not.toBeVisible())
         })
       })
 
@@ -284,8 +284,8 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('displays the error message', async () => {
-          renderComponentWithMockCookies(cookies)
+        it('displays the error message and leaves the form as-is', async () => {
+          component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
 
@@ -308,6 +308,7 @@ describe('GamesPage', () => {
 
           expect(newGameEl).not.toBeInTheDocument()
           expect(errorEl).toBeVisible()
+          await waitFor(() => expect(form).toBeVisible())
         })
       })
 
@@ -336,8 +337,8 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('displays a generic error message', async () => {
-          renderComponentWithMockCookies(cookies)
+        it('displays a generic error message and hides the form', async () => {
+          component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
 
@@ -360,9 +361,211 @@ describe('GamesPage', () => {
 
           expect(newGameEl).not.toBeInTheDocument()
           expect(errorEl).toBeVisible()
+          await waitFor(() => expect(form).not.toBeVisible())
         })
       })
 
+      describe('editing a game successfully', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            const gameId = parseInt(req.params.id)
+            const name = req.body.game.name
+            const description = req.body.game.description
+
+            const body = { id: gameId, user_id: profileData.id, name, description }
+
+            return res(
+              ctx.status(200),
+              ctx.json(body)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        const { name, description, id } = games[0]
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        // I'd rather not have so many expectations in one test but, you know,
+        // behaviour-based testing
+        it('updates, hides the form, and displays a success message', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(editIcon)
+            return undefined;
+          })
+
+          const form = await screen.findByTestId('game-edit-form')
+          const nameInput = await within(form).findByLabelText('Name')
+          const descInput = await within(form).findByLabelText('Description')
+
+          fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
+          fireEvent.change(descInput, { target: { value: 'New description' } })
+
+          // Submit the edit form
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          await waitForElementToBeRemoved(form)
+          const flashMessage = await screen.findByText(/success/i)
+
+          // Form should be hidden on a successful response
+          expect(form).not.toBeInTheDocument()
+
+          // Flash message should be displayed
+          expect(flashMessage).toBeInTheDocument()
+
+          // The game should no longer appear in the list under its old name
+          await waitFor(() => expect(screen.queryByText(games[0].name)).not.toBeInTheDocument())
+
+          // It should be in the list under its new name
+          await waitFor(() => expect(screen.queryByText(/Changed Name/)).toBeVisible())
+        })
+      })
+
+      describe('handling a 404 error while editing a game', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(404)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        const { name, description, id } = games[0]
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        // I'd rather not have so many expectations in one test but, you know,
+        // behaviour-based testing
+        it("displays a flash error and doesn't update the name", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(editIcon)
+            return undefined;
+          })
+
+          const form = await screen.findByTestId('game-edit-form')
+          const nameInput = await within(form).findByLabelText('Name')
+          const descInput = await within(form).findByLabelText('Description')
+
+          fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
+          fireEvent.change(descInput, { target: { value: 'New description' } })
+
+          // Submit the edit form
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          await waitForElementToBeRemoved(form)
+          const flashMessage = await screen.findByText(/could not be found/i)
+
+          // Form should be hidden
+          expect(form).not.toBeInTheDocument()
+
+          // Flash message should be displayed
+          expect(flashMessage).toBeInTheDocument()
+
+          // The game should no longer appear in the list under its old name
+          await waitFor(() => expect(screen.queryByText('Changed Name')).not.toBeInTheDocument())
+
+          // It should be in the list under its new name
+          await waitFor(() => expect(screen.queryByText(games[0].name)).toBeVisible())
+        })
+      })
+
+      describe('editing a game with invalid attributes', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(422),
+              ctx.json({
+                errors: ['Name must be unique']
+              })
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        const { name, description, id } = games[0]
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it("shows an error and doesn't hide the form or update the game", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(editIcon)
+            return undefined;
+          })
+
+          const form = await screen.findByTestId('game-edit-form')
+          const nameInput = await within(form).findByLabelText('Name')
+          const descInput = await within(form).findByLabelText('Description')
+
+          // Fill this out with an actual duplicate name even though the API
+          // call is mocked, for maximum realism
+          fireEvent.change(nameInput, { target: { value: games[1].name } })
+          fireEvent.change(descInput, { target: { value: 'New description' } })
+
+          // Submit the edit form
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          const flashError = await screen.findByText(/name must be unique/i)
+          const gameWithOldName = await screen.findByText(games[0].name)
+          const gamesWithNewName = await screen.queryAllByText(games[1].name)
+
+          expect(flashError).toBeVisible()
+          expect(form).toBeVisible()
+          expect(gameWithOldName).toBeVisible()
+          expect(gamesWithNewName.length).toEqual(1)
+        })
+      })
     })
 
     describe('when there is an error fetching the games', () => {
@@ -381,21 +584,9 @@ describe('GamesPage', () => {
         })
       )
 
-      // It was giving me errors about this not being defined and I'm
-      // thinking of removing this from the flash display function anyway
-      // so I decided to just turn it into a noop here
-      const originalScrollTo = window.scrollTo
-
-      beforeAll(() => {
-        server.listen()
-        window.scrollTo = () => {}
-      })
-
+      beforeAll(() => server.listen())
       beforeEach(() => server.resetHandlers())
-      afterAll(() => {
-        server.close()
-        window.scrollTo = originalScrollTo
-      })
+      afterAll(() => server.close())
 
       it('stays on the games page', async () => {
         act(() => {
@@ -408,13 +599,13 @@ describe('GamesPage', () => {
       })
 
       it("doesn't display the 'You have no games' message", async () => {
-        renderComponentWithMockCookies(cookies)
+        component = renderComponentWithMockCookies(cookies)
 
         await waitFor(() => expect(screen.queryByText(/no games/i)).not.toBeInTheDocument())
       })
 
       it('displays an error message', async () => {
-        renderComponentWithMockCookies(cookies)
+        component = renderComponentWithMockCookies(cookies)
 
         const el = await screen.findByText(/error/i)
 

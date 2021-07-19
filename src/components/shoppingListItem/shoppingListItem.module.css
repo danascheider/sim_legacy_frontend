@@ -110,17 +110,7 @@
   }
 }
 
-@media (min-width: 1025px) {
-  .button {
-    grid-template-columns: 4fr 1fr;
-  }
-}
-
 @media (min-width: 1201px) {
-  .button {
-    grid-template-columns: 3fr 1fr;
-  }
-
   .quantity {
     padding: 32px 24px;
   }
