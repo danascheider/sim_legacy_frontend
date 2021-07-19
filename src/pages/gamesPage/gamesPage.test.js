@@ -428,7 +428,7 @@ describe('GamesPage', () => {
           expect(form).not.toBeInTheDocument()
 
           // Flash message should be displayed
-          expect(flashMessage).toBeInTheDocument()
+          expect(flashMessage).toBeVisible()
 
           // The game should no longer appear in the list under its old name
           await waitFor(() => expect(screen.queryByText(games[0].name)).not.toBeInTheDocument())
