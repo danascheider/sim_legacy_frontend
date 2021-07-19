@@ -503,6 +503,69 @@ describe('GamesPage', () => {
           await waitFor(() => expect(screen.queryByText(games[0].name)).toBeVisible())
         })
       })
+
+      describe('editing a game with invalid attributes', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(422),
+              ctx.json({
+                errors: ['Name must be unique']
+              })
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        const { name, description, id } = games[0]
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it("shows an error and doesn't hide the form or update the game", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(editIcon)
+            return undefined;
+          })
+
+          const form = await screen.findByTestId('game-edit-form')
+          const nameInput = await within(form).findByLabelText('Name')
+          const descInput = await within(form).findByLabelText('Description')
+
+          // Fill this out with an actual duplicate name even though the API
+          // call is mocked, for maximum realism
+          fireEvent.change(nameInput, { target: { value: games[1].name } })
+          fireEvent.change(descInput, { target: { value: 'New description' } })
+
+          // Submit the edit form
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          const flashError = await screen.findByText(/name must be unique/i)
+          const gameWithOldName = await screen.findByText(games[0].name)
+          const gamesWithNewName = await screen.queryAllByText(games[1].name)
+
+          expect(flashError).toBeVisible()
+          expect(form).toBeVisible()
+          expect(gameWithOldName).toBeVisible()
+          expect(gamesWithNewName.length).toEqual(1)
+        })
+      })
     })
 
     describe('when there is an error fetching the games', () => {
