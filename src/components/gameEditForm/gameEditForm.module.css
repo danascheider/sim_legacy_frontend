@@ -1,0 +1,82 @@
+.root {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: auto;
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: #f0f0f0;
+  padding: 24px;
+  max-width: 80%;
+}
+
+.header {
+  margin: 0;
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+
+.fieldset {
+  border: none;
+  padding: 4px 0;
+  display: grid;
+}
+
+.fieldset:first-of-type {
+  margin-top: 8px;
+}
+
+.fieldset:last-of-type {
+  padding-bottom: 16px;
+}
+
+.input {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  border-radius: 3px;
+  line-height: 1.25;
+}
+
+.submit {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--button-text-color);
+  background-color: var(--button-background-color);
+  border: 1px solid var(--button-border-color);
+  padding: 8px 16px;
+  border-radius: 3px;
+}
+
+.submit:hover {
+  background-color: var(--button-hover-color);
+}
+
+@media (min-width: 601px) {
+  .fieldset {
+    grid-template-columns: 1fr 4fr;
+  }
+
+  .label {
+    margin: auto 0;
+  }
+}
+
+@media (min-width: 769px) {
+  .root {
+    max-width: 60%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .root {
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .root {
+    max-width: 35%;
+  }
+}
