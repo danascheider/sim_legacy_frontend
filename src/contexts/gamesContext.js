@@ -112,6 +112,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
           displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
+          setGameEditFormVisible(false)
 
           onInternalServerError && onInternalServerError()
         }
@@ -160,6 +161,8 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
           displayFlash('error', "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!")
+
+          setGameEditFormVisible(false)
 
           onInternalServerError && onInternalServerError()
         }

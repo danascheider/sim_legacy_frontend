@@ -566,6 +566,70 @@ describe('GamesPage', () => {
           expect(gamesWithNewName.length).toEqual(1)
         })
       })
+
+      describe('handling a 500 error while editing a game', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(500),
+              ctx.json({
+                errors: ['Something went horribly wrong']
+              })
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        const { name, description, id } = games[0]
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it("shows an error and hides the form", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(editIcon)
+            return undefined;
+          })
+
+          const form = await screen.findByTestId('game-edit-form')
+          const nameInput = await within(form).findByLabelText('Name')
+          const descInput = await within(form).findByLabelText('Description')
+
+          // Fill this out with an actual duplicate name even though the API
+          // call is mocked, for maximum realism
+          fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
+          fireEvent.change(descInput, { target: { value: 'New description' } })
+
+          // Submit the edit form
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          const flashError = await screen.findByText(/unexpected error/i)
+          const gameWithOldName = await screen.findByText(games[0].name)
+          const gameWithNewName = await screen.queryByText('Changed Name')
+
+          await waitFor(() => expect(form).not.toBeVisible())
+          expect(flashError).toBeVisible()
+          expect(gameWithOldName).toBeVisible()
+          expect(gameWithNewName).not.toBeInTheDocument()
+        })
+      })
+
     })
 
     describe('when there is an error fetching the games', () => {
