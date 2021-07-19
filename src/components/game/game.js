@@ -4,7 +4,6 @@ import SlideToggle from 'react-slide-toggle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
-import useComponentVisible from '../../hooks/useComponentVisible'
 import styles from './game.module.css'
 
 const DEFAULT_DESCRIPTION = 'This game has no description.'
@@ -13,7 +12,7 @@ const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const { hideFlash } = useAppContext()
-  const { performGameUpdate, setGameEditFormVisible, setGameEditFormProps } = useGamesContext()
+  const { setGameEditFormVisible, setGameEditFormProps } = useGamesContext()
 
   const iconsRef = useRef(null)
   const editRef = useRef(null)
@@ -39,7 +38,12 @@ const Game = ({ gameId, name, description }) => {
     <div className={styles.root}>
       <div className={styles.header} onClick={toggleDescription}>
         <span ref={iconsRef} className={styles.editIcons}>
-          <button className={styles.icon} ref={editRef} onClick={showEditForm}>
+          <button
+            ref={editRef}
+            className={styles.icon}
+            onClick={showEditForm}
+            data-testid={`edit-icon-game-id-${gameId}`}
+          >
             <FontAwesomeIcon className={styles.fa} icon={faEdit} />
           </button>
         </span>

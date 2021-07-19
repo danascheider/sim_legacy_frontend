@@ -119,8 +119,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       .then(data => {
         if (data && !data.errors) {
           if (mountedRef.current) {
-            const newGames = games.map(game => game.id === gameId ? data : game)
+            const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
             setGames(newGames)
+            setGameEditFormVisible(false)
+
+            onSuccess && onSuccess()
           }
         } else if (data && data.errors) {
           if (allErrorsAreValidationErrors(data.errors)) {
@@ -145,7 +148,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onFatalError && onFatalError()
         }
       })
-  })
+  }, [token, games, displayFlash, logOutAndRedirect])
 
   const value = {
     games,
@@ -159,10 +162,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue
   }
 
-  useEffect(() => {
-    fetchUserGames()
-    return () => mountedRef.current = false
-  }, [fetchUserGames])
+  useEffect(fetchUserGames, [fetchUserGames])
+  useEffect(() => (
+    () => mountedRef.current = true
+  ), [])
 
   return(
     <GamesContext.Provider value={value}>

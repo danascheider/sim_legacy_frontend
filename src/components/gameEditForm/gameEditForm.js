@@ -7,6 +7,9 @@ import styles from './gameEditForm.module.css'
 const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
   const { name, description } = currentAttributes
 
+  const { performGameUpdate } = useGamesContext()
+
+  const mountedRef = useRef(true)
   const formRef = useRef(null)
   const inputRef = useRef(null)
   const colorRef = useRef(colorSchemes[Math.floor(Math.random() * colorSchemes.length)])
@@ -18,7 +21,31 @@ const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
     '--button-border-color': colorRef.current.borderColor
   }
 
-  const updateGame = e => {}
+  const updateGame = e => {
+    e.preventDefault()
+
+    const newName = e.target.elements.name.value
+    const newDesc = e.target.elements.description.value
+
+    const attrs = { name: newName, description: newDesc }
+
+    const onSuccessOrFatalError = () => {
+      if (formRef.current) formRef.current.reset()
+      mountedRef.current = false
+    }
+
+    performGameUpdate(gameId, attrs, onSuccessOrFatalError, null, onSuccessOrFatalError)
+  }
+
+  useEffect(() => {
+    document.getElementsByTagName('body')[0].classList.add('modal-open')
+    inputRef && inputRef.current.focus()
+
+    return () => {
+      document.getElementsByTagName('body')[0].classList.remove('modal-open')
+      mountedRef.current = false
+    }
+  }, [])
 
   return(
     <div ref={elementRef} className={styles.root} style={colorVars}>

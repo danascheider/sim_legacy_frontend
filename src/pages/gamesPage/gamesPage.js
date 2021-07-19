@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import { gameLoadingStates } from '../../contexts/gamesContext'
@@ -28,11 +28,17 @@ const GamesPage = () => {
 
   const formRef = useRef(null)
 
-  const formRefContains = el => formRef.current === el || formRef.current.contains(el)
+  const formRefContains = el => formRef.current && (formRef.current === el || formRef.current.contains(el))
 
-  const hideForm = e => {
+  const hideForm = useCallback(e => {
     if (!e || e.key === 'Escape' || !formRefContains(e.target)) setGameEditFormVisible(false)
-  }
+  }, [setGameEditFormVisible])
+
+  useEffect(() => {
+    window.addEventListener('keyup', hideForm)
+
+    return () => window.removeEventListener('keyup', hideForm)
+  }, [hideForm])
 
   return(
     <DashboardLayout title='Your Games'>

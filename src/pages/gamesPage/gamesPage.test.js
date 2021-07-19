@@ -23,8 +23,8 @@ describe('GamesPage', () => {
   const renderComponentWithMockCookies = cookies => {
     let el
     act(() => {
-        el = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
-        return undefined
+      el = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><GamesProvider><GamesPage /></GamesProvider></AppProvider></CookiesProvider>, { route: '/dashboard/games' })
+      return undefined
     })
 
     return el
@@ -368,17 +368,55 @@ describe('GamesPage', () => {
               ctx.status(200),
               ctx.json(games)
             )
+          }),
+          rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            const gameId = req.params.id
+            const name = req.body.name
+            const description = req.body.description
+
+            const body = { id: gameId, user_id: profileData.id, name, description }
+
+            return res(
+              ctx.status(200),
+              ctx.json(body)
+            )
           })
         )
 
         const server = setupServer.apply(null, handlers)
+        const { name, description, id } = games[0]
 
         beforeAll(() => server.listen())
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('updates the game', () => {
-          renderComponentWithMockCookies(cookies)
+        it('hides the form', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(editIcon)
+            return undefined;
+          })
+
+          const nameInput = await screen.getByLabelText('Name')
+          const descInput = await screen.getByLabelText('Description')
+          const form = await screen.getByTestId('game-edit-form')
+
+          fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
+          fireEvent.change(descInput, { target: { value: 'New description' } })
+
+          // Submit the edit form
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          await waitForElementToBeRemoved(form)
+
+          expect(form).not.toBeInTheDocument()
         })
       })
     })
