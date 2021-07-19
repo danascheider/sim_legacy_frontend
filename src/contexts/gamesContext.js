@@ -122,6 +122,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
             setGames(newGames)
             setGameEditFormVisible(false)
+            displayFlash('success', 'Success! Your game was updated.')
 
             onSuccess && onSuccess()
           }
