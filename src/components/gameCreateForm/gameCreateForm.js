@@ -27,7 +27,6 @@ const GameCreateForm = ({ disabled }) => {
   const createGame = e => {
     e.preventDefault()
 
-    console.log('this is getting called')
     hideFlash()
 
     const attrs = {
@@ -40,7 +39,13 @@ const GameCreateForm = ({ disabled }) => {
       toggleForm()
     }
 
-    performGameCreate(attrs, onSuccessOrFatalError, null, onSuccessOrFatalError)
+    const callbacks = {
+      onSuccess: onSuccessOrFatalError,
+      onInternalServerError: onSuccessOrFatalError,
+      onUnauthorized: () => mountedRef.current = false
+    }
+
+    performGameCreate(attrs, callbacks)
   }
 
   useEffect(() => (

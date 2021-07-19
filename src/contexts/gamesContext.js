@@ -43,7 +43,9 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     gamesOverridden.current = true
   }
 
-  const allErrorsAreValidationErrors = errors => errors.filter(msg => msg.match(/^(Name|Description)/)).length === errors.length
+  const allErrorsAreValidationErrors = useCallback(errors => (
+      errors.filter(msg => msg.match(/^(Name|Description)/)).length === errors.length
+    ), [])
 
   const fetchUserGames = useCallback(() => {
     if (token && !gamesOverridden.current) {
@@ -76,7 +78,9 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, overrideValue.gameLoadingState, displayFlash, logOutAndRedirect])
 
-  const performGameCreate = useCallback((attrs, onSuccess = null, onErrorResponse = null, onFatalError = null) => {
+  const performGameCreate = useCallback((attrs, callbacks) => {
+    const { onSuccess, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
     createGame(token, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -91,7 +95,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else if (data && data.errors) {
           if (allErrorsAreValidationErrors(data.errors)) {
             displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being created:`)
-            onErrorResponse && onErrorResponse()
+            onUnprocessableEntity && onUnprocessableEntity()
           } else {
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
           }
@@ -103,17 +107,20 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       .catch(err => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          onUnauthorized && onUnauthorized()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
           displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
 
-          onFatalError && onFatalError()
+          onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, displayFlash, logOutAndRedirect])
+  }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
 
-  const performGameUpdate = useCallback((gameId, attrs, onSuccess = null, onErrorResponse = null, onFatalError = null) => {
+  const performGameUpdate = useCallback((gameId, attrs, callbacks) => {
+    const { onSuccess, onUnprocessableEntity, onNotFound, onInternalServerError, onUnauthorized } = callbacks
+
     updateGame(token, gameId, attrs)
       .then(resp => resp.json())
       .then(data => {
@@ -123,13 +130,13 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             setGames(newGames)
             setGameEditFormVisible(false)
             displayFlash('success', 'Success! Your game was updated.')
-
-            onSuccess && onSuccess()
           }
+
+          onSuccess && onSuccess()
         } else if (data && data.errors) {
           if (allErrorsAreValidationErrors(data.errors)) {
             displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being updated:`)
-            onErrorResponse && onErrorResponse()
+            onUnprocessableEntity && onUnprocessableEntity()
           } else {
             // Something unexpected happened and we don't know what
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
@@ -141,19 +148,23 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       .catch(err => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
+
+          onUnauthorized && onUnauthorized()
         } else if (err.code === 404) {
           displayFlash('error', 'The game you wanted to update could not be found. Try refreshing to fix this problem.')
 
-          onErrorResponse && onErrorResponse()
+          setGameEditFormVisible(false)
+
+          onNotFound && onNotFound()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
           displayFlash('error', "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!")
 
-          onFatalError && onFatalError()
+          onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, displayFlash, logOutAndRedirect])
+  }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
 
   const value = {
     games,

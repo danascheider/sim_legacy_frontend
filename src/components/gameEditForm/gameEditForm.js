@@ -29,12 +29,19 @@ const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
 
     const attrs = { name: newName, description: newDesc }
 
-    const onSuccessOrFatalError = () => {
+    const resetAndUnmount = () => {
       if (formRef.current) formRef.current.reset()
       mountedRef.current = false
     }
 
-    performGameUpdate(gameId, attrs, onSuccessOrFatalError, null, onSuccessOrFatalError)
+    const callbacks = {
+      onSuccess: resetAndUnmount,
+      onNotFound: resetAndUnmount,
+      onInternalServerError: resetAndUnmount,
+      onUnauthorized: resetAndUnmount
+    }
+
+    performGameUpdate(gameId, attrs, callbacks)
   }
 
   useEffect(() => {

@@ -233,7 +233,7 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('adds the game to the list', async () => {
+        it('adds the game to the list and hides the form', async () => {
           component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
@@ -255,6 +255,7 @@ describe('GamesPage', () => {
           const newGame = await screen.findByText('Another Game')
 
           expect(newGame).toBeVisible()
+          await waitFor(() => expect(form).not.toBeVisible())
         })
       })
 
@@ -283,7 +284,7 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('displays the error message', async () => {
+        it('displays the error message and leaves the form as-is', async () => {
           component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
@@ -307,6 +308,7 @@ describe('GamesPage', () => {
 
           expect(newGameEl).not.toBeInTheDocument()
           expect(errorEl).toBeVisible()
+          await waitFor(() => expect(form).toBeVisible())
         })
       })
 
@@ -335,7 +337,7 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('displays a generic error message', async () => {
+        it('displays a generic error message and hides the form', async () => {
           component = renderComponentWithMockCookies(cookies)
 
           const toggleLink = await screen.findByText('Create Game...')
@@ -359,6 +361,7 @@ describe('GamesPage', () => {
 
           expect(newGameEl).not.toBeInTheDocument()
           expect(errorEl).toBeVisible()
+          await waitFor(() => expect(form).not.toBeVisible())
         })
       })
 
@@ -432,6 +435,72 @@ describe('GamesPage', () => {
 
           // It should be in the list under its new name
           await waitFor(() => expect(screen.queryByText(/Changed Name/)).toBeVisible())
+        })
+      })
+
+      describe('handling a 404 error while editing a game', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(404)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        const { name, description, id } = games[0]
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        // I'd rather not have so many expectations in one test but, you know,
+        // behaviour-based testing
+        it("displays a flash error and doesn't update the name", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(editIcon)
+            return undefined;
+          })
+
+          const form = await screen.findByTestId('game-edit-form')
+          const nameInput = await within(form).findByLabelText('Name')
+          const descInput = await within(form).findByLabelText('Description')
+
+          fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
+          fireEvent.change(descInput, { target: { value: 'New description' } })
+
+          // Submit the edit form
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          await waitForElementToBeRemoved(form)
+          const flashMessage = await screen.findByText(/could not be found/i)
+
+          // Form should be hidden
+          expect(form).not.toBeInTheDocument()
+
+          // Flash message should be displayed
+          expect(flashMessage).toBeInTheDocument()
+
+          // The game should no longer appear in the list under its old name
+          await waitFor(() => expect(screen.queryByText('Changed Name')).not.toBeInTheDocument())
+
+          // It should be in the list under its new name
+          await waitFor(() => expect(screen.queryByText(games[0].name)).toBeVisible())
         })
       })
     })

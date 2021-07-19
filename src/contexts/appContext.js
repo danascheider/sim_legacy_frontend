@@ -45,7 +45,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const setSessionCookie = token => setCookie(sessionCookieName, token)
 
   const setShouldRedirectTo = useCallback(path => {
-    setRedirectPath(path)
+    mountedRef.current && setRedirectPath(path)
     mountedRef.current = false
   }, [])
 
