@@ -135,16 +135,20 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
           }
         } else {
-          throw new Error("There was an unexpected error creating your new game. Unfortunately, we don't know more than that yet. We're sorry!")
+          throw new Error("There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're sorry!")
         }
       })
       .catch(err => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
+        } else if (err.code === 404) {
+          displayFlash('error', 'The game you wanted to update could not be found. Try refreshing to fix this problem.')
+
+          onErrorResponse && onErrorResponse()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
-          displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
+          displayFlash('error', "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!")
 
           onFatalError && onFatalError()
         }

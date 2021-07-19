@@ -8,6 +8,8 @@ import {
   waitForElementToBeRemoved,
   fireEvent
 } from '@testing-library/react'
+import { within } from '@testing-library/dom'
+import userEvent from '@testing-library/user-event'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
@@ -370,9 +372,9 @@ describe('GamesPage', () => {
             )
           }),
           rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
-            const gameId = req.params.id
-            const name = req.body.name
-            const description = req.body.description
+            const gameId = parseInt(req.params.id)
+            const name = req.body.game.name
+            const description = req.body.game.description
 
             const body = { id: gameId, user_id: profileData.id, name, description }
 
@@ -390,7 +392,9 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('hides the form', async () => {
+        // I'd rather not have so many expectations in one test but, you know,
+        // behaviour-based testing
+        it('updates, hides the form, and displays a success message', async () => {
           component = renderComponentWithMockCookies(cookies)
 
           const editIcon = await screen.findByTestId(`edit-icon-game-id-${id}`)
@@ -401,9 +405,9 @@ describe('GamesPage', () => {
             return undefined;
           })
 
-          const nameInput = await screen.getByLabelText('Name')
-          const descInput = await screen.getByLabelText('Description')
-          const form = await screen.getByTestId('game-edit-form')
+          const form = await screen.findByTestId('game-edit-form')
+          const nameInput = await within(form).findByLabelText('Name')
+          const descInput = await within(form).findByLabelText('Description')
 
           fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
           fireEvent.change(descInput, { target: { value: 'New description' } })
@@ -415,8 +419,19 @@ describe('GamesPage', () => {
           })
 
           await waitForElementToBeRemoved(form)
+          const flashMessage = await screen.findByText(/success/i)
 
+          // Form should be hidden on a successful response
           expect(form).not.toBeInTheDocument()
+
+          // Flash message should be displayed
+          expect(flashMessage).toBeInTheDocument()
+
+          // The game should no longer appear in the list under its old name
+          await waitFor(() => expect(screen.queryByText(games[0].name)).not.toBeInTheDocument())
+
+          // It should be in the list under its new name
+          await waitFor(() => expect(screen.queryByText(/Changed Name/)).toBeVisible())
         })
       })
     })

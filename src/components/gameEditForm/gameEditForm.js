@@ -52,24 +52,28 @@ const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
       <h3 className={styles.header}>Edit Game</h3>
       <form ref={formRef} className={styles.form} onSubmit={updateGame} data-testid='game-edit-form'>
         <fieldset className={styles.fieldset}>
-          <label className={styles.label} htmlFor='name'>Name</label>
-          <input
-            ref={inputRef}
-            className={styles.input}
-            type='text'
-            name='name'
-            defaultValue={name}
-          />
+          <label className={styles.label}>
+            Name
+            <input
+              ref={inputRef}
+              className={styles.input}
+              name='name'
+              type='text'
+              defaultValue={name}
+            />
+          </label>
         </fieldset>
         <fieldset className={styles.fieldset}>
-          <label className={styles.label} htmlFor='description'>Description</label>
-          <input
-            className={styles.input}
-            type='text'
-            name='description'
-            defaultValue={description}
-            placeholder='Description'
-          />
+          <label className={styles.label}>
+            Description
+            <input
+              className={styles.input}
+              type='text'
+              name='description'
+              defaultValue={description}
+              placeholder='Description'
+            />
+          </label>
         </fieldset>
         <button className={styles.submit}>Update Game</button>
       </form>

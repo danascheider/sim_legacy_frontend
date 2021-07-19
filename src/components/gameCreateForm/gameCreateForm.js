@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
@@ -13,7 +13,7 @@ const GameCreateForm = ({ disabled }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const formRef = useRef(null)
-  const mountedRef = useRef(false)
+  const mountedRef = useRef(true)
 
   const colorVars = {
     '--button-color': BLUE.schemeColorDark,
@@ -27,6 +27,7 @@ const GameCreateForm = ({ disabled }) => {
   const createGame = e => {
     e.preventDefault()
 
+    console.log('this is getting called')
     hideFlash()
 
     const attrs = {
@@ -35,13 +36,16 @@ const GameCreateForm = ({ disabled }) => {
     }
 
     const onSuccessOrFatalError = () => {
-      formRef.current.reset()
+      formRef.current && formRef.current.reset()
       toggleForm()
-      mountedRef.current = false
     }
 
     performGameCreate(attrs, onSuccessOrFatalError, null, onSuccessOrFatalError)
   }
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
     <div className={styles.root} style={colorVars}>
