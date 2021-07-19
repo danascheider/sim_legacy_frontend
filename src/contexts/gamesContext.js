@@ -178,9 +178,13 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     ...overrideValue
   }
 
-  useEffect(fetchUserGames, [fetchUserGames])
+  useEffect(() => {
+    mountedRef.current && fetchUserGames()
+    return () => mountedRef.current = false
+  }, [fetchUserGames])
+
   useEffect(() => (
-    () => mountedRef.current = true
+    () => mountedRef.current = false
   ), [])
 
   return(
