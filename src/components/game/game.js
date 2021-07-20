@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
@@ -71,7 +70,7 @@ const Game = ({ gameId, name, description }) => {
             onClick={destroyGame}
             data-testid={`destroy-icon-game-id-${gameId}`}
           >
-            <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
+            <FontAwesomeIcon className={styles.fa} icon={faTimes} />
           </button>
           <button
             ref={editRef}
