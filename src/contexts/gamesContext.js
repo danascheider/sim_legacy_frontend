@@ -141,6 +141,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else if (data && data.errors) {
           if (allErrorsAreValidationErrors(data.errors)) {
             displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being updated:`)
+            setGameEditFormVisible(false)
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
             // Something unexpected happened and we don't know what
