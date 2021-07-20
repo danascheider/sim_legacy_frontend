@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import styles from './game.module.css'
 
@@ -16,6 +18,7 @@ const Game = ({ gameId, name, description }) => {
 
   const iconsRef = useRef(null)
   const editRef = useRef(null)
+  const destroyRef = useRef(null)
 
   const refContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
 
@@ -34,10 +37,20 @@ const Game = ({ gameId, name, description }) => {
     setGameEditFormVisible(true)
   }
 
+  const destroyGame = e => {}
+
   return(
     <div className={styles.root}>
       <div className={styles.header} onClick={toggleDescription}>
         <span ref={iconsRef} className={styles.editIcons}>
+          <button
+            ref={destroyRef}
+            className={styles.icon}
+            onClick={destroyGame}
+            data-testid={`destroy-icon-game-id-${gameId}`}
+          >
+            <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
+          </button>
           <button
             ref={editRef}
             className={styles.icon}
