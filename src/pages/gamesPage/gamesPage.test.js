@@ -666,7 +666,7 @@ describe('GamesPage', () => {
 
           const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
 
-          // Display the edit form
+          // Click the icon
           act(() => {
             fireEvent.click(destroyIcon)
             return undefined;
@@ -681,7 +681,7 @@ describe('GamesPage', () => {
           const game = await screen.findByText(games[0].name)
           const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
 
-          // Display the edit form
+          // Click the icon
           act(() => {
             fireEvent.click(destroyIcon)
             return undefined;
@@ -724,7 +724,7 @@ describe('GamesPage', () => {
 
           const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
 
-          // Display the edit form
+          // Click the icon
           act(() => {
             fireEvent.click(destroyIcon)
             return undefined;
@@ -739,7 +739,7 @@ describe('GamesPage', () => {
           const game = await screen.findByText(games[0].name)
           const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
 
-          // Display the edit form
+          // Click the icon
           act(() => {
             fireEvent.click(destroyIcon)
             return undefined;
@@ -837,7 +837,7 @@ describe('GamesPage', () => {
           const game = await screen.findByText(games[0].name)
           const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
 
-          // Display the edit form
+          // Click the icon
           act(() => {
             fireEvent.click(destroyIcon)
             return undefined;
