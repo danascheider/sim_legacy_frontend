@@ -123,6 +123,47 @@ HappyPathEmpty.parameters = {
 
 /*
  *
+ * Shows component behaviour when API calls (other than initial fetch) lead to
+ * 404 errors
+ *
+ */
+
+export const NotFound = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
+      <GamesPage />
+    </GamesProvider>
+  </AppProvider>
+)
+
+NotFound.parameters = {
+  msw: [
+    rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+      const name = req.body.game.name
+      const description = req.body.game.description
+
+      const body = { name, description, id: Math.floor(Math.random() * 10000 + 1), user_id: profileData.id }
+
+      return res(
+        ctx.status(201),
+        ctx.json(body)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    })
+  ]
+}
+
+/*
+ *
  * When the games are loading
  *
  */
@@ -138,7 +179,7 @@ export const Loading = () => (
 /*
  *
  * When the server returns a 500 error or another unexpected
- * error is raised
+ * error is raised when fetching games
  *
  */
 
