@@ -46,7 +46,7 @@ const GamesPage = () => {
         {flashVisible && <FlashMessage {...flashProps} />}
         {gameEditFormVisible && <div className={styles.overlay} onClick={hideForm}><GameEditForm elementRef={formRef} {...gameEditFormProps} /></div>}
         {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}
-        <GameCreateForm disabled={gameLoadingState === LOADING || gameLoadingState === ERROR} />
+        {gameLoadingState === DONE && <GameCreateForm disabled={gameLoadingState === LOADING || gameLoadingState === ERROR} />}
         {games && games.length > 0 && gameLoadingState === DONE && <div className={styles.games}>
           {games.map(({ id, name, description }) => <Game key={name} gameId={id} name={name} description={description} />)}
         </div>}

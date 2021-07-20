@@ -13,6 +13,7 @@ const GameCreateForm = ({ disabled }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const formRef = useRef(null)
+  const inputRef = useRef(null)
   const mountedRef = useRef(true)
 
   const colorVars = {
@@ -55,7 +56,7 @@ const GameCreateForm = ({ disabled }) => {
   return(
     <div className={styles.root} style={colorVars}>
       <h3 className={styles.slideToggleTrigger} onClick={toggleForm}>Create Game...</h3>
-      <SlideToggle toggleEvent={toggleEvent} collapsed>
+      <SlideToggle toggleEvent={toggleEvent} onExpanded={() => inputRef.current.focus()} collapsed>
         {({ setCollapsibleElement }) => (
           /* Include this div so we can set the form ref to something else */
           <div ref={setCollapsibleElement}>
@@ -63,6 +64,7 @@ const GameCreateForm = ({ disabled }) => {
             <form ref={formRef} className={styles.form} data-testid='game-create-form' onSubmit={createGame}>
               <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
                 <input
+                  ref={inputRef}
                   className={styles.input}
                   type='text'
                   name='name'
