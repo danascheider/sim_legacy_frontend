@@ -188,6 +188,8 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           setGames(newGames)
 
           onSuccess && onSuccess()
+        } else if (mountedRef.current) {
+          throw new Error(`Something went wrong destroying game ${gameId}`)
         }
       })
       .catch(err => {
@@ -195,6 +197,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
 
           onUnauthorized && onUnauthorized()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error('Error destroying game: ', err)
+
+          displayFlash('error', "There was an unexpected error deleting your game. Unfortunately, we don't know more than that yet. We're working on it!")
         }
       })
   }, [token, games, logOutAndRedirect])
