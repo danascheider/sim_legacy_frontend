@@ -74,7 +74,7 @@ HappyPath.parameters = {
  * 
  */
 
-export const Empty = () => (
+export const HappyPathEmpty = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
     <GamesProvider overrideValue={{ gameLoadingState: 'done', games: emptyGames }}>
       <GamesPage />
@@ -82,12 +82,40 @@ export const Empty = () => (
   </AppProvider>
 )
 
-Empty.parameters = {
+HappyPathEmpty.parameters = {
   msw: [
     rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
       return res(
         ctx.status(200),
         ctx.json(emptyGames)
+      )
+    }),
+    rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+      const name = req.body.game.name
+      const description = req.body.game.description
+
+      const body = { name, description, id: Math.floor(Math.random() * 10000 + 1), user_id: profileData.id }
+
+      return res(
+        ctx.status(201),
+        ctx.json(body)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      const gameId = parseInt(req.params.id)
+      const name = req.body.game.name
+      const description = req.body.game.description
+
+      const body = { name, description, id: gameId, user_id: profileData.id }
+
+      return res(
+        ctx.status(200),
+        ctx.json(body)
+      )
+    }),
+    rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(204)
       )
     })
   ]
