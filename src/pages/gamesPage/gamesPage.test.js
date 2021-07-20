@@ -692,6 +692,64 @@ describe('GamesPage', () => {
           expect(game).not.toBeInTheDocument()
         })
       })
+
+      describe('cancelling deletion of a game', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        let confirm
+
+        beforeAll(() => server.listen())
+
+        beforeEach(() => {
+          server.resetHandlers()
+
+          // For these tests, the user will click "OK" each time
+          // they are asked.
+          confirm = jest.spyOn(window, 'confirm').mockImplementation(() => false)
+        })
+
+        afterAll(() => server.close())
+
+        it('confirms before deleting', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          expect(confirm).toHaveBeenCalled()
+        })
+
+        it("shows a flash message and doesn't remove any games", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const game = await screen.findByText(games[0].name)
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
+          await waitFor(() => expect(game).toBeVisible())
+          await waitFor(() => expect(screen.queryByText(/not deleted/)).toBeVisible())
+        })
+      })
     })
 
     describe('when there is an error fetching the games', () => {

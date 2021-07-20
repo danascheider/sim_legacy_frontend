@@ -14,7 +14,7 @@ const DESTROY_CONFIRMATION = 'Are you sure you want to delete this game? This ca
 const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
-  const { hideFlash } = useAppContext()
+  const { displayFlash, hideFlash } = useAppContext()
   const {
     performGameDestroy,
     setGameEditFormVisible,
@@ -52,6 +52,8 @@ const Game = ({ gameId, name, description }) => {
       }
 
       performGameDestroy(gameId, callbacks)
+    } else {
+      displayFlash('info', 'Your game was not deleted')
     }
   }
 
