@@ -64,7 +64,7 @@ Function to destroy/delete a game. Takes two possible arguments:
 * `callbacks`: Up to three optional callbacks to handle any success or error state, typically used to unmount a componeent or do other cleanup work. The possible functions are:
   * `onSuccess`: Runs when the server reeturns a 200-range response _or_ a 404 response
   * `onUnauthorized`: Runs when the server returns a 401 response
-  * `onInternalServerError`: Runs when tthe server returns a 500-range response or an ereror is thrown while handling the response from the server.
+  * `onInternalServerError`: Runs when the server returns a 500-range response or an ereror is thrown while handling the response from the server.
 
 Thee callback functions passed in are run after the context provider's own handlers complete. These handlers perform logic as follows:
 
