@@ -121,6 +121,11 @@ export const destroyGame = (token, gameId) => {
     headers: authHeader(token)
   })
   .then(resp => {
+    // I deviated from the usual pattern of throwing a NotFoundError here
+    // on 404 since the behaviour for 404s is the same as the behaviour for
+    // successful deletion of the game, and making it throw an error here
+    // would just mean duplicating all thatlogic in the handlers in the
+    // GamesProvider.
     if (resp.status === 401) throw new AuthorizationError()
     return resp
   })
