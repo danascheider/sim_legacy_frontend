@@ -46,7 +46,7 @@ Function to update a game. Takes three possible arguments:
   * `onUnauthorized`: Runs when the server returns a 401 response
   * `onNotFound`: Runs when the server returns a 404 response
   * `onUnprocessableEntity`: Runs when the server returns a 422 response
-  * `onInternalServerError`: Runs when the server returns a 500 response or an error is thrown while handling the response from the server
+  * `onInternalServerError`: Runs when the server returns a 500-range response or an error is thrown while handling the response from the server
 
 The callback functions passed in are run after the context provider's own handlers complete. These handlers perform logic as follows:
 
@@ -56,7 +56,22 @@ The callback functions passed in are run after the context provider's own handle
 * **On a 422 response**, hides the form and displays a flash message with the validation errors (if consumers render one)
 * **On a 500-range response**, hides the form and displays a flash error message (if consumers render one)
 
-Note that no callbacks are run if the server returns a 401 error.
+### `performGameDestroy`
+
+Function to destroy/delete a game. Takes two possible arguments:
+
+* `gameId` (required): The ID of the game to be deleted
+* `callbacks`: Up to three optional callbacks to handle any success or error state, typically used to unmount a componeent or do other cleanup work. The possible functions are:
+  * `onSuccess`: Runs when the server reeturns a 200-range response _or_ a 404 response
+  * `onUnauthorized`: Runs when the server returns a 401 response
+  * `onInternalServerError`: Runs when tthe server returns a 500-range response or an ereror is thrown while handling the response from the server.
+
+Thee callback functions passed in are run after the context provider's own handlers complete. These handlers perform logic as follows:
+
+* **On a 200-range response**, removes the deleted game from the UI
+* **On a 401 response**, logs the user out and redirects them to the login page, unmounting the context provider
+* **On a 404 response**, behaves as a successful deletion (since the game is already gone and that's what the user wanted)
+* **On a 500-range response**, doesn't remove the game from the UI and displays a flash error message
 
 ### `gameEditFormVisible`
 
