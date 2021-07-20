@@ -3,6 +3,7 @@ import { useAppContext, useShoppingListContext } from '../../hooks/contexts'
 import { shoppingListLoadingStates } from '../../contexts/shoppingListContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
+import Modal from '../../components/modal/modal'
 import ShoppingListCreateForm from '../../components/shoppingListCreateForm/shoppingListCreateForm'
 import ShoppingListPageContent from '../../components/shoppingListPageContent/shoppingListPageContent'
 import styles from './shoppingListPage.module.css'
@@ -39,7 +40,7 @@ const ShoppingListPage = () => {
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
-      {listItemEditFormVisible && <div className={styles.overlay} onClick={hideForm}><ShoppingListItemEditForm elementRef={formRef} {...listItemEditFormProps} /></div>}
+      {listItemEditFormVisible && <Modal onClick={hideForm}><ShoppingListItemEditForm elementRef={formRef} {...listItemEditFormProps} /></Modal>}
       {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
       <div className={styles.createForm}><ShoppingListCreateForm disabled={shouldDisableForm} /></div>
       <ShoppingListPageContent /> {/* This component implements its own loading & error handling behaviour */}

@@ -8,6 +8,7 @@ import Game from '../../components/game/game'
 import GameCreateForm from '../../components/gameCreateForm/gameCreateForm'
 import GameEditForm from '../../components/gameEditForm/gameEditForm'
 import Loading from '../../components/loading/loading'
+import Modal from '../../components/modal/modal'
 import styles from './gamesPage.module.css'
 
 const { LOADING, DONE, ERROR } = gameLoadingStates
@@ -44,7 +45,7 @@ const GamesPage = () => {
     <DashboardLayout title='Your Games'>
       <div className={styles.root}>
         {flashVisible && <FlashMessage {...flashProps} />}
-        {gameEditFormVisible && <div className={styles.overlay} onClick={hideForm}><GameEditForm elementRef={formRef} {...gameEditFormProps} /></div>}
+        {gameEditFormVisible && <Modal onClick={hideForm}><GameEditForm elementRef={formRef} {...gameEditFormProps} /></Modal>}
         {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}
         {gameLoadingState === DONE && <GameCreateForm disabled={gameLoadingState === LOADING || gameLoadingState === ERROR} />}
         {games && games.length > 0 && gameLoadingState === DONE && <div className={styles.games}>
