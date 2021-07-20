@@ -23,9 +23,7 @@ const GameCreateForm = ({ disabled }) => {
     '--button-hover-color': BLUE.hoverColorLight,
   }
 
-  const toggleForm = () => {
-    if (mountedRef.current) setToggleEvent(Date.now)
-  }
+  const toggleForm = () => mountedRef.current && setToggleEvent(Date.now)
 
   const createGame = e => {
     e.preventDefault()
