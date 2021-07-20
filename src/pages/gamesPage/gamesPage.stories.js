@@ -36,6 +36,34 @@ HappyPath.parameters = {
         ctx.status(200),
         ctx.json(games)
       )
+    }),
+    rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+      const name = req.body.game.name
+      const description = req.body.game.description
+
+      const body = { name, description, id: Math.floor(Math.random() * 10000 + 1), user_id: profileData.id }
+
+      return res(
+        ctx.status(201),
+        ctx.json(body)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      const gameId = parseInt(req.params.id)
+      const name = req.body.game.name
+      const description = req.body.game.description
+
+      const body = { name, description, id: gameId, user_id: profileData.id }
+
+      return res(
+        ctx.status(200),
+        ctx.json(body)
+      )
+    }),
+    rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(204)
+      )
     })
   ]
 }
