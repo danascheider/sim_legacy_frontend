@@ -438,7 +438,7 @@ describe('GamesPage', () => {
         })
       })
 
-      describe('handling a 404 error while editing a game', () => {
+      describe("editing a game that doesn't exist", () => {
         const handlers = [...sharedHandlers]
         handlers.push(
           rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
@@ -630,6 +630,224 @@ describe('GamesPage', () => {
         })
       })
 
+      describe('successfully deleting a game', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(204)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        let confirm
+
+        beforeAll(() => server.listen())
+
+        beforeEach(() => {
+          server.resetHandlers()
+
+          // For these tests, the user will click "OK" each time
+          // they are asked.
+          confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+        })
+
+        afterAll(() => server.close())
+
+        it('confirms before deleting', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Click the icon
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          expect(confirm).toHaveBeenCalled()
+        })
+
+        it('removes the game from the list, leaving other games alone', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const game = await screen.findByText(games[0].name)
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Click the icon
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
+          await waitForElementToBeRemoved(game)
+          expect(game).not.toBeInTheDocument()
+        })
+      })
+
+      describe('cancelling deletion of a game', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        let confirm
+
+        beforeAll(() => server.listen())
+
+        beforeEach(() => {
+          server.resetHandlers()
+
+          // For these tests, the user will click "Cancel" each time
+          // they are asked.
+          confirm = jest.spyOn(window, 'confirm').mockImplementation(() => false)
+        })
+
+        afterAll(() => server.close())
+
+        it('confirms before deleting', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Click the icon
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          expect(confirm).toHaveBeenCalled()
+        })
+
+        it("shows a flash message and doesn't remove any games", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const game = await screen.findByText(games[0].name)
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Click the icon
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
+          await waitFor(() => expect(game).toBeVisible())
+          await waitFor(() => expect(screen.queryByText(/not deleted/)).toBeVisible())
+        })
+      })
+
+      describe("deleting a game that doesn't exist", () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(404)
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        let confirm
+
+        beforeAll(() => server.listen())
+
+        beforeEach(() => {
+          server.resetHandlers()
+
+          // For these tests, the user will click "OK" each time
+          // they are asked.
+          confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+        })
+
+        afterAll(() => server.close())
+
+        it('behaves like successful deletion', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const game = await screen.findByText(games[0].name)
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Display the edit form
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
+          await waitFor(() => expect(game).not.toBeInTheDocument())
+        })
+      })
+
+      describe('handling a 500 error while deleting a game', () => {
+        const handlers = [...sharedHandlers]
+        handlers.push(
+          rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {
+            return res(
+              ctx.status(200),
+              ctx.json(games)
+            )
+          }),
+          rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+            return res(
+              ctx.status(500),
+              ctx.json({ errors: ['Something went horribly wrong'] })
+            )
+          })
+        )
+
+        const server = setupServer.apply(null, handlers)
+        let confirm
+
+        beforeAll(() => server.listen())
+
+        beforeEach(() => {
+          server.resetHandlers()
+
+          // For these tests, the user will click "OK" each time
+          // they are asked.
+          confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+        })
+
+        afterAll(() => server.close())
+
+        it("shows an error message and doesn't remove the game", async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const game = await screen.findByText(games[0].name)
+          const destroyIcon = await screen.findByTestId(`destroy-icon-game-id-${games[0].id  }`)
+
+          // Click the icon
+          act(() => {
+            fireEvent.click(destroyIcon)
+            return undefined;
+          })
+
+          await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
+          await waitFor(() => expect(game).toBeVisible())
+          await waitFor(() => expect(screen.queryByText(/unexpected error/)).toBeVisible())
+        })
+      })
     })
 
     describe('when there is an error fetching the games', () => {

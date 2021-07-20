@@ -95,6 +95,7 @@ export const createGame = (token, attrs) => {
   })
 }
 
+// PATCH /games/:id
 export const updateGame = (token, gameId, attrs) => {
   const uri = `${backendBaseUri}/games/${gameId}`
   const body = JSON.stringify({ game: attrs })
@@ -107,6 +108,25 @@ export const updateGame = (token, gameId, attrs) => {
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
     if (resp.status === 404) throw new NotFoundError()
+    return resp
+  })
+}
+
+// DELETE /games/:id
+export const destroyGame = (token, gameId) => {
+  const uri = `${backendBaseUri}/games/${gameId}`
+
+  return fetch(uri, {
+    method: 'DELETE',
+    headers: authHeader(token)
+  })
+  .then(resp => {
+    // I deviated from the usual pattern of throwing a NotFoundError here
+    // on 404 since the behaviour for 404s is the same as the behaviour for
+    // successful deletion of the game, and making it throw an error here
+    // would just mean duplicating all thatlogic in the handlers in the
+    // GamesProvider.
+    if (resp.status === 401) throw new AuthorizationError()
     return resp
   })
 }
