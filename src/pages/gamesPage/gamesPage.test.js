@@ -712,7 +712,7 @@ describe('GamesPage', () => {
         beforeEach(() => {
           server.resetHandlers()
 
-          // For these tests, the user will click "OK" each time
+          // For these tests, the user will click "Cancel" each time
           // they are asked.
           confirm = jest.spyOn(window, 'confirm').mockImplementation(() => false)
         })
