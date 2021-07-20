@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
@@ -44,7 +44,7 @@ const ShoppingListItem = ({
     performShoppingListItemDestroy,
     setListItemEditFormProps,
     setListItemEditFormVisible
-  } = useShoppingListContext()
+  } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
   const iconsRef = useRef(null)

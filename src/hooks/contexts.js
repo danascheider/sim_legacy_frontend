@@ -9,7 +9,7 @@ import { useContext } from 'react'
 import { ColorContext } from '../contexts/colorContext'
 import { AppContext } from '../contexts/appContext'
 import { GamesContext } from '../contexts/gamesContext'
-import { ShoppingListContext } from '../contexts/shoppingListContext'
+import { ShoppingListsContext } from '../contexts/shoppingListsContext'
 
 const useCustomContext = (cxt, msg) => {
   const context = useContext(cxt)
@@ -29,8 +29,8 @@ export const useAppContext = () => (
   useCustomContext(AppContext, 'useAppContext must be used within a AppProvider')
 )
 
-export const useShoppingListContext = () => (
-  useCustomContext(ShoppingListContext, 'useShoppingListContext must be used within a ShoppingListProvider')
+export const useShoppingListsContext = () => (
+  useCustomContext(ShoppingListsContext, 'useShoppingListsContext must be used within a ShoppingListProvider')
 )
 
 export const useGamesContext = () => (

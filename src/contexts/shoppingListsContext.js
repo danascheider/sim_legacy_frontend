@@ -30,9 +30,9 @@ const ERROR = 'error'
 
 const shoppingListLoadingStates = { LOADING, DONE, ERROR }
 
-const ShoppingListContext = createContext()
+const ShoppingListsContext = createContext()
 
-const ShoppingListProvider = ({ children, overrideValue = {} }) => {
+const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
   const [listItemEditFormProps, setListItemEditFormProps] = useState({})
   const [listItemEditFormVisible, setListItemEditFormVisible] = useState(false)
@@ -470,13 +470,13 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }, [fetchLists])
 
   return(
-    <ShoppingListContext.Provider value={value}>
+    <ShoppingListsContext.Provider value={value}>
       {children}
-    </ShoppingListContext.Provider>
+    </ShoppingListsContext.Provider>
   )
 }
 
-ShoppingListProvider.propTypes = {
+ShoppingListsProvider.propTypes = {
   children: PropTypes.node.isRequired,
   overrideValue: PropTypes.shape({
     shoppingLists: PropTypes.arrayOf(PropTypes.shape({
@@ -502,4 +502,4 @@ ShoppingListProvider.propTypes = {
   })
 }
 
-export { ShoppingListContext, ShoppingListProvider, shoppingListLoadingStates }
+export { ShoppingListsContext, ShoppingListsProvider, shoppingListLoadingStates }

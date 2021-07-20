@@ -1,16 +1,16 @@
 import React from 'react'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
-import { useShoppingListContext } from '../../hooks/contexts'
+import { useShoppingListsContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
-import { shoppingListLoadingStates } from '../../contexts/shoppingListContext'
+import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
 import Loading from '../loading/loading'
 import ShoppingList from '../shoppingList/shoppingList'
-import styles from './shoppingListPageContent.module.css'
+import styles from './shoppingListsPageContent.module.css'
 
 const { LOADING, DONE } = shoppingListLoadingStates
 
-const ShoppingListPageContent = () => {
-  const { shoppingLists, shoppingListLoadingState } = useShoppingListContext()
+const ShoppingListsPageContent = () => {
+  const { shoppingLists, shoppingListLoadingState } = useShoppingListsContext()
 
   /*
    *
@@ -57,4 +57,4 @@ const ShoppingListPageContent = () => {
   }
 }
 
-export default ShoppingListPageContent
+export default ShoppingListsPageContent

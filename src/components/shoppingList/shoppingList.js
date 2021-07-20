@@ -6,7 +6,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
-import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
@@ -42,7 +42,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     shoppingLists,
     performShoppingListUpdate,
     performShoppingListDestroy,
-  } = useShoppingListContext()
+  } = useShoppingListsContext()
 
   const originalTitle = title // to switch back in case of API error on update
 

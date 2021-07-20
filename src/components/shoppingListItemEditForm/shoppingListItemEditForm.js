@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { useShoppingListContext } from '../../hooks/contexts'
+import { useShoppingListsContext } from '../../hooks/contexts'
 import styles from './shoppingListItemEditForm.module.css'
 
 const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentAttributes }) => {
-  const { performShoppingListItemUpdate } = useShoppingListContext()
+  const { performShoppingListItemUpdate } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
   const formRef = useRef(null)

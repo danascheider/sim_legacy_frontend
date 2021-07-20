@@ -1,5 +1,5 @@
 import React from 'react'
-import { profileData, token } from '../../sharedTestData'
+import { profileData, token, emptyGames } from '../../sharedTestData'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import GameEditForm from './gameEditForm'
@@ -27,7 +27,7 @@ const containerStyle = {
 
 export const Default = () => (
   <AppProvider overrideValue={{ profileData, token }}>
-    <GamesProvider overrideValue={{ games: [] }}>
+    <GamesProvider overrideValue={{ games: emptyGames }}>
       <div style={containerStyle}>
         <GameEditForm gameId={12} currentAttributes={currentAttributesWithDescription} />
       </div>
@@ -37,7 +37,7 @@ export const Default = () => (
 
 export const NoExistingDescription = () => (
   <AppProvider overrideValue={{ profileData, token }}>
-    <GamesProvider overrideValue={{ games: [] }}>
+    <GamesProvider overrideValue={{ games: emptyGames }}>
       <div style={containerStyle}>
         <GameEditForm gameId={12} currentAttributes={currentAttributesWithoutDescription} />
       </div>

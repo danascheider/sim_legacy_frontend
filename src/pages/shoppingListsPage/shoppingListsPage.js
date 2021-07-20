@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useCallback } from 'react'
-import { useAppContext, useShoppingListContext } from '../../hooks/contexts'
-import { shoppingListLoadingStates } from '../../contexts/shoppingListContext'
+import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
+import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import Modal from '../../components/modal/modal'
 import ShoppingListCreateForm from '../../components/shoppingListCreateForm/shoppingListCreateForm'
-import ShoppingListPageContent from '../../components/shoppingListPageContent/shoppingListPageContent'
-import styles from './shoppingListPage.module.css'
+import ShoppingListsPageContent from '../../components/shoppingListsPageContent/shoppingListsPageContent'
 import ShoppingListItemEditForm from '../../components/shoppingListItemEditForm/shoppingListItemEditForm'
+import styles from './shoppingListPage.module.css'
 
 const { LOADING, ERROR } = shoppingListLoadingStates
 
-const ShoppingListPage = () => {
+const ShoppingListsPage = () => {
   const { flashProps, flashVisible } = useAppContext()
 
   const {
@@ -19,7 +19,7 @@ const ShoppingListPage = () => {
     setListItemEditFormVisible,
     listItemEditFormProps,
     shoppingListLoadingState
-  } = useShoppingListContext()
+  } = useShoppingListsContext()
 
   const shouldDisableForm = shoppingListLoadingState === LOADING || shoppingListLoadingState === ERROR
   const formRef = useRef(null)
@@ -43,9 +43,9 @@ const ShoppingListPage = () => {
       {listItemEditFormVisible && <Modal onClick={hideForm}><ShoppingListItemEditForm elementRef={formRef} {...listItemEditFormProps} /></Modal>}
       {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
       <div className={styles.createForm}><ShoppingListCreateForm disabled={shouldDisableForm} /></div>
-      <ShoppingListPageContent /> {/* This component implements its own loading & error handling behaviour */}
+      <ShoppingListsPageContent /> {/* This component implements its own loading & error handling behaviour */}
     </DashboardLayout>
   )
 }
 
-export default ShoppingListPage
+export default ShoppingListsPage

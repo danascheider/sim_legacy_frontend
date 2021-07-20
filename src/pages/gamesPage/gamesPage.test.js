@@ -9,14 +9,13 @@ import {
   fireEvent
 } from '@testing-library/react'
 import { within } from '@testing-library/dom'
-import userEvent from '@testing-library/user-event'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
 import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
-import { profileData, games, emptyGames } from './testData'
+import { profileData, games, emptyGames } from '../../sharedTestData'
 import GamesPage from './gamesPage'
 
 describe('GamesPage', () => {
@@ -193,6 +192,7 @@ describe('GamesPage', () => {
           component = renderComponentWithMockCookies(cookies)
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).not.toBeVisible())
+          await waitFor(() => expect(screen.queryByText(games[1].description)).not.toBeVisible())
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
         })
 
