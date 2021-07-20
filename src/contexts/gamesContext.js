@@ -205,7 +205,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, logOutAndRedirect])
+  }, [token, games, logOutAndRedirect, displayFlash])
 
   const value = {
     games,

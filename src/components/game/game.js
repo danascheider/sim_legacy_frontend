@@ -53,7 +53,7 @@ const Game = ({ gameId, name, description }) => {
 
       performGameDestroy(gameId, callbacks)
     } else {
-      displayFlash('info', 'Your game was not deleted')
+      displayFlash('info', 'Your game was not deleted.')
     }
   }
 
