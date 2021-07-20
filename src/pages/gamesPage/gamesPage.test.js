@@ -561,7 +561,7 @@ describe('GamesPage', () => {
           const gamesWithNewName = await screen.queryAllByText(games[1].name)
 
           expect(flashError).toBeVisible()
-          expect(form).toBeVisible()
+          expect(form).not.toBeVisible()
           expect(gameWithOldName).toBeVisible()
           expect(gamesWithNewName.length).toEqual(1)
         })
