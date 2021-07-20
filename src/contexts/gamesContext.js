@@ -12,7 +12,12 @@
 
 import { createContext, useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { fetchGames, createGame, updateGame } from '../utils/simApi'
+import {
+  fetchGames,
+  createGame,
+  updateGame,
+  destroyGame
+} from '../utils/simApi'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
 
@@ -44,8 +49,8 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
   }
 
   const allErrorsAreValidationErrors = useCallback(errors => (
-      errors.filter(msg => msg.match(/^(Name|Description)/)).length === errors.length
-    ), [])
+    errors.filter(msg => msg.match(/^(Name|Description)/)).length === errors.length
+  ), [])
 
   const fetchUserGames = useCallback(() => {
     if (token && !gamesOverridden.current) {
@@ -168,11 +173,38 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
 
+  const performGameDestroy = useCallback((gameId, callbacks) => {
+    const { onSuccess, onNotFound, onUnauthorized, onInternalServerError } = callbacks
+
+    destroyGame(token, gameId)
+      .then(resp => {
+        if (resp.status === 204 && mountedRef.current) {
+          const destroyedGame = games.find(game => parseInt(game.id) === parseInt(gameId))
+          const gameIndex = games.indexOf(destroyedGame)
+
+          const newGames = [...games]
+          newGames.splice(gameIndex, 1)
+
+          setGames(newGames)
+
+          onSuccess && onSuccess()
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+
+          onUnauthorized && onUnauthorized()
+        }
+      })
+  }, [token, games, logOutAndRedirect])
+
   const value = {
     games,
     gameLoadingState,
     performGameCreate,
     performGameUpdate,
+    performGameDestroy,
     gameEditFormVisible,
     setGameEditFormVisible,
     gameEditFormProps,
@@ -206,7 +238,9 @@ GamesProvider.propTypes = {
       description: PropTypes.string
     })),
     gameLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
-    performGameCreate: PropTypes.func
+    performGameCreate: PropTypes.func,
+    performGameUpdate: PropTypes.func,
+    performGameDestroy: PropTypes.func
   })
 }
 

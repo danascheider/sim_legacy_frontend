@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
@@ -9,13 +9,19 @@ import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import styles from './game.module.css'
 
 const DEFAULT_DESCRIPTION = 'This game has no description.'
+const DESTROY_CONFIRMATION = 'Are you sure you want to delete this game? This cannot be undone. You will lose all data associated with the game you delete.'
 
 const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const { hideFlash } = useAppContext()
-  const { setGameEditFormVisible, setGameEditFormProps } = useGamesContext()
+  const {
+    performGameDestroy,
+    setGameEditFormVisible,
+    setGameEditFormProps
+  } = useGamesContext()
 
+  const mountedRef = useRef(true)
   const iconsRef = useRef(null)
   const editRef = useRef(null)
   const destroyRef = useRef(null)
@@ -37,7 +43,21 @@ const Game = ({ gameId, name, description }) => {
     setGameEditFormVisible(true)
   }
 
-  const destroyGame = e => {}
+  const destroyGame = e => {
+    const confirmed = window.confirm(DESTROY_CONFIRMATION)
+
+    if (confirmed) {
+      const callbacks = {
+        onSuccess: () => mountedRef.current = false
+      }
+
+      performGameDestroy(gameId, callbacks)
+    }
+  }
+
+  useEffect(() => (
+    mountedRef.current = false
+  ), [])
 
   return(
     <div className={styles.root}>

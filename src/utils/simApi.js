@@ -95,6 +95,7 @@ export const createGame = (token, attrs) => {
   })
 }
 
+// PATCH /games/:id
 export const updateGame = (token, gameId, attrs) => {
   const uri = `${backendBaseUri}/games/${gameId}`
   const body = JSON.stringify({ game: attrs })
@@ -103,6 +104,21 @@ export const updateGame = (token, gameId, attrs) => {
     method: 'PATCH',
     headers: combinedHeaders(token),
     body: body
+  })
+  .then(resp => {
+    if (resp.status === 401) throw new AuthorizationError()
+    if (resp.status === 404) throw new NotFoundError()
+    return resp
+  })
+}
+
+// DELETE /games/:id
+export const destroyGame = (token, gameId) => {
+  const uri = `${backendBaseUri}/games/${gameId}`
+
+  return fetch(uri, {
+    method: 'DELETE',
+    headers: authHeader(token)
   })
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
