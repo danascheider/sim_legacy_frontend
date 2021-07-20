@@ -4,6 +4,10 @@
   border-bottom: 1px solid #ccc;
 }
 
+.root:first-of-type {
+  border-top: 1px solid #ccc;
+}
+
 .header {
   display: flex;
   align-items: flex-start;

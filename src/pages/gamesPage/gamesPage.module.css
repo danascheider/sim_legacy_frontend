@@ -14,9 +14,8 @@
 }
 
 .noGames {
-  font-size: 1.025rem;
-  margin: 0 auto;
-  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .games {
@@ -28,10 +27,6 @@
 }
 
 @media (min-width: 769px) {
-  .noGames {
-    font-size: 1.125rem;
-  }
-
   .games {
     max-width: 75%;
     margin: unset
