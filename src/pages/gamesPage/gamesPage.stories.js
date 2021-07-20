@@ -253,8 +253,6 @@ InternalServerError.parameters = {
   ]
 }
 
-
-
 /*
  *
  * When the games are loading
