@@ -97,10 +97,6 @@
 }
 
 @media (min-width: 1201px) {
-  .root {
-    max-width: 50%;
-  }
-
   .fieldset {
     max-width: 50%;
   }
