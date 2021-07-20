@@ -164,6 +164,99 @@ NotFound.parameters = {
 
 /*
  *
+ * When creating or updating a game returns a 422 (note: the errors returned from the
+ * API for this story are hardcoded, so you will not see the same validation errors that
+ * would actually occur in production)
+ *
+ */
+
+export const UnprocessableEntity = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
+      <GamesPage />
+    </GamesProvider>
+  </AppProvider>
+)
+
+UnprocessableEntity.parameters = {
+  msw: [
+    rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+      return res(
+        ctx.status(422),
+        ctx.json({
+          errors: [
+            'Name must be unique',
+            "Name can only contain alphanumeric characters, spaces, commas (,), hyphens (-), and apostrophes (')"
+          ]
+        })
+      )
+    }),
+    rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(422),
+        ctx.json({
+          errors: [
+            'Name must be unique',
+            "Name can only contain alphanumeric characters, spaces, commas (,), hyphens (-), and apostrophes (')"
+          ]
+        })
+      )
+    }),
+    rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(204)
+      )
+    })
+  ]
+}
+
+/*
+ *
+ * When creating, updating, or destroying a game returns a 500 error
+ *
+ */
+
+export const InternalServerError = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
+      <GamesPage />
+    </GamesProvider>
+  </AppProvider>
+)
+
+InternalServerError.parameters = {
+  msw: [
+    rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+      return res(
+        ctx.status(500),
+        ctx.json({
+          errors: ['Something went horribly wrong']
+        })
+      )
+    }),
+    rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(500),
+        ctx.json({
+          errors: ['Something went horribly wrong']
+        })
+      )
+    }),
+    rest.delete(`${backendBaseUri}/games/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(500),
+        ctx.json({
+          errors: ['Something went horribly wrong']
+        })
+      )
+    })
+  ]
+}
+
+
+
+/*
+ *
  * When the games are loading
  *
  */
