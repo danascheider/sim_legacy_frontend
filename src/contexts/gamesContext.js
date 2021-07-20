@@ -174,11 +174,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
   }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
 
   const performGameDestroy = useCallback((gameId, callbacks) => {
-    const { onSuccess, onNotFound, onUnauthorized, onInternalServerError } = callbacks
+    const { onSuccess, onUnauthorized, onInternalServerError } = callbacks
 
     destroyGame(token, gameId)
       .then(resp => {
-        if (resp.status === 204 && mountedRef.current) {
+        if ((resp.status === 204 || resp.status === 404) && mountedRef.current) {
           const destroyedGame = games.find(game => parseInt(game.id) === parseInt(gameId))
           const gameIndex = games.indexOf(destroyedGame)
 
