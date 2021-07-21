@@ -13,7 +13,7 @@ const DESTROY_CONFIRMATION = 'Are you sure you want to delete this game? This ca
 const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
-  const { setFlashProps, setFlashVisible, hideFlash } = useAppContext()
+  const { setFlashProps, setFlashVisible } = useAppContext()
   const {
     performGameDestroy,
     setGameEditFormVisible,
@@ -32,7 +32,7 @@ const Game = ({ gameId, name, description }) => {
   }
 
   const showEditForm = () => {
-    hideFlash()
+    setFlashVisible(false)
 
     setGameEditFormProps({
       gameId: gameId,

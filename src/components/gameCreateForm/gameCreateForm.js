@@ -7,7 +7,7 @@ import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import styles from './gameCreateForm.module.css'
 
 const GameCreateForm = ({ disabled }) => {
-  const { hideFlash, setFlashVisible } = useAppContext()
+  const { setFlashVisible } = useAppContext()
   const { performGameCreate } = useGamesContext()
 
   const [toggleEvent, setToggleEvent] = useState(0)
@@ -28,7 +28,7 @@ const GameCreateForm = ({ disabled }) => {
   const createGame = e => {
     e.preventDefault()
 
-    hideFlash()
+    setFlashVisible(false)
 
     const attrs = {
       name: e.target.elements.name.value,

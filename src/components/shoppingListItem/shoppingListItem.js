@@ -24,8 +24,7 @@ const ShoppingListItem = ({
 
   const {
     setFlashProps,
-    setFlashVisible,
-    hideFlash
+    setFlashVisible
   } = useAppContext()
 
   const {
@@ -120,7 +119,7 @@ const ShoppingListItem = ({
 
   const showEditForm = () => {
     if (mountedRef.current) {
-      hideFlash()
+      setFlashVisible: false
       setListItemEditFormProps({
         listTitle: listTitle,
         buttonColor: {

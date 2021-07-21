@@ -37,7 +37,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
-  const { setFlashProps, setFlashVisible, hideFlash } = useAppContext()
+  const { setFlashProps, setFlashVisible } = useAppContext()
 
   const {
     shoppingLists,
@@ -83,7 +83,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const submitAndHideForm = e => {
     e.preventDefault()
 
-    hideFlash()
+    setFlashVisible(false)
 
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
@@ -98,7 +98,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
 
-    hideFlash()
+    setFlashVisible(false)
 
     if (confirmed) {
       performShoppingListDestroy(listId)
