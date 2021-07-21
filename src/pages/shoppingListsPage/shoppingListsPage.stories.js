@@ -15,6 +15,7 @@ import {
   profileData,
   emptyShoppingLists,
   allShoppingLists,
+  emptyGames,
   games,
   token
 } from '../../sharedTestData'
@@ -353,6 +354,24 @@ HappyPath.parameters = {
       }
     })
   ]
+}
+
+/*
+ *
+ * When the user has no games
+ *
+ */
+
+export const NoGames = () => {
+  return(
+    <AppProvider overrideValue={appContextOverrideValue}>
+      <GamesProvider overrideValue={{ games: emptyGames, gameLoadingState: 'done' }}>
+        <ShoppingListsProvider>
+          <ShoppingListsPage />
+        </ShoppingListsProvider>
+      </GamesProvider>
+    </AppProvider>
+  )
 }
 
 /*

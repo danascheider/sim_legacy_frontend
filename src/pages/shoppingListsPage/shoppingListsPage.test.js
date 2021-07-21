@@ -27,7 +27,7 @@ import ShoppingListsPage from './shoppingListsPage'
 describe('ShoppingListsPage', () => {
   let component
 
-  const renderComponentWithMockCookies = (cookies, gameId = null) => {
+  const renderComponentWithMockCookies = (cookies, gameId = null, allGames = games) => {
     const route = gameId ? `/dashboard/shopping_lists?game_id=${gameId}` : '/dashboard/shopping_lists'
 
     let el
@@ -35,7 +35,7 @@ describe('ShoppingListsPage', () => {
       el = renderWithRouter(
         <CookiesProvider cookies={cookies}>
           <AppProvider overrideValue={{ profileData }}>
-            <GamesProvider overrideValue={{ games }} >
+            <GamesProvider overrideValue={{ games: allGames, gameLoadingState: 'done' }} >
               <ShoppingListsProvider>
                 <ShoppingListsPage />
               </ShoppingListsProvider>
@@ -177,9 +177,37 @@ describe('ShoppingListsPage', () => {
       afterAll(() => server.close())
 
       it('displays a message that the game has no shopping lists', async () => {
-        component = renderComponentWithMockCookies(cookies, games[0].id)
+        component = await renderComponentWithMockCookies(cookies, games[0].id)
 
         await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).toBeVisible())
+      })
+    })
+
+    describe('when the user has no games', () => {
+      const server = setupServer(
+        rest.get(`${backendBaseUri}/games/${games[0].id}/shopping_lists`, (req, res, ctx) => {
+          return res(
+            ctx.status(200),
+            ctx.json(emptyShoppingLists)
+          )
+        })
+      )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('displays a link to create a game', async () => {
+        const { history } = component = await renderComponentWithMockCookies(cookies, null, emptyGames)
+
+        const link = await screen.findByText(/create a game/i)
+
+        act(() => {
+          fireEvent.click(link)
+          return undefined
+        })
+
+        await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
       })
     })
   })

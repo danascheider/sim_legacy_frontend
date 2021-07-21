@@ -5,6 +5,10 @@
   text-align: center;
 }
 
+.link {
+  color: #000;
+}
+
 .shoppingList {
   margin-bottom: 32px;
 }

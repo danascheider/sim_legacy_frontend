@@ -1,6 +1,8 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
-import { useShoppingListsContext } from '../../hooks/contexts'
+import paths from '../../routing/paths'
+import { useGamesContext, useShoppingListsContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
 import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
 import Loading from '../loading/loading'
@@ -10,6 +12,7 @@ import styles from './shoppingListsPageContent.module.css'
 const { LOADING, DONE } = shoppingListLoadingStates
 
 const ShoppingListsPageContent = () => {
+  const { games, gameLoadingState } = useGamesContext()
   const { shoppingLists, shoppingListLoadingState } = useShoppingListsContext()
 
   /*
@@ -26,8 +29,13 @@ const ShoppingListsPageContent = () => {
    * Return appropriate values for the state the component is in
    * 
    */
-
-  if (listsLoadedAndNotEmpty) {
+  if (gameLoadingState === DONE && !games.length) {
+    return(
+      <p className={styles.noLists}>
+        You have no shopping lists. <Link className={styles.link} to={paths.dashboard.games}>Create a game</Link> to get started.
+      </p>
+    )
+  } else if (listsLoadedAndNotEmpty) {
     return(
       <>
         {shoppingLists.map(({ id, title, aggregate }, index) => {
