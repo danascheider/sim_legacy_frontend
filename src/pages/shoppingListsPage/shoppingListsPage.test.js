@@ -15,7 +15,12 @@ import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
-import { profileData, games, emptyGames } from '../../sharedTestData'
+import {
+  profileData,
+  games,
+  emptyGames,
+  emptyShoppingLists
+} from '../../sharedTestData'
 import { allShoppingLists } from '../../sharedTestData'
 import ShoppingListsPage from './shoppingListsPage'
 
@@ -154,6 +159,27 @@ describe('ShoppingListsPage', () => {
         await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+      })
+    })
+
+    describe('when a game has no shopping lists', () => {
+      const server = setupServer(
+        rest.get(`${backendBaseUri}/games/${games[0].id}/shopping_lists`, (req, res, ctx) => {
+          return res(
+            ctx.status(200),
+            ctx.json(emptyShoppingLists)
+          )
+        })
+      )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('displays a message that the game has no shopping lists', async () => {
+        component = renderComponentWithMockCookies(cookies, games[0].id)
+
+        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).toBeVisible())
       })
     })
   })
