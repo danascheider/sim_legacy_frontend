@@ -22,6 +22,8 @@ const ShoppingListsPage = () => {
   } = useShoppingListsContext()
 
   const shouldDisableForm = shoppingListLoadingState === LOADING || shoppingListLoadingState === ERROR
+
+  const mountedRef = useRef(true)
   const formRef = useRef(null)
 
   const formRefContains = el => formRef.current && (formRef.current === el || formRef.current.contains(el))
@@ -40,7 +42,11 @@ const ShoppingListsPage = () => {
 
   useEffect(() => {
     if (mountedRef.current && shoppingListLoadingState === ERROR) setFlashVisible(true)
-  })
+  }, [shoppingListLoadingState])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
     <DashboardLayout title='Your Shopping Lists'>
