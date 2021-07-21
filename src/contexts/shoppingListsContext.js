@@ -49,7 +49,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     displayFlash
   } = useAppContext()
 
-  const { games, gameLoadingState } = useGamesContext()
+  const { games } = useGamesContext()
 
   const activeGameId = useMemo(() => {
     if (games && games.length) {
