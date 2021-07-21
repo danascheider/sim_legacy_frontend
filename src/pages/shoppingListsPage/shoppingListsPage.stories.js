@@ -545,13 +545,15 @@ GameNotFound.parameters = {
  * 
  */
 
-// export const Empty = () => (
-//   <AppProvider overrideValue={appContextOverrideValue}>
-//     <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
-//       <ShoppingListsPage />
-//     </ShoppingListProvider>
-//   </AppProvider>
-// )
+export const NoLists = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ games }}>
+      <ShoppingListsProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
+        <ShoppingListsPage />
+      </ShoppingListsProvider>
+    </GamesProvider>
+  </AppProvider>
+)
 
 // Empty.parameters = {
 //   msw: [
@@ -610,8 +612,7 @@ GameNotFound.parameters = {
 //         ctx.status(201),
 //         ctx.json(returnData)
 //       )
-//     }),
-
+//     })
 //   ]
 // }
 
@@ -635,22 +636,28 @@ export const Loading = () => {
   )
 }
 
-// // When there is an error with the API response
+/*
+ *
+ * When there is an error with the API response
+ *
+ */
 
-// export const ErrorState = () => (
-//   <AppProvider overrideValue={appContextOverrideValue}>
-//     <ShoppingListProvider>
-//       <ShoppingListsPage />
-//     </ShoppingListProvider>
-//   </AppProvider>
-// )
+export const ErrorState = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ games }}>
+      <ShoppingListsProvider>
+        <ShoppingListsPage />
+      </ShoppingListsProvider>
+    </GamesProvider>
+  </AppProvider>
+)
 
-// ErrorState.parameters = {
-//   msw: [
-//     rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-//       return res(
-//         ctx.status(500)
-//       )
-//     })
-//   ]
-// }
+ErrorState.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(500)
+      )
+    })
+  ]
+}
