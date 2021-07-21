@@ -7,7 +7,7 @@ import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import styles from './gameCreateForm.module.css'
 
 const GameCreateForm = ({ disabled }) => {
-  const { hideFlash } = useAppContext()
+  const { hideFlash, setFlashVisible } = useAppContext()
   const { performGameCreate } = useGamesContext()
 
   const [toggleEvent, setToggleEvent] = useState(0)
@@ -36,12 +36,14 @@ const GameCreateForm = ({ disabled }) => {
     }
 
     const onSuccessOrFatalError = () => {
+      setFlashVisible(true)
       formRef.current && formRef.current.reset()
       toggleForm()
     }
 
     const callbacks = {
       onSuccess: onSuccessOrFatalError,
+      onUnprocessableEntity: () => setFlashVisible(true),
       onInternalServerError: onSuccessOrFatalError,
       onUnauthorized: () => mountedRef.current = false
     }

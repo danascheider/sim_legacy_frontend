@@ -85,6 +85,8 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     flashVisible,
     flashProps,
     displayFlash,
+    setFlashVisible,
+    setFlashProps,
     hideFlash,
     ...overrideValue // enables you to only change certain values
   }
@@ -156,6 +158,8 @@ AppProvider.propTypes = {
       message: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]).isRequired,
       header: PropTypes.string
     }),
+    setFlashVisible: PropTypes.func,
+    setFlashProps: PropTypes.func,
     displayFlash: PropTypes.func,
     hideFlash: PropTypes.func,
     logOutAndRedirect: PropTypes.func

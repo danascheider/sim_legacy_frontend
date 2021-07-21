@@ -30,7 +30,7 @@ const gameLoadingStates = { LOADING, DONE, ERROR }
 const GamesContext = createContext()
 
 const GamesProvider = ({ children, overrideValue = {} }) => {
-  const { token, logOutAndRedirect, displayFlash } = useAppContext()
+  const { token, logOutAndRedirect, setFlashProps } = useAppContext()
 
   const [games, setGames] = useState(overrideValue.games || [])
   const [gameLoadingState, setGameLoadingState] = useState(overrideValue.gameLoadingState || LOADING)
@@ -75,13 +75,17 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching games: ', err)
 
             if (mountedRef.current) {
+              setFlashProps({
+                type: 'error',
+                message: "There was an error loading your games. It may have been on our end. We're sorry!"
+              })
+
               setGameLoadingState(ERROR)
-              displayFlash('error', "There was an error loading your games. It may have been on our end. We're sorry!")
             }
           }
         })
     }
-  }, [token, overrideValue.gameLoadingState, displayFlash, logOutAndRedirect])
+  }, [token, overrideValue.gameLoadingState, setFlashProps, logOutAndRedirect])
 
   const performGameCreate = useCallback((attrs, callbacks) => {
     const { onSuccess, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
@@ -99,7 +103,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onSuccess && onSuccess()
         } else if (data && data.errors) {
           if (allErrorsAreValidationErrors(data.errors)) {
-            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being created:`)
+            setFlashProps({
+              type: 'error',
+              header: `${data.errors.length} error(s) prevented your game from being created:`,
+              message: data.errors
+            })
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
@@ -116,12 +124,15 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
-          displayFlash('error', "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
 
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
+  }, [token, games, setFlashProps, logOutAndRedirect, allErrorsAreValidationErrors])
 
   const performGameUpdate = useCallback((gameId, attrs, callbacks) => {
     const { onSuccess, onUnprocessableEntity, onNotFound, onInternalServerError, onUnauthorized } = callbacks
@@ -134,13 +145,18 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
             setGames(newGames)
             setGameEditFormVisible(false)
-            displayFlash('success', 'Success! Your game was updated.')
+            setFlashProps({ type: 'success', message: 'Success! Your game was updated.' })
           }
 
           onSuccess && onSuccess()
         } else if (data && data.errors) {
           if (allErrorsAreValidationErrors(data.errors)) {
-            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your game from being updated:`)
+            setFlashProps({
+              type: 'error',
+              message: data.errors,
+              header: `${data.errors.length} error(s) prevented your game from being updated:`
+            })
+
             setGameEditFormVisible(false)
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
@@ -157,7 +173,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           onUnauthorized && onUnauthorized()
         } else if (err.code === 404) {
-          displayFlash('error', 'The game you wanted to update could not be found. Try refreshing to fix this problem.')
+          setFlashProps({
+            type: 'error',
+            message: 'The game you wanted to update could not be found. Try refreshing to fix this problem.'
+          })
 
           setGameEditFormVisible(false)
 
@@ -165,14 +184,17 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
-          displayFlash('error', "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
 
           setGameEditFormVisible(false)
 
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, displayFlash, logOutAndRedirect, allErrorsAreValidationErrors])
+  }, [token, games, setFlashProps, logOutAndRedirect, allErrorsAreValidationErrors])
 
   const performGameDestroy = useCallback((gameId, callbacks) => {
     const { onSuccess, onUnauthorized, onInternalServerError } = callbacks
@@ -201,12 +223,15 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error destroying game: ', err)
 
-          displayFlash('error', "There was an unexpected error deleting your game. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "There was an unexpected error deleting your game. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
 
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, logOutAndRedirect, displayFlash])
+  }, [token, games, logOutAndRedirect, setFlashProps])
 
   const value = {
     games,

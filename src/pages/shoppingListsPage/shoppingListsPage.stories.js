@@ -463,12 +463,12 @@ GameNotFound.parameters = {
   ]
 }
 
-// /*
-//  *
-//  * When the list can't be updated because of a 422 error from the API,
-//  * or the user attempts to create a list with invalid data.
-//  * 
-//  */
+/*
+ *
+ * When the list can't be updated because of a 422 error from the API,
+ * or the user attempts to create a list with invalid data.
+ * 
+ */
 
 // export const UnprocessableEntity = () => (
 //   <AppProvider overrideValue={appContextOverrideValue}>
@@ -539,11 +539,11 @@ GameNotFound.parameters = {
 //   ]
 // }
 
-// /*
-//  *
-//  * When the user has no shopping lists
-//  * 
-//  */
+/*
+ *
+ * When the user has no shopping lists
+ * 
+ */
 
 // export const Empty = () => (
 //   <AppProvider overrideValue={appContextOverrideValue}>
@@ -615,15 +615,25 @@ GameNotFound.parameters = {
 //   ]
 // }
 
-// // When the API data is loading
+/*
+ *
+ * When the API data is loading
+ *
+ */
 
-// export const Loading = () => (
-//   <AppProvider overrideValue={appContextOverrideValue}>
-//     <ShoppingListProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'loading' }}>
-//       <ShoppingListsPage />
-//     </ShoppingListProvider>
-//   </AppProvider>
-// )
+export const Loading = () => {
+  const shoppingLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+
+  return(
+    <AppProvider overrideValue={appContextOverrideValue}>
+      <GamesProvider overrideValue={{ games }}>
+        <ShoppingListsProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'loading' }}>
+          <ShoppingListsPage />
+        </ShoppingListsProvider>
+      </GamesProvider>
+    </AppProvider>
+  )
+}
 
 // // When there is an error with the API response
 

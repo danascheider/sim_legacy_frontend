@@ -16,7 +16,8 @@ const { LOADING, DONE, ERROR } = gameLoadingStates
 const GamesPage = () => {
   const {
     flashProps,
-    flashVisible
+    flashVisible,
+    setFlashVisible
   } = useAppContext()
 
   const {
@@ -41,10 +42,18 @@ const GamesPage = () => {
     return () => window.removeEventListener('keyup', hideForm)
   }, [hideForm])
 
+  useEffect(() => {
+    // Flash message props will be set when the `GamesContext` handles the error.
+    // Displaying the flash message in the context provider left the possibility
+    // that this flash message would be displayed on pages other than this one,
+    // where we don't want it.
+    if (gameLoadingState === ERROR) setFlashVisible(true)
+  }, [gameLoadingState, setFlashVisible])
+
   return(
     <DashboardLayout title='Your Games'>
       <div className={styles.root}>
-        {flashVisible && <FlashMessage {...flashProps} />}
+        {flashVisible && Object.keys(flashProps).length && <FlashMessage {...flashProps} />}
         {gameEditFormVisible && <Modal onClick={hideForm}><GameEditForm elementRef={formRef} {...gameEditFormProps} /></Modal>}
         {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}
         {gameLoadingState === DONE && <GameCreateForm disabled={gameLoadingState === LOADING || gameLoadingState === ERROR} />}

@@ -132,7 +132,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
             mountedRef.current && !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
-            displayFlash('error', "There was an error loading your lists. It may have been on our end. We're sorry!")
+            displayFlash('error', "There was an unexpected error loading your lists. It may have been on our end. We're sorry!")
           }
         })
     } else if (!activeGameId) {

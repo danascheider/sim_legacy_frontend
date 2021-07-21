@@ -395,8 +395,6 @@ describe('GamesPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        // I'd rather not have so many expectations in one test but, you know,
-        // behaviour-based testing
         it('updates, hides the form, and displays a success message', async () => {
           component = renderComponentWithMockCookies(cookies)
 
@@ -799,7 +797,7 @@ describe('GamesPage', () => {
         })
       })
 
-      describe('handling a 500 error while deleting a game', () => {
+     describe('handling a 500 error while deleting a game', () => {
         const handlers = [...sharedHandlers]
         handlers.push(
           rest.get(`${backendBaseUri}/games`, (req, res, ctx) => {

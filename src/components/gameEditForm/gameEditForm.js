@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import colorSchemes from '../../utils/colorSchemes'
-import { useGamesContext } from '../../hooks/contexts'
+import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import styles from './gameEditForm.module.css'
 
 const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
   const { name, description } = currentAttributes
 
+  const { setFlashVisible } = useAppContext()
   const { performGameUpdate } = useGamesContext()
 
   const mountedRef = useRef(true)
@@ -34,11 +35,17 @@ const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
       mountedRef.current = false
     }
 
+    const restUnmountAndDisplayFlash = () => {
+      setFlashVisible(true)
+      resetAndUnmount()
+    }
+
     const callbacks = {
-      onSuccess: resetAndUnmount,
-      onNotFound: resetAndUnmount,
-      onInternalServerError: resetAndUnmount,
-      onUnauthorized: resetAndUnmount
+      onSuccess: restUnmountAndDisplayFlash,
+      onNotFound: restUnmountAndDisplayFlash,
+      onInternalServerError: restUnmountAndDisplayFlash,
+      onUnauthorized: resetAndUnmount,
+      onUnprocessableEntity: restUnmountAndDisplayFlash
     }
 
     performGameUpdate(gameId, attrs, callbacks)

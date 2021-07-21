@@ -211,11 +211,11 @@ describe('ShoppingListsPage', () => {
       })
     })
 
-    describe('when the query string indicates an invalid game', () => {
+    describe('when the query string indicates a nonexistent game', () => {
       const server = setupServer(
         rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
           return res(
-            ctx.status(404),
+            ctx.status(404)
           )
         })
       )
@@ -228,6 +228,27 @@ describe('ShoppingListsPage', () => {
         component = renderComponentWithMockCookies(cookies, 4582)
 
         await waitFor(() => expect(screen.queryByText(/couldn't find the game/i)).toBeVisible())
+      })
+    })
+
+    describe('when something unexpected goes wrong fetching games', () => {
+      const server = setupServer(
+        rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
+          return res(
+            ctx.status(500),
+            ctx.json({ errors: ['Something went horribly wrong'] })
+          )
+        })
+      )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('indicates displays an error', async () => {
+        component = renderComponentWithMockCookies(cookies, 4582)
+
+        await waitFor(() => expect(screen.queryByText(/unexpected error/i)).toBeVisible())
       })
     })
   })
