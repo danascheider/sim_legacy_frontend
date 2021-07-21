@@ -5,7 +5,7 @@ import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import { token, games } from '../../sharedTestData'
 import ShoppingListCreateForm from './shoppingListCreateForm'
 
-const performCreateShoppingList = e => { e.preventDefault() }
+const performShoppingListCreate = e => { e.preventDefault() }
 
 const listItems = [
   {
@@ -51,7 +51,7 @@ export default { title: 'ShoppingListCreateForm' }
 export const Enabled = () => (
   <AppProvider overrideValue={{ token }}>
     <GamesProvider overrideValue={{ games }}>
-      <ShoppingListsProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
+      <ShoppingListsProvider overrideValue={{ performShoppingListCreate, shoppingLists }}>
         <ShoppingListCreateForm disabled={false} />
       </ShoppingListsProvider>
     </GamesProvider>
@@ -61,7 +61,7 @@ export const Enabled = () => (
 export const Disabled = () => (
   <AppProvider overrideValue={{ token }}>
     <GamesProvider overrideValue={{ games }}>
-      <ShoppingListsProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
+      <ShoppingListsProvider overrideValue={{ performShoppingListCreate, shoppingLists }}>
         <ShoppingListCreateForm disabled />
       </ShoppingListsProvider>
     </GamesProvider>
