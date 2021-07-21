@@ -245,7 +245,7 @@ describe('ShoppingListsPage', () => {
       beforeEach(() => server.resetHandlers())
       afterAll(() => server.close())
 
-      it('indicates displays an error', async () => {
+      it('displays an error', async () => {
         component = renderComponentWithMockCookies(cookies, 4582)
 
         await waitFor(() => expect(screen.queryByText(/unexpected error/i)).toBeVisible())

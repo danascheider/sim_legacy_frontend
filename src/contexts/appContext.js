@@ -49,13 +49,6 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     mountedRef.current = false
   }, [])
 
-  const displayFlash = useCallback((type, message, header = null) => {
-    if (mountedRef.current) {
-      setFlashProps({ type, message, header })
-      setFlashVisible(true)
-    }
-  }, [])
-
   const hideFlash = useCallback(() => { setFlashVisible(false) }, [])
 
   const onAuthenticatedPage = useCallback(() => {
@@ -84,7 +77,6 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     logOutAndRedirect,
     flashVisible,
     flashProps,
-    displayFlash,
     setFlashVisible,
     setFlashProps,
     hideFlash,
@@ -160,7 +152,6 @@ AppProvider.propTypes = {
     }),
     setFlashVisible: PropTypes.func,
     setFlashProps: PropTypes.func,
-    displayFlash: PropTypes.func,
     hideFlash: PropTypes.func,
     logOutAndRedirect: PropTypes.func
   })

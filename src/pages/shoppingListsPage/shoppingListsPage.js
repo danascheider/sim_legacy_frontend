@@ -12,7 +12,7 @@ import styles from './shoppingListsPage.module.css'
 const { LOADING, ERROR } = shoppingListLoadingStates
 
 const ShoppingListsPage = () => {
-  const { flashProps, flashVisible } = useAppContext()
+  const { flashProps, flashVisible, setFlashVisible } = useAppContext()
 
   const {
     listItemEditFormVisible,
@@ -37,6 +37,10 @@ const ShoppingListsPage = () => {
 
     return () => window.removeEventListener('keyup', hideForm)
   }, [hideForm])
+
+  useEffect(() => {
+    if (mountedRef.current && shoppingListLoadingState === ERROR) setFlashVisible(true)
+  })
 
   return(
     <DashboardLayout title='Your Shopping Lists'>

@@ -23,8 +23,9 @@ const ShoppingListItem = ({
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
-    displayFlash,
-    hideFlash,
+    setFlashProps,
+    setFlashVisible,
+    hideFlash
   } = useAppContext()
 
   const {
@@ -62,6 +63,13 @@ const ShoppingListItem = ({
   
   const toggleDetails = e => {
     if (!iconContains(e.target)) setToggleEvent(Date.now)
+  }
+
+  const displayFlash = (type, message, header = null) => {
+    if (mountedRef.current) {
+      setFlashProps({ type, message, header })
+      setFlashVisible(true)
+    }
   }
 
   const styleVars = {

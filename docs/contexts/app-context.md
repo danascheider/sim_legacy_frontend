@@ -11,9 +11,10 @@ The `AppProvider`'s value includes the following:
 * `profileLoadState`: The status of profile data loading, either 'loading' or 'done'
 * `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in. If you are logging the user out, you should use the `logOutAndRedirect` function instead.
 * `logOutAndRedirect`: A function that logs the user out with Google, redirects to the `path` passed in, unmounts the context provider, and runs a callback function if one is given. The callback function takes no arguments and can be used to clean up refs/unmount consumer components following the redirect.
-* `flashVisible`: Whether the flash message element (if any) should be visible on the page
 * `flashProps`: The props with which to render the flash message element (if any)
-* `displayFlash`: A function that enables you to pass in the flash type, message (or array of messages), and optional header to display a flash message with those values. Calls the `setFlashProps` and `setFlashVisible` functions.
+* `flashVisible`: Whether the flash message element (if any) should be visible on the page
+* `setFlashProps`: A function that enables you to set the type ('error', 'info', or 'success'), message, and header of the `FlashMessage` component (consumers are responsible for rendering the flash message)
+* `setFlashVisible`: A function that enables you to set the `flashVisible` value to `true` or `false`
 * `hideFlash`: A function that hides any flash message currently visible on a consumer page.
 
 ## Redirect Behaviour

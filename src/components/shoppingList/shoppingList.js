@@ -37,7 +37,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
-  const { displayFlash, hideFlash } = useAppContext()
+  const { setFlashProps, setFlashVisible, hideFlash } = useAppContext()
 
   const {
     shoppingLists,
@@ -102,8 +102,13 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     if (confirmed) {
       performShoppingListDestroy(listId)
-    } else {
-      displayFlash('info', 'Your list was not deleted.')
+    } else if (mountedRef.current) {
+      setFlashProps({
+        type: 'info',
+        message: 'Your list was not deleted.'
+      })
+
+      setFlashVisible(true)
     }
   }
 
