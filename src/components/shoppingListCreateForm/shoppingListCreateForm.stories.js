@@ -1,6 +1,6 @@
 import React from 'react'
 import { AppProvider } from '../../contexts/appContext'
-import { ShoppingListProvider } from '../../contexts/shoppingListContext'
+import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import ShoppingListCreateForm from './shoppingListCreateForm'
 
 const performCreateShoppingList = e => { e.preventDefault() }
@@ -48,16 +48,16 @@ export default { title: 'ShoppingListCreateForm' }
 
 export const Enabled = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx' }}>
-    <ShoppingListProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
+    <ShoppingListsProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
       <ShoppingListCreateForm disabled={false} />
-    </ShoppingListProvider>
+    </ShoppingListsProvider>
   </AppProvider>
 )
 
 export const Disabled = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx' }}>
-    <ShoppingListProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
+    <ShoppingListsProvider overrideValue={{ performCreateShoppingList, shoppingLists }}>
       <ShoppingListCreateForm disabled />
-    </ShoppingListProvider>
+    </ShoppingListsProvider>
   </AppProvider>
 )

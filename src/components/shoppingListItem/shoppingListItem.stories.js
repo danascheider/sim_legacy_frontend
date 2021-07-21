@@ -4,7 +4,7 @@ import { backendBaseUri } from '../../utils/config'
 import { GREEN } from '../../utils/colorSchemes'
 import { AppProvider } from '../../contexts/appContext'
 import { ColorProvider } from '../../contexts/colorContext'
-import { ShoppingListProvider } from '../../contexts/shoppingListContext'
+import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import { shoppingLists } from './storyData'
 import ShoppingListItem from './shoppingListItem'
 
@@ -14,7 +14,7 @@ export default { title: 'ShoppingListItem' }
 
 export const Editable = () => (
   <AppProvider overrideValue={{ token }}>
-    <ShoppingListProvider overrideValue={{ shoppingLists }}>
+    <ShoppingListsProvider overrideValue={{ shoppingLists }}>
       <ColorProvider colorScheme={GREEN}>
         <ShoppingListItem
           itemId={42}
@@ -24,7 +24,7 @@ export const Editable = () => (
           notes='Need some swords'
         />
       </ColorProvider>
-    </ShoppingListProvider>
+    </ShoppingListsProvider>
   </AppProvider>
 )
 
@@ -65,7 +65,7 @@ Editable.parameters = {
 
 export const NotEditable = () => (
   <AppProvider overrideValue={{ token }}>
-    <ShoppingListProvider overrideValue={{ shoppingLists }}>
+    <ShoppingListsProvider overrideValue={{ shoppingLists }}>
       <ColorProvider colorScheme={GREEN}>
         <ShoppingListItem
           itemId={42}
@@ -75,6 +75,6 @@ export const NotEditable = () => (
           notes='Need some swords'
         />
       </ColorProvider>
-    </ShoppingListProvider>
+    </ShoppingListsProvider>
   </AppProvider>
 )

@@ -16,7 +16,7 @@ import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import { profileData, games, emptyGames } from '../../sharedTestData'
-import { game1Lists, game2Lists, game3Lists } from '../../sharedTestData'
+import { allShoppingLists } from '../../sharedTestData'
 import ShoppingListsPage from './shoppingListsPage'
 
 describe('ShoppingListsPage', () => {
@@ -53,15 +53,18 @@ describe('ShoppingListsPage', () => {
     cookies.HAS_DOCUMENT_COOKIE = false
 
     it('redirects to the login page', async () => {
-      const { history } = component = renderComponentWithMockCookies(cookies)
+      const { history } = component = await renderComponentWithMockCookies(cookies)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
   })
 
   describe('when the user token is expired or invalid', () => {
+    const cookies = new Cookies()
+    cookies.HAS_DOCUMENT_COOKIE = false
+
     const server = setupServer(
-      rest.get('games/:id/shopping_lists', (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({ errors: ['Google OAuth token validation failed'] })
@@ -69,18 +72,54 @@ describe('ShoppingListsPage', () => {
       })
     )
 
-    const cookies = new Cookies()
-    cookies.HAS_DOCUMENT_COOKIE = false
-
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
     it('redirects to the login page', async () => {
-      const { history } = component = renderComponentWithMockCookies(cookies)
+      const { history } = component = await renderComponentWithMockCookies(cookies)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
+  })
 
+  describe('when the user is signed in', () => {
+    const cookies = new Cookies('_sim_google_session="xxxxxx"')
+    cookies.HAS_DOCUMENT_COOKIE = false
+
+    describe('when no query string is given', () => {
+      const server = setupServer(
+        rest.get(`${backendBaseUri}/games/${games[0].id}/shopping_lists`, (req, res, ctx) => {
+          const lists = allShoppingLists.filter(list => list.game_id === games[0].id)
+
+          return res(
+            ctx.status(200),
+            ctx.json(lists)
+          )
+        })
+      )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('stays on the shopping lists page', async () => {
+        const { history } = component = await renderComponentWithMockCookies(cookies)
+
+        await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/shopping_lists'))
+      })
+
+      it('displays shopping lists for the first game', async () => {
+        component = await renderComponentWithMockCookies(cookies)
+
+        await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Lakeview Manor')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Breezehome')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Windstad Manor')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText('Hjerim')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+      })
+    })
   })
 })

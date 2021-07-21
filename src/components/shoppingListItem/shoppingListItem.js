@@ -77,7 +77,7 @@ const ShoppingListItem = ({
     const oldQuantity = currentQuantity
     const newQuantity = currentQuantity + 1
 
-    setCurrentQuantity(newQuantity)
+    if (mountedRef.current) setCurrentQuantity(newQuantity)
 
     performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
   }
@@ -111,32 +111,34 @@ const ShoppingListItem = ({
   }
 
   const showEditForm = () => {
-    hideFlash()
-    setListItemEditFormProps({
-      listTitle: listTitle,
-      buttonColor: {
-        schemeColorDarkest,
-        hoverColorDark,
-        borderColor,
-        textColorPrimary
-      },
-      currentAttributes: {
-        id: itemId,
-        quantity: quantity,
-        description: description,
-        notes: notes,
-      }
-    })
-    setListItemEditFormVisible(true)
+    if (mountedRef.current) {
+      hideFlash()
+      setListItemEditFormProps({
+        listTitle: listTitle,
+        buttonColor: {
+          schemeColorDarkest,
+          hoverColorDark,
+          borderColor,
+          textColorPrimary
+        },
+        currentAttributes: {
+          id: itemId,
+          quantity: quantity,
+          description: description,
+          notes: notes,
+        }
+      })
+      setListItemEditFormVisible(true)
+    }
   }
 
   useEffect(() => {
-    setCurrentQuantity(quantity)
+    if (mountedRef.current) setCurrentQuantity(quantity)
   }, [quantity])
 
   useEffect(() => (
     () => mountedRef.current = false
-  ))
+  ), [])
 
   return(
     <div className={styles.root} style={styleVars}>

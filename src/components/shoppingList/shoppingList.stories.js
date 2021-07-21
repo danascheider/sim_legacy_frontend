@@ -3,7 +3,7 @@ import { rest } from 'msw'
 import { PINK } from '../../utils/colorSchemes'
 import { backendBaseUri } from '../../utils/config'
 import { ColorProvider } from '../../contexts/colorContext'
-import { ShoppingListProvider } from '../../contexts/shoppingListContext'
+import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import { AppProvider } from '../../contexts/appContext'
 import ShoppingList from './shoppingList'
 
@@ -63,12 +63,12 @@ export default { title: 'ShoppingList' }
 export const Default = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ performShoppingListUpdate: (a, b, c = null, d = null) => {}, shoppingLists }}>
+      <ShoppingListsProvider overrideValue={{ performShoppingListUpdate: (a, b, c = null, d = null) => {}, shoppingLists }}>
         <ShoppingList
           listId={2}
           title='My List 1'
         />
-      </ShoppingListProvider>
+      </ShoppingListsProvider>
     </ColorProvider>
   </AppProvider>
 )
@@ -129,13 +129,13 @@ Default.parameters = {
 export const NotEditable = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ shoppingLists }}>
+      <ShoppingListsProvider overrideValue={{ shoppingLists }}>
         <ShoppingList
           title='All Items'
           listId={1}
           canEdit={false}
         />
-      </ShoppingListProvider>
+      </ShoppingListsProvider>
     </ColorProvider>
   </AppProvider>
 )
@@ -184,13 +184,13 @@ const emptyShoppingLists = [
 export const EmptyList = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
+      <ShoppingListsProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
         <ShoppingList
           title='Severin Manor'
           listId={2}
           canEdit={true}
         />
-      </ShoppingListProvider>
+      </ShoppingListsProvider>
     </ColorProvider>
   </AppProvider>
 )
@@ -198,13 +198,13 @@ export const EmptyList = () => (
 export const EmptyAggregateList = () => (
   <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
     <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
+      <ShoppingListsProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
         <ShoppingList
           title='All Items'
           listId={1}
           canEdit={false}
         />
-      </ShoppingListProvider>
+      </ShoppingListsProvider>
     </ColorProvider>
   </AppProvider>
 )

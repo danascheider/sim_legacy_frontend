@@ -18,7 +18,6 @@ const ShoppingListsPageContent = () => {
    * 
    */
 
-  // Expected states
   const listsLoadedAndNotEmpty = shoppingLists && shoppingListLoadingState === DONE && shoppingLists.length > 0
 
   /*

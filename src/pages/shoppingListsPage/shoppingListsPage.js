@@ -7,7 +7,7 @@ import Modal from '../../components/modal/modal'
 import ShoppingListCreateForm from '../../components/shoppingListCreateForm/shoppingListCreateForm'
 import ShoppingListsPageContent from '../../components/shoppingListsPageContent/shoppingListsPageContent'
 import ShoppingListItemEditForm from '../../components/shoppingListItemEditForm/shoppingListItemEditForm'
-import styles from './shoppingListPage.module.css'
+import styles from './shoppingListsPage.module.css'
 
 const { LOADING, ERROR } = shoppingListLoadingStates
 

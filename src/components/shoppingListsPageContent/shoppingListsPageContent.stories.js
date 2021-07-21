@@ -2,7 +2,7 @@ import React from 'react'
 import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
-import { ShoppingListProvider } from '../../contexts/shoppingListContext'
+import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import {
   profileData,
   shoppingLists,
@@ -13,15 +13,15 @@ import {
   findListByListItem,
   adjustAggregateListItem
 } from './storyData'
-import ShoppingListPageContent from './shoppingListPageContent'
+import ShoppingListsPageContent from './shoppingListsPageContent'
 
-export default { title: 'ShoppingListPageContent' }
+export default { title: 'ShoppingListsPageContent' }
 
 export const HappyPath = () => (
   <AppProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
-    <ShoppingListProvider overrideValue={{ shoppingLists }}>
-      <ShoppingListPageContent />
-    </ShoppingListProvider>
+    <ShoppingListsProvider overrideValue={{ shoppingLists }}>
+      <ShoppingListsPageContent />
+    </ShoppingListsProvider>
   </AppProvider>
 )
 
@@ -104,9 +104,9 @@ HappyPath.parameters = {
 
 export const Loading = () => (
   <AppProvider overrideValue={{ profileData, token: 'xxxxxx' }}>
-    <ShoppingListProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
-      <ShoppingListPageContent />
-    </ShoppingListProvider>
+    <ShoppingListsProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
+      <ShoppingListsPageContent />
+    </ShoppingListsProvider>
   </AppProvider>
 )
 

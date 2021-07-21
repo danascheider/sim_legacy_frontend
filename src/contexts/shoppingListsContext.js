@@ -10,7 +10,14 @@
  *
  */
 
-import { createContext, useState, useEffect, useRef, useCallback } from 'react'
+import {
+  createContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo
+} from 'react'
 import PropTypes from 'prop-types'
 import {
   createShoppingList,
@@ -21,7 +28,8 @@ import {
   updateShoppingListItem,
   destroyShoppingListItem
 } from '../utils/simApi'
-import { useAppContext } from '../hooks/contexts'
+import { useAppContext, useGamesContext } from '../hooks/contexts'
+import useQuery from '../hooks/useQuery'
 import paths from '../routing/paths'
 
 const LOADING = 'loading'
@@ -33,15 +41,28 @@ const shoppingListLoadingStates = { LOADING, DONE, ERROR }
 const ShoppingListsContext = createContext()
 
 const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
-  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
-  const [listItemEditFormProps, setListItemEditFormProps] = useState({})
-  const [listItemEditFormVisible, setListItemEditFormVisible] = useState(false)
-  const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
+  const queryString = useQuery()
+
   const {
     token,
     logOutAndRedirect,
     displayFlash
   } = useAppContext()
+
+  const { games } = useGamesContext()
+
+  const activeGameId = useMemo(() => {
+    if (games && games.length) {
+      return parseInt(queryString.get('game_id') || games[0].id)
+    } else {
+      return null
+    }
+  }, [games, queryString])
+
+  const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
+  const [listItemEditFormProps, setListItemEditFormProps] = useState({})
+  const [listItemEditFormVisible, setListItemEditFormVisible] = useState(false)
+  const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
 
   const shoppingListsOverridden = useRef(false)
   
@@ -85,13 +106,13 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     
     return newList
   }
-  
+
   const fetchLists = useCallback(() => {
-    if (token && !shoppingListsOverridden.current) {
-      fetchShoppingLists(token)
+    if (token && activeGameId && !shoppingListsOverridden.current) {
+      fetchShoppingLists(token, activeGameId)
         .then(resp => resp.json())
         .then(data => {
-          if(data && !data.errors) {
+          if (mountedRef.current && data && !data.errors) {
             setShoppingLists(data)
             overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           } else {
@@ -110,10 +131,12 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             displayFlash('error', "There was an error loading your lists. It may have been on our end. We're sorry!")
           }
         })
+    } else if (!activeGameId) {
+      // Do something
     } else {
-      overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+      mountedRef.current && overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
     }
-  }, [token, overrideValue.shoppingListLoadingState, displayFlash, logOutAndRedirect])
+  }, [token, overrideValue.shoppingListLoadingState, displayFlash, logOutAndRedirect, activeGameId])
 
   const performShoppingListUpdate = (listId, newTitle, success = null, error = null) => {
     updateShoppingList(token, listId, { title: newTitle })

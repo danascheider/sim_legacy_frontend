@@ -28,6 +28,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [currentTitle, setCurrentTitle] = useState(title)
   const [maxEditFormWidth, setMaxEditFormWidth] = useState(null)
   const [listItems, setListItems] = useState([])
+
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
   const iconsRef = useRef(null)
