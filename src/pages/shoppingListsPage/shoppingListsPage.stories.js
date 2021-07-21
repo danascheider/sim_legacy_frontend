@@ -436,22 +436,32 @@ export const NoGames = () => {
 //   ]
 // }
 
-// /*
-//  *
-//  * When the user has no games
-//  *
-//  */
+/*
+ *
+ * When the requested game doesn't exist or doesn't belong to
+ * the authenticated user
+ *
+ */
 
-// export const GameNotFound = () => (
-//   <AppProvider overrideValue={appContextOverrideValue}>
-//     <GamesProvider>
-//       <ShoppingListProvider>
-//         <ShoppingListsPage />
-//       </ShoppingListProvider>
-//     </Games>
-//   </AppProvider>
-// )
+export const GameNotFound = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ games }}>
+      <ShoppingListsProvider>
+        <ShoppingListsPage />
+      </ShoppingListsProvider>
+    </GamesProvider>
+  </AppProvider>
+)
 
+GameNotFound.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    })
+  ]
+}
 
 // /*
 //  *

@@ -32,7 +32,7 @@ const ShoppingListsPageContent = () => {
   if (gameLoadingState === DONE && !games.length) {
     return(
       <p className={styles.noLists}>
-        You have no shopping lists. <Link className={styles.link} to={paths.dashboard.games}>Create a game</Link> to get started.
+        You need a game to use the shopping lists feature. <Link className={styles.link} to={paths.dashboard.games}>Create a game</Link> to get started.
       </p>
     )
   } else if (listsLoadedAndNotEmpty) {

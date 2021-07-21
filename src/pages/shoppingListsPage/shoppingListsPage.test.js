@@ -210,5 +210,25 @@ describe('ShoppingListsPage', () => {
         await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
       })
     })
+
+    describe('when the query string indicates an invalid game', () => {
+      const server = setupServer(
+        rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
+          return res(
+            ctx.status(404),
+          )
+        })
+      )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('indicates the game could not be found', async () => {
+        component = renderComponentWithMockCookies(cookies, 4582)
+
+        await waitFor(() => expect(screen.queryByText(/couldn't find the game/i)).toBeVisible())
+      })
+    })
   })
 })

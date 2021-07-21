@@ -124,6 +124,10 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           if (err.code === 401) {
             logOutAndRedirect(paths.login, () => mountedRef.current = false)
             // Don't set the loading state because it's redirecting anyway
+          } else if (err.code === 404) {
+            displayFlash('error', "We couldn't find the game you're looking for.")
+
+            mountedRef.current && overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
           } else {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
