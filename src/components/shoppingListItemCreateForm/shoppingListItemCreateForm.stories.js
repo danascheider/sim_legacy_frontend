@@ -4,13 +4,18 @@ import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import { ColorProvider } from '../../contexts/colorContext'
-import { token, games, emptyShoppingLists as shoppingLists } from '../../sharedTestData'
+import {
+  token,
+  games,
+  profileData,
+  emptyShoppingLists as shoppingLists
+} from '../../sharedTestData'
 import ShoppingListItemCreateForm from './shoppingListItemCreateForm'
 
 export default { title: 'ShoppingListItemCreateForm' }
 
 export const Default = () => (
-  <AppProvider overrideValue={{ token }}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games }}>
       <ShoppingListsProvider overrideValue={{ shoppingLists }}>
         <ColorProvider colorScheme={GREEN}>
