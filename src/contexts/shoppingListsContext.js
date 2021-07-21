@@ -493,8 +493,11 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
   useEffect(() => {
     if (activeGameId) fetchLists()
-    return () => mountedRef.current = false
   }, [fetchLists, activeGameId])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
     <ShoppingListsContext.Provider value={value}>
