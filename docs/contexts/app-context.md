@@ -15,7 +15,6 @@ The `AppProvider`'s value includes the following:
 * `flashVisible`: Whether the flash message element (if any) should be visible on the page
 * `setFlashProps`: A function that enables you to set the type ('error', 'info', or 'success'), message, and header of the `FlashMessage` component (consumers are responsible for rendering the flash message)
 * `setFlashVisible`: A function that enables you to set the `flashVisible` value to `true` or `false`
-* `hideFlash`: A function that hides any flash message currently visible on a consumer page.
 
 ## Redirect Behaviour
 
