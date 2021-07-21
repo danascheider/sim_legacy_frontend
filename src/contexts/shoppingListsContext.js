@@ -109,7 +109,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   }
 
   const fetchLists = useCallback(() => {
-    if (token && activeGameId && !shoppingListsOverridden.current) {
+    if (token && !shoppingListsOverridden.current) {
       fetchShoppingLists(token, activeGameId)
         .then(resp => resp.json())
         .then(data => {
@@ -146,12 +146,10 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             }
           }
         })
-    } else if (!activeGameId) {
-      // Do something
     } else {
       mountedRef.current && overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
     }
-  }, [token, overrideValue.shoppingListLoadingState, setFlashProps, logOutAndRedirect, activeGameId])
+  }, [token, overrideValue.shoppingListLoadingState, setFlashProps, logOutAndRedirect])
 
   const performShoppingListUpdate = (listId, newTitle, success = null, error = null) => {
     updateShoppingList(token, listId, { title: newTitle })
