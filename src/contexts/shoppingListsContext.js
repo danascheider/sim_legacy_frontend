@@ -49,7 +49,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     displayFlash
   } = useAppContext()
 
-  const { games } = useGamesContext()
+  const { games, gameLoadingState } = useGamesContext()
 
   const activeGameId = useMemo(() => {
     if (games && games.length) {
@@ -115,7 +115,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           if (mountedRef.current && data && !data.errors) {
             setShoppingLists(data)
             overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
-          } else {
+          } else if (mountedRef.current) {
             const message = data && data.errors ? `Internal ServerError: ${data.errors[0]}` : 'No shopping list data returned from the SIM API'
             throw new Error(message)
           }
@@ -127,7 +127,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           } else {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
-            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
+            mountedRef.current && !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
             displayFlash('error', "There was an error loading your lists. It may have been on our end. We're sorry!")
           }
         })
@@ -488,9 +488,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   }
 
   useEffect(() => {
-    fetchLists()
+    if (activeGameId) fetchLists()
     return () => mountedRef.current = false
-  }, [fetchLists])
+  }, [fetchLists, activeGameId])
 
   return(
     <ShoppingListsContext.Provider value={value}>

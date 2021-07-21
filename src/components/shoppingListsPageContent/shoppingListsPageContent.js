@@ -19,6 +19,7 @@ const ShoppingListsPageContent = () => {
    */
 
   const listsLoadedAndNotEmpty = shoppingLists && shoppingListLoadingState === DONE && shoppingLists.length > 0
+  const listsLoadedAndEmpty = shoppingLists && shoppingListLoadingState === DONE && shoppingLists.length === 0
 
   /*
    *
@@ -30,6 +31,7 @@ const ShoppingListsPageContent = () => {
     return(
       <>
         {shoppingLists.map(({ id, title, aggregate }, index) => {
+
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
           const colorScheme = colorSchemes[colorSchemesIndex]
@@ -49,6 +51,8 @@ const ShoppingListsPageContent = () => {
         })}
       </>
     )
+  } else if (listsLoadedAndEmpty) {
+    return <p className={styles.noLists}>This game has no shopping lists.</p>
   } else if (shoppingListLoadingState === LOADING) {
     return <Loading className={styles.loading} color={YELLOW.schemeColorDarkest} height='15%' width='15%' />
   } else {

@@ -23,7 +23,7 @@ describe('ShoppingListsPage', () => {
   let component
 
   const renderComponentWithMockCookies = (cookies, gameId = null) => {
-    const route = gameId ? `/dashboards/shopping_lists?game_id=${gameId}` : '/dashboard/shopping_lists'
+    const route = gameId ? `/dashboard/shopping_lists?game_id=${gameId}` : '/dashboard/shopping_lists'
 
     let el
     act(() => {
@@ -118,6 +118,41 @@ describe('ShoppingListsPage', () => {
         await waitFor(() => expect(screen.queryByText('Breezehome')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Windstad Manor')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Hjerim')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+      })
+    })
+
+    describe('when a query string is given', () => {
+      const server = setupServer(
+        rest.get(`${backendBaseUri}/games/${games[1].id}/shopping_lists`, (req, res, ctx) => {
+          const lists = allShoppingLists.filter(list => list.game_id === games[1].id)
+
+          return res(
+            ctx.status(200),
+            ctx.json(lists)
+          )
+        })
+      )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('stays on the shopping lists page', async () => {
+        const { history } = component = await renderComponentWithMockCookies(cookies, games[1].id)
+
+        await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/shopping_lists'))
+      })
+
+      it('displays shopping lists for the specified game', async () => {
+        component = await renderComponentWithMockCookies(cookies, games[1].id)
+
+        await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Windstad Manor')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Hjerim')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
       })
     })
