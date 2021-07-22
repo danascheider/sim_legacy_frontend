@@ -12,7 +12,7 @@ export const allPaths = [
   '/',
   '/login',
   '/dashboard',
-  // '/dashboard/shopping_lists',
+  '/dashboard/shopping_lists',
   '/dashboard/games'
 ]
 

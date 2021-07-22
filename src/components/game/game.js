@@ -13,7 +13,7 @@ const DESTROY_CONFIRMATION = 'Are you sure you want to delete this game? This ca
 const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
-  const { displayFlash, hideFlash } = useAppContext()
+  const { setFlashProps, setFlashVisible } = useAppContext()
   const {
     performGameDestroy,
     setGameEditFormVisible,
@@ -32,7 +32,7 @@ const Game = ({ gameId, name, description }) => {
   }
 
   const showEditForm = () => {
-    hideFlash()
+    setFlashVisible(false)
 
     setGameEditFormProps({
       gameId: gameId,
@@ -47,12 +47,18 @@ const Game = ({ gameId, name, description }) => {
 
     if (confirmed) {
       const callbacks = {
-        onSuccess: () => mountedRef.current = false
+        onSuccess: () => mountedRef.current = false,
+        onInternalServerError: () => setFlashVisible(true)
       }
 
       performGameDestroy(gameId, callbacks)
     } else {
-      displayFlash('info', 'Your game was not deleted.')
+      setFlashProps({
+        type: 'info',
+        message: 'Your game was not deleted.'
+      })
+      
+      setFlashVisible(true)
     }
   }
 

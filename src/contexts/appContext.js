@@ -49,15 +49,6 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     mountedRef.current = false
   }, [])
 
-  const displayFlash = useCallback((type, message, header = null) => {
-    if (mountedRef.current) {
-      setFlashProps({ type, message, header })
-      setFlashVisible(true)
-    }
-  }, [])
-
-  const hideFlash = useCallback(() => { setFlashVisible(false) }, [])
-
   const onAuthenticatedPage = useCallback(() => {
     return pathname !== paths.login && pathname !== paths.home && allPaths.indexOf(pathname) !== -1
   }, [pathname])
@@ -84,8 +75,8 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     logOutAndRedirect,
     flashVisible,
     flashProps,
-    displayFlash,
-    hideFlash,
+    setFlashVisible,
+    setFlashProps,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -156,8 +147,8 @@ AppProvider.propTypes = {
       message: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]).isRequired,
       header: PropTypes.string
     }),
-    displayFlash: PropTypes.func,
-    hideFlash: PropTypes.func,
+    setFlashVisible: PropTypes.func,
+    setFlashProps: PropTypes.func,
     logOutAndRedirect: PropTypes.func
   })
 }

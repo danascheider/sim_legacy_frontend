@@ -3,7 +3,7 @@ import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
-import { profileData, emptyGames, games } from './testData'
+import { profileData, emptyGames, games } from '../../sharedTestData'
 import GamesPage from './gamesPage'
 
 const appContextOverrideValue = {

@@ -2,15 +2,15 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { BLUE } from '../../utils/colorSchemes'
-import { useAppContext, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
 import styles from './shoppingListCreateForm.module.css'
 
 const ShoppingListCreateForm = ({ disabled }) => {
-  const { hideFlash } = useAppContext()
+  const { setFlashVisible } = useAppContext()
 
   const {
     performShoppingListCreate
-  } = useShoppingListContext()
+  } = useShoppingListsContext()
 
   const [inputValue, setInputValue] = useState('')
 
@@ -28,7 +28,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
 
   const createShoppingList = e => {
     e.preventDefault()
-    hideFlash()
+    setFlashVisible(false)
     const title = e.target.elements.title.value
     performShoppingListCreate(title, () => setInputValue(''))
   }

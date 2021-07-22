@@ -10,7 +10,14 @@
  *
  */
 
-import { createContext, useState, useEffect, useRef, useCallback } from 'react'
+import {
+  createContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo
+} from 'react'
 import PropTypes from 'prop-types'
 import {
   createShoppingList,
@@ -21,7 +28,8 @@ import {
   updateShoppingListItem,
   destroyShoppingListItem
 } from '../utils/simApi'
-import { useAppContext } from '../hooks/contexts'
+import { useAppContext, useGamesContext } from '../hooks/contexts'
+import useQuery from '../hooks/useQuery'
 import paths from '../routing/paths'
 
 const LOADING = 'loading'
@@ -30,18 +38,32 @@ const ERROR = 'error'
 
 const shoppingListLoadingStates = { LOADING, DONE, ERROR }
 
-const ShoppingListContext = createContext()
+const ShoppingListsContext = createContext()
 
-const ShoppingListProvider = ({ children, overrideValue = {} }) => {
+const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
+  const queryString = useQuery()
+
+  const {
+    token,
+    logOutAndRedirect,
+    setFlashProps,
+    setFlashVisible
+  } = useAppContext()
+
+  const { games } = useGamesContext()
+
+  const activeGameId = useMemo(() => {
+    if (games && games.length) {
+      return parseInt(queryString.get('game_id') || games[0].id)
+    } else {
+      return null
+    }
+  }, [games, queryString])
+
   const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
   const [listItemEditFormProps, setListItemEditFormProps] = useState({})
   const [listItemEditFormVisible, setListItemEditFormVisible] = useState(false)
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
-  const {
-    token,
-    logOutAndRedirect,
-    displayFlash
-  } = useAppContext()
 
   const shoppingListsOverridden = useRef(false)
   
@@ -85,16 +107,16 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
     
     return newList
   }
-  
+
   const fetchLists = useCallback(() => {
     if (token && !shoppingListsOverridden.current) {
-      fetchShoppingLists(token)
+      fetchShoppingLists(token, activeGameId)
         .then(resp => resp.json())
         .then(data => {
-          if(data && !data.errors) {
+          if (mountedRef.current && data && !data.errors) {
             setShoppingLists(data)
             overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
-          } else {
+          } else if (mountedRef.current) {
             const message = data && data.errors ? `Internal ServerError: ${data.errors[0]}` : 'No shopping list data returned from the SIM API'
             throw new Error(message)
           }
@@ -103,17 +125,31 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           if (err.code === 401) {
             logOutAndRedirect(paths.login, () => mountedRef.current = false)
             // Don't set the loading state because it's redirecting anyway
+          } else if (err.code === 404 && mountedRef.current) {
+            setFlashProps({
+              type: 'error',
+              message: "We couldn't find the game you're looking for."
+            })
+
+            setFlashVisible(true)
+
+            overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
           } else {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
-            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
-            displayFlash('error', "There was an error loading your lists. It may have been on our end. We're sorry!")
+            if (mountedRef.current) {
+              setFlashProps({
+                type: 'error',
+                message: "There was an unexpected error loading your lists. It may have been on our end. We're sorry!"
+              })
+              !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
+            }
           }
         })
     } else {
-      overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+      mountedRef.current && overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
     }
-  }, [token, overrideValue.shoppingListLoadingState, displayFlash, logOutAndRedirect])
+  }, [token, overrideValue.shoppingListLoadingState, setFlashProps, setFlashVisible, activeGameId, logOutAndRedirect])
 
   const performShoppingListUpdate = (listId, newTitle, success = null, error = null) => {
     updateShoppingList(token, listId, { title: newTitle })
@@ -138,7 +174,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // If all the validation errors start with 'Title', assume it's a validation error. If
           // not, assume it's a 500 error.
           if (data.errors.filter(msg => msg.match(/^Title/)).length === data.errors.length) {
-            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your changes from being saved:`)
+            setFlashProps({
+              type: 'error',
+              message: data.errors,
+              header: `${data.errors.length} error(s) prevented your changes from being saved:`
+            })
           } else {
             // 500 errors only return a single error message so data.errors[0] is all of them
             throw new Error('Internal Server Error: ' + data.errors[0])
@@ -146,8 +186,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
           error && error()
-        } else {
-          displayFlash('error', 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.')
+        } else if (mountedRef.current) {
+          setFlashProps({
+            type: 'error',
+            message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
+          })
 
           overrideValue.setShoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done because no error thrown
           error && error()
@@ -159,13 +202,19 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
-          displayFlash('error', "Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem.")
+          setFlashProps({
+            type: 'error',
+            message: "Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem."
+          })
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           
           error && error()
         } else {
-          displayFlash('error', "Something unexpected happened while trying to update your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to update your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
 
@@ -185,7 +234,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // to set the shopping lists array to the lists returned.
           setShoppingLists(data)
 
-          displayFlash('success', 'Success! Your list was created, along with your new aggregate shopping list.')
+          setFlashProps({
+            type: 'success',
+            message: 'Success! Your list was created, along with your new aggregate shopping list.'
+          })
 
           success && success()
         } else if (data && typeof data === 'object' && !data.errors) {
@@ -197,7 +249,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           newShoppingLists.splice(1, 0, data)
           setShoppingLists(newShoppingLists)
 
-          displayFlash('success', 'Success! Your list was created.')
+          setFlashProps({
+            type: 'success',
+            message: 'Success! Your list was created.'
+          })
 
           success && success()
         } else if (data && typeof data === 'object' && data.errors ) {
@@ -206,7 +261,12 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // 500. This will mess up if the 500 error message starts with 'Title', but I see that scenario
           // as unlikely.
           if (data.errors.filter(msg => msg.match(/^Title/)).length === data.errors.length) {
-            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your shopping list from being created:`)
+            setFlashProps({
+              type: 'error',
+              message: data.errors,
+              header: `${data.errors.length} error(s) prevented your shopping list from being created:`
+            })
+
             success && success()
           } else {
             // 500 responses return only one error message so this is all of them.
@@ -224,7 +284,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating shopping list: ', err)
           
-          displayFlash('error', "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
 
           error && error()
         }
@@ -249,11 +312,11 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // it and the aggregate list have been destroyed.
           setShoppingLists([])
           
-          displayFlash(
-            'success',
-            'Since it was your last list, your aggregate list has been deleted as well',
-            'Your shopping list has been deleted'
-          )
+          setFlashProps({
+            type: 'success',
+            message: 'Since it was your last list, your aggregate list has been deleted as well',
+            header: 'Your shopping list has been deleted'
+          })
 
           success && success()
         } else if (data && data.errors) {
@@ -266,7 +329,10 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
 
           setShoppingLists(newShoppingLists)
 
-          displayFlash('success', 'Your shopping list has been deleted.')
+          setFlashProps({
+            type: 'success',
+            message: 'Your shopping list has been deleted.'
+          })
 
           success && success()
         }
@@ -275,11 +341,17 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
-          displayFlash('error', "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
+          setFlashProps({
+            type: 'error',
+            message: "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem."
+          })
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error deleting shopping list: ', err.message)
 
-          displayFlash('error', "Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
         }
         
         error && error()
@@ -315,7 +387,12 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // If all the errors returned start with one of the allowed attributes, it's a safe bet that
           // this is a validation error. Otherwise, assume it is a 500.
           if (data.errors.filter(msg => allowedAttributes.indexOf(msg.split(' ')[0]) !== -1).length === data.errors.length) {
-            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your shopping list item from being created:`)
+            setFlashProps({
+              type: 'error',
+              message: data.errors,
+              header: `${data.errors.length} error(s) prevented your shopping list item from being created:`
+            })
+
             error && error()
           } else {
             throw new Error('Internal Server Error: ' + data.errors[0])
@@ -326,11 +403,17 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
-          displayFlash('error', "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem.")
+          setFlashProps({
+            type: 'error',
+            message: "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem."
+          })
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error when creating shopping list item: ', err.message)
 
-          displayFlash('error', "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
         }
 
         error && error()
@@ -360,7 +443,7 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           setShoppingLists(newShoppingLists)
 
           setListItemEditFormVisible(false)
-          showFlashOnSuccess && displayFlash('success', 'Success! Your shopping list item was updated.')
+          showFlashOnSuccess && setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
 
           success && success()
         } else if (data && typeof data === 'object' && data.errors) {
@@ -368,7 +451,12 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
           // a validation error. If not, assume it's a 500.
           if (data.errors.filter(msg => allowedAttributes.indexOf(msg.split(' ')[0]) !== -1).length === data.errors.length) {
             setListItemEditFormVisible(false)
-            displayFlash('error', data.errors, `${data.errors.length} error(s) prevented your shopping list item from being updated:`)
+            setFlashProps({
+              type: 'error',
+              message: data.errors,
+              header: `${data.errors.length} error(s) prevented your shopping list item from being updated:`
+            })
+
             error && error()
           } else {
             setListItemEditFormVisible(false)
@@ -382,13 +470,22 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
-          displayFlash('error', "Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem.")
+          setFlashProps({
+            type: 'error',
+            message: "Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem."
+          })
         } else if (err.code === 405) {
-          displayFlash('error', 'Cannot manually edit item on an aggregate list')
+          setFlashProps({
+            type: 'error',
+            message: 'Cannot manually edit item on an aggregate list'
+          })
         } else {
           if (process.env.NODE_ENV === 'development') console.error(`Unexpected error editing list item ${itemId}: `, err)
 
-          displayFlash('error', "Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error',
+            message: "Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
         }
 
         error && error()
@@ -436,12 +533,21 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
         } else if (err.code === 404) {
-          displayFlash('error', "Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem.")
+          setFlashProps({
+            type: 'error', 
+            message: "Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem."
+          })
         } else if (err.code === 405) {
-          displayFlash('error', 'Cannot manually remove an item from an aggregate list')
+          setFlashProps({
+            type: 'error', 
+            message: 'Cannot manually remove an item from an aggregate list'
+          })
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error destroying shopping list item: ', err)
-          displayFlash('error', "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!")
+          setFlashProps({
+            type: 'error', 
+            message: "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
         }
 
         error && error()
@@ -465,18 +571,21 @@ const ShoppingListProvider = ({ children, overrideValue = {} }) => {
   }
 
   useEffect(() => {
-    fetchLists()
-    return () => mountedRef.current = false
-  }, [fetchLists])
+    if (activeGameId) fetchLists()
+  }, [fetchLists, activeGameId])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
-    <ShoppingListContext.Provider value={value}>
+    <ShoppingListsContext.Provider value={value}>
       {children}
-    </ShoppingListContext.Provider>
+    </ShoppingListsContext.Provider>
   )
 }
 
-ShoppingListProvider.propTypes = {
+ShoppingListsProvider.propTypes = {
   children: PropTypes.node.isRequired,
   overrideValue: PropTypes.shape({
     shoppingLists: PropTypes.arrayOf(PropTypes.shape({
@@ -502,4 +611,4 @@ ShoppingListProvider.propTypes = {
   })
 }
 
-export { ShoppingListContext, ShoppingListProvider, shoppingListLoadingStates }
+export { ShoppingListsContext, ShoppingListsProvider, shoppingListLoadingStates }

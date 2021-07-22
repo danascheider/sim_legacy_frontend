@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import SlideToggle from 'react-slide-toggle'
-import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import styles from './shoppingListItemCreateForm.module.css'
 
 const ShoppingListItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
-  const { hideFlash } = useAppContext()
-  const { performShoppingListItemCreate } = useShoppingListContext()
+  const { setFlashVisible } = useAppContext()
+  const { performShoppingListItemCreate } = useShoppingListsContext()
   const {
     schemeColorDark,
     hoverColorLight,
@@ -35,7 +35,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
   const createShoppingListItem = e => {
     e.preventDefault()
 
-    hideFlash()
+    setFlashVisible(false)
 
     const description = e.target.elements.description.value
     const quantity = Number(e.target.elements.quantity.value)

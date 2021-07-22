@@ -6,7 +6,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
-import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
@@ -28,6 +28,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const [currentTitle, setCurrentTitle] = useState(title)
   const [maxEditFormWidth, setMaxEditFormWidth] = useState(null)
   const [listItems, setListItems] = useState([])
+
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
   const iconsRef = useRef(null)
@@ -36,13 +37,13 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
-  const { displayFlash, hideFlash } = useAppContext()
+  const { setFlashProps, setFlashVisible } = useAppContext()
 
   const {
     shoppingLists,
     performShoppingListUpdate,
     performShoppingListDestroy,
-  } = useShoppingListContext()
+  } = useShoppingListsContext()
 
   const originalTitle = title // to switch back in case of API error on update
 
@@ -82,7 +83,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const submitAndHideForm = e => {
     e.preventDefault()
 
-    hideFlash()
+    setFlashVisible(false)
 
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
@@ -97,12 +98,17 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
 
-    hideFlash()
+    setFlashVisible(false)
 
     if (confirmed) {
       performShoppingListDestroy(listId)
     } else {
-      displayFlash('info', 'Your list was not deleted.')
+      setFlashProps({
+        type: 'info',
+        message: 'Your list was not deleted.'
+      })
+
+      setFlashVisible(true)
     }
   }
 

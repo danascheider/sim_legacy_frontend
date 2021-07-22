@@ -1,6 +1,12 @@
 .noLists {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   font-size: 1.1rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.link {
+  color: #000;
 }
 
 .shoppingList {

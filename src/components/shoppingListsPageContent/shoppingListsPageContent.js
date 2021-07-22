@@ -1,16 +1,19 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
-import { useShoppingListContext } from '../../hooks/contexts'
+import paths from '../../routing/paths'
+import { useGamesContext, useShoppingListsContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
-import { shoppingListLoadingStates } from '../../contexts/shoppingListContext'
+import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
 import Loading from '../loading/loading'
 import ShoppingList from '../shoppingList/shoppingList'
-import styles from './shoppingListPageContent.module.css'
+import styles from './shoppingListsPageContent.module.css'
 
 const { LOADING, DONE } = shoppingListLoadingStates
 
-const ShoppingListPageContent = () => {
-  const { shoppingLists, shoppingListLoadingState } = useShoppingListContext()
+const ShoppingListsPageContent = () => {
+  const { games, gameLoadingState } = useGamesContext()
+  const { shoppingLists, shoppingListLoadingState } = useShoppingListsContext()
 
   /*
    *
@@ -18,19 +21,25 @@ const ShoppingListPageContent = () => {
    * 
    */
 
-  // Expected states
   const listsLoadedAndNotEmpty = shoppingLists && shoppingListLoadingState === DONE && shoppingLists.length > 0
+  const listsLoadedAndEmpty = shoppingLists && shoppingListLoadingState === DONE && shoppingLists.length === 0
 
   /*
    *
    * Return appropriate values for the state the component is in
    * 
    */
-
-  if (listsLoadedAndNotEmpty) {
+  if (gameLoadingState === DONE && !games.length) {
+    return(
+      <p className={styles.noLists}>
+        You need a game to use the shopping lists feature. <Link className={styles.link} to={paths.dashboard.games}>Create a game</Link> to get started.
+      </p>
+    )
+  } else if (listsLoadedAndNotEmpty) {
     return(
       <>
         {shoppingLists.map(({ id, title, aggregate }, index) => {
+
           // If there are more lists than colour schemes, cycle through the colour schemes
           const colorSchemesIndex = index < colorSchemes.length ? index : index % colorSchemes.length
           const colorScheme = colorSchemes[colorSchemesIndex]
@@ -50,6 +59,8 @@ const ShoppingListPageContent = () => {
         })}
       </>
     )
+  } else if (listsLoadedAndEmpty) {
+    return <p className={styles.noLists}>This game has no shopping lists.</p>
   } else if (shoppingListLoadingState === LOADING) {
     return <Loading className={styles.loading} color={YELLOW.schemeColorDarkest} height='15%' width='15%' />
   } else {
@@ -57,4 +68,4 @@ const ShoppingListPageContent = () => {
   }
 }
 
-export default ShoppingListPageContent
+export default ShoppingListsPageContent

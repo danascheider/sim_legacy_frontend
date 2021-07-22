@@ -79,18 +79,25 @@ export const findListByListItem = (lists, itemId) => {
   return null
 }
 
-export const adjustAggregateListItem = (aggregateListItem, deltaQuantity, oldNotes, newNotes) => {
-  aggregateListItem.quantity = aggregateListItem.quantity + deltaQuantity
+export const findAggregateList = (allLists, listId) => {
+  const gameId = allLists.find(list => list.id === listId).game_id
 
+  return allLists.find(list => list.game_id === gameId && list.aggregate)
+}
+
+export const adjustListItem = (listItem, deltaQuantity, oldNotes, newNotes) => {
+  listItem.quantity = listItem.quantity + deltaQuantity
+
+  // TODO: This is not how the back end handles notes
   if (oldNotes !== newNotes) {
-    if (aggregateListItem.notes) {
-      aggregateListItem.notes.replace(oldNotes, newNotes)
+    if (listItem.notes) {
+      listItem.notes.replace(oldNotes, newNotes)
     } else {
-      aggregateListItem.notes = newNotes
+      listItem.notes = newNotes
     }
   }
 
-  return aggregateListItem
+  return listItem
 }
 
 export const removeOrAdjustItemsOnListDestroy = (aggregateList, items) => {

@@ -3,8 +3,10 @@ import { rest } from 'msw'
 import { PINK } from '../../utils/colorSchemes'
 import { backendBaseUri } from '../../utils/config'
 import { ColorProvider } from '../../contexts/colorContext'
-import { ShoppingListProvider } from '../../contexts/shoppingListContext'
 import { AppProvider } from '../../contexts/appContext'
+import { GamesProvider } from '../../contexts/gamesContext'
+import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
+import { token, games } from '../../sharedTestData'
 import ShoppingList from './shoppingList'
 
 const regularListItems = [
@@ -61,82 +63,65 @@ const shoppingLists = [
 export default { title: 'ShoppingList' }
 
 export const Default = () => (
-  <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
-    <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ performShoppingListUpdate: (a, b, c = null, d = null) => {}, shoppingLists }}>
-        <ShoppingList
-          listId={2}
-          title='My List 1'
-        />
-      </ShoppingListProvider>
-    </ColorProvider>
+  <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
+    <GamesProvider overrideValue={{ games }}>
+      <ColorProvider colorScheme={PINK}>
+        <ShoppingListsProvider overrideValue={{ performShoppingListUpdate: (a, b, c = null, d = null) => {}, shoppingLists }}>
+          <ShoppingList
+            listId={2}
+            title='My List 1'
+          />
+        </ShoppingListsProvider>
+      </ColorProvider>
+    </GamesProvider>
   </AppProvider>
 )
 
-Default.parameters = {
-  msw: [
-    rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json(
-          [
-            {
-              id: 1,
-              title: 'All Items',
-              aggregate: true,
-              list_items: aggregateListItems
-            },
-            {
-              id: 2,
-              title: 'My List 1',
-              aggregate: false,
-              list_items: regularListItems
-            }
-          ]
-        )
-      )
-    }),
-    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-      const itemId = Number(req.params.id)
-      const regularItem = regularListItems.find(item => item.id === itemId)
-      const aggregateListItem = aggregateListItems.find(item => item.description === regularItem.description)
-      const newQty = req.body.shopping_list_item.quantity
+// Default.parameters = {
+//   msw: [
+//     rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+//       const itemId = Number(req.params.id)
+//       const regularItem = regularListItems.find(item => item.id === itemId)
+//       const aggregateListItem = aggregateListItems.find(item => item.description === regularItem.description)
+//       const newQty = req.body.shopping_list_item.quantity
 
-      const returnData = [
-        {
-          id: aggregateListItem.id,
-          list_id: 1,
-          description: aggregateListItem.description,
-          quantity: newQty,
-          notes: aggregateListItem.notes
-        },
-        {
-          id: itemId,
-          list_id: 2,
-          description: regularItem.description,
-          quantity: newQty,
-          notes: regularItem.notes
-        }
-      ]
-      return res(
-        ctx.status(200),
-        ctx.json(returnData)
-      )
-    })
-  ]
-}
+//       const returnData = [
+//         {
+//           id: aggregateListItem.id,
+//           list_id: 1,
+//           description: aggregateListItem.description,
+//           quantity: newQty,
+//           notes: aggregateListItem.notes
+//         },
+//         {
+//           id: itemId,
+//           list_id: 2,
+//           description: regularItem.description,
+//           quantity: newQty,
+//           notes: regularItem.notes
+//         }
+//       ]
+//       return res(
+//         ctx.status(200),
+//         ctx.json(returnData)
+//       )
+//     })
+//   ]
+// }
 
 export const NotEditable = () => (
-  <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
-    <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ shoppingLists }}>
-        <ShoppingList
-          title='All Items'
-          listId={1}
-          canEdit={false}
-        />
-      </ShoppingListProvider>
-    </ColorProvider>
+  <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
+    <GamesProvider overrideValue={{ games }}>
+      <ColorProvider colorScheme={PINK}>
+        <ShoppingListsProvider overrideValue={{ shoppingLists }}>
+          <ShoppingList
+            title='All Items'
+            listId={1}
+            canEdit={false}
+          />
+        </ShoppingListsProvider>
+      </ColorProvider>
+    </GamesProvider>
   </AppProvider>
 )
 
@@ -182,29 +167,33 @@ const emptyShoppingLists = [
 ]
 
 export const EmptyList = () => (
-  <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
-    <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
-        <ShoppingList
-          title='Severin Manor'
-          listId={2}
-          canEdit={true}
-        />
-      </ShoppingListProvider>
-    </ColorProvider>
+  <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
+    <GamesProvider overrideValue={{ games }}>
+      <ColorProvider colorScheme={PINK}>
+        <ShoppingListsProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
+          <ShoppingList
+            title='Severin Manor'
+            listId={2}
+            canEdit={true}
+          />
+        </ShoppingListsProvider>
+      </ColorProvider>
+    </GamesProvider>
   </AppProvider>
 )
 
 export const EmptyAggregateList = () => (
-  <AppProvider overrideValue={{ token: 'xxxxxx', setShouldRedirectTo: () => null }}>
-    <ColorProvider colorScheme={PINK}>
-      <ShoppingListProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
-        <ShoppingList
-          title='All Items'
-          listId={1}
-          canEdit={false}
-        />
-      </ShoppingListProvider>
-    </ColorProvider>
+  <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
+    <GamesProvider overrideValue={{ games }}>
+      <ColorProvider colorScheme={PINK}>
+        <ShoppingListsProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
+          <ShoppingList
+            title='All Items'
+            listId={1}
+            canEdit={false}
+          />
+        </ShoppingListsProvider>
+      </ColorProvider>
+    </GamesProvider>
   </AppProvider>
 )

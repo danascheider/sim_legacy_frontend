@@ -4,7 +4,7 @@ SIM uses [React contexts](https://reactjs.org/docs/context.html) for state manag
 
 * [AppContext](/docs/contexts/app-context.md)
 * [GamesContext](/docs/contexts/games-context.md)
-* [ShoppingListContext](/docs/contexts/shopping-list-context.md)
+* [ShoppingListsContext](/docs/contexts/shopping-lists-context.md)
 * [ColorContext](/docs/contexts/color-context.md)
 
 For each context, there is a [custom hook](/src/hooks/contexts.js) that can be used to invoke it in consumers.

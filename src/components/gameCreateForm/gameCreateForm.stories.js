@@ -1,7 +1,7 @@
 import React from 'react'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
-import { profileData } from './testData'
+import { profileData } from '../../sharedTestData'
 import GameCreateForm from './gameCreateForm'
 
 const token = 'xxxxxx'

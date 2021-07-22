@@ -137,14 +137,15 @@ export const destroyGame = (token, gameId) => {
  *
  */
 
-// GET /shopping_lists
-export const fetchShoppingLists = token => {
-  const uri = `${backendBaseUri}/shopping_lists`
+// GET /games/:id/shopping_lists
+export const fetchShoppingLists = (token, gameId) => {
+  const uri = `${backendBaseUri}/games/${gameId}/shopping_lists`
 
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
         if (resp.status === 401) throw new AuthorizationError()
+        if (resp.status === 404) throw new NotFoundError()
         return resp
       })
   )

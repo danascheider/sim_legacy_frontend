@@ -3,12 +3,12 @@ import { Switch, Route } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { AppProvider } from '../contexts/appContext'
 import { GamesProvider } from '../contexts/gamesContext'
-// import { ShoppingListProvider } from '../contexts/shoppingListContext'
+import { ShoppingListsProvider } from '../contexts/shoppingListsContext'
 import HomePage from '../pages/homePage/homePage'
 import LoginPage from '../pages/loginPage/loginPage'
 import DashboardPage from '../pages/dashboardPage/dashboardPage'
 import GamesPage from '../pages/gamesPage/gamesPage'
-// import ShoppingListPage from '../pages/shoppingListPage/shoppingListPage'
+import ShoppingListsPage from '../pages/shoppingListsPage/shoppingListsPage'
 import NotFoundPage from '../pages/notFoundPage/notFoundPage'
 import paths from './paths'
 
@@ -43,15 +43,13 @@ const pages = [
     jsx: <GamesProvider><GamesPage /></GamesProvider>,
     path: paths.dashboard.games
   },
-  // {
-  //   pageId: 'shoppingLists',
-  //   title: `${siteTitle} Manage Shopping Lists`,
-  //   description: 'Manage Skyrim Shopping Lists',
-  //   jsx: <ShoppingListProvider><ShoppingListPage /></ShoppingListProvider>,
-  //   path: paths.dashboard.shoppingLists
-  // }
-
-
+  {
+    pageId: 'shoppingLists',
+    title: `${siteTitle} Manage Shopping Lists`,
+    description: 'Manage Skyrim Shopping Lists',
+    jsx: <GamesProvider><ShoppingListsProvider><ShoppingListsPage /></ShoppingListsProvider></GamesProvider>,
+    path: paths.dashboard.shoppingLists
+  }
 ]
 
 const PageRoutes = () => (
