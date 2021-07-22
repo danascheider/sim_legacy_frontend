@@ -152,9 +152,12 @@ describe('ShoppingListsPage', () => {
       it('displays shopping lists for the specified game', async () => {
         component = await renderComponentWithMockCookies(cookies, games[1].id)
 
+        // The lists belonging to list 1 should be visible
         await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Windstad Manor')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Hjerim')).toBeVisible())
+
+        // The lists belonging to list 0 should be absent
         await waitFor(() => expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
