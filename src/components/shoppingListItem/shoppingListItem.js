@@ -119,7 +119,8 @@ const ShoppingListItem = ({
 
   const showEditForm = () => {
     if (mountedRef.current) {
-      setFlashVisible: false
+      setFlashVisible(false)
+
       setListItemEditFormProps({
         listTitle: listTitle,
         buttonColor: {
