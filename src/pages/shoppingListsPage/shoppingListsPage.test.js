@@ -117,10 +117,13 @@ describe('ShoppingListsPage', () => {
       it('displays shopping lists for the first game', async () => {
         component = await renderComponentWithMockCookies(cookies)
 
+        // games[0]'s shopping lists should be visible on the page
         await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Lakeview Manor')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Breezehome')).toBeVisible())
+
+        // games[1]'s shopping lists should not be visible
         await waitFor(() => expect(screen.queryByText('Windstad Manor')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Hjerim')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
@@ -152,12 +155,12 @@ describe('ShoppingListsPage', () => {
       it('displays shopping lists for the specified game', async () => {
         component = await renderComponentWithMockCookies(cookies, games[1].id)
 
-        // The lists belonging to list 1 should be visible
+        // The lists belonging to game 1 should be visible
         await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Windstad Manor')).toBeVisible())
         await waitFor(() => expect(screen.queryByText('Hjerim')).toBeVisible())
 
-        // The lists belonging to list 0 should be absent
+        // The lists belonging to game 0 should be absent
         await waitFor(() => expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
