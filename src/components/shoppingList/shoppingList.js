@@ -102,7 +102,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     if (confirmed) {
       performShoppingListDestroy(listId)
-    } else if (mountedRef.current) {
+    } else {
       setFlashProps({
         type: 'info',
         message: 'Your list was not deleted.'
