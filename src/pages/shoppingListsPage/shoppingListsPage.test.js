@@ -8,6 +8,7 @@ import {
   waitForElementToBeRemoved,
   fireEvent
 } from '@testing-library/react'
+import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../setupTests'
@@ -127,6 +128,97 @@ describe('ShoppingListsPage', () => {
         await waitFor(() => expect(screen.queryByText('Windstad Manor')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Hjerim')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+      })
+
+      describe('toggling a shopping list', () => {
+        it('starts out collapsed', async () => {
+          component = await renderComponentWithMockCookies(cookies)
+
+          // Using findByText I got 'closest is not a function', presumably because findByText
+          // returns a promise, so I had to use waitFor ... getByText instead.
+          const lakeviewManorList = await waitFor(() => screen.getByText('Lakeview Manor').closest('.root'))
+
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).not.toBeVisible())
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).not.toBeVisible())
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ingredients with "frenzy" property/i)).not.toBeVisible())
+        })
+
+        it('displays the list item descriptions but not notes', async () => {
+          component = await renderComponentWithMockCookies(cookies)
+
+          const lakeviewManor = await screen.findByText(/lakeview manor/i)
+          const lakeviewManorList = lakeviewManor.closest('.root')
+
+          fireEvent.click(lakeviewManor)
+
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).toBeVisible())
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).toBeVisible())
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ingredients with "frenzy" property/i)).toBeVisible())
+        })
+
+        it('collapses again when clicked a second time', async () => {
+          component = await renderComponentWithMockCookies(cookies)
+
+          const lakeviewManor = await screen.findByText(/lakeview manor/i)
+          const lakeviewManorList = lakeviewManor.closest('.root')
+
+          fireEvent.click(lakeviewManor)
+          fireEvent.click(lakeviewManor)
+
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).not.toBeVisible())
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).not.toBeVisible())
+          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ingredients with "frenzy" property/i)).not.toBeVisible())
+        })
+
+        describe('toggling a list item', () => {
+          it('is collapsed when the list is first expanded', async () => {
+            component = await renderComponentWithMockCookies(cookies)
+
+            const lakeviewManor = await screen.findByText('Lakeview Manor')
+            const lakeviewManorList = lakeviewManor.closest('.root')
+
+            fireEvent.click(lakeviewManor)
+
+            await waitFor(() => expect(within(lakeviewManorList).queryByText(/notes 1/i)).not.toBeVisible())
+            await waitFor(() => expect(within(lakeviewManorList).queryByText(/no details available/i)).not.toBeVisible())
+          })
+
+          it('expands one item when you click on it', async () => {
+            component = await renderComponentWithMockCookies(cookies)
+
+            const lakeviewManor = await screen.findByText('Lakeview Manor')
+            const lakeviewManorList = lakeviewManor.closest('.root') // the list root
+
+            fireEvent.click(lakeviewManor)
+
+            const ebonySwordText = await within(lakeviewManorList).findByText('Ebony sword')
+            const ebonySwordItem = ebonySwordText.closest('.root') // the list item root
+
+            fireEvent.click(ebonySwordText)
+
+            // Notes for the clicked item should be visible
+            await waitFor(() => expect(within(ebonySwordItem).queryByText('notes 1')).toBeVisible())
+
+            // Notes for the other item should not be visible
+            await waitFor(() => expect(within(lakeviewManorList).queryByText(/no details available/i)).not.toBeVisible())
+          })
+
+          it('collapses the item when you click it again', async () => {
+            component = await renderComponentWithMockCookies(cookies)
+
+            const lakeviewManor = await screen.findByText('Lakeview Manor')
+            const lakeviewManorList = lakeviewManor.closest('.root') // the list root
+
+            const ebonySwordText = await within(lakeviewManorList).findByText('Ebony sword')
+            const ebonySwordItem = ebonySwordText.closest('.root') // the list item root
+
+            fireEvent.click(lakeviewManor)
+            fireEvent.click(ebonySwordText)
+            fireEvent.click(ebonySwordText)
+
+            await waitFor(() => expect(within(ebonySwordItem).queryByText('notes 1')).not.toBeVisible())
+          })
+        })
       })
     })
 
