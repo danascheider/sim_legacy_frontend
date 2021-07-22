@@ -149,7 +149,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     } else {
       mountedRef.current && overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
     }
-  }, [token, overrideValue.shoppingListLoadingState, setFlashProps, logOutAndRedirect])
+  }, [token, overrideValue.shoppingListLoadingState, setFlashProps, setFlashVisible, activeGameId, logOutAndRedirect])
 
   const performShoppingListUpdate = (listId, newTitle, success = null, error = null) => {
     updateShoppingList(token, listId, { title: newTitle })
