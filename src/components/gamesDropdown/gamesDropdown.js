@@ -1,3 +1,12 @@
+/*
+ * It was important to have a styled options list, so a native HTML select
+ * dropdown wouldn't do. This component has been made to be as accessible as
+ * possible, adhering to the ARIA specification for comboboxes. More information
+ * on comboboxes and their expected behaviour can be found in the ARIA docs:
+ * https://www.w3.org/TR/wai-aria-practices-1.1/examples/combobox/aria1.1pattern/listbox-combo.html
+ *
+ */
+
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import classNames from 'classnames'
 import { useHistory } from 'react-router-dom'
