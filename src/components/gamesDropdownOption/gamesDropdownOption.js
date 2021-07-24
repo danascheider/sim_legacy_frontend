@@ -1,3 +1,14 @@
+/*
+ *
+ * This component is intended for use within the GamesDropdown.
+ * The GamesDropdown mimics a native `select` element. It is
+ * critical that this component's role and ARIA attributes not
+ * be changed except to make it more accessible or fix bugs in
+ * accessibility. If you need a different role or aria attributes,
+ * pass the values in as props or create another component.
+ *
+ */
+
 import React from 'react'
 import classNames from 'classnames'
 import PropTypes from 'prop-types'
