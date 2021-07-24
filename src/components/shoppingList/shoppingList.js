@@ -132,10 +132,10 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
           <span className={styles.editIcons} ref={iconsRef}>
-            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList}>
+            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid={`delete-shopping-list`}>
               <FontAwesomeIcon className={styles.fa} icon={faTimes} />
             </div>
-            <div className={styles.icon} ref={triggerRef}>
+            <div className={styles.icon} ref={triggerRef} data-testid={`edit-shopping-list`}>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
             </div>
           </span>}

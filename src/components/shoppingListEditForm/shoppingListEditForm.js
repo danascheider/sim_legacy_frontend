@@ -10,6 +10,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   const getInputTextWidth = (text) => {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
+
     context.font = '21px Quattrocento Sans'
 
     const max = (maxTextWidth || maxTotalWidth)

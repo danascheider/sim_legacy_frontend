@@ -71,7 +71,7 @@ describe('Editing a shopping list', () => {
 
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId(`edit-shopping-list-${list.id}`)
+      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
@@ -87,7 +87,7 @@ describe('Editing a shopping list', () => {
 
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId(`edit-shopping-list-${list.id}`)
+      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
