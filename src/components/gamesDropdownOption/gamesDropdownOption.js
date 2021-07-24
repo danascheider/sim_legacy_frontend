@@ -5,7 +5,6 @@ import styles from './gamesDropdownOption.module.css'
 
 const GamesDropdownOption = ({
   name,
-  key,
   className,
   onClick,
   onKeyDown,
@@ -27,7 +26,6 @@ const GamesDropdownOption = ({
 
 GamesDropdownOption.propTypes = {
   name: PropTypes.string.isRequired,
-  key: PropTypes.string.isRequired,
   className: PropTypes.string,
   onClick: PropTypes.func,
   onKeyDown: PropTypes.func,

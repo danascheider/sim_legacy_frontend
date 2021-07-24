@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { BLUE } from '../../utils/colorSchemes'
 import { useGamesContext } from '../../hooks/contexts'
-import useQuery from '../../hooks/useQuery'
 import GamesDropdownOption from '../gamesDropdownOption/gamesDropdownOption'
 import styles from './gamesDropdown.module.css'
 
@@ -15,7 +14,6 @@ const GamesDropdown = () => {
   const { games } = useGamesContext()
 
   const [activeGame, setActiveGame] = useState(null)
-  const [filteredGames, setFilteredGames] = useState(games)
   const [dropdownExpanded, setDropdownExpanded] = useState(false)
   const [inputValue, setInputValue] = useState('')
 
@@ -44,27 +42,13 @@ const GamesDropdown = () => {
     collapseDropdown()
   }, [history, collapseDropdown])
 
-  // If the user has typed a string into the input, filter the games to only display
-  // the ones that match what they've typed. 
-  const filterGames = str => {
-    if (str) {
-      const tmpGames = games.filter(game => game.name.toLowerCase().match(new RegExp(str.toLowerCase(),'i')))
-      if (tmpGames.length) setFilteredGames([...tmpGames])
-    } else {
-      setFilteredGames(games)
-    }
-  }
-
   const isActiveGame = id => {
     if (activeGame && !games.length) return false
 
     return activeGame ? activeGame.id === id : id === games[0].id
   }
 
-  const updateValue = e => {
-    setInputValue(e.currentTarget.value)
-    filterGames(e.currentTarget.value)
-  }
+  const updateValue = e => setInputValue(e.currentTarget.value)
 
   useEffect(() => {
     if (!activeGame && games.length) {
@@ -81,7 +65,7 @@ const GamesDropdown = () => {
 
         // Find out if there is a game whose title exactly matches the
         // text typed into the input (without regard to case).
-        const game = filteredGames.find(g => g.name.toLowerCase() === inputValue.toLowerCase())
+        const game = games.find(g => g.name.toLowerCase() === inputValue.toLowerCase())
 
         if (game) {
           // If there is a matching game, it should be selected when the
@@ -104,7 +88,7 @@ const GamesDropdown = () => {
     return () => {
       document.removeEventListener('focusout', collapseDropdownAndResetValue)
     }
-  }, [filteredGames, setActiveGame, activeGame, setInputValue, inputValue, history, collapseDropdown])
+  }, [games, setActiveGame, activeGame, setInputValue, inputValue, history, collapseDropdown])
 
   return(
     <div ref={componentRef} className={styles.root} style={colorVars}>
@@ -133,9 +117,11 @@ const GamesDropdown = () => {
               const game = games.find(g => g.name.toLowerCase() === e.target.value.toLowerCase())
               game && selectGame(game)
             } else if (e.key === 'ArrowUp') {
+              e.preventDefault()
               const focusables = document.getElementsByClassName('focusable')
               focusables[focusables.length - 1].focus()
             } else if (e.key === 'ArrowDown') {
+              e.preventDefault()
               document.getElementsByClassName('focusable')[1].focus()
             } else if (e.key === 'Escape') {
               collapseDropdown()
@@ -152,10 +138,10 @@ const GamesDropdown = () => {
       </div>
       <ul
         id='gamesListbox'
-        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded || !filteredGames.length })}
+        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded || !games.length })}
         role='listbox'
       >
-        {filteredGames.map(({ id, name }, index) => {
+        {games.map(({ id, name }, index) => {
           return(
             <GamesDropdownOption
               className='focusable'
