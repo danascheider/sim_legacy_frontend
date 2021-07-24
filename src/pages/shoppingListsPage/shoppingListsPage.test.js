@@ -260,6 +260,58 @@ describe('ShoppingListsPage', () => {
       })
     })
 
+    describe('when a game is selected from the dropdown', () => {
+      const server = setupServer(
+        rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+          const gameId = parseInt(req.params.gameId)
+          const lists = allShoppingLists.filter(list => list.game_id === gameId)
+
+          return res(
+            ctx.status(200),
+            ctx.json(lists)
+          )
+        })
+      )
+
+      beforeAll(() => server.listen())
+      beforeEach(() => server.resetHandlers())
+      afterAll(() => server.close())
+
+      it('updates the query string and fetches the right shopping lists', async () => {
+        const { history } = component = await renderComponentWithMockCookies(cookies)
+
+        const dropdownComponent = await screen.findByTestId('games-dropdown')
+        const dropdownTrigger = await screen.findByTestId('games-dropdown-trigger')
+
+        act(() => {
+          fireEvent.click(dropdownTrigger)
+          return undefined
+        })
+
+        // This game has a really long name so it will be truncated in the dropdown
+        // so we can't look for the option with the whole name.
+        const gameOption = await within(dropdownComponent).findByText(/neque porro/i)
+
+        act(() => {
+          fireEvent.click(gameOption)
+          return undefined
+        })
+
+        await waitFor(() => expect(history.location.search).toEqual(`?game_id=${games[1].id}`))
+
+        // The lists belonging to game 1 should be visible
+        await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Windstad Manor')).toBeVisible())
+        await waitFor(() => expect(screen.queryByText('Hjerim')).toBeVisible())
+
+        // The lists belonging to game 0 should be absent
+        await waitFor(() => expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
+        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+      })
+    })
+
     describe('when a game has no shopping lists', () => {
       const server = setupServer(
         rest.get(`${backendBaseUri}/games/${games[0].id}/shopping_lists`, (req, res, ctx) => {

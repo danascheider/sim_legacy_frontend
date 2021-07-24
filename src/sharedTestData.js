@@ -42,13 +42,13 @@ export const games = [
   {
     id: 572,
     user_id: 24,
-    name: 'My Game 2',
+    name: 'Neque porro quisquam est quis dolorem ipsum quia dolor sit amet',
     description: 'This is the second game'
   },
   {
     id: 231,
     user_id: 24,
-    name: 'My Game 3',
+    name: 'My Game 2',
     description: null
   }
 ]
