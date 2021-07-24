@@ -151,9 +151,9 @@ export const fetchShoppingLists = (token, gameId) => {
   )
 }
 
-// POST /shopping_lists
-export const createShoppingList = (token, attrs) => {
-  const uri = `${backendBaseUri}/shopping_lists`
+// POST /games/:game_id/shopping_lists
+export const createShoppingList = (token, gameId, attrs) => {
+  const uri = `${backendBaseUri}/games/${gameId}/shopping_lists`
   const body = JSON.stringify({ shopping_list: attrs })
 
   return fetch(uri, {
@@ -163,6 +163,7 @@ export const createShoppingList = (token, attrs) => {
   })
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
+    if (resp.status === 404) throw new NotFoundError()
     return resp
   })
 }

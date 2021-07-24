@@ -85,17 +85,29 @@ HappyPath.parameters = {
     rest.post(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       const gameId = parseInt(req.params.gameId)
       const game = games.find(g => g.id === gameId)
+      const lists = allShoppingLists.filter(list => list.game_id === gameId)
 
       if (game) {
         // If the game exists, the API will create a new shopping list for that game and
         // return a 201 Created status with the shopping list in the response body.
         const title = req.body.shopping_list.title || 'My List 3'
-        const returnData = [{ id: Math.floor(Math.random() * 10000), game_id: gameId, title, aggregate: false, list_items: [] }]
+        const existingList = lists.find(list => list.title === title)
 
-        return res(
-          ctx.status(201),
-          ctx.json(returnData)
-        )
+        if (existingList) {
+          return res(
+            ctx.status(422),
+            ctx.json({
+              errors: ['Title must be unique per game']
+            })
+          )
+        } else {
+          const returnData = { id: Math.floor(Math.random() * 10000), game_id: gameId, title, aggregate: false, list_items: [] }
+
+          return res(
+            ctx.status(201),
+            ctx.json(returnData)
+          )
+        }
       } else {
         // If the game doesn't exist (or doesn't belong to the authenticated user), the API
         // will return a 404 Not Found status.
@@ -443,7 +455,7 @@ export const NoGames = () => {
  *
  */
 
-export const GameNotFound = () => (
+export const GameNotFoundOnLoad = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
     <GamesProvider overrideValue={{ games }}>
       <ShoppingListsProvider>
@@ -453,9 +465,46 @@ export const GameNotFound = () => (
   </AppProvider>
 )
 
-GameNotFound.parameters = {
+GameNotFoundOnLoad.parameters = {
   msw: [
     rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    })
+  ]
+}
+
+/*
+ *
+ * When the requested game has loaded and then been deleted on
+ * another device or browser, attempting to create a shopping list
+ * for that game will result in a 404. This is an edge case.
+ *
+ */
+
+export const GameNotFoundOnCreate = () => (
+  <AppProvider overrideValue={appContextOverrideValue}>
+    <GamesProvider overrideValue={{ games }}>
+      <ShoppingListsProvider>
+        <ShoppingListsPage />
+      </ShoppingListsProvider>
+    </GamesProvider>
+  </AppProvider>
+)
+
+GameNotFoundOnCreate.parameters = {
+  msw: [
+    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+      const gameId = parseInt(req.params.gameId)
+      const lists = allShoppingLists.filter(list => list.game_id === gameId)
+
+      return res(
+        ctx.status(200),
+        ctx.json(lists)
+      )
+    }),
+    rest.post(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
