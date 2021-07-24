@@ -91,7 +91,7 @@ const GamesDropdown = () => {
   }, [games, setActiveGame, activeGame, setInputValue, inputValue, history, collapseDropdown])
 
   return(
-    <div ref={componentRef} className={styles.root} style={colorVars}>
+    <div ref={componentRef} className={styles.root} style={colorVars} data-testid='games-dropdown'>
       <div
         className={styles.header}
         role='combobox'
@@ -132,6 +132,7 @@ const GamesDropdown = () => {
           ref={buttonRef}
           className={styles.trigger}
           onClick={toggleDropdown}
+          data-testid='games-dropdown-trigger'
         >
           <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
         </button>
