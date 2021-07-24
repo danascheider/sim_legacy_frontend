@@ -2,15 +2,15 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { BLUE } from '../../utils/colorSchemes'
-import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
+import { useAppContext, useGamesContext, useShoppingListsContext } from '../../hooks/contexts'
+import useQuery from '../../hooks/useQuery'
 import styles from './shoppingListCreateForm.module.css'
 
 const ShoppingListCreateForm = ({ disabled }) => {
   const { setFlashVisible } = useAppContext()
 
-  const {
-    performShoppingListCreate
-  } = useShoppingListsContext()
+
+  const { performShoppingListCreate } = useShoppingListsContext()
 
   const [inputValue, setInputValue] = useState('')
 
@@ -30,12 +30,18 @@ const ShoppingListCreateForm = ({ disabled }) => {
     e.preventDefault()
     setFlashVisible(false)
     const title = e.target.elements.title.value
-    performShoppingListCreate(title, () => setInputValue(''))
+    const callbacks = {
+      onSuccess: () => setInputValue(''),
+      onNotFound: () => setFlashVisible(true),
+      onUnprocessableEntity: () => setFlashVisible(true),
+      onInternalServerError: () => setFlashVisible(true)
+    }
+    performShoppingListCreate(title, callbacks)
   }
 
   return(
     <div className={styles.root} style={colorVars}>
-      <form className={styles.form} onSubmit={createShoppingList}>
+      <form data-testid='shopping-list-create-form' onSubmit={createShoppingList}>
         <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
           <input
             className={styles.input}

@@ -223,8 +223,10 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       }) 
   }
 
-  const performShoppingListCreate = (title, success = null, error = null) => {
-    createShoppingList(token, { title })
+  const performShoppingListCreate = (title, callbacks) => {
+    const { onSuccess, onUnauthorized, onNotFound, onUnprocessableEntity, onInternalServerError } = callbacks
+
+    createShoppingList(token, activeGameId, { title })
       .then(resp => resp.json())
       .then(data => {
         if (Array.isArray(data) && data.length === 2) {
@@ -239,12 +241,10 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             message: 'Success! Your list was created, along with your new aggregate shopping list.'
           })
 
-          success && success()
+          onSuccess && onSuccess()
         } else if (data && typeof data === 'object' && !data.errors) {
-          // It is an array of shopping lists but it only contains one. This case means
-          // that there was already an aggregate list and only the list the user manually
-          // created was created. The new list should be added to the existing shoppingLists
-          // array in the second position (after the aggregate list but before any of the others).
+          // It is the single shopping list that was created. This will happen if there
+          // is already an existing aggregate list.
           const newShoppingLists = shoppingLists
           newShoppingLists.splice(1, 0, data)
           setShoppingLists(newShoppingLists)
@@ -254,7 +254,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             message: 'Success! Your list was created.'
           })
 
-          success && success()
+          onSuccess && onSuccess()
         } else if (data && typeof data === 'object' && data.errors ) {
           // Since we're only setting the title here, all validation errors should start with 'Title'.
           // If all errors start with 'Title', assume it's a validation error. Otherwise, assume it's a
@@ -267,7 +267,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
               header: `${data.errors.length} error(s) prevented your shopping list from being created:`
             })
 
-            success && success()
+            onUnprocessableEntity && onUnprocessableEntity()
           } else {
             // 500 responses return only one error message so this is all of them.
             throw new Error('Internal Server Error: ' + data.errors[0])
@@ -278,9 +278,16 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          onUnauthorized && onUnauthorized()
+        } else if (err.code === 404) {
+          setFlashProps({
+            type: 'error',
+            message: 'The game you wanted to create a shopping list for could not be found. Try refreshing the page to fix this issue.'
+          })
+
+          onNotFound && onNotFound()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating shopping list: ', err)
           
@@ -289,7 +296,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
-          error && error()
+          onInternalServerError && onInternalServerError()
         }
       })
   }
