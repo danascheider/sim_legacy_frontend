@@ -132,6 +132,12 @@ const GamesDropdown = () => {
           ref={buttonRef}
           className={styles.trigger}
           onClick={toggleDropdown}
+          onKeyDown={e => {
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              document.getElementsByClassName('focusable')[1].focus()
+            }
+          }}
           data-testid='games-dropdown-trigger'
         >
           <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
