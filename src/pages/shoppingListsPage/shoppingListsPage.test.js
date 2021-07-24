@@ -451,6 +451,7 @@ describe('ShoppingListsPage', () => {
 
           const form = await screen.findByTestId('shopping-list-create-form')
           const input = await screen.findByLabelText('Title')
+          const button = await screen.findByText('Create')
           
           fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
 
@@ -461,6 +462,9 @@ describe('ShoppingListsPage', () => {
 
           await waitFor(() => expect(screen.queryByText('Proudspire Manor')).toBeVisible())
           await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
+          await waitFor(() => expect(input).not.toBeDisabled())
+          await waitFor(() => expect(button).not.toBeDisabled())
+          await waitFor(() => expect(input.value).toEqual(''))
         })
       })
 
@@ -500,6 +504,7 @@ describe('ShoppingListsPage', () => {
 
           const form = await screen.findByTestId('shopping-list-create-form')
           const input = await screen.findByLabelText('Title')
+          const button = await screen.findByText('Create')
           
           fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
 
@@ -509,6 +514,9 @@ describe('ShoppingListsPage', () => {
           })
 
           await waitFor(() => expect(screen.queryByText('Proudspire Manor')).toBeVisible())
+          await waitFor(() => expect(input).not.toBeDisabled())
+          await waitFor(() => expect(button).not.toBeDisabled())
+          await waitFor(() => expect(input.value).toEqual(''))
         })
       })
 
@@ -534,11 +542,12 @@ describe('ShoppingListsPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it('displays a flash error message', async () => {
+        it("displays a flash error message but keeps the form enabled and doesn't clear it", async () => {
           component = renderComponentWithMockCookies(cookies)
 
           const form = await screen.findByTestId('shopping-list-create-form')
           const input = await screen.findByLabelText('Title')
+          const button = await screen.findByText('Create')
           
           fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
 
@@ -548,6 +557,9 @@ describe('ShoppingListsPage', () => {
           })
 
           await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
+          await waitFor(() => expect(input).not.toBeDisabled())
+          await waitFor(() => expect(button).not.toBeDisabled())
+          await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
         })
       })
 
@@ -576,11 +588,12 @@ describe('ShoppingListsPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it("displays a flash error message and doesn't create the shopping list", async () => {
+        it("displays a flash error message, doesn't create the shopping list or clear the form", async () => {
           component = renderComponentWithMockCookies(cookies)
 
           const form = await screen.findByTestId('shopping-list-create-form')
           const input = await screen.findByLabelText('Title')
+          const button = await screen.findByText('Create')
           
           fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
 
@@ -591,6 +604,9 @@ describe('ShoppingListsPage', () => {
 
           await waitFor(() => expect(screen.queryByText(/title must be unique per game/i)).toBeVisible())
           await waitFor(() => expect(screen.queryByText(/proudspire manor/i)).not.toBeInTheDocument())
+          await waitFor(() => expect(input).not.toBeDisabled())
+          await waitFor(() => expect(button).not.toBeDisabled())
+          await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
         })
       })
 
@@ -619,11 +635,12 @@ describe('ShoppingListsPage', () => {
         beforeEach(() => server.resetHandlers())
         afterAll(() => server.close())
 
-        it("displays a flash error message and doesn't create the shopping list", async () => {
+        it("displays a flash error message and doesn't create the shopping list or clear the form", async () => {
           component = renderComponentWithMockCookies(cookies)
 
           const form = await screen.findByTestId('shopping-list-create-form')
           const input = await screen.findByLabelText('Title')
+          const button = await screen.findByText('Create')
           
           fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
 
@@ -634,6 +651,9 @@ describe('ShoppingListsPage', () => {
 
           await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
           await waitFor(() => expect(screen.queryByText(/proudspire manor/i)).not.toBeInTheDocument())
+          await waitFor(() => expect(input).not.toBeDisabled())
+          await waitFor(() => expect(button).not.toBeDisabled())
+          await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
         })
       })
 
