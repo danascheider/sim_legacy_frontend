@@ -1,7 +1,7 @@
 import React from 'react'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
-import { token, profileData, games } from '../../sharedTestData'
+import { token, profileData, emptyGames, games } from '../../sharedTestData'
 import GamesDropdown from './gamesDropdown'
 
 export default { title: 'GamesDropdown' }
@@ -24,6 +24,14 @@ longGameList.push(
 export const WithLongGameList = () => (
   <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games: longGameList }}>
+      <GamesDropdown />
+    </GamesProvider>
+  </AppProvider>
+)
+
+export const NoGames = () => (
+  <AppProvider overrideValue={{ token, profileData }}>
+    <GamesProvider overrideValue={{ games: emptyGames }}>
       <GamesDropdown />
     </GamesProvider>
   </AppProvider>

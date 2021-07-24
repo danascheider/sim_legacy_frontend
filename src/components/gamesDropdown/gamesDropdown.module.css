@@ -20,6 +20,10 @@
   padding: 8px;
 }
 
+.input:disabled {
+  cursor: not-allowed;
+}
+
 .trigger {
   background-color: var(--button-background-color);
   color: var(--button-text-color);
@@ -31,6 +35,17 @@
 .trigger:hover {
   background-color: var(--button-hover-color);
 }
+
+.trigger:disabled {
+  background-color: #7c8388;
+  border-color: #4b5053;
+  cursor: not-allowed;
+}
+
+.trigger:disabled:hover {
+  background-color: #7c8388;
+}
+
 
 .hidden {
   display: none;

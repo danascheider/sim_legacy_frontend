@@ -110,6 +110,7 @@ const GamesDropdown = () => {
         <input
           className={classNames(styles.input, 'focusable')}
           type='text'
+          disabled={!games.length}
           value={inputValue}
           onChange={updateValue}
           placeholder='No games available'
@@ -143,6 +144,7 @@ const GamesDropdown = () => {
               document.getElementsByClassName('focusable')[1].focus()
             }
           }}
+          disabled={!games.length}
           data-testid='games-dropdown-trigger'
         >
           <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
