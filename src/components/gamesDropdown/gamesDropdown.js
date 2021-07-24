@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import classNames from 'classnames'
+import { useHistory } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { BLUE } from '../../utils/colorSchemes'
@@ -9,7 +10,7 @@ import GamesDropdownOption from '../gamesDropdownOption/gamesDropdownOption'
 import styles from './gamesDropdown.module.css'
 
 const GamesDropdown = () => {
-  const queryString = useQuery()
+  const history = useHistory()
 
   const { games } = useGamesContext()
 
@@ -36,16 +37,19 @@ const GamesDropdown = () => {
   const selectGame = useCallback(game => {
     setActiveGame(game)
     setInputValue(game.name)
-    queryString.set('game_id', game.id)
+    
+    const params = new URLSearchParams(`game_id=${game.id}`)
+    history.push({ search: params.toString() })
+
     collapseDropdown()
-  }, [queryString, collapseDropdown])
+  }, [history, collapseDropdown])
 
   // If the user has typed a string into the input, filter the games to only display
   // the ones that match what they've typed. 
   const filterGames = str => {
     if (str) {
       const tmpGames = games.filter(game => game.name.toLowerCase().match(new RegExp(str.toLowerCase(),'i')))
-      setFilteredGames([...tmpGames])
+      if (tmpGames.length) setFilteredGames([...tmpGames])
     } else {
       setFilteredGames(games)
     }
@@ -70,17 +74,8 @@ const GamesDropdown = () => {
   }, [activeGame, games])
 
   useEffect(() => {
-    const targetIsInComponent = target => {
-      !componentRef.current || componentRef.current === target || componentRef.current.contains(target)
-    }
-
-    const collapseDropdownWhenClickedOutside = e => {
-      if (componentRef.current !== e.target && !componentRef.current.contains(e.target)) collapseDropdown()
-    }
-
     const collapseDropdownAndResetValue = e => {
       if (componentRef.current !== e.relatedTarget && !componentRef.current.contains(e.relatedTarget)) {
-        console.log('this is running somehow')
         // Hide the dropdown
         collapseDropdown()
 
@@ -93,7 +88,9 @@ const GamesDropdown = () => {
           // component is no longer focussed.
           setActiveGame(game)
           setInputValue(game.name)
-          queryString.set('game_id', game.id)
+
+          const params = new URLSearchParams(`game_id=${game.id}`)
+          history.push({ search: params.toString() })
         } else {
           // If there is no matching game, the input value should be reset
           // to the name of the active game.
@@ -102,14 +99,12 @@ const GamesDropdown = () => {
       }
     }
 
-    // window.addEventListener('click', collapseDropdownWhenClickedOutside, true)
     document.addEventListener('focusout', collapseDropdownAndResetValue)
 
     return () => {
-      // window.removeEventListener('click', collapseDropdownWhenClickedOutside, true)
       document.removeEventListener('focusout', collapseDropdownAndResetValue)
     }
-  }, [filteredGames, setActiveGame, activeGame, setInputValue, inputValue, queryString, collapseDropdown])
+  }, [filteredGames, setActiveGame, activeGame, setInputValue, inputValue, history, collapseDropdown])
 
   return(
     <div ref={componentRef} className={styles.root} style={colorVars}>
@@ -142,6 +137,8 @@ const GamesDropdown = () => {
               focusables[focusables.length - 1].focus()
             } else if (e.key === 'ArrowDown') {
               document.getElementsByClassName('focusable')[1].focus()
+            } else if (e.key === 'Escape') {
+              collapseDropdown()
             }
           }}
         />
@@ -155,7 +152,7 @@ const GamesDropdown = () => {
       </div>
       <ul
         id='gamesListbox'
-        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded })}
+        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded || !filteredGames.length })}
         role='listbox'
       >
         {filteredGames.map(({ id, name }, index) => {

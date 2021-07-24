@@ -49,7 +49,7 @@ const ShoppingListsPage = () => {
   ), [])
 
   return(
-    <DashboardLayout title='Your Shopping Lists'>
+    <DashboardLayout title='Your Shopping Lists' includeGameSelect>
       {listItemEditFormVisible && <Modal onClick={hideForm}><ShoppingListItemEditForm elementRef={formRef} {...listItemEditFormProps} /></Modal>}
       {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
       <div className={styles.createForm}><ShoppingListCreateForm disabled={shouldDisableForm} /></div>

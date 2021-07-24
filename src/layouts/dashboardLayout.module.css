@@ -21,8 +21,13 @@
   max-width: 90%;
 }
 
-.titleContainer {
+.headerContainer {
   padding-top: 64px;
+}
+
+.titleContainer {
+  display: flex;
+  justify-content: space-between;
 }
 
 @media (min-width: 769px) {
@@ -30,7 +35,7 @@
     padding: 64px 0;
   }
 
-  .titleContainer {
+  .headerContainer {
     padding-top: 64px;
   }
 }
