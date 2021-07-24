@@ -240,7 +240,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         } else if (data && typeof data === 'object' && !data.errors) {
           // It is the single shopping list that was created. This will happen if there
           // is already an existing aggregate list.
-          const newShoppingLists = shoppingLists
+          const newShoppingLists = [...shoppingLists]
           newShoppingLists.splice(1, 0, data)
           setShoppingLists(newShoppingLists)
 
