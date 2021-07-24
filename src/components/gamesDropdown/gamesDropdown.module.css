@@ -1,7 +1,8 @@
 .root {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  font-size: 1.025rem;
+  font-size: 1rem;
   padding: 8px;
+  margin: auto 0;
 }
 
 .header {
@@ -13,22 +14,22 @@
 
 .input {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  font-size: 1.025rem;
+  font-size: 1rem;
   color: #5f5f5f;
   border: none;
   padding: 8px;
 }
 
 .trigger {
-  background-color: #fff;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   margin: 0;
-  border: none;
-  border-left: 1px solid #5f5f5f;
+  border: 1px solid var(--border-color);
   cursor: pointer;
 }
 
 .trigger:hover {
-  background-color: #f5f5f5;
+  background-color: var(--button-hover-color);
 }
 
 .hidden {
@@ -36,7 +37,10 @@
 }
 
 .dropdown {
+  position: absolute;
+  background-color: #fff;
   width: 100%;
+  max-height: 105px;
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -44,6 +48,7 @@
   border-top: none;
   border-radius: 3px;
   box-sizing: border-box;
+  overflow-y: scroll;
 }
 
 .option {
@@ -63,10 +68,15 @@
 
 @media (min-width: 769px) {
   .root {
-    font-size: 1.125rem;
+    font-size: 1.025rem;
+    width: 228px;
   }
 
   .input {
-    font-size: 1.125rem;
+    font-size: 1.025rem;
+  }
+
+  .dropdown {
+    width: 228px;
   }
 }

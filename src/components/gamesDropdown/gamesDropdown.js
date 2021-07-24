@@ -1,22 +1,22 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { BLUE } from '../../utils/colorSchemes'
 import { useGamesContext } from '../../hooks/contexts'
+import useQuery from '../../hooks/useQuery'
+import GamesDropdownOption from '../gamesDropdownOption/gamesDropdownOption'
 import styles from './gamesDropdown.module.css'
 
-// TODO:
-// - Make focus shift between the list items when you push the arrow
-//   keys (up/down) from the input
+const GamesDropdown = () => {
+  const queryString = useQuery()
 
-const GamesDropdown = ({ onSelectGame, defaultGame = null }) => {
   const { games } = useGamesContext()
 
-  const [activeGame, setActiveGame] = useState(defaultGame || games[0])
+  const [activeGame, setActiveGame] = useState(null)
   const [filteredGames, setFilteredGames] = useState(games)
   const [dropdownExpanded, setDropdownExpanded] = useState(false)
-  const [inputValue, setInputValue] = useState(activeGame ? activeGame.name : '')
+  const [inputValue, setInputValue] = useState('')
 
   const componentRef = useRef(null)
   const inputRef = useRef(null)
@@ -26,12 +26,19 @@ const GamesDropdown = ({ onSelectGame, defaultGame = null }) => {
   const collapseDropdown = useCallback(() => setDropdownExpanded(false), [setDropdownExpanded])
   const toggleDropdown = () => setDropdownExpanded(!dropdownExpanded)
 
-  const selectGame = (game) => {
+  const colorVars = {
+    '--button-background-color': BLUE.schemeColorDarkest,
+    '--button-hover-color': BLUE.hoverColorDark,
+    '--button-text-color': BLUE.textColorPrimary,
+    '--button-border-color': BLUE.borderColor
+  }
+
+  const selectGame = useCallback(game => {
     setActiveGame(game)
     setInputValue(game.name)
-    onSelectGame(game)
+    queryString.set('game_id', game.id)
     collapseDropdown()
-  }
+  }, [queryString, collapseDropdown])
 
   // If the user has typed a string into the input, filter the games to only display
   // the ones that match what they've typed. 
@@ -41,21 +48,6 @@ const GamesDropdown = ({ onSelectGame, defaultGame = null }) => {
       setFilteredGames([...tmpGames])
     } else {
       setFilteredGames(games)
-    }
-  }
-
-  // When the focus is moved away from the input onto a different element
-  // entirely (and not just onto the button or options), we want to reset
-  // either set the game indicated  
-  const setGameOrResetInputValue = e => {
-    if (componentRef.current.contains(e.relatedTarget)) return
-
-    const game = filteredGames.find(g => g.name.toLowerCase() === inputValue.toLowerCase())
-
-    if (game) {
-      setActiveGame(game).then(() => setInputValue(activeGame.name))
-    } else {
-      setInputValue(activeGame.name)
     }
   }
 
@@ -71,12 +63,24 @@ const GamesDropdown = ({ onSelectGame, defaultGame = null }) => {
   }
 
   useEffect(() => {
+    if (!activeGame && games.length) {
+      setActiveGame(games[0])
+      setInputValue(games[0].name)
+    }
+  }, [activeGame, games])
+
+  useEffect(() => {
+    const targetIsInComponent = target => {
+      !componentRef.current || componentRef.current === target || componentRef.current.contains(target)
+    }
+
     const collapseDropdownWhenClickedOutside = e => {
       if (componentRef.current !== e.target && !componentRef.current.contains(e.target)) collapseDropdown()
     }
 
     const collapseDropdownAndResetValue = e => {
       if (componentRef.current !== e.relatedTarget && !componentRef.current.contains(e.relatedTarget)) {
+        console.log('this is running somehow')
         // Hide the dropdown
         collapseDropdown()
 
@@ -89,28 +93,28 @@ const GamesDropdown = ({ onSelectGame, defaultGame = null }) => {
           // component is no longer focussed.
           setActiveGame(game)
           setInputValue(game.name)
-          onSelectGame(game)
+          queryString.set('game_id', game.id)
         } else {
           // If there is no matching game, the input value should be reset
           // to the name of the active game.
-          setInputValue(activeGame.name)
+          activeGame && setInputValue(activeGame.name)
         }
       }
     }
 
-    window.addEventListener('click', collapseDropdownWhenClickedOutside)
+    // window.addEventListener('click', collapseDropdownWhenClickedOutside, true)
     document.addEventListener('focusout', collapseDropdownAndResetValue)
 
     return () => {
-      window.removeEventListener('click', collapseDropdownWhenClickedOutside)
+      // window.removeEventListener('click', collapseDropdownWhenClickedOutside, true)
       document.removeEventListener('focusout', collapseDropdownAndResetValue)
     }
-  }, [filteredGames, setActiveGame, setInputValue, collapseDropdown])
+  }, [filteredGames, setActiveGame, activeGame, setInputValue, inputValue, queryString, collapseDropdown])
 
   return(
-    <div ref={componentRef} className={styles.root}>
+    <div ref={componentRef} className={styles.root} style={colorVars}>
       <div
-        className={classNames(styles.header, { [styles.headerExpanded]: dropdownExpanded })}
+        className={styles.header}
         role='combobox'
         aria-haspopup='listbox'
         aria-owns='gamesListbox'
@@ -131,11 +135,11 @@ const GamesDropdown = ({ onSelectGame, defaultGame = null }) => {
           onClick={expandDropdown}
           onKeyDown={e => {
             if (e.key === 'Enter') {
-              const game = games.find(g => g.name === e.target.value)
+              const game = games.find(g => g.name.toLowerCase() === e.target.value.toLowerCase())
               game && selectGame(game)
             } else if (e.key === 'ArrowUp') {
-              const allFocusables = document.getElementsByClassName('focusable')
-              allFocusables[allFocusables.length - 1].focus()
+              const focusables = document.getElementsByClassName('focusable')
+              focusables[focusables.length - 1].focus()
             } else if (e.key === 'ArrowDown') {
               document.getElementsByClassName('focusable')[1].focus()
             }
@@ -149,45 +153,41 @@ const GamesDropdown = ({ onSelectGame, defaultGame = null }) => {
           <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
         </button>
       </div>
-      <ul id='gamesListbox' className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded })} role='listbox'>
+      <ul
+        id='gamesListbox'
+        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded })}
+        role='listbox'
+      >
         {filteredGames.map(({ id, name }, index) => {
           return(
-            <li
-              className={classNames(styles.option, 'focusable')}
+            <GamesDropdownOption
+              className='focusable'
               onClick={() => selectGame({ id, name })}
               onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   selectGame({ id, name })
                 } else if (e.key === 'ArrowUp') {
+                  // e.preventDefault()
                   const focusables = [...document.getElementsByClassName('focusable')]
                   const index = focusables.indexOf(e.target)
                   focusables[index - 1].focus()
                 } else if (e.key === 'ArrowDown') {
+                  // e.preventDefault()
                   const focusables = [...document.getElementsByClassName('focusable')]
                   const index = focusables.indexOf(e.target)
                   const nextIndex = index < focusables.length - 1 ? index + 1 : 0
                   focusables[nextIndex].focus()
                 }
               }}
-              key={`${name.replace(' ', '_')}-${id}`}
-              role='option'
-              aria-selected={isActiveGame(id)}
-              tabIndex={0}
-
-            >{name}</li>
+              key={`${name.toLowerCase().replace(' ', '_')}-${id}`}
+              ariaSelected={isActiveGame(id)}
+              name={name}
+            />
           )
         })}
       </ul>
     </div>
   )
-}
-
-GamesDropdown.propTypes = {
-  onSelectGame: PropTypes.func.isRequired,
-  defaultGame: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired
-  })
 }
 
 export default GamesDropdown
