@@ -6,6 +6,13 @@ import GamesDropdown from './gamesDropdown'
 
 export default { title: 'GamesDropdown' }
 
+/*
+ *
+ * When there are a couple of games on the list and all of their
+ * names fit easily
+ *
+ */
+
 export const Default = () => (
   <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games }}>
@@ -13,6 +20,12 @@ export const Default = () => (
     </GamesProvider>
   </AppProvider>
 )
+
+/*
+ *
+ * When there is a scrollbar inside the dropdown
+ *
+ */
 
 const longGameList = [...games]
 longGameList.push(
@@ -28,6 +41,12 @@ export const WithLongGameList = () => (
     </GamesProvider>
   </AppProvider>
 )
+
+/*
+ *
+ * When there are no games to choose from
+ *
+ */
 
 export const NoGames = () => (
   <AppProvider overrideValue={{ token, profileData }}>
