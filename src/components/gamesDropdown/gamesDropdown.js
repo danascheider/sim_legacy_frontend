@@ -162,12 +162,12 @@ const GamesDropdown = () => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   selectGame({ id, name })
                 } else if (e.key === 'ArrowUp') {
-                  // e.preventDefault()
+                  e.preventDefault()
                   const focusables = [...document.getElementsByClassName('focusable')]
                   const index = focusables.indexOf(e.target)
                   focusables[index - 1].focus()
                 } else if (e.key === 'ArrowDown') {
-                  // e.preventDefault()
+                  e.preventDefault()
                   const focusables = [...document.getElementsByClassName('focusable')]
                   const index = focusables.indexOf(e.target)
                   const nextIndex = index < focusables.length - 1 ? index + 1 : 0
