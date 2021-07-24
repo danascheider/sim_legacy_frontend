@@ -18,8 +18,6 @@ const GamesDropdown = () => {
   const [inputValue, setInputValue] = useState('')
 
   const componentRef = useRef(null)
-  const inputRef = useRef(null)
-  const buttonRef = useRef(null)
 
   const expandDropdown = () => setDropdownExpanded(true)
   const collapseDropdown = useCallback(() => setDropdownExpanded(false), [setDropdownExpanded])
@@ -101,7 +99,6 @@ const GamesDropdown = () => {
         aria-expanded={dropdownExpanded}
       >
         <input
-          ref={inputRef}
           className={classNames(styles.input, 'focusable')}
           type='text'
           value={inputValue}
@@ -129,7 +126,6 @@ const GamesDropdown = () => {
           }}
         />
         <button
-          ref={buttonRef}
           className={styles.trigger}
           onClick={toggleDropdown}
           onKeyDown={e => {
