@@ -236,11 +236,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           // to set the shopping lists array to the lists returned.
           setShoppingLists(data)
 
-          setFlashProps({
-            type: 'success',
-            message: 'Success! Your list was created, along with your new aggregate shopping list.'
-          })
-
           onSuccess && onSuccess()
         } else if (data && typeof data === 'object' && !data.errors) {
           // It is the single shopping list that was created. This will happen if there
@@ -248,11 +243,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           const newShoppingLists = shoppingLists
           newShoppingLists.splice(1, 0, data)
           setShoppingLists(newShoppingLists)
-
-          setFlashProps({
-            type: 'success',
-            message: 'Success! Your list was created.'
-          })
 
           onSuccess && onSuccess()
         } else if (data && typeof data === 'object' && data.errors ) {

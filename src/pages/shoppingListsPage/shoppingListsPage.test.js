@@ -636,6 +636,49 @@ describe('ShoppingListsPage', () => {
           await waitFor(() => expect(screen.queryByText(/proudspire manor/i)).not.toBeInTheDocument())
         })
       })
+
+      describe('when the response indicates the user is logged out', () => {
+        const server = setupServer(
+          rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+            const gameId = parseInt(req.params.gameId)
+            const lists = allShoppingLists.filter(list => list.game_id === gameId)
+
+            return res(
+              ctx.status(200),
+              ctx.json(lists)
+            )
+          }),
+          rest.post(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+            return res(
+              ctx.status(401),
+              ctx.json({
+                errors: ['Google OAuth token validation failed']
+              })
+            )
+          })
+        )
+
+        beforeAll(() => server.listen())
+        beforeEach(() => server.resetHandlers())
+        afterAll(() => server.close())
+
+        it("displays a flash error message and doesn't create the shopping list", async () => {
+          const { history } = component = renderComponentWithMockCookies(cookies)
+
+          const form = await screen.findByTestId('shopping-list-create-form')
+          const input = await screen.findByLabelText('Title')
+          
+          fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
+
+          act(() => {
+            fireEvent.submit(form)
+            return undefined;
+          })
+
+          await waitFor(() => expect(history.location.pathname).toEqual('/login'))
+        })
+      })
+
     })
   })
 })

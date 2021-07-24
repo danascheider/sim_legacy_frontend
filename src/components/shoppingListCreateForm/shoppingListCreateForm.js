@@ -9,7 +9,6 @@ import styles from './shoppingListCreateForm.module.css'
 const ShoppingListCreateForm = ({ disabled }) => {
   const { setFlashVisible } = useAppContext()
 
-
   const { performShoppingListCreate } = useShoppingListsContext()
 
   const [inputValue, setInputValue] = useState('')
