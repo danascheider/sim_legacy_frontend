@@ -100,23 +100,47 @@ describe('Editing a shopping list', () => {
   })
 
   describe('when all goes as planned', () => {
-    const server = setupServer(
-      rest.get(`${backendBaseUri}/games/${games[0].id}/shopping_lists`, (req, res, ctx) => {
-        const lists = allShoppingLists.filter(list => list.game_id === games[0].id)
+    const handlers = [
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        const listId = parseInt(req.params.id)
+        const list = allShoppingLists.find(l => l.id === listId)
+        const title = req.body.shopping_list.title
+
+        const respBody = { ...list, title }
 
         return res(
           ctx.status(200),
-          ctx.json(lists)
+          ctx.json({ ...list, title })
         )
-      })
-    )
+      }),
+      ...sharedHandlers
+    ]
+
+    const server = setupServer.apply(null, handlers)
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    xit('edits the shopping list and hides the form', async () => {
+    it('edits the shopping list and hides the form', async () => {
       component = renderComponentWithMockCookies(games[0].id)
+
+      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+
+      const listTitleEl = await screen.findByText(list.title)
+      const listEl = listTitleEl.closest('.root')
+      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+
+      fireEvent.click(editIcon)
+
+      const input = await within(listEl).findByDisplayValue(list.title)
+      const form = input.closest('.root')
+
+      fireEvent.change(input, { target: { value: 'Honeyside' } })
+      fireEvent.submit(form)
+
+      await waitFor(() => expect(input).not.toBeInTheDocument())
+      await waitFor(() => expect(within(listEl).queryByText('Honeyside')).toBeVisible())
     })
   })
 })
