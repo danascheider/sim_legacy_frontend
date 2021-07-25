@@ -151,7 +151,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, overrideValue.shoppingListLoadingState, setFlashProps, setFlashVisible, activeGameId, logOutAndRedirect])
 
-  const performShoppingListUpdate = (listId, newTitle, success = null, error = null) => {
+  const performShoppingListUpdate = (listId, newTitle, callbacks) => {
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
     updateShoppingList(token, listId, { title: newTitle })
       .then(resp => {
         switch(resp.status) {
@@ -200,16 +202,19 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         if (process.env.NODE_ENV === 'development') console.error(`Error updating shopping list ${listId}: `, err)
 
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
-            message: "Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem."
+            message: "Oops! The shopping list you wanted to update could not be found. Try refreshing the page to fix this issue."
           })
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           
-          error && error()
+          onNotFound && onNotFound()
         } else {
           setFlashProps({
             type: 'error',
@@ -218,7 +223,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
 
-          error && error()
+          onInternalServerError && onInternalServerError()
         }
       }) 
   }

@@ -143,4 +143,43 @@ describe('Editing a shopping list', () => {
       await waitFor(() => expect(within(listEl).queryByText('Honeyside')).toBeVisible())
     })
   })
+
+  describe('when the server returns a 404', () => {
+    const handlers = [
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(404),
+        )
+      }),
+      ...sharedHandlers
+    ]
+
+    const server = setupServer.apply(null, handlers)
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it("doesn't change the list name and renders an error message", async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+
+      const listTitleEl = await screen.findByText(list.title)
+      const listEl = listTitleEl.closest('.root')
+      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+
+      fireEvent.click(editIcon)
+
+      const input = await within(listEl).findByDisplayValue(list.title)
+      const form = input.closest('.root')
+
+      fireEvent.change(input, { target: { value: 'Honeyside' } })
+      fireEvent.submit(form)
+
+      await waitFor(() => expect(input).not.toBeInTheDocument())
+      await waitFor(() => expect(within(listEl).queryByText('Honeyside')).not.toBeInTheDocument())
+      await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
+    })
+  })
 })

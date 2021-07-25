@@ -89,7 +89,16 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     if (!newTitle || isValid(newTitle)) setCurrentTitle(newTitle)
 
-    performShoppingListUpdate(listId, newTitle, null, () => { setCurrentTitle(originalTitle) })
+    const resetTitleAndDisplayError = () => {
+      setCurrentTitle(originalTitle)
+      setFlashVisible(true)
+    }
+
+    const callbacks = {
+      onNotFound: resetTitleAndDisplayError
+    }
+
+    performShoppingListUpdate(listId, newTitle, callbacks)
     setIsComponentVisible(false)
   }
 
