@@ -161,6 +161,82 @@ describe('Destroying a shopping list', () => {
     })
   })
 
+  describe('when there are multiple regular lists with list items', () => {
+    const handlers = [
+      rest.get(`${backendBaseUri}/games/${games[0].id}/shopping_lists`, (req, res, ctx) => {
+        const lists = allShoppingLists.filter(list => list.game_id === games[0].id)
+        
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_lists/${allShoppingLists[1].id}`, (req, res, ctx) => {
+        const newListItems = [
+          {
+            id: allShoppingLists[0].list_items[0].id,
+            list_id: allShoppingLists[0].id,
+            description: 'Ebony sword',
+            quantity: 1,
+            notes: 'notes 2'
+          }
+        ]
+
+        return res(
+          ctx.status(200),
+          ctx.json({ ...allShoppingLists[0], list_items: newListItems })
+        )
+      })
+    ]
+    
+    const server = setupServer.apply(null, handlers)
+
+    let confirm
+
+    beforeAll(() => server.listen())
+
+    beforeEach(() => {
+      server.resetHandlers()
+
+      // For these tests, the user will click "OK" each time
+      // they are asked.
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+    })
+
+    afterAll(() => server.close())
+
+    it('removes the list and updates the aggregate list', async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const listTitle = await screen.findByText('Lakeview Manor')
+      const allItemsTitle = await screen.findByText('All Items')
+
+      const listEl = listTitle.closest('.root')
+      const allItemsEl = allItemsTitle.closest('.root')
+
+      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+
+      fireEvent.click(deleteIcon)
+
+      expect(confirm).toHaveBeenCalled()
+
+      await waitForElementToBeRemoved(listEl)
+      expect(listEl).not.toBeInTheDocument()
+      
+      await waitFor(() => expect(allItemsEl).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
+
+      fireEvent.click(allItemsTitle)
+
+      const listItemTitle = await within(allItemsEl).findByText(/ebony sword/i)
+      const listItemEl = listItemTitle.closest('.root')
+
+      await waitFor(() => expect(within(listItemEl).queryByText('2')).not.toBeInTheDocument())
+      await waitFor(() => expect(within(listItemEl).queryByText('1')).toBeVisible())
+    })
+  })
+
+
   describe('cancelling deletion of a shopping list', () => {
     const confirm = window.confirm
     
@@ -193,8 +269,6 @@ describe('Destroying a shopping list', () => {
   })
 
   // Scenarios:
-  // - When there are multiple regular lists with no list items
-  //   - Removes the deleted list but not the All Items list
   // - When there are multiple lists with list items (this
   //   scenario already exists in test data, so we just need
   //   to calculate the expected adjustments):
