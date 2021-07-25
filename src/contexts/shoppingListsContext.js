@@ -151,7 +151,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, overrideValue.shoppingListLoadingState, setFlashProps, setFlashVisible, activeGameId, logOutAndRedirect])
 
-  const performShoppingListUpdate = (listId, newTitle, callbacks) => {
+  const performShoppingListUpdate = (listId, newTitle, callbacks = {}) => {
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     updateShoppingList(token, listId, { title: newTitle })
@@ -225,7 +225,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       }) 
   }
 
-  const performShoppingListCreate = (title, callbacks) => {
+  const performShoppingListCreate = (title, callbacks = {}) => {
     const { onSuccess, onUnauthorized, onNotFound, onUnprocessableEntity, onInternalServerError } = callbacks
 
     createShoppingList(token, activeGameId, { title })
@@ -293,7 +293,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListDestroy = (listId, success = null, error = null) => {
+  const performShoppingListDestroy = (listId, callbacks = {}) => {
+    const { onSuccess, onUnauthorized, onNotFound, onInternalServerError } = callbacks
+
     destroyShoppingList(token, listId)
       .then(resp => {
         // Error responses, including 404 and 405 responses, result
@@ -306,21 +308,21 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .then(data => {
-        if (!data) {
+        if (mountedRef.current && !data) {
           // This means that the list was the user's last shopping list and both
           // it and the aggregate list have been destroyed.
           setShoppingLists([])
           
           setFlashProps({
             type: 'success',
-            message: 'Since it was your last list, your aggregate list has been deleted as well',
-            header: 'Your shopping list has been deleted'
+            message: 'Since it was your last list, your aggregate list has been deleted as well.',
+            header: 'Your shopping list has been deleted.'
           })
 
-          success && success()
+          onSuccess && onSuccess()
         } else if (data && data.errors) {
           throw new Error('Internal Server Error: ' + data.errors[0])
-        } else {
+        } else if (mountedRef.current) {
           // This means that the aggregate list has been updated and returned,
           // to adjust for any items that were deleted with the other list.
           const newShoppingLists = shoppingLists.map(list => (list.aggregate === true ? data : list))
@@ -333,17 +335,22 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             message: 'Your shopping list has been deleted.'
           })
 
-          success && success()
+          onSuccess && onSuccess()
         }
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
             message: "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem."
           })
+
+          onNotFound && onNotFound()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error deleting shopping list: ', err.message)
 
@@ -351,9 +358,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             type: 'error',
             message: "Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
+
+          onInternalServerError && onInternalServerError()
         }
-        
-        error && error()
       })
   }
 

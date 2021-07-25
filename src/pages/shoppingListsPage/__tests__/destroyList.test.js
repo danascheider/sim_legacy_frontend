@@ -57,7 +57,53 @@ describe('Destroying a shopping list', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
-  describe('when the user cancels when prompted', () => {
+  describe('when there is one regular list and no list items', () => {
+    const handlers = [
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(204)
+        )
+      }),
+      ...sharedHandlers
+    ]
+    
+    const server = setupServer.apply(null, handlers)
+
+    let confirm
+
+    beforeAll(() => server.listen())
+
+    beforeEach(() => {
+      server.resetHandlers()
+
+      // For these tests, the user will click "OK" each time
+      // they are asked.
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+    })
+
+    afterAll(() => server.close())
+
+    it('prompts the user and removes the list and aggregate list', async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const listTitle = await screen.findByText('Lakeview Manor')
+      const listEl = listTitle.closest('.root')
+      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+
+      fireEvent.click(deleteIcon)
+
+      expect(confirm).toHaveBeenCalled()
+
+      await waitForElementToBeRemoved(listTitle)
+      expect(listTitle).not.toBeInTheDocument()
+      expect(screen.queryByText(/all items/i)).not.toBeInTheDocument()
+
+      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/aggregate list has been deleted/i)).toBeVisible())
+    })
+  })
+
+  describe('cancelling deletion of a shopping list', () => {
     const confirm = window.confirm
     
     const server = setupServer.apply(null, sharedHandlers)
@@ -89,12 +135,6 @@ describe('Destroying a shopping list', () => {
   })
 
   // Scenarios:
-  // - When the user cancels when prompted
-  //   - Doesn't remove the list
-  //   - Displays a flash info message that the list was not
-  //     destroyed
-  // - When there are no list items and only one regular list
-  //   - Removes the list and the All Items list from the DOM
   // - When there are multiple regular lists with no list items
   //   - Removes the deleted list but not the All Items list
   // - When there are multiple lists with list items (this
