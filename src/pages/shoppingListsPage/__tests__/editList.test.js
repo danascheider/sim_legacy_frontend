@@ -182,4 +182,134 @@ describe('Editing a shopping list', () => {
       await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
     })
   })
+
+  describe('when the server returns a 422', () => {
+    const handlers = [
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(422),
+          ctx.json({
+            errors: ['Title must be unique per game']
+          })
+        )
+      }),
+      ...sharedHandlers
+    ]
+
+    const server = setupServer.apply(null, handlers)
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it("doesn't change the list name and renders an error message", async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const gameLists = allShoppingLists.filter(l => l.game_id === games[0].id)
+      const list = gameLists[1]
+
+      const listTitleEl = await screen.findByText(list.title)
+      const listEl = listTitleEl.closest('.root')
+      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+
+      fireEvent.click(editIcon)
+
+      const input = await within(listEl).findByDisplayValue(list.title)
+      const form = input.closest('.root')
+
+      // MSW will return whatever we tell it to but for maximum realism let's
+      // give it the same title as another list
+      fireEvent.change(input, { target: { value: gameLists[2].name } })
+      fireEvent.submit(form)
+
+      await waitFor(() => expect(input).not.toBeInTheDocument())
+      await waitFor(() => expect(within(listEl).queryByText(gameLists[2].title)).not.toBeInTheDocument())
+      await waitFor(() => expect(screen.queryByText(/title must be unique per game/i)).toBeVisible())
+    })
+
+  })
+
+  describe('when the server returns a 500', () => {
+    const handlers = [
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(500),
+          ctx.json({
+            errors: ['Something went horribly wrong']
+          })
+        )
+      }),
+      ...sharedHandlers
+    ]
+
+    const server = setupServer.apply(null, handlers)
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it("doesn't change the list name and renders an error message", async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const gameLists = allShoppingLists.filter(l => l.game_id === games[0].id)
+      const list = gameLists[1]
+
+      const listTitleEl = await screen.findByText(list.title)
+      const listEl = listTitleEl.closest('.root')
+      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+
+      fireEvent.click(editIcon)
+
+      const input = await within(listEl).findByDisplayValue(list.title)
+      const form = input.closest('.root')
+
+      fireEvent.change(input, { target: { value: 'This will not work' } })
+      fireEvent.submit(form)
+
+      await waitFor(() => expect(input).not.toBeInTheDocument())
+      await waitFor(() => expect(within(listEl).queryByText('This will not work')).not.toBeInTheDocument())
+      await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
+    })
+  })
+
+  describe('when the response indicates the user has been logged out', () => {
+    const handlers = [
+      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(401),
+          ctx.json({
+            errors: ['Google OAuth token validation failed']
+          })
+        )
+      }),
+      ...sharedHandlers
+    ]
+
+    const server = setupServer.apply(null, handlers)
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it('redirects to the login page', async () => {
+      const { history } = component = renderComponentWithMockCookies(games[0].id)
+
+      const gameLists = allShoppingLists.filter(l => l.game_id === games[0].id)
+      const list = gameLists[1]
+
+      const listTitleEl = await screen.findByText(list.title)
+      const listEl = listTitleEl.closest('.root')
+      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+
+      fireEvent.click(editIcon)
+
+      const input = await within(listEl).findByDisplayValue(list.title)
+      const form = input.closest('.root')
+
+      fireEvent.change(input, { target: { value: 'This will not work' } })
+      fireEvent.submit(form)
+
+      await waitFor(() => expect(history.location.pathname).toEqual('/login'))
+    })
+  })
 })

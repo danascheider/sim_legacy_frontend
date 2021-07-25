@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
+import titlecase from '../../utils/titlecase'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
@@ -87,7 +88,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
-    if (!newTitle || isValid(newTitle)) setCurrentTitle(newTitle)
+    if (!newTitle || isValid(newTitle)) setCurrentTitle(titlecase(newTitle))
 
     const resetTitleAndDisplayError = () => {
       setCurrentTitle(originalTitle)
@@ -95,7 +96,9 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
     }
 
     const callbacks = {
-      onNotFound: resetTitleAndDisplayError
+      onNotFound: resetTitleAndDisplayError,
+      onUnprocessableEntity: resetTitleAndDisplayError,
+      onInternalServerError: resetTitleAndDisplayError
     }
 
     performShoppingListUpdate(listId, newTitle, callbacks)
