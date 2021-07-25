@@ -119,7 +119,9 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
         mountedRef.current = false
       }
 
-      performShoppingListDestroy(listId, { onSuccess: onSuccess })
+      const onError = () => setFlashVisible(true)
+
+      performShoppingListDestroy(listId, { onSuccess, onNotFound: onError, onInternalServerError: onError })
     } else if (mountedRef.current) {
       setFlashProps({
         type: 'info',

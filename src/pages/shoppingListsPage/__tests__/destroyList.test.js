@@ -205,7 +205,7 @@ describe('Destroying a shopping list', () => {
 
     afterAll(() => server.close())
 
-    it('removes the list and updates the aggregate list', async () => {
+    it('removes the list and updates the aggregate list items to match the response', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
       const listTitle = await screen.findByText('Lakeview Manor')
@@ -236,6 +236,107 @@ describe('Destroying a shopping list', () => {
     })
   })
 
+  describe('when the server returns a 404 error', () => {
+    const handlers = [
+      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allShoppingLists.filter(list => list.game_id === gameId)
+        
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(404)
+        )
+      })
+    ]
+    
+    const server = setupServer.apply(null, handlers)
+
+    let confirm
+
+    beforeAll(() => server.listen())
+
+    beforeEach(() => {
+      server.resetHandlers()
+
+      // For these tests, the user will click "OK" each time
+      // they are asked.
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+    })
+
+    afterAll(() => server.close())
+
+    it("doesn't remove the list and displays an error message", async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const listTitle = await screen.findByText('Lakeview Manor')
+      const listEl = listTitle.closest('.root')
+      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+
+      fireEvent.click(deleteIcon)
+
+      expect(confirm).toHaveBeenCalled()
+
+      await waitFor(() => expect(listEl).toBeVisible())
+
+      await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
+    })
+  })
+
+  describe('when the server returns a 500 error', () => {
+    const handlers = [
+      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allShoppingLists.filter(list => list.game_id === gameId)
+        
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(500),
+          ctx.json({ errors: ['Something went horribly wrong'] })
+        )
+      })
+    ]
+    
+    const server = setupServer.apply(null, handlers)
+
+    let confirm
+
+    beforeAll(() => server.listen())
+
+    beforeEach(() => {
+      server.resetHandlers()
+
+      // For these tests, the user will click "OK" each time
+      // they are asked.
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+    })
+
+    afterAll(() => server.close())
+
+    it("doesn't remove the list and displays an error message", async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const listTitle = await screen.findByText('Lakeview Manor')
+      const listEl = listTitle.closest('.root')
+      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+
+      fireEvent.click(deleteIcon)
+
+      expect(confirm).toHaveBeenCalled()
+
+      await waitFor(() => expect(listEl).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
+    })
+  })
 
   describe('cancelling deletion of a shopping list', () => {
     const confirm = window.confirm
@@ -269,14 +370,6 @@ describe('Destroying a shopping list', () => {
   })
 
   // Scenarios:
-  // - When there are multiple lists with list items (this
-  //   scenario already exists in test data, so we just need
-  //   to calculate the expected adjustments):
-  //   - Removes the regular list but not the all items list
-  //   - Adjusts the quantity of items on the all items list
-  // - When the server returns a 404 list not found
-  //   - Doesn't remove the list
-  //   - Displays flash message
   // - When the server returns a 401 unauthorized
   //   - Redirects to the login page
   // - When the server returns a 500 internal server error
