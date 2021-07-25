@@ -34,19 +34,19 @@ export const HappyPath = () => (
   </AppProvider>
 )
 
-// HappyPath.parameters = {
-//   msw: [
-//     rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-//       const listId = Number(req.params.id)
-//       const returnData = shoppingListUpdateData
-//       returnData.title = req.body.shopping_list.title
-//       returnData.id = listId
+HappyPath.parameters = {
+  msw: [
+    rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      const listId = Number(req.params.id)
+      const returnData = shoppingListUpdateData
+      returnData.title = req.body.shopping_list.title
+      returnData.id = listId
 
-//       return res(
-//         ctx.status(200),
-//         ctx.json(returnData)
-//       )
-//     }),
+      return res(
+        ctx.status(200),
+        ctx.json(returnData)
+      )
+    })
 //     rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
 //       const listId = Number(req.params.id)
 //       const regularList = shoppingLists.find(list => list.id === listId)
@@ -108,8 +108,8 @@ export const HappyPath = () => (
 //         )
 //       }
 //     })
-//   ]
-// }
+  ]
+}
 
 /*
  *
@@ -129,7 +129,7 @@ export const NoLists = () => (
 
 NoLists.parameters = {
   msw: [
-    rest.get(`${backendBaseUri}/games/:game_id/shopping_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       return res(
         ctx.status(200),
         ctx.json([])
@@ -173,7 +173,7 @@ export const GameNotFound = () => (
 
 GameNotFound.parameters = {
   msw: [
-    rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
@@ -201,7 +201,7 @@ export const ErrorState = () => (
 
 ErrorState.parameters = {
   msw: [
-    rest.get(`${backendBaseUri}/games/:id/shopping_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       return res(
         ctx.status(500),
         ctx.json({ errors: ['Something went horribly wrong'] })
