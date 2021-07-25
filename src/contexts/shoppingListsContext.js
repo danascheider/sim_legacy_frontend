@@ -320,13 +320,11 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
-        } else if (data && data.errors) {
-          throw new Error('Internal Server Error: ' + data.errors[0])
-        } else if (mountedRef.current) {
+        } else if (mountedRef.current && data && !data.errors) {
           // This means that the aggregate list has been updated and returned,
           // to adjust for any items that were deleted with the other list.
-          const newShoppingLists = shoppingLists.map(list => (list.aggregate === true ? data : list))
-                                                .filter(list => list && list.id !== listId)
+          const newShoppingLists = shoppingLists.filter(list => list.id !== listId)
+                                                .map(list => (list.aggregate === true ? data : list))
 
           setShoppingLists(newShoppingLists)
 
@@ -336,6 +334,8 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
+        } else if (data && data.errors) {
+          throw new Error('Internal Server Error: ', data.errors[0])
         }
       })
       .catch(err => {

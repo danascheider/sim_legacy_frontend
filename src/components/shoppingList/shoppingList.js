@@ -115,7 +115,6 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     if (confirmed) {
       const onSuccess = () => {
-        console.error('This is running')
         setFlashVisible(true)
         mountedRef.current = false
       }

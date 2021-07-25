@@ -57,7 +57,7 @@ describe('Destroying a shopping list', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
-  describe('when there is one regular list and no list items', () => {
+  describe('when there is one regular list', () => {
     const handlers = [
       rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
@@ -94,12 +94,70 @@ describe('Destroying a shopping list', () => {
 
       expect(confirm).toHaveBeenCalled()
 
-      await waitForElementToBeRemoved(listTitle)
-      expect(listTitle).not.toBeInTheDocument()
+      await waitForElementToBeRemoved(listEl)
+      expect(listEl).not.toBeInTheDocument()
       expect(screen.queryByText(/all items/i)).not.toBeInTheDocument()
 
       await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
       await waitFor(() => expect(screen.queryByText(/aggregate list has been deleted/i)).toBeVisible())
+    })
+  })
+
+  describe('when there are multiple regular lists and no list items', () => {
+    const handlers = [
+      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+        const lists = [
+          { ...allShoppingLists[0], list_items: [] },
+          { ...allShoppingLists[1], list_items: [] },
+          { ...allShoppingLists[2], list_items: [] }
+        ]
+        
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({ ...allShoppingLists[0], list_items: [] })
+        )
+      })
+    ]
+    
+    const server = setupServer.apply(null, handlers)
+
+    let confirm
+
+    beforeAll(() => server.listen())
+
+    beforeEach(() => {
+      server.resetHandlers()
+
+      // For these tests, the user will click "OK" each time
+      // they are asked.
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+    })
+
+    afterAll(() => server.close())
+
+    it('removes the list but not the aggregate list', async () => {
+      component = renderComponentWithMockCookies(games[0].id)
+
+      const listTitle = await screen.findByText('Lakeview Manor')
+      const listEl = listTitle.closest('.root')
+      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+
+      fireEvent.click(deleteIcon)
+
+      expect(confirm).toHaveBeenCalled()
+
+      await waitForElementToBeRemoved(listEl)
+      expect(listEl).not.toBeInTheDocument()
+      
+      await waitFor(() => expect(screen.queryByText(/all items/i)).toBeVisible())
+
+      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
     })
   })
 
