@@ -23,8 +23,12 @@ Whether the `shoppingLists` are 'loading' (waiting for the API call to resolve),
 A function that creates a shopping list for the authenticated user and updates the aggregate list to reflect the change, also encompassing error handling logic. The function takes 3 arguments:
 
 * `title`: the title of the new list. Must be unique, contain only alphanumeric characters and spaces, and cannot be any form of "Master". Will be reformatted on the backend to use title casing
-* `success`: an optional success callback that can be used for handling state within the component that calls the function
-* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `callbacks`: an optional object with callbacks for each possible API response. Possible keys are:
+  * `onSuccess`: called when the API call returns a 201 response
+  * `onNotFound`: called when the game the shopping list is being created for has been previously destroyed
+  * `onUnauthorized`: called when the API returns a 401 response
+  * `onUnprocessableEntity`: called when the shopping list can't be created due to validation errors
+  * `onInternalServerError`: called when there is a 500 error or other unexpected error, or when there is an error in the response handler
 
 ### `performShoppingListUpdate`
 
@@ -32,16 +36,23 @@ A function that updates the list specified through the API, also encompassing er
 
 * `listId`: the ID (primary key in the database) of the list to be updated
 * `newTitle`: the new title of the list taken from the form the user submitted
-* `success`: an optional success callback that can be used for handling state within the component that calls the function
-* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `callbacks`: an optional object with callbacks for each possible API response. Possible keys are:
+  * `onSuccess`: called when the API call returns a 200 response
+  * `onNotFound`: called when the shopping list being updated has been previously destroyed
+  * `onUnauthorized`: called when the API returns a 401 response
+  * `onUnprocessableEntity`: called when the shopping list can't be updated due to validation errors
+  * `onInternalServerError`: called when there is a 500 error or other unexpected error (including 405 Method Not Allowed), or when there is an error in the response handler
 
 ### `performShoppingListDestroy`
 
 A function that deletes the list specified through the API, also encompassing error handling logic. The function takes 3 arguments:
 
 * `listId`: the ID (primary key in the database) of the list to be updated
-* `success`: an optional success callback that can be used for handling state within the component that calls the function
-* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `callbacks`: an optional object with callbacks for each possible API response. Possible keys are:
+  * `onSuccess`: called when the API call returns a 200 or 204 response
+  * `onNotFound`: called when the shopping list being destroyed has already been previously destroyed
+  * `onUnauthorized`: called when the API returns a 401 response
+  * `onInternalServerError`: called when there is a 500 error or other unexpected error (including 405 Method Not Allowed), or when there is an error in the response handler
 
 ### `performShoppingListItemCreate`
 
