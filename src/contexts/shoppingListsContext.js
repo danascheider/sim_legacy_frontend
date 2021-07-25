@@ -151,7 +151,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, overrideValue.shoppingListLoadingState, setFlashProps, setFlashVisible, activeGameId, logOutAndRedirect])
 
-  const performShoppingListUpdate = (listId, newTitle, success = null, error = null) => {
+  const performShoppingListUpdate = (listId, newTitle, callbacks) => {
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
     updateShoppingList(token, listId, { title: newTitle })
       .then(resp => {
         switch(resp.status) {
@@ -164,11 +166,13 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .then(data => {
+        if (!mountedRef.current) return
+
         if (data && !data.errors) {
           const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
           setShoppingLists(newShoppingLists)
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
-          success && success()
+          onSuccess && onSuccess()
         } else if (data && data.errors) {
           // Since only the title can be updated, any validation errors should start with 'Title'.
           // If all the validation errors start with 'Title', assume it's a validation error. If
@@ -179,37 +183,35 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
               message: data.errors,
               header: `${data.errors.length} error(s) prevented your changes from being saved:`
             })
+
+            overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
+
+            onUnprocessableEntity && onUnprocessableEntity()
           } else {
             // 500 errors only return a single error message so data.errors[0] is all of them
             throw new Error('Internal Server Error: ' + data.errors[0])
           }
-
-          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
-          error && error()
-        } else if (mountedRef.current) {
-          setFlashProps({
-            type: 'error',
-            message: 'We couldn\'t update your list and we\'re not sure what went wrong. We\'re sorry! Please refresh the page and try again.'
-          })
-
-          overrideValue.setShoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done because no error thrown
-          error && error()
+        } else {
+          throw new Error('Unknown error occurred when updating shopping list: no data returned from SIM API')
         }
       })
       .catch(err => {
         if (process.env.NODE_ENV === 'development') console.error(`Error updating shopping list ${listId}: `, err)
 
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
-            message: "Oops! We couldn't find the shopping list you wanted to update. Try refreshing the page to fix this problem."
+            message: "Oops! The shopping list you wanted to update could not be found. Try refreshing the page to fix this issue."
           })
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
           
-          error && error()
+          onNotFound && onNotFound()
         } else {
           setFlashProps({
             type: 'error',
@@ -218,7 +220,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
 
-          error && error()
+          onInternalServerError && onInternalServerError()
         }
       }) 
   }
@@ -568,7 +570,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   }
 
   useEffect(() => {
-    if (activeGameId) fetchLists()
+    if (activeGameId && mountedRef.current) fetchLists()
   }, [fetchLists, activeGameId])
 
   useEffect(() => (

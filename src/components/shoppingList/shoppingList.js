@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
+import titlecase from '../../utils/titlecase'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
@@ -87,9 +88,20 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
-    if (!newTitle || isValid(newTitle)) setCurrentTitle(newTitle)
+    if (!newTitle || isValid(newTitle)) setCurrentTitle(titlecase(newTitle))
 
-    performShoppingListUpdate(listId, newTitle, null, () => { setCurrentTitle(originalTitle) })
+    const resetTitleAndDisplayError = () => {
+      setCurrentTitle(originalTitle)
+      setFlashVisible(true)
+    }
+
+    const callbacks = {
+      onNotFound: resetTitleAndDisplayError,
+      onUnprocessableEntity: resetTitleAndDisplayError,
+      onInternalServerError: resetTitleAndDisplayError
+    }
+
+    performShoppingListUpdate(listId, newTitle, callbacks)
     setIsComponentVisible(false)
   }
 
@@ -132,10 +144,10 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
           <span className={styles.editIcons} ref={iconsRef}>
-            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList}>
+            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid={`delete-shopping-list`}>
               <FontAwesomeIcon className={styles.fa} icon={faTimes} />
             </div>
-            <div className={styles.icon} ref={triggerRef}>
+            <div className={styles.icon} ref={triggerRef} data-testid={`edit-shopping-list`}>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
             </div>
           </span>}
