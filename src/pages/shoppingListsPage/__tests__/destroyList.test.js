@@ -80,6 +80,8 @@ describe('Destroying a shopping list', () => {
       confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
     })
 
+    afterEach(() => confirm.mockRestore())
+
     afterAll(() => server.close())
 
     it('prompts the user and removes the list and aggregate list', async () => {
@@ -138,6 +140,8 @@ describe('Destroying a shopping list', () => {
       confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
     })
 
+    afterEach(() => confirm.mockRestore())
+
     afterAll(() => server.close())
 
     it('removes the list but not the aggregate list', async () => {
@@ -194,6 +198,8 @@ describe('Destroying a shopping list', () => {
       // they are asked.
       confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
     })
+
+    afterEach(() => confirm.mockRestore())
 
     afterAll(() => server.close())
 
@@ -252,6 +258,8 @@ describe('Destroying a shopping list', () => {
       confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
     })
 
+    afterEach(() => confirm.mockRestore())
+
     afterAll(() => server.close())
 
     it("doesn't remove the list and displays an error message", async () => {
@@ -296,6 +304,8 @@ describe('Destroying a shopping list', () => {
       confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
     })
 
+    afterEach(() => confirm.mockRestore())
+
     afterAll(() => server.close())
 
     it("doesn't remove the list and displays an error message", async () => {
@@ -338,6 +348,8 @@ describe('Destroying a shopping list', () => {
       // they are asked.
       confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
     })
+    
+    afterEach(() => confirm.mockRestore())
 
     afterAll(() => server.close())
 
@@ -357,21 +369,20 @@ describe('Destroying a shopping list', () => {
   })
 
   describe('cancelling deletion of a shopping list', () => {
-    const confirm = window.confirm
+    let confirm
     
     const server = setupServer.apply(null, sharedHandlers)
 
-    beforeAll(() => {
-      server.listen()
-      window.confirm = jest.fn(() => false)
+    beforeAll(() => server.listen())
+
+    beforeEach(() => {
+      server.resetHandlers()
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => false)
     })
 
-    beforeEach(() => server.resetHandlers())
+    afterEach(() => confirm.mockRestore())
 
-    afterAll(() => {
-      server.close()
-      window.confirm = confirm
-    })
+    afterAll(() => server.close())
     
     it("doesn't remove the list and displays a message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
@@ -386,8 +397,4 @@ describe('Destroying a shopping list', () => {
       await waitFor(() => expect(screen.queryByText(/not deleted/i)).toBeVisible())
     })
   })
-
-  // Scenarios:
-  // - When the server returns a 401 unauthorized
-  //   - Redirects to the login page
 })
