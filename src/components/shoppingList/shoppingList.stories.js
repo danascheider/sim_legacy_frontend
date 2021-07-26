@@ -79,6 +79,7 @@ export const Default = () => (
 
 Default.parameters = {
   msw: [
+    // This enables you to edit the title of the editable list in Storybook.
     rest.patch(`${backendBaseUri}/shopping_lists/2`, (req, res, ctx) => {
       const title = req.body.shopping_list.title
 
