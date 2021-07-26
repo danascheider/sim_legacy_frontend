@@ -13,7 +13,7 @@ import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext
 import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
 import ShoppingListsPage from './../../shoppingListsPage'
 
-describe('Creating a shopping list item - when the server returns a 404', () => {
+describe('Creating a shopping list item when the server returns a 404', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -60,7 +60,7 @@ describe('Creating a shopping list item - when the server returns a 404', () => 
   afterAll(() => server.close())
 
   it("doesn't add the item and displays an error message", async () => {
-    component = await renderComponentWithMockCookies()
+    component = renderComponentWithMockCookies()
 
     const listTitle = await screen.findByText('Lakeview Manor')
     const listEl = listTitle.closest('.root')

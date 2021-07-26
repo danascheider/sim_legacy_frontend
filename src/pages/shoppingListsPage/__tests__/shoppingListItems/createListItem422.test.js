@@ -60,7 +60,7 @@ describe('Creating a shopping list item when the attributes are invalid', () => 
   afterAll(() => server.close())
 
   it("doesn't add the item and displays an error message", async () => {
-    component = await renderComponentWithMockCookies()
+    component = renderComponentWithMockCookies()
 
     const listTitle = await screen.findByText('Lakeview Manor')
     const listEl = listTitle.closest('.root')

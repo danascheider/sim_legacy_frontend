@@ -57,7 +57,7 @@ describe('Creating a shopping list item - when the server returns a 404', () => 
   afterAll(() => server.close())
 
   it("doesn't add the item and displays an error message", async () => {
-    component = await renderComponentWithMockCookies()
+    component = renderComponentWithMockCookies()
 
     const listTitle = await screen.findByText('Lakeview Manor')
     const listEl = listTitle.closest('.root')
