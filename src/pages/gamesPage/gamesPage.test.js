@@ -657,6 +657,8 @@ describe('GamesPage', () => {
           confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
         })
 
+        afterEach(() => confirm.mockRestore())
+
         afterAll(() => server.close())
 
         it('confirms before deleting', async () => {
@@ -714,6 +716,8 @@ describe('GamesPage', () => {
           // they are asked.
           confirm = jest.spyOn(window, 'confirm').mockImplementation(() => false)
         })
+
+        afterEach(() => confirm.mockRestore())
 
         afterAll(() => server.close())
 
@@ -778,6 +782,8 @@ describe('GamesPage', () => {
           confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
         })
 
+        afterEach(() => confirm.mockRestore())
+
         afterAll(() => server.close())
 
         it('behaves like successful deletion', async () => {
@@ -826,6 +832,8 @@ describe('GamesPage', () => {
           // they are asked.
           confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
         })
+
+        afterEach(() => confirm.mockRestore())
 
         afterAll(() => server.close())
 
