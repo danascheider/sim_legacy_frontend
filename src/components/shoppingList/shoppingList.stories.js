@@ -110,14 +110,9 @@ Default.parameters = {
       const aggListItem = combineListItems(aggregateListItems.find(i => i.description.toLowerCase() === description.toLowerCase()), attributes)
 
       if (item) {        
-        const returnData = [
-          combineListItems(aggListItem, attributes),
-          combineListItems(item, attributes)
-        ]
-
         return res(
           ctx.status(200),
-          ctx.json(returnData)
+          ctx.json([aggListItem, item])
         )
       } else {
         const returnData = [
