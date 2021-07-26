@@ -37,7 +37,7 @@ export const HappyPath = () => (
 HappyPath.parameters = {
   msw: [
     rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-      const listId = Number(req.params.id)
+      const listId = parseInt(req.params.id)
       const returnData = shoppingListUpdateData
       returnData.title = req.body.shopping_list.title
       returnData.id = listId
@@ -46,25 +46,28 @@ HappyPath.parameters = {
         ctx.status(200),
         ctx.json(returnData)
       )
-    })
-//     rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-//       const listId = Number(req.params.id)
-//       const regularList = shoppingLists.find(list => list.id === listId)
-//       const items = regularList.list_items
+    }),
+    // This will blow up if you try to delete both list items because it doesn't
+    // account for the fact that the aggregate list would be removed too in that
+    // case.
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      const listId = parseInt(req.params.id)
+      const regularList = shoppingLists.find(list => list.id === listId)
+      const items = regularList.list_items
       
-//       const newAggregateList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
+      const newAggregateList = removeOrAdjustItemsOnListDestroy(shoppingLists[0], items)
 
-//       if (newAggregateList === null) {
-//         return res(
-//           ctx.status(204)
-//           )
-//         } else {
-//         return res(
-//           ctx.status(200),
-//           ctx.json(newAggregateList)
-//         )
-//       }
-//     }),
+      if (newAggregateList === null) {
+        return res(
+          ctx.status(204)
+          )
+        } else {
+        return res(
+          ctx.status(200),
+          ctx.json(newAggregateList)
+        )
+      }
+    }),
 //     rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
 //       const listId = Number(req.params.shopping_list_id)
 //       const list = shoppingLists.find(shoppingList => shoppingList.id === listId)
