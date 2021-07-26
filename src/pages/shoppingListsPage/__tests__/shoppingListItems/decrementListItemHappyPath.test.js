@@ -13,7 +13,7 @@ import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext
 import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
 import ShoppingListsPage from './../../shoppingListsPage'
 
-describe('Incrementing and decrementing a shopping list item - happy path', () => {
+describe('Decrementing a shopping list item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -73,43 +73,41 @@ describe('Incrementing and decrementing a shopping list item - happy path', () =
   afterEach(() => component.unmount())
   afterAll(() => server.close())
 
-  describe('incrementing', () => {
-    it('updates the requested item and the aggregate list', async () => {
-      component = renderComponentWithMockCookies()
+  it('updates the requested item and the aggregate list', async () => {
+    component = renderComponentWithMockCookies()
 
-      // We're going to increment an item on the 'Lakeview Manor' list
-      const listTitleEl = await screen.findByText('Lakeview Manor')
-      const listEl = listTitleEl.closest('.root')
+    // We're going to increment an item on the 'Lakeview Manor' list
+    const listTitleEl = await screen.findByText('Lakeview Manor')
+    const listEl = listTitleEl.closest('.root')
 
-      fireEvent.click(listTitleEl)
+    fireEvent.click(listTitleEl)
 
-      // The list item we're going for is titled 'Ingredients with "Frenzy"
-      // property'. Its initial quantity is 4.
-      const itemDescEl = await within(listEl).findByText(/frenzy/i)
-      const itemEl = itemDescEl.closest('.root')
-      const incrementer = await within(itemEl).findByTestId('incrementer')
+    // The list item we're going for is titled 'Ingredients with "Frenzy"
+    // property'. Its initial quantity is 4.
+    const itemDescEl = await within(listEl).findByText(/frenzy/i)
+    const itemEl = itemDescEl.closest('.root')
+    const decrementer = await within(itemEl).findByTestId('decrementer')
 
-      fireEvent.click(incrementer)
+    fireEvent.click(decrementer)
 
-      // It should increment the value shown on the list item
-      await waitFor(() => expect(within(itemEl).queryByText('5')).toBeVisible())
+    // It should decrement the value shown on the list item
+    await waitFor(() => expect(within(itemEl).queryByText('3')).toBeVisible())
 
-      // Now find the corresponding item on the aggregate list. Start by
-      // finding the list itself.
-      const aggListTitleEl = await screen.findByText('All Items')
-      const aggListEl = aggListTitleEl.closest('.root')
+    // Now find the corresponding item on the aggregate list. Start by
+    // finding the list itself.
+    const aggListTitleEl = await screen.findByText('All Items')
+    const aggListEl = aggListTitleEl.closest('.root')
 
-      // Expand the list
-      fireEvent.click(aggListTitleEl)
+    // Expand the list
+    fireEvent.click(aggListTitleEl)
 
-      // Then find the corresponding item
-      const aggListItemDescEl = await within(aggListEl).findByText(/frenzy/i)
-      const aggListItemEl = aggListItemDescEl.closest('.root')
+    // Then find the corresponding item
+    const aggListItemDescEl = await within(aggListEl).findByText(/frenzy/i)
+    const aggListItemEl = aggListItemDescEl.closest('.root')
 
-      // Now we need to check its quantity. The quantity of this item
-      // on the aggregate list is the same as the quantity on the regular
-      // list, so the quantity we're looking for is '5' here as well.
-      await waitFor(() => expect(within(aggListItemEl).queryByText('5')).toBeVisible())
-    })
+    // Now we need to check its quantity. The quantity of this item
+    // on the aggregate list is the same as the quantity on the regular
+    // list, so the quantity we're looking for is '3' here as well.
+    await waitFor(() => expect(within(aggListItemEl).queryByText('3')).toBeVisible())
   })
 })
