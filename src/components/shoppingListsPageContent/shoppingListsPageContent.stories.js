@@ -9,9 +9,7 @@ import { token, games, emptyGames, allShoppingLists, profileData } from '../../s
 import {
   removeOrAdjustItemsOnListDestroy,
   removeOrAdjustItemOnItemDestroy,
-  addOrCombineListItem,
   findListByListItem,
-  adjustAggregateListItem,
   findAggregateList,
   adjustListItem
 } from '../../sharedTestUtilities'
@@ -151,15 +149,18 @@ HappyPath.parameters = {
       const regList = findListByListItem(allShoppingLists, itemId)
 
       if (regList) {
-        // If the required `description` field isn't blank, find the item and the
-        // aggregate list the item is on. The corresponding item on that list 
-        // will need to be updated as well.
+        // If the regular list exists, find the item and the aggregate list the item
+        // is on. The corresponding item on that list will need to be updated as well.
+        // Note that, for this story, incrementing and decrementing are the only way
+        // to update an item - because there is no modal rendered in the story, the
+        // edit form will not appear if you click the update link.
         const existingItem = regList.list_items.find(item => item.id === itemId)
         const aggregateList = findAggregateList(allShoppingLists, regList.game_id)
         const newItem = { ...existingItem, ...req.body.shopping_list_item }
+        const quantity = parseInt(newItem.quantity)
 
-        if (parseInt(newItem.quantity) > 0) {
-          const deltaQuantity = newItem.quantity - existingItem.quantity
+        if (quantity > 0) {
+          const deltaQuantity = quantity - existingItem.quantity
           const aggregateListItem = aggregateList.list_items.find(item => (
             item.description.toLowerCase() === existingItem.description.toLowerCase()
           ))

@@ -1,5 +1,3 @@
-import { allShoppingLists } from './sharedTestData'
-
 // When a regular shopping list is destroyed, all of its items are destroyed
 // with it. This necessitates adjusting the aggregate list's items to
 // reflect the new quantity or, if there are no matching items on other
@@ -83,7 +81,7 @@ export const removeOrAdjustItemOnItemDestroy = (aggregateListItem, destroyedItem
 // This logic also holds when an item is added to an aggregate list - it will
 // be combined with another item if there is one on that list and if not it
 // will be added to the list.
-const combineListItems = (existingItem, newItem) => {
+export const combineListItems = (existingItem, newItem) => {
   // First add the quantity of the new item to that of the existing item
   existingItem.quantity += newItem.quantity
 
@@ -132,47 +130,11 @@ export const findListByListItem = (lists, itemId) => {
   return null
 }
 
-// When a list item is updated, it should be updated on the aggregate list as
-// well. If the notes have been changed, the old value should be replaced on
-// the aggregate list by the new value. If there are multiple occurrences of
-// the old value on the aggregate list, only one of them should be replaced.
-//
-// This function takes four arguments: the aggregate list item to adjust (it
-// should have keys `quantity` (required) and `notes` (optional)), the change
-// in quantity (not the new quantity but the change, which could be positive or
-// negative), the old `notes` value of the changed item, and the new `notes`
-// value of the changed item.
-export const adjustAggregateListItem = (aggregateListItem, deltaQuantity, oldNotes, newNotes) => {
-  // First adjust the aggregate list item's quantity by `deltaQuantity` units
-  aggregateListItem.quantity = aggregateListItem.quantity + deltaQuantity
-
-  // If the notes values are both present and are not equal, the old notes
-  // should be replaced with the new ones.
-  if (oldNotes && newNotes && oldNotes !== newNotes && aggregateListItem.notes) {
-    aggregateListItem.notes.replace(oldNotes, newNotes)
-  // If the old notes are equal to the new notes, it doesn't matter if we assign
-  // the new ones as the value. In any other case, the old notes should be
-  // replaced with the new notes, including if the new notes are `null`.
-  } else {
-    aggregateListItem.notes = newNotes
-  }
-
-  return aggregateListItem
-}
-
 // Given a list of shopping lists and the ID of one of them, this function finds
 // the aggregate list that corresponds to the list whose ID is passed in.
 export const findAggregateList = (allLists, gameId) => (
   allLists.find(list => list.game_id === gameId && list.aggregate)
 )
-
-const combineNotes = (notes1, notes2) => {
-  if (notes1 && notes2) {
-    return `${notes1} -- ${notes2}`
-  } else {
-    return notes1 || notes2 || null
-  }
-}
 
 // When a list item is edited, the corresponding item must be updated on the
 // aggregate list. This function takes the aggregate list item, the change in
