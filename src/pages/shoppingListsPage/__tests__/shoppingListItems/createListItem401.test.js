@@ -86,7 +86,7 @@ describe('Creating a shopping list item - when the server returns a 404', () => 
 
     fireEvent.submit(form)
 
-    // Form should be hidden
+    // The user should be redirected to the login page
     await waitFor(() => expect(history.location.pathname).toEqual('/login'))
   })
 })
