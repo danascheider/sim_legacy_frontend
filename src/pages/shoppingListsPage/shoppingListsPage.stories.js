@@ -273,48 +273,51 @@ HappyPath.parameters = {
           ctx.status(404)
         )
       }
+    }),
+    // This request updates a shopping list item by ID, assuming the shopping list
+    // item exists and belongs to the authenticated user. For the purposes of
+    // Storybook, we assume the user is authenticated and the `allShoppingLists`
+    // array represents all their lists for all their games.
+    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      // Find the list the item is on
+      const itemId = parseInt(req.params.id)
+      const regList = findListByListItem(allShoppingLists, itemId)
+
+      if (regList) {
+        // If the required `description` field isn't blank, find the item and the
+        // aggregate list the item is on. The corresponding item on that list 
+        // will need to be updated as well.
+        const existingItem = regList.list_items.find(item => item.id === itemId)
+        const aggregateList = findAggregateList(allShoppingLists, regList.id)
+        const newItem = { ...existingItem, ...req.body.shopping_list_item }
+
+        if (parseInt(newItem.quantity) > 0) {
+          const deltaQuantity = newItem.quantity - existingItem.quantity
+          const aggregateListItem = aggregateList.list_items.find(item => (
+            item.description.toLowerCase() === existingItem.description.toLowerCase()
+          ))
+
+          adjustListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes)
+
+          return res(
+            ctx.status(200),
+            ctx.json([aggregateListItem, newItem])
+          )
+        } else {
+          // If the quantity is less than 0, return a 422 error
+          return res(
+            ctx.status(422),
+            ctx.json({ errors: ['Quantity must be greater than zero'] })
+          )
+        }
+      } else {
+        // Return a 404 error if the shopping list the item is on doesn't exist -
+        // that means the item wasn't found in any list's array of list items
+        return res(
+          ctx.status(404)
+        )
+      }
     })
-    // // This request updates a shopping list item by ID, assuming the shopping list
-    // // item exists and belongs to the authenticated user. 
-    // rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-    //   // Find the list the item is on
-    //   const itemId = parseInt(req.params.id)
-    //   const regList = findListByListItem(allShoppingLists, itemId)
-
-    //   if (regList) {
-    //     if (req.body.shopping_list.description) {
-    //       // If the required `description` field isn't blank, find the item and the
-    //       // aggregate list the item is on. The corresponding item on that list 
-    //       // will need to be updated as well.
-    //       const existingItem = regList.list_items.find(item => item.id === itemId)
-    //       const aggregateList = allShoppingLists.find(list => list.game_id === regList.game_id && list.title === 'All Items')
-    //       const newItem = { ...existingItem, ...req.body.shopping_list_item }
-    //       const deltaQuantity = newItem.quantity - existingItem.quantity
-    //       const aggregateListItem = aggregateList.list_items.find(item => (
-    //         item.description.toLowerCase() === existingItem.description.toLowerCase()
-    //       ))
-
-    //       adjustListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes)
-
-    //       return res(
-    //         ctx.status(200),
-    //         ctx.json([aggregateListItem, newItem])
-    //       )
-    //     } else {
-    //       // If the description is blank, return a 422 error
-    //       return res(
-    //         ctx.status(422),
-    //         ctx.json({ errors: ['Description is required'] })
-    //       )
-    //     }
-    //   } else {
-    //     // Return a 404 error if the shopping list the item is on doesn't exist -
-    //     // that means the item wasn't found in any list's array of list items
-    //     return res(
-    //       ctx.status(404)
-    //     )
-    //   }
-    // }),
     // // This request deletes the requested shopping list item, if it exists and
     // // belongs to the authenticated user. For the purposes of Storybook, we're
     // // assuming that the user is authenticated and the `allShoppingLists` array
