@@ -468,7 +468,7 @@ GameNotFoundOnCreate.parameters = {
  *
  */
 
-export const ListNotFound = () => (
+export const ListOrItemsNotFound = () => (
   <AppProvider overrideValue={appContextOverrideValue}>
     <GamesProvider overrideValue={{ games }}>
       <ShoppingListsProvider>
@@ -478,7 +478,7 @@ export const ListNotFound = () => (
   </AppProvider>
 )
 
-ListNotFound.parameters = {
+ListOrItemsNotFound.parameters = {
   msw: [
     rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       const gameId = parseInt(req.params.gameId)
@@ -549,6 +549,15 @@ ListNotFound.parameters = {
     // and the UI should display a message telling the user the list could not be found and
     // advising them to refresh their browser.
     rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    // This illustrates what would happen if a user tried to update a shopping list item
+    // that had been previously deleted on another device or browser. The API would return a
+    // 404 and the UI should display a message telling the useer the item could not be found
+    // and advising them to refresh their browser.
+    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
