@@ -28,8 +28,13 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
       onSuccess: () => setFlashVisible(true),
       onNotFound: () => {
         setFlashVisible(true)
-        mountedRef.current = false
         setListItemEditFormVisible(false)
+        mountedRef.current = false
+      },
+      onUnprocessableEntity: () => {
+        setFlashVisible(true)
+        setListItemEditFormVisible(false)
+        mountedRef.current = false
       }
     }
 
