@@ -14,11 +14,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { BLUE } from '../../utils/colorSchemes'
 import { useGamesContext } from '../../hooks/contexts'
+import useQuery from '../../hooks/useQuery'
 import GamesDropdownOption from '../gamesDropdownOption/gamesDropdownOption'
 import styles from './gamesDropdown.module.css'
 
 const GamesDropdown = () => {
   const history = useHistory()
+  const queryString = useQuery()
 
   const { games } = useGamesContext()
 
@@ -59,10 +61,15 @@ const GamesDropdown = () => {
 
   useEffect(() => {
     if (!activeGame && games.length) {
-      setActiveGame(games[0])
-      setInputValue(games[0].name)
+      const gameId = parseInt(queryString.get('game_id'))
+      const game = gameId ? games.find(game => game.id === gameId) : games[0]
+
+      if (game) {
+        setActiveGame(game)
+        setInputValue(game.name)
+      }
     }
-  }, [activeGame, games])
+  }, [activeGame, games, queryString])
 
   useEffect(() => {
     const collapseDropdownAndResetValue = e => {
