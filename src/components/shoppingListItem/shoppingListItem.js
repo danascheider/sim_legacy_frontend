@@ -86,7 +86,14 @@ const ShoppingListItem = ({
 
     if (mountedRef.current) setCurrentQuantity(newQuantity)
 
-    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
+    const callbacks = {
+      onNotFound: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      }
+    }
+
+    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
   }
 
   const decrementQuantity = () => {
@@ -94,8 +101,14 @@ const ShoppingListItem = ({
     const newQuantity = currentQuantity - 1
 
     if (newQuantity > 0) {
+      const callbacks = {
+        onNotFound: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        }
+      }
       setCurrentQuantity(newQuantity)
-      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
+      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
     } else if (newQuantity === 0) {
       const confirmed = window.confirm("Item quantity must be greater than zero. Delete the item instead?")
 
