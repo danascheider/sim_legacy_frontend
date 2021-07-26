@@ -162,14 +162,6 @@ describe('Destroying a shopping list', () => {
 
   describe('when there are multiple regular lists with list items', () => {
     const handlers = [
-      rest.get(`${backendBaseUri}/games/${games[0].id}/shopping_lists`, (req, res, ctx) => {
-        const lists = allShoppingLists.filter(list => list.game_id === games[0].id)
-        
-        return res(
-          ctx.status(200),
-          ctx.json(lists)
-        )
-      }),
       rest.delete(`${backendBaseUri}/shopping_lists/${allShoppingLists[1].id}`, (req, res, ctx) => {
         const newListItems = [
           {
@@ -185,7 +177,8 @@ describe('Destroying a shopping list', () => {
           ctx.status(200),
           ctx.json({ ...allShoppingLists[0], list_items: newListItems })
         )
-      })
+      }),
+      ...sharedHandlers
     ]
     
     const server = setupServer.apply(null, handlers)
@@ -237,20 +230,12 @@ describe('Destroying a shopping list', () => {
 
   describe('when the server returns a 404 error', () => {
     const handlers = [
-      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
-        const gameId = parseInt(req.params.gameId)
-        const lists = allShoppingLists.filter(list => list.game_id === gameId)
-        
-        return res(
-          ctx.status(200),
-          ctx.json(lists)
-        )
-      }),
       rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
-      })
+      }),
+      ...sharedHandlers
     ]
     
     const server = setupServer.apply(null, handlers)
@@ -288,21 +273,13 @@ describe('Destroying a shopping list', () => {
 
   describe('when the server returns a 500 error', () => {
     const handlers = [
-      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
-        const gameId = parseInt(req.params.gameId)
-        const lists = allShoppingLists.filter(list => list.game_id === gameId)
-        
-        return res(
-          ctx.status(200),
-          ctx.json(lists)
-        )
-      }),
       rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(500),
           ctx.json({ errors: ['Something went horribly wrong'] })
         )
-      })
+      }),
+      ...sharedHandlers
     ]
     
     const server = setupServer.apply(null, handlers)
@@ -339,21 +316,13 @@ describe('Destroying a shopping list', () => {
 
   describe('when the server indicates the user has been logged out', () => {
     const handlers = [
-      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
-        const gameId = parseInt(req.params.gameId)
-        const lists = allShoppingLists.filter(list => list.game_id === gameId)
-        
-        return res(
-          ctx.status(200),
-          ctx.json(lists)
-        )
-      }),
       rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({ errors: ['Google OAuth token validation failed'] })
         )
-      })
+      }),
+      ...sharedHandlers
     ]
     
     const server = setupServer.apply(null, handlers)
