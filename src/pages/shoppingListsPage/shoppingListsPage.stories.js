@@ -5,13 +5,6 @@ import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import {
-  findListByListItem,
-  findAggregateList,
-  adjustListItem,
-  removeOrAdjustItemsOnListDestroy,
-  removeOrAdjustItemOnItemDestroy
-} from './testUtilities'
-import {
   profileData,
   emptyShoppingLists,
   allShoppingLists,
@@ -19,6 +12,13 @@ import {
   games,
   token
 } from '../../sharedTestData'
+import {
+  findAggregateList,
+  findListByListItem,
+  adjustListItem,
+  removeOrAdjustItemsOnListDestroy,
+  removeOrAdjustItemOnItemDestroy
+} from '../../sharedTestUtilities'
 import ShoppingListsPage from './shoppingListsPage'
 
 export default { title: 'ShoppingListsPage' }
@@ -201,76 +201,79 @@ HappyPath.parameters = {
           ctx.status(404)
         )
       }
+    }),
+    // This request adds a shopping list item to the shopping list requested, if that shopping
+    // list exists and belongs to the authenticated user. For the purposes of Storybook, we
+    // assume the user is authenticated and the `allShoppingLists` array represents all their
+    // shopping lists for all their games.
+    rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+      // Find the shopping list the user wants to add the item to
+      const listId = parseInt(req.params.listId)
+      const regList = allShoppingLists.find(list => list.id === listId)
+
+      if (regList) {
+        // If the shopping list exists and the request params are valid, the API will
+        // do one of two things. If the params are valid and there is an existing item
+        // on the same list with a matching description, it will update the existing item,
+        // adding the quantity from the request params and concatenating notes values, if
+        // any, so they are separated by `' -- '`. Then the API will find the matching
+        // item on the aggregate list and update it as well.
+        //
+        // If the params are valid and there is no existing item with a matching
+        // description on the same list, the API will create a new item on that list. Then,
+        // it will check to see if there is already a matching item on the aggregate list.
+        // If there is a matching item on the aggregate list, that item will be updated as
+        // described above. If there is no matching item, a new one will be created with
+        // the `notes` and `description` values from the request.
+        const description = req.body.shopping_list_item.description
+        const quantity = req.body.shopping_list_item.quantity || '1'
+
+        // Description and quantity are both required and neither can be blank. The
+        // quantity must be an integer as well. If the quantity is a decimal/float value
+        // greater than 1, it will be truncated and treated as an integer. If the
+        // quantity is non-numeric or less than 1, it is invalid.
+        if (description && quantity && (typeof quantity === 'number' || quantity.match(/[1-9]+(\.\d+)?/))) {
+          const regListItem = regList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+          const notes = req.body.shopping_list_item.notes
+
+          const aggregateList = findAggregateList(allShoppingLists, regList.id)
+          const aggregateListItem = aggregateList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+
+          if (regListItem) adjustListItem(regListItem, parseInt(quantity), regListItem.notes, notes)
+          if (aggregateListItem) adjustListItem(aggregateListItem, parseInt(quantity), aggregateListItem.notes, notes)
+
+          const defaultRegListItem = { id: Math.floor(Math.random() * 10000), list_id: regList.id, description, quantity }
+          const defaultAggListItem = { id: Math.floor(Math.random() * 10000), list_id: aggregateList.id, description, quantity }
+
+          // The API will return the updated aggregate list item along with the created or
+          // updated list item from the regular list with a 200 status.
+          const returnData = [aggregateListItem || defaultAggListItem, regListItem || defaultRegListItem]
+
+          return res(
+            ctx.status(200),
+            ctx.json(returnData)
+          )
+        } else {
+          const errors = []
+          // Invalid values will result in a 422 error. This will approximate API
+          // behaviour and error messages when a value is invalid.
+          if (!quantity) errors.push('Quantity is required')
+          if (quantity && !quantity.match(/[1-9]+(\.\d+)?/)) errors.push('Quantity must be a number')
+          // There are no validations on description format, it's just required to be there.
+          if (!description) errors.push('Description is required')
+
+          return res(
+            ctx.status(422),
+            ctx.json({ errors })
+          )
+        }
+      } else {
+        // If the shopping list is not found, the API will return a 404.
+        return res(
+          ctx.status(404)
+        )
+      }
     })
-    // // This request adds a shopping list item to the shopping list requested, if that shopping
-    // // list exists and belongs to the authenticated user. For the purposes of Storybook, we
-    // // assume the user is authenticated and the `allShoppingLists` array represents all their
-    // // shopping lists for all their games.
-    // rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
-    //   // Find the shopping list the user wants to add the item to
-    //   const listId = parseInt(req.params.shopping_list_id)
-    //   const regList = allShoppingLists.find(list => list.id === listId)
-
-    //   if (regList) {
-    //     // If the shopping list exists and the request params are valid, the API will
-    //     // do one of two things. If the params are valid and there is an existing item
-    //     // on the same list with a matching description, it will update the existing item,
-    //     // adding the quantity from the request params and concatenating notes values, if
-    //     // any, so they are separated by `' -- '`. Then the API will find the matching
-    //     // item on the aggregate list and update it as well.
-    //     //
-    //     // If the params are valid and there is no existing item with a matching
-    //     // description on the same list, the API will create a new item on that list. Then,
-    //     // it will check to see if there is already a matching item on the aggregate list.
-    //     // If there is a matching item on the aggregate list, that item will be updated as
-    //     // described above. If there is no matching item, a new one will be created with
-    //     // the `notes` and `description` values from the request.
-    //     const description = req.body.shopping_list_item.description
-    //     const quantity = req.body.shopping_list_item.quantity || '1'
-
-    //     // Description and quantity are both required and neither can be blank. The
-    //     // quantity must be an integer as well. If the quantity is a decimal/float value
-    //     // greater than 1, it will be truncated and treated as an integer. If the
-    //     // quantity is non-numeric or less than 1, it is invalid.
-    //     if (description && quantity && quantity.match(/[1-9]+(\.\d+)?/)) {
-    //       const regListItem = regList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
-    //       const notes = req.body.shopping_list_item.notes
-
-    //       const aggregateList = findAggregateList(allShoppingLists, regList.game_id)
-    //       const aggregateListItem = aggregateList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
-
-    //       if (regListItem) adjustListItem(regListItem, parseInt(quantity), regListItem.notes, notes)
-    //       if (aggregateListItem) adjustListItem(aggregateListItem, parseInt(quantity), aggregateListItem.notes, notes)
-
-    //       // The API will return the updated aggregate list item along with the created or
-    //       // updated list item from the regular list with a 200 status.
-    //       const returnData = [aggregateListItem, regListItem]
-
-    //       return res(
-    //         ctx.status(200),
-    //         ctx.json(returnData)
-    //       )
-    //     } else {
-    //       const errors = []
-    //       // Invalid values will result in a 422 error. This will approximate API
-    //       // behaviour and error messages when a value is invalid.
-    //       if (!quantity) errors.push('Quantity is required')
-    //       if (quantity && !quantity.match(/[1-9]+(\.\d+)?/)) errors.push('Quantity must be a number')
-    //       // There are no validations on description format, it's just required to be there.
-    //       if (!description) errors.push('Description is required')
-
-    //       return res(
-    //         ctx.status(422),
-    //         ctx.json({ errors })
-    //       )
-    //     }
-    //   } else {
-    //     // If the shopping list is not found, the API will return a 404.
-    //     return res(
-    //       ctx.status(404)
-    //     )
-    //   }
-    // }),
     // // This request updates a shopping list item by ID, assuming the shopping list
     // // item exists and belongs to the authenticated user. 
     // rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
@@ -537,6 +540,15 @@ ListNotFound.parameters = {
       return res(
         ctx.status(404)
       )
+    }),
+    // This illustrates what would happen if a user tried to create a shopping list item on
+    // a list after deleting the list on another device or browser. The API would return a 404
+    // and the UI should display a message telling the user the list could not be found and
+    // advising them to refresh their browser.
+    rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
     })
   ]
 }
@@ -557,6 +569,9 @@ export const NoLists = () => (
   </AppProvider>
 )
 
+// This story will not offer the possibility to add shopping list items to lists
+// you create. It's just too hard to predict and mock application state so many
+// actions out.
 NoLists.parameters = {
   msw: [
     // This request creates a new shopping list for the given game (if it exists and belongs

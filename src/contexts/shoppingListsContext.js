@@ -364,13 +364,18 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListItemCreate = (listId, attrs, success = null, error = null) => {
+  const performShoppingListItemCreate = (listId, attrs, callbacks = {}) => {
+    if (!mountedRef.current) return
+
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
     const allowedAttributes = ['Description', 'Quantity', 'Notes']
 
     createShoppingListItem(token, listId, attrs)
       .then(resp => resp.json())
       .then(data => {
-        if (Array.isArray(data)) {
+        if (!mountedRef.current) return
+
+        if (data && data.length) {
           const [aggregateListItem, regularListItem] = data
 
           // Have to create an actual new object or the state change won't cause useEffect
@@ -388,7 +393,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           setShoppingLists(newLists)
 
-          success && success()
+          onSuccess && onSuccess()
         } else if (data && typeof data === 'object' && data.errors) {
           // If all the errors returned start with one of the allowed attributes, it's a safe bet that
           // this is a validation error. Otherwise, assume it is a 500.
@@ -399,7 +404,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
               header: `${data.errors.length} error(s) prevented your shopping list item from being created:`
             })
 
-            error && error()
+            onUnprocessableEntity && onUnprocessableEntity()
           } else {
             throw new Error('Internal Server Error: ' + data.errors[0])
           }
@@ -407,12 +412,17 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
             message: "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem."
           })
+
+          onNotFound && onNotFound()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error when creating shopping list item: ', err.message)
 
@@ -420,9 +430,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             type: 'error',
             message: "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
-        }
 
-        error && error()
+          onInternalServerError && onInternalServerError()
+        }
       })
   }
 

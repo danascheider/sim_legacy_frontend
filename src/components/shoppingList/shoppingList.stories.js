@@ -77,8 +77,75 @@ export const Default = () => (
   </AppProvider>
 )
 
-// Default.parameters = {
-//   msw: [
+Default.parameters = {
+  msw: [
+    // This enables you to edit the title of the editable list in Storybook.
+    rest.patch(`${backendBaseUri}/shopping_lists/2`, (req, res, ctx) => {
+      const title = req.body.shopping_list.title
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          ...shoppingLists[1],
+          title
+        })
+      )
+    }),
+    // This does not capture the full logic around combining list items. It replaces the notes
+    // value of an existing item with the notes value from the form. Although this logic is the
+    // domain of the back end, it's worth commenting that the back end doesn't actually do it
+    // quite this way.
+    rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+      const description = req.body.shopping_list_item.description
+      const quantity = parseInt(req.body.shopping_list_item.quantity)
+      const notes = req.body.shopping_list_item.notes
+
+
+      const item = regularListItems.find(i => i.description.toLowerCase() === description.toLowerCase())
+      const aggListItem = aggregateListItems.find(i => i.description.toLowerCase() === description.toLowerCase())
+
+      if (item) {        
+        const returnData = [
+          {
+            ...aggListItem,
+            quantity: aggListItem.quantity + quantity,
+            notes: notes
+          },
+          {
+            ...item,
+            quantity: item.quantity + quantity,
+            notes: notes
+          }
+        ]
+
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
+        )
+      } else {
+        const returnData = [
+          {
+            id: Math.floor(Math.random() * 10000),
+            list_id: 1,
+            description,
+            quantity,
+            notes
+          },
+          {
+            id: Math.floor(Math.random() * 10000),
+            list_id: 2,
+            description,
+            quantity,
+            notes
+          }
+        ]
+        
+        return res(
+          ctx.status(200),
+          ctx.json(returnData)
+        )
+      }
+    })
 //     rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
 //       const itemId = Number(req.params.id)
 //       const regularItem = regularListItems.find(item => item.id === itemId)
@@ -106,8 +173,8 @@ export const Default = () => (
 //         ctx.json(returnData)
 //       )
 //     })
-//   ]
-// }
+  ]
+}
 
 export const NotEditable = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>

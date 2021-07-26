@@ -63,8 +63,12 @@ A function that creates a shopping list item on the list specified (or combines 
   * `description` (string, required, case-insensitively unique per list)
   * `quantity` (integer, required, must be greater than 0)
   * `notes` (any notes associated with other item - will be combined with existing notes if the item is combined with another existing item)
-* `success`: an optional success callback that can be used for handling state within the component that calls the function
-* `error`: an optional error callback that can be used to clean up state within the component that calls the function
+* `callbacks`: an optional object with callbacks for each possible API response. Possible keys are:
+  * `onSuccess`: called when the API call returns a 200 or 204 response
+  * `onNotFound`: called when the shopping list being destroyed has already been previously destroyed
+  * `onUnauthorized`: called when the API returns a 401 response
+  * `onUnprocessableEntity`: called when the API returns a 422 response caused by validation errors
+  * `onInternalServerError`: called when there is a 500 error or other unexpected error (including 405 Method Not Allowed), or when there is an error in the response handler
 
 ### `performShoppingListItemUpdate`
 

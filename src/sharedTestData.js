@@ -11,8 +11,7 @@
  * /src/setupTests.js file for Jest tests, or for Storybook,
  * in a testUtilities.js within the component's subdirectory.
  * If functions or other values are needed for both Jest and
- * Storybook, you should create a /src/sharedTestUtilities.js
- * file in the same directory as this file.
+ * Storybook, you should put it in /src/sharedTestUtilities.js.
  *
  */
 
