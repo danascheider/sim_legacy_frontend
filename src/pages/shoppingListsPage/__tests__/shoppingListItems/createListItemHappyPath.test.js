@@ -5,15 +5,15 @@ import { waitFor, screen, fireEvent, waitForElementToBeRemoved } from '@testing-
 import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
-import { renderWithRouter } from '../../../setupTests'
-import { backendBaseUri } from '../../../utils/config'
-import { AppProvider } from '../../../contexts/appContext'
-import { GamesProvider } from '../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../sharedTestData'
-import ShoppingListsPage from './../shoppingListsPage'
+import { renderWithRouter } from '../../../../setupTests'
+import { backendBaseUri } from '../../../../utils/config'
+import { AppProvider } from '../../../../contexts/appContext'
+import { GamesProvider } from '../../../../contexts/gamesContext'
+import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext'
+import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
+import ShoppingListsPage from './../../shoppingListsPage'
 
-describe('Creating a shopping list item', () => {
+describe('Creating a shopping list item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -39,7 +39,7 @@ describe('Creating a shopping list item', () => {
   }
 
   beforeEach(() => cleanCookies())
-  afterEach(() => component && component.unmount())
+  afterEach(() => component.unmount())
 
   describe('when there is no matching item on any shopping list', () => {
     const server = setupServer(
@@ -326,8 +326,6 @@ describe('Creating a shopping list item', () => {
       await waitFor(() => expect(within(itemEl).queryByText('notes 1 -- notes 2 -- notes 3')).toBeVisible())
     })
   })
-
-  // describe('when the shopping list is not found')
   // describe('when the given attributes are invalid')
   // describe('when there is an unexpected error')
   // describe('when the server indicates the user is logged out')

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
@@ -16,7 +16,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     textColorSecondary,
     textColorTertiary
   } = useColorScheme()
-  
+
   const formRef = useRef(null)
 
   const colorVars = {
@@ -28,9 +28,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     '--text-color-secondary': textColorTertiary
   }
 
-  const toggleForm = () => {
-    setToggleEvent(Date.now)
-  }
+  const toggleForm = () => setToggleEvent(Date.now)
 
   const createShoppingListItem = e => {
     e.preventDefault()
@@ -38,14 +36,23 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     setFlashVisible(false)
 
     const description = e.target.elements.description.value
-    const quantity = Number(e.target.elements.quantity.value)
+    const quantity = parseInt(e.target.elements.quantity.value)
     const notes = e.target.elements.notes.value
     const attrs = { description, quantity, notes }
 
-    performShoppingListItemCreate(listId, attrs, () => {
-      formRef.current.reset()
-      toggleForm()
-    })
+    const callbacks = {
+      onSuccess: () => {
+        formRef.current.reset()
+        toggleForm()
+      },
+      onNotFound: () => {
+        formRef.current.reset()
+        toggleForm()
+        setFlashVisible(true)
+      }
+    }
+
+    performShoppingListItemCreate(listId, attrs, callbacks)
   }
 
   return(
