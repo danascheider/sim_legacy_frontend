@@ -213,7 +213,8 @@ describe('Creating a shopping list item', () => {
       await waitFor(() => expect(within(itemElOnRegList).queryByText('5')).toBeVisible())
       await waitFor(() => expect(within(itemElOnRegList).queryByText('To make poison with')).toBeVisible())
 
-      // The item should be added to the all items list - expand the list to see
+      // The item should be updated on the all items list but should not appear
+      // on the list twice.
       const allItemsTitle = await screen.findByText(/all items/i)
       const allItemsEl = allItemsTitle.closest('.root')
 
@@ -231,7 +232,101 @@ describe('Creating a shopping list item', () => {
     })
   })
 
-  // describe('when there is a matching item on the same list')
+  describe('when there is a matching item on the same list', () => {
+    const server = setupServer(
+      rest.post(`${backendBaseUri}/shopping_lists/${allShoppingLists[1].id}/shopping_list_items`, (req, res, ctx) => {
+        const listId = allShoppingLists[1].id
+        const description = req.body.shopping_list_item.description
+        const quantity = req.body.shopping_list_item.quantity
+        const notes = req.body.shopping_list_item.notes
+
+        const regularListItem = allShoppingLists[1].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+        const allItemsListItem = allShoppingLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+
+        const json = [
+          {
+            ...allItemsListItem,
+            quantity: allItemsListItem.quantity + quantity,
+            notes: `${allItemsListItem.notes} -- ${notes}`
+          },
+          {
+            ...regularListItem,
+            quantity: regularListItem.quantity + quantity,
+            notes: `${regularListItem.notes} -- ${notes}`
+          }
+        ]
+
+        return res(
+          ctx.status(200),
+          ctx.json(json)
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it('updates the list items and displays a flash message', async () => {
+      component = renderComponentWithMockCookies()
+
+      const listTitle = await screen.findByText('Lakeview Manor')
+      const listEl = listTitle.closest('.root')
+
+      // Expand the list element
+      fireEvent.click(listTitle)
+
+      const formTrigger = await within(listEl).findByText('Add item to list...')
+
+      // Expand the form to add an item
+      fireEvent.click(formTrigger)
+
+      const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
+      const quantityInput = await within(listEl).findByDisplayValue('1')
+      const notesInput = await within(listEl).findByPlaceholderText(/notes/i)
+
+      const form = descriptionInput.closest('form')
+
+      // Fill out and submit the form
+      fireEvent.change(descriptionInput, { target: { value: 'Ebony sword' } })
+      fireEvent.change(quantityInput, { target: { value: '2' } })
+      fireEvent.change(notesInput, { target: { value: 'notes 3' } })
+
+      fireEvent.submit(form)
+
+      // The item should be present on the list but should be there only once. The
+      // findByText query will fail if there is more than one matching element.
+      const itemTitle = await within(listEl).findByText('Ebony sword')
+      const itemElOnRegList = itemTitle.closest('.root')
+      expect(itemTitle).toBeVisible()
+
+      // Form should be hidden
+      await waitFor(() => expect(form).not.toBeVisible())
+
+      // Check that the attributes of the item on the list are correct
+      fireEvent.click(itemTitle)
+
+      await waitFor(() => expect(within(itemElOnRegList).queryByText('3')).toBeVisible())
+      await waitFor(() => expect(within(itemElOnRegList).queryByText('notes 1 -- notes 3')).toBeVisible())
+
+      // The item should be on the all items list only once as well.
+      const allItemsTitle = await screen.findByText(/all items/i)
+      const allItemsEl = allItemsTitle.closest('.root')
+
+      fireEvent.click(allItemsTitle)
+
+      const item = await within(allItemsEl).findByText('Ebony sword')
+      const itemEl = item.closest('.root')
+
+      expect(itemEl).toBeVisible()
+      
+      fireEvent.click(item)
+
+      await waitFor(() => expect(within(itemEl).queryByText('4')).toBeVisible())
+      await waitFor(() => expect(within(itemEl).queryByText('notes 1 -- notes 2 -- notes 3')).toBeVisible())
+    })
+  })
+
   // describe('when the shopping list is not found')
   // describe('when the given attributes are invalid')
   // describe('when there is an unexpected error')
