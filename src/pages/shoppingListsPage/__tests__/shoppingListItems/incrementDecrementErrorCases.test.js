@@ -98,7 +98,7 @@ describe('Incrementing a shopping list item - error cases', () => {
 
         fireEvent.click(decrementer)
 
-        // It should show the original quantity value
+        // It should redirect to the login page
         await waitFor(() => expect(history.location.pathname).toEqual('/login'))
       })
     })
