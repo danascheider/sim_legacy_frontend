@@ -326,7 +326,5 @@ describe('Creating a shopping list item - happy path', () => {
       await waitFor(() => expect(within(itemEl).queryByText('notes 1 -- notes 2 -- notes 3')).toBeVisible())
     })
   })
-  // describe('when the given attributes are invalid')
-  // describe('when there is an unexpected error')
   // describe('when the server indicates the user is logged out')
 })
