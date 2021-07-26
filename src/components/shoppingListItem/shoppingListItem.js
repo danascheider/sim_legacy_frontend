@@ -176,7 +176,7 @@ const ShoppingListItem = ({
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
-              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}>
+              <button className={styles.icon} ref={deleteRef} onClick={destroyItem} data-testid='destroy-item'>
                 <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
               </button>
               <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>
