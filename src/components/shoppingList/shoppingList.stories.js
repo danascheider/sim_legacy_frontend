@@ -79,6 +79,17 @@ export const Default = () => (
 
 Default.parameters = {
   msw: [
+    rest.patch(`${backendBaseUri}/shopping_lists/2`, (req, res, ctx) => {
+      const title = req.body.shopping_list.title
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          ...shoppingLists[1],
+          title
+        })
+      )
+    }),
     // This does not capture the full logic around combining list items. It replaces the notes
     // value of an existing item with the notes value from the form. Although this logic is the
     // domain of the back end, it's worth commenting that the back end doesn't actually do it
