@@ -141,17 +141,6 @@ HappyPath.parameters = {
         )
       }
     })
-//     rest.post(`${backendBaseUri}/shopping_lists/:shopping_list_id/shopping_list_items`, (req, res, ctx) => {
-//       const listId = Number(req.params.shopping_list_id)
-//       const list = shoppingLists.find(shoppingList => shoppingList.id === listId)
-//       const regularListItem = addOrCombineListItem(list, req.body.shopping_list_item)
-//       const aggregateListItem = addOrCombineListItem(shoppingLists[0], req.body.shopping_list_item)
-
-//       return res(
-//         ctx.status(200),
-//         ctx.json([aggregateListItem, regularListItem])
-//       )
-//     }),
 //     rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
 //       const itemId = Number(req.params.id)
 //       const list = findListByListItem(shoppingLists, itemId)

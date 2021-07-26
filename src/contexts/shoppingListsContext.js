@@ -385,13 +385,8 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           const regularList = shoppingLists.find(list => list.id === listId)
           const regularListPosition = shoppingLists.indexOf(regularList)
 
-          console.log('Aggregate list: ', aggregateList)
-          console.log('Aggregate list item: ', aggregateListItem)
-
           const newAggregateList = addOrUpdateListItem(aggregateList, aggregateListItem)
           const newRegularList = addOrUpdateListItem(regularList, regularListItem)
-
-          console.log('addOrUpdateListItem is a function')
 
           newLists[0] = newAggregateList
           newLists[regularListPosition] = newRegularList
