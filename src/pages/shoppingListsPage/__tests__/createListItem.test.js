@@ -136,7 +136,101 @@ describe('Creating a shopping list item', () => {
     })
   })
 
-  // describe('when there is a matching item on another list')
+  describe('when there is a matching item on another list', () => {
+    const server = setupServer(
+      rest.post(`${backendBaseUri}/shopping_lists/${allShoppingLists[2].id}/shopping_list_items`, (req, res, ctx) => {
+        const listId = allShoppingLists[2].id
+        const description = req.body.shopping_list_item.description
+        const quantity = req.body.shopping_list_item.quantity
+        const notes = req.body.shopping_list_item.notes
+
+        const allItemsListItem = allShoppingLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+
+        const json = [
+          {
+            ...allItemsListItem,
+            quantity: allItemsListItem.quantity + quantity,
+            notes: notes // just because in the existing matching item for this test the notes are null
+          },
+          {
+            id: 855,
+            list_id: listId,
+            description,
+            quantity,
+            notes
+          }
+        ]
+
+        return res(
+          ctx.status(200),
+          ctx.json(json)
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it('updates the list items and displays a flash message', async () => {
+      component = renderComponentWithMockCookies()
+
+      const listTitle = await screen.findByText('Heljarchen Hall')
+      const listEl = listTitle.closest('.root')
+
+      // Expand the list element
+      fireEvent.click(listTitle)
+
+      const formTrigger = await within(listEl).findByText('Add item to list...')
+
+      // Expand the form to add an item
+      fireEvent.click(formTrigger)
+
+      const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
+      const quantityInput = await within(listEl).findByDisplayValue('1')
+      const notesInput = await within(listEl).findByPlaceholderText(/notes/i)
+
+      const form = descriptionInput.closest('form')
+
+      // Fill out and submit the form
+      fireEvent.change(descriptionInput, { target: { value: 'Ingredients with "Frenzy" property' } })
+      fireEvent.change(quantityInput, { target: { value: '5' } })
+      fireEvent.change(notesInput, { target: { value: 'To make poison with' } })
+
+      fireEvent.submit(form)
+
+      // Item should be added to the list
+      const itemTitle = await within(listEl).findByText('Ingredients with "Frenzy" property')
+      const itemElOnRegList = itemTitle.closest('.root')
+      expect(itemTitle).toBeVisible()
+
+      // Form should be hidden
+      await waitFor(() => expect(form).not.toBeVisible())
+
+      // Check that the attributes of the item on the list are correct
+      fireEvent.click(itemTitle)
+
+      await waitFor(() => expect(within(itemElOnRegList).queryByText('5')).toBeVisible())
+      await waitFor(() => expect(within(itemElOnRegList).queryByText('To make poison with')).toBeVisible())
+
+      // The item should be added to the all items list - expand the list to see
+      const allItemsTitle = await screen.findByText(/all items/i)
+      const allItemsEl = allItemsTitle.closest('.root')
+
+      fireEvent.click(allItemsTitle)
+
+      const item = await within(allItemsEl).findByText('Ingredients with "Frenzy" property')
+      const itemEl = item.closest('.root')
+
+      expect(item).toBeVisible()
+      
+      fireEvent.click(item)
+
+      await waitFor(() => expect(within(itemEl).queryByText('9')).toBeVisible())
+      await waitFor(() => expect(within(itemEl).queryByText('To make poison with')).toBeVisible())
+    })
+  })
+
   // describe('when there is a matching item on the same list')
   // describe('when the shopping list is not found')
   // describe('when the given attributes are invalid')
