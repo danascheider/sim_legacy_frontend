@@ -256,7 +256,7 @@ export const updateShoppingListItem = (token, itemId, attrs) => {
 }
 
 // DELETE /shopping_list_items/:id
-export const destroyShoppingListItem = (token, itemId, attrs) => {
+export const destroyShoppingListItem = (token, itemId) => {
   const uri = `${backendBaseUri}/shopping_list_items/${itemId}`
 
   return(
