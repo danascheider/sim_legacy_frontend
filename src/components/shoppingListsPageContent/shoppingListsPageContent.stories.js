@@ -185,39 +185,60 @@ HappyPath.parameters = {
           ctx.status(404)
         )
       }
+    }),
+    // This request deletes the requested shopping list item, if it exists and
+    // belongs to the authenticated user. For the purposes of Storybook, we're
+    // assuming that the user is authenticated and the `allShoppingLists` array
+    // represents all their shopping lists for all their games.
+    rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      // Find the item and the list it is on.
+      const itemId = parseInt(req.params.id)
+      const regList = findListByListItem(allShoppingLists, itemId)
+
+      if (regList) {
+        // If the list exists (i.e., if the item has been found on one of the
+        // lists for that game), find the item itself.
+        const item = regList.list_items.find(listItem => listItem.id === itemId)
+
+        // Find the item on the aggregate list.
+        const aggregateList = findAggregateList(allShoppingLists, regList.game_id)
+
+        // This will blow up if `aggregateList` is `null` but because there are
+        // aggregate lists hard-coded into the test data it would actually kind
+        // of be good to know if that wasn't making it into here properly.
+        let aggregateListItem = aggregateList.list_items.find(listItem => (
+          listItem.description.toLowerCase() === item.description.toLowerCase()
+        ))
+
+        aggregateListItem = removeOrAdjustItemOnItemDestroy(aggregateListItem, item)
+
+        if (aggregateListItem) {
+          // If the aggregate list item has a higher quantity than the item destroyed,
+          // meaning that there is another matching item on another shopping list for
+          // the same game, then the adjusted aggregate list item will be returned from
+          // the API.
+          return res(
+            ctx.status(200),
+            ctx.json(aggregateListItem)
+          )
+        } else {
+          // If the aggregate list item has a quantity equal to that of the item
+          // destroyed (meaning there are no other matching items on any of that
+          // game's othere lists), then it will be removed from the databasee and
+          // the API will return a 204 No Content response.
+          return res(
+            ctx.status(204)
+          )
+        }
+      } else {
+        // If the object `regList` is null, it means that the list item wasn't
+        // found in any list's array of list items. The list item doesn't exist
+        // or doesn't belong to the authenticated user.
+        return res(
+          ctx.status(204)
+        )
+      }
     })
-//     rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-//       const itemId = Number(req.params.id)
-//       const list = findListByListItem(shoppingLists, itemId)
-//       const existingItem = list.list_items.find(item => item.id === itemId)
-//       const newItem = { ...existingItem, ...req.body.shopping_list_item }
-//       const deltaQuantity = newItem.quantity - existingItem.quantity
-//       const aggregateListItem = shoppingLists[0].list_items.find(item => item.description === existingItem.description)
-//       const newAggregateListItem = adjustAggregateListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes)
-
-//       return res(
-//         ctx.status(200),
-//         ctx.json([newAggregateListItem, newItem])
-//       )
-//     }),
-//     rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-//       const itemId = Number(req.params.id)
-//       const list = findListByListItem(shoppingLists, itemId)
-//       const item = list.list_items.find(listItem => listItem.id === itemId)
-//       const aggregateListItem = shoppingLists[0].list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
-//       removeOrAdjustItemOnItemDestroy(aggregateListItem, item)
-
-//       if (aggregateListItem) {
-//         return res(
-//           ctx.status(200),
-//           ctx.json(aggregateListItem)
-//         )
-//       } else {
-//         return res(
-//           ctx.status(204)
-//         )
-//       }
-//     })
   ]
 }
 
