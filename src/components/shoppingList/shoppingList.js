@@ -25,11 +25,14 @@ const isValid = str => (
 )
 
 const ShoppingList = ({ canEdit = true, listId, title}) => {
+  const DELETE_CONFIRMATION = `Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`
+
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
   const [maxEditFormWidth, setMaxEditFormWidth] = useState(null)
   const [listItems, setListItems] = useState([])
 
+  const mountedRef = useRef(true)
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
   const iconsRef = useRef(null)
@@ -106,15 +109,20 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   }
 
   const deleteList = e => {
-    e.preventDefault()
-
-    const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
+    const confirmed = window.confirm(DELETE_CONFIRMATION)
 
     setFlashVisible(false)
 
     if (confirmed) {
-      performShoppingListDestroy(listId)
-    } else {
+      const onSuccess = () => {
+        setFlashVisible(true)
+        mountedRef.current = false
+      }
+
+      const onError = () => setFlashVisible(true)
+
+      performShoppingListDestroy(listId, { onSuccess, onNotFound: onError, onInternalServerError: onError })
+    } else if (mountedRef.current) {
       setFlashProps({
         type: 'info',
         message: 'Your list was not deleted.'
@@ -125,7 +133,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   }
 
   useEffect(() => {
-    if (!shoppingLists) return // it'll run again when they populate
+    if (!shoppingLists || !mountedRef.current) return // it'll run again when they populate
 
     const items = shoppingLists.find(obj => obj.id === listId).list_items
 
@@ -133,10 +141,14 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   }, [shoppingLists, listId])
 
   useEffect(() => {
-    if (!size || !iconsRef.current) return
+    if (!size || !iconsRef.current || !mountedRef.current) return
 
     setMaxEditFormWidth(size.width - iconsRef.current.offsetWidth - 16)
   }, [size])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
     <div className={styles.root} style={styleVars}>

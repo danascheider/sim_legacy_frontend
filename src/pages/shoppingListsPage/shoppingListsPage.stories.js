@@ -163,45 +163,45 @@ HappyPath.parameters = {
     // authenticated user. For the purposes of Storybook, we assume the user is logged
     // in and the `allShoppingLists` array represents all of their shopping lists for
     // all of their games.
-    // rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-    //   // Find the requested list
-    //   const listId = parseInt(req.params.id)
-    //   const regularList = allShoppingLists.find(list => list.id === listId)
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      // Find the requested list
+      const listId = parseInt(req.params.id)
+      const regularList = allShoppingLists.find(list => list.id === listId)
 
-    //   if (regularList) {
-    //     // If the regular list matches an ID in the allShoppingLists array, check if
-    //     // the aggregate list has any items on it once the list is destroyed.
-    //     const items = regularList.list_items
-    //     const aggregateList = findAggregateList(allShoppingLists, listId)
+      if (regularList) {
+        // If the regular list matches an ID in the allShoppingLists array, check if
+        // the aggregate list has any items on it once the list is destroyed.
+        const items = regularList.list_items
+        const aggregateList = findAggregateList(allShoppingLists, listId)
 
-    //     const newAggregateList = removeOrAdjustItemsOnListDestroy(aggregateList, items)
+        const newAggregateList = removeOrAdjustItemsOnListDestroy(aggregateList, items)
 
-    //     if (newAggregateList === null) {
-    //       // If the updated aggregate list has no items on it, that means the list being
-    //       // deleted is the game's last regular list and the aggregate list will be
-    //       // destroyed as well on the back end. In this scenario, the API will return a
-    //       // 204 No Content response.
-    //       return res(
-    //         ctx.status(204)
-    //       )
-    //     } else {
-    //       // If the updated aggregate list still has items on it, that means the list being
-    //       // deleted is not the game's last regular list. In this scenario, the API will return
-    //       // a 200 response with the updated aggregate list.
-    //       return res(
-    //         ctx.status(200),
-    //         ctx.json(newAggregateList)
-    //       )
-    //     }
-    //   } else {
-    //     // If the list to be deleted is not found in the allShoppingLists array, that means
-    //     // the list either doesn't exist or doesn't belong to the user. In this case, the API
-    //     // will return status 404 Not Found.
-    //     return res(
-    //       ctx.status(404)
-    //     )
-    //   }
-    // }),
+        if (newAggregateList === null) {
+          // If the updated aggregate list has no items on it, that means the list being
+          // deleted is the game's last regular list and the aggregate list will be
+          // destroyed as well on the back end. In this scenario, the API will return a
+          // 204 No Content response.
+          return res(
+            ctx.status(204)
+          )
+        } else {
+          // If the updated aggregate list still has items on it, that means the list being
+          // deleted is not the game's last regular list. In this scenario, the API will return
+          // a 200 response with the updated aggregate list.
+          return res(
+            ctx.status(200),
+            ctx.json(newAggregateList)
+          )
+        }
+      } else {
+        // If the list to be deleted is not found in the allShoppingLists array, that means
+        // the list either doesn't exist or doesn't belong to the user. In this case, the API
+        // will return status 404 Not Found.
+        return res(
+          ctx.status(404)
+        )
+      }
+    })
     // // This request adds a shopping list item to the shopping list requested, if that shopping
     // // list exists and belongs to the authenticated user. For the purposes of Storybook, we
     // // assume the user is authenticated and the `allShoppingLists` array represents all their
@@ -528,6 +528,15 @@ ListNotFound.parameters = {
       return res(
         ctx.status(404)
       )
+    }),
+    // This illustrates what would happen if a user tried to destroy a shopping list after
+    // deleting the list on another device or browser. The API would return a 404 and the
+    // UI should display a message telling the user the list could not be found and advising
+    // them to refresh their browser.
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
     })
   ]
 }
@@ -590,6 +599,8 @@ NoLists.parameters = {
         )
       }
     }),
+    // This is included just in case somebody wants to both create and destroy a list in the
+    // story.
     rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
       const listId = Number(req.params.id)
       const title = req.body.shopping_list.title || 'My List 2'
@@ -598,6 +609,13 @@ NoLists.parameters = {
       return res(
         ctx.status(200),
         ctx.json(returnData)
+      )
+    }),
+    // This will not work if multiple shopping lists are created and then destroyed - this
+    // API response is only valid if the list is the user's last regular list.
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(204)
       )
     })
   ]
