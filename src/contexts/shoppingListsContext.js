@@ -375,7 +375,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       .then(data => {
         if (!mountedRef.current) return
 
-        if (Array.isArray(data)) {
+        if (data && data.length) {
           const [aggregateListItem, regularListItem] = data
 
           // Have to create an actual new object or the state change won't cause useEffect
@@ -385,8 +385,13 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           const regularList = shoppingLists.find(list => list.id === listId)
           const regularListPosition = shoppingLists.indexOf(regularList)
 
+          console.log('Aggregate list: ', aggregateList)
+          console.log('Aggregate list item: ', aggregateListItem)
+
           const newAggregateList = addOrUpdateListItem(aggregateList, aggregateListItem)
           const newRegularList = addOrUpdateListItem(regularList, regularListItem)
+
+          console.log('addOrUpdateListItem is a function')
 
           newLists[0] = newAggregateList
           newLists[regularListPosition] = newRegularList
