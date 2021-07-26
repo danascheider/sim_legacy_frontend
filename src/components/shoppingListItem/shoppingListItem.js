@@ -90,6 +90,10 @@ const ShoppingListItem = ({
       onNotFound: () => {
         setCurrentQuantity(oldQuantity)
         setFlashVisible(true)
+      },
+      onInternalServerError: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
       }
     }
 
@@ -105,8 +109,13 @@ const ShoppingListItem = ({
         onNotFound: () => {
           setCurrentQuantity(oldQuantity)
           setFlashVisible(true)
+        },
+        onInternalServerError: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
         }
       }
+
       setCurrentQuantity(newQuantity)
       performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
     } else if (newQuantity === 0) {
