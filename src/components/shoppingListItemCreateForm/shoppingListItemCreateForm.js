@@ -49,7 +49,8 @@ const ShoppingListItemCreateForm = ({ listId }) => {
         formRef.current.reset()
         toggleForm()
         setFlashVisible(true)
-      }
+      },
+      onUnprocessableEntity: () => setFlashVisible(true)
     }
 
     performShoppingListItemCreate(listId, attrs, callbacks)
