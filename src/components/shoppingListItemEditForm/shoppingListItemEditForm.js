@@ -24,18 +24,17 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
     const quantity = e.target.elements.quantity.value
     const notes = e.target.elements.notes.value
 
+    const onError = () => {
+      setFlashVisible(true)
+      setListItemEditFormVisible(false)
+      mountedRef.current = false
+    }
+
     const callbacks = {
       onSuccess: () => setFlashVisible(true),
-      onNotFound: () => {
-        setFlashVisible(true)
-        setListItemEditFormVisible(false)
-        mountedRef.current = false
-      },
-      onUnprocessableEntity: () => {
-        setFlashVisible(true)
-        setListItemEditFormVisible(false)
-        mountedRef.current = false
-      }
+      onNotFound: onError,
+      onUnprocessableEntity: onError,
+      onInternalServerError: onError
     }
 
     performShoppingListItemUpdate(currentAttributes.id, { quantity, notes }, callbacks)
