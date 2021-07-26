@@ -58,7 +58,6 @@ const ShoppingListItemCreateForm = ({ listId }) => {
       }
     }
 
-
     performShoppingListItemCreate(listId, attrs, callbacks)
   }
 
