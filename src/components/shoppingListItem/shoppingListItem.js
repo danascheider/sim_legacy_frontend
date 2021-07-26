@@ -154,19 +154,23 @@ const ShoppingListItem = ({
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
-              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} /></button>
-              <button className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></button>
+              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}>
+                <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
+              </button>
+              <button className={styles.icon} ref={editRef} onClick={showEditForm}>
+                <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+              </button>
             </span>}
           <h4 className={styles.description}>{description}</h4>
         </span>
         <span className={styles.quantity}>
-          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity} data-testid='incrementer'>
             <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
           </button>}
           <div className={styles.quantityContent}>
             {currentQuantity}
           </div>
-          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity} data-testid='decrementer'>
             <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
           </button>}
         </span>

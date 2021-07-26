@@ -442,6 +442,8 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     updateShoppingListItem(token, itemId, attrs)
       .then(resp => resp.json())
       .then(data => {
+        if (!mountedRef.current) return
+
         if (Array.isArray(data)) {
           const [aggregateListItem, regularListItem] = data
 
@@ -452,7 +454,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           const newAggregateList = addOrUpdateListItem(shoppingLists[0], aggregateListItem)
           const newRegularList = addOrUpdateListItem(regularList, regularListItem)
-          
+
           newShoppingLists[0] = newAggregateList
           newShoppingLists[regularListPosition] = newRegularList
 
