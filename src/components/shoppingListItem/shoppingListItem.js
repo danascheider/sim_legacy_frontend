@@ -179,7 +179,7 @@ const ShoppingListItem = ({
               <button className={styles.icon} ref={deleteRef} onClick={destroyItem}>
                 <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
               </button>
-              <button className={styles.icon} ref={editRef} onClick={showEditForm}>
+              <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>
                 <FontAwesomeIcon className={styles.fa} icon={faEdit} />
               </button>
             </span>}

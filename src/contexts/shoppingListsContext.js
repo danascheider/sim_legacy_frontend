@@ -462,7 +462,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           setShoppingLists(newShoppingLists)
 
           setListItemEditFormVisible(false)
-          showFlashOnSuccess && setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
+          setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
 
           onSuccess && onSuccess()
         } else if (data && typeof data === 'object' && data.errors) {
