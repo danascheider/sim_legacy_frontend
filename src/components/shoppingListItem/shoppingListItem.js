@@ -133,7 +133,14 @@ const ShoppingListItem = ({
     const confirmed = window.confirm("Destroy shopping list item? Your aggregate list will be updated to reflect the change. This action cannot be undone.")
 
     if (confirmed) {
-      performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
+      const callbacks = {
+        onSuccess: () => mountedRef.current = false,
+        onUnauthorized: () => mountedRef.current = false,
+        onNotFound: () => setFlashVisible(true),
+        onInternalServerError: () => setFlashVisible(true)
+      }
+
+      performShoppingListItemDestroy(itemId, callbacks)
     } else {
       displayFlash('info', 'Your item was not deleted.')
     }

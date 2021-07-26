@@ -511,7 +511,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListItemDestroy = (itemId, success = null, error = null) => {
+  const performShoppingListItemDestroy = (itemId, callbacks) => {
+    const { onSuccess, onNotFound, onUnauthorized, onInternalServerError } = callbacks
+
     destroyShoppingListItem(token, itemId)
       .then(resp => {
         if (resp.status === 204) return null
@@ -546,30 +548,29 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
         setShoppingLists(newLists)
           
-        success && success()
+        onSuccess && onSuccess()
       })
       .catch(err => {
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => mountedRef.current = false)
+
+          onUnauthorized && onUnauthorized()
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error', 
             message: "Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem."
           })
-        } else if (err.code === 405) {
-          setFlashProps({
-            type: 'error', 
-            message: 'Cannot manually remove an item from an aggregate list'
-          })
+
+          onNotFound && onNotFound()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error destroying shopping list item: ', err)
           setFlashProps({
             type: 'error', 
             message: "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
-        }
 
-        error && error()
+          onInternalServerError && onInternalServerError()
+        }
       })
   }
 

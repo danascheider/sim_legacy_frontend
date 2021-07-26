@@ -326,85 +326,9 @@ describe('Destroying a shopping list item', () => {
     })
   })
 
-  xdescribe('when the server returns a 422 error', () => {
+  describe('when the server returns a 500 error', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
-        return res(
-          ctx.status(422),
-          ctx.json({
-            errors: ['Quantity must be greater than zero']
-          })
-        )
-      })
-    )
-
-    beforeAll(() => server.listen())
-    beforeEach(() => server.resetHandlers())
-    afterAll(() => server.close())
-
-    it("doesn't update the items and displays a flash error message", async () => {
-      component = renderComponentWithMockCookies()
-
-      // We're going to update an item on the 'Lakeview Manor' list
-      const listTitleEl = await screen.findByText('Lakeview Manor')
-      const listEl = listTitleEl.closest('.root')
-
-      fireEvent.click(listTitleEl)
-
-      // The list item we're going for is titled 'Ingredients with "Frenzy"
-      // property'. Its initial quantity is 4 and it has no notes.
-      const itemDescEl = await within(listEl).findByText(/frenzy/i)
-      const itemEl = itemDescEl.closest('.root')
-      const editIcon = await within(itemEl).findByTestId('edit-item')
-
-      fireEvent.click(editIcon)
-
-      // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-edit-form')
-      await waitFor(() => expect(form).toBeVisible())
-
-      // Now find the form fields and fill out the form.
-      const quantityField = await within(form).findByDisplayValue('4')
-
-      // In this case we'll set it to an invalid value
-      fireEvent.change(quantityField, { target: { value: '-6' } })
-
-      // Submit the form
-      fireEvent.submit(form)
-
-      // The form should be hidden 
-      await waitForElementToBeRemoved(form)
-      expect(form).not.toBeInTheDocument()
-
-      // Now we need to find the item on the regular list and the
-      // aggregate list.
-      const aggListTitleEl = await screen.findByText('All Items')
-      const aggListEl = aggListTitleEl.closest('.root')
-
-      // Expand the list so the item is visible
-      fireEvent.click(aggListTitleEl)
-
-      // Then find the corresponding item
-      const aggListItemDescEl = await within(aggListEl).findByText(/frenzy/i)
-      const aggListItemEl = aggListItemDescEl.closest('.root')
-
-      // Expand the list item on each list to see the notes
-      fireEvent.click(aggListItemDescEl)
-      fireEvent.click(itemDescEl)
-
-      // Now we need to check that the aggregate list item and regular list
-      // item are updated.
-      await waitFor(() => expect(within(aggListItemEl).queryByText('-6')).not.toBeInTheDocument())
-      await waitFor(() => expect(within(listEl).queryByText('-6')).not.toBeInTheDocument())
-
-      // Finally, it should display the flash message.
-      await waitFor(() => expect(screen.queryByText(/Quantity must be greater than zero/)).toBeVisible())
-    })
-  })
-
-  xdescribe('when the server returns a 500 error', () => {
-    const server = setupServer(
-      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(500),
           ctx.json({
@@ -414,8 +338,16 @@ describe('Destroying a shopping list item', () => {
       })
     )
 
+    let confirm
+
     beforeAll(() => server.listen())
-    beforeEach(() => server.resetHandlers())
+
+    beforeEach(() => {
+      server.resetHandlers()
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+    })
+
+    afterEach(() => confirm.mockRestore())
     afterAll(() => server.close())
 
     it("doesn't update the items and displays a flash error message", async () => {
@@ -431,49 +363,24 @@ describe('Destroying a shopping list item', () => {
       // property'. Its initial quantity is 4 and it has no notes.
       const itemDescEl = await within(listEl).findByText(/frenzy/i)
       const itemEl = itemDescEl.closest('.root')
-      const editIcon = await within(itemEl).findByTestId('edit-item')
+      const destroy = await within(itemEl).findByTestId('destroy-item')
 
-      fireEvent.click(editIcon)
+      fireEvent.click(destroy)
 
-      // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-edit-form')
-      await waitFor(() => expect(form).toBeVisible())
+      // It should not remove the item
+      await waitFor(() => expect(listEl).toBeVisible())
 
-      // Now find the form fields and fill out the form.
-      const quantityField = await within(form).findByDisplayValue('4')
+      // Find the aggregate list
+      const aggListTitle = await screen.findByText('All Items')
+      const aggListEl = aggListTitle.closest('.root')
 
-      // In this case we'll set it to an invalid value
-      fireEvent.change(quantityField, { target: { value: '-6' } })
+      // Expand the aggregate list to show the list items
+      fireEvent.click(aggListTitle)
 
-      // Submit the form
-      fireEvent.submit(form)
+      // The list item should still be on the aggregate list too
+      await waitFor(() => expect(within(aggListEl).queryByText(/frenzy/i)).toBeVisible())
 
-      // The form should be hidden 
-      await waitForElementToBeRemoved(form)
-      expect(form).not.toBeInTheDocument()
-
-      // Now we need to find the item on the regular list and the
-      // aggregate list.
-      const aggListTitleEl = await screen.findByText('All Items')
-      const aggListEl = aggListTitleEl.closest('.root')
-
-      // Expand the list so the item is visible
-      fireEvent.click(aggListTitleEl)
-
-      // Then find the corresponding item
-      const aggListItemDescEl = await within(aggListEl).findByText(/frenzy/i)
-      const aggListItemEl = aggListItemDescEl.closest('.root')
-
-      // Expand the list item on each list to see the notes
-      fireEvent.click(aggListItemDescEl)
-      fireEvent.click(itemDescEl)
-
-      // Now we need to check that the aggregate list item and regular list
-      // item are updated.
-      await waitFor(() => expect(within(aggListItemEl).queryByText('-6')).not.toBeInTheDocument())
-      await waitFor(() => expect(within(listEl).queryByText('-6')).not.toBeInTheDocument())
-
-      // Finally, it should display the flash message.
+      // There should be a flash error message
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
     })
   })
