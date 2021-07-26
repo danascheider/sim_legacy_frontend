@@ -224,9 +224,9 @@ describe('Destroying a shopping list item', () => {
     })
   })
 
-  xdescribe('when the server returns a 401 error', () => {
+  describe('when the server returns a 401 error', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({
@@ -236,8 +236,16 @@ describe('Destroying a shopping list item', () => {
       })
     )
 
+    let confirm
+
     beforeAll(() => server.listen())
-    beforeEach(() => server.resetHandlers())
+
+    beforeEach(() => {
+      server.resetHandlers()
+      confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+    })
+
+    afterEach(() => confirm.mockRestore())
     afterAll(() => server.close())
 
     it('redirects the user to the login page', async () => {
@@ -250,27 +258,12 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(listTitleEl)
 
       // The list item we're going for is titled 'Ingredients with "Frenzy"
-      // property'. Its initial quantity is 4.
+      // property'
       const itemDescEl = await within(listEl).findByText(/frenzy/i)
       const itemEl = itemDescEl.closest('.root')
-      const editIcon = await within(itemEl).findByTestId('edit-item')
+      const destroyIcon = await within(itemEl).findByTestId('destroy-item')
 
-      fireEvent.click(editIcon)
-
-      // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-edit-form')
-      await waitFor(() => expect(form).toBeVisible())
-
-      // Now find the form fields and fill out the form. This item has no notes
-      // so we find the notes field by placeholder text instead.
-      const notesField = await within(form).findByPlaceholderText('This item has no notes')
-
-      // Fill out the form field. We'll change just the notes value for the
-      // sake of simplicity.
-      fireEvent.change(notesField, { target: { value: 'This item has notes now' } })
-
-      // Submit the  form
-      fireEvent.submit(form)
+      fireEvent.click(destroyIcon)
 
       // The user should be redirected to the login page
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
