@@ -133,7 +133,14 @@ const ShoppingListItem = ({
     const confirmed = window.confirm("Destroy shopping list item? Your aggregate list will be updated to reflect the change. This action cannot be undone.")
 
     if (confirmed) {
-      performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
+      const callbacks = {
+        onSuccess: () => mountedRef.current = false,
+        onUnauthorized: () => mountedRef.current = false,
+        onNotFound: () => setFlashVisible(true),
+        onInternalServerError: () => setFlashVisible(true)
+      }
+
+      performShoppingListItemDestroy(itemId, callbacks)
     } else {
       displayFlash('info', 'Your item was not deleted.')
     }
@@ -176,7 +183,7 @@ const ShoppingListItem = ({
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
-              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}>
+              <button className={styles.icon} ref={deleteRef} onClick={destroyItem} data-testid='destroy-item'>
                 <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
               </button>
               <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>

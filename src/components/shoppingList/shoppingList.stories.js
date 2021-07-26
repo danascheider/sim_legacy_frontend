@@ -185,6 +185,15 @@ Default.parameters = {
           ctx.status(404)
         )
       }
+    }),
+    // This request deletes the requested shopping list item, if it exists and
+    // belongs to the authenticated user. For the purposes of Storybook, we're
+    // going to make this just work each time without doing the aggregate list
+    // calculations, given that there is no aggregate list in this story.
+    rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(204)
+      )
     })
   ]
 }

@@ -79,16 +79,23 @@ A function that updates the specified shopping list item, also encompassing erro
   * `quantity` (integer, greater than 0)
   * `notes` (string)
 * `showFlashOnSuccess`: whether a successful API call should result in a flash message being displayed (the flash message will always be displayed on failure)
-* `success`: an optional success callback that can be used for handling state within the component that calls the function
-* `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
+* `callbacks`: an optional object with callbacks for each possible API response. Possible keys are:
+  * `onSuccess`: called when the API call returns a 200 or 204 response
+  * `onNotFound`: called when the shopping list being destroyed has already been previously destroyed
+  * `onUnauthorized`: called when the API returns a 401 response
+  * `onUnprocessableEntity`: called when the API returns a 422 response caused by validation errors
+  * `onInternalServerError`: called when there is a 500 error or other unexpected error (including 405 Method Not Allowed), or when there is an error in the response handler
 
 ### `performShoppingListItemDestroy`
 
 A function that destroys the specified shopping list item, also encompassing error handling logic. This also updates the aggregate list to reflect the change. The function takes three arguments:
 
 * `itemId`: the ID of the item to be destroyed
-* `success`: an optional success callback that can be used for handling state within the component that calls the function
-* `error`: an optional error callback that can be used for cleaning up state within the component that calls the function
+* `callbacks`: an optional object with callbacks for each possible API response. Possible keys are:
+  * `onSuccess`: called when the API call returns a 200 or 204 response
+  * `onNotFound`: called when the shopping list being destroyed has already been previously destroyed
+  * `onUnauthorized`: called when the API returns a 401 response
+  * `onInternalServerError`: called when there is a 500 error or other unexpected error (including 405 Method Not Allowed), or when there is an error in the response handler
 
 ### `listItemEditFormProps`
 
