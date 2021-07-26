@@ -78,14 +78,14 @@ describe('Updating a shopping list item - happy path', () => {
   it('updates the requested item and the aggregate list', async () => {
     component = renderComponentWithMockCookies()
 
-    // We're going to increment an item on the 'Lakeview Manor' list
+    // We're going to update an item on the 'Lakeview Manor' list
     const listTitleEl = await screen.findByText('Lakeview Manor')
     const listEl = listTitleEl.closest('.root')
 
     fireEvent.click(listTitleEl)
 
     // The list item we're going for is titled 'Ingredients with "Frenzy"
-    // property'. Its initial quantity is 4.
+    // property'. Its initial quantity is 4 and it has no notes.
     const itemDescEl = await within(listEl).findByText(/frenzy/i)
     const itemEl = itemDescEl.closest('.root')
     const editIcon = await within(itemEl).findByTestId('edit-item')
@@ -98,14 +98,13 @@ describe('Updating a shopping list item - happy path', () => {
 
     // Now find the form fields and fill out the form. This item has no notes
     // so we find the notes field by placeholder text instead.
-    const quantityField = await within(form).findByDisplayValue('4')
     const notesField = await within(form).findByPlaceholderText('This item has no notes')
 
     // Fill out the form field. We'll change just the notes value for the
     // sake of simplicity.
     fireEvent.change(notesField, { target: { value: 'This item has notes now' } })
 
-    // Expand the list
+    // Submit the form
     fireEvent.submit(form)
 
     // The form should be hidden 

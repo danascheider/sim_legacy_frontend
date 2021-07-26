@@ -498,11 +498,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onNotFound && onNotFound()
-        } else if (err.code === 405) {
-          setFlashProps({
-            type: 'error',
-            message: 'Cannot manually edit item on an aggregate list'
-          })
         } else {
           if (process.env.NODE_ENV === 'development') console.error(`Unexpected error editing list item ${itemId}: `, err)
 
