@@ -5,7 +5,7 @@ import styles from './shoppingListItemEditForm.module.css'
 
 const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentAttributes }) => {
   const { setFlashVisible } = useAppContext()
-  const { performShoppingListItemUpdate } = useShoppingListsContext()
+  const { performShoppingListItemUpdate, setListItemEditFormVisible } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
   const formRef = useRef(null)
@@ -25,7 +25,12 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
     const notes = e.target.elements.notes.value
 
     const callbacks = {
-      onSuccess: () => setFlashVisible(true)
+      onSuccess: () => setFlashVisible(true),
+      onNotFound: () => {
+        setFlashVisible(true)
+        mountedRef.current = false
+        setListItemEditFormVisible(false)
+      }
     }
 
     performShoppingListItemUpdate(currentAttributes.id, { quantity, notes }, callbacks)

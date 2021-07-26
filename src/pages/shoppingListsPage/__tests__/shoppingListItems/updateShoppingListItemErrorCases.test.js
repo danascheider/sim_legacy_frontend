@@ -93,4 +93,79 @@ describe('Updating a shopping list item - error cases', () => {
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
   })
+
+  describe('when the server returns a 404 error', () => {
+    const server = setupServer(
+      rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(404)
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it("doesn't update the items and displays a flash error message", async () => {
+      component = renderComponentWithMockCookies()
+
+      // We're going to update an item on the 'Lakeview Manor' list
+      const listTitleEl = await screen.findByText('Lakeview Manor')
+      const listEl = listTitleEl.closest('.root')
+
+      fireEvent.click(listTitleEl)
+
+      // The list item we're going for is titled 'Ingredients with "Frenzy"
+      // property'. Its initial quantity is 4 and it has no notes.
+      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      const itemEl = itemDescEl.closest('.root')
+      const editIcon = await within(itemEl).findByTestId('edit-item')
+
+      fireEvent.click(editIcon)
+
+      // It should display the list item edit form
+      const form = await screen.findByTestId('shopping-list-item-edit-form')
+      await waitFor(() => expect(form).toBeVisible())
+
+      // Now find the form fields and fill out the form. This item has no notes
+      // so we find the notes field by placeholder text instead.
+      const notesField = await within(form).findByPlaceholderText('This item has no notes')
+
+      // Fill out the form field. We'll change just the notes value for the
+      // sake of simplicity.
+      fireEvent.change(notesField, { target: { value: 'This item has notes now' } })
+
+      // Submit the form
+      fireEvent.submit(form)
+
+      // The form should be hidden 
+      await waitForElementToBeRemoved(form)
+      expect(form).not.toBeInTheDocument()
+
+      // Now we need to find the item on the regular list and the
+      // aggregate list.
+      const aggListTitleEl = await screen.findByText('All Items')
+      const aggListEl = aggListTitleEl.closest('.root')
+
+      // Expand the list so the item is visible
+      fireEvent.click(aggListTitleEl)
+
+      // Then find the corresponding item
+      const aggListItemDescEl = await within(aggListEl).findByText(/frenzy/i)
+      const aggListItemEl = aggListItemDescEl.closest('.root')
+
+      // Expand the list item on each list to see the notes
+      fireEvent.click(aggListItemDescEl)
+      fireEvent.click(itemDescEl)
+
+      // Now we need to check that the aggregate list item and regular list
+      // item are updated.
+      await waitFor(() => expect(within(aggListItemEl).queryByText('This item has notes now')).not.toBeInTheDocument())
+      await waitFor(() => expect(within(listEl).queryByText('This item has notes now')).not.toBeInTheDocument())
+
+      // Finally, it should display the flash message.
+      await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
+    })
+  })
 })
