@@ -86,7 +86,18 @@ const ShoppingListItem = ({
 
     if (mountedRef.current) setCurrentQuantity(newQuantity)
 
-    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
+    const callbacks = {
+      onNotFound: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      },
+      onInternalServerError: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      }
+    }
+
+    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
   }
 
   const decrementQuantity = () => {
@@ -94,8 +105,19 @@ const ShoppingListItem = ({
     const newQuantity = currentQuantity - 1
 
     if (newQuantity > 0) {
+      const callbacks = {
+        onNotFound: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        },
+        onInternalServerError: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        }
+      }
+
       setCurrentQuantity(newQuantity)
-      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
+      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
     } else if (newQuantity === 0) {
       const confirmed = window.confirm("Item quantity must be greater than zero. Delete the item instead?")
 
@@ -154,19 +176,23 @@ const ShoppingListItem = ({
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
-              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} /></button>
-              <button className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></button>
+              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}>
+                <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
+              </button>
+              <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>
+                <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+              </button>
             </span>}
           <h4 className={styles.description}>{description}</h4>
         </span>
         <span className={styles.quantity}>
-          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity} data-testid='incrementer'>
             <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
           </button>}
           <div className={styles.quantityContent}>
             {currentQuantity}
           </div>
-          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity} data-testid='decrementer'>
             <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
           </button>}
         </span>

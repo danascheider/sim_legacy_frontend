@@ -436,12 +436,15 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListItemUpdate = (itemId, attrs, showFlashOnSuccess = false, success = null, error = null) => {
+  const performShoppingListItemUpdate = (itemId, attrs, callbacks) => {
     const allowedAttributes = ['Quantity', 'Notes']
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     updateShoppingListItem(token, itemId, attrs)
       .then(resp => resp.json())
       .then(data => {
+        if (!mountedRef.current) return
+
         if (Array.isArray(data)) {
           const [aggregateListItem, regularListItem] = data
 
@@ -452,16 +455,16 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           const newAggregateList = addOrUpdateListItem(shoppingLists[0], aggregateListItem)
           const newRegularList = addOrUpdateListItem(regularList, regularListItem)
-          
+
           newShoppingLists[0] = newAggregateList
           newShoppingLists[regularListPosition] = newRegularList
 
           setShoppingLists(newShoppingLists)
 
           setListItemEditFormVisible(false)
-          showFlashOnSuccess && setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
+          setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
 
-          success && success()
+          onSuccess && onSuccess()
         } else if (data && typeof data === 'object' && data.errors) {
           // If all the errors returned start with one of the allowed attributes, then it's safe to say it's
           // a validation error. If not, assume it's a 500.
@@ -473,7 +476,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
               header: `${data.errors.length} error(s) prevented your shopping list item from being updated:`
             })
 
-            error && error()
+            onUnprocessableEntity && onUnprocessableEntity()
           } else {
             setListItemEditFormVisible(false)
             throw new Error('Internal Server Error: ' + data.errors[0])
@@ -484,17 +487,17 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
             message: "Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem."
           })
-        } else if (err.code === 405) {
-          setFlashProps({
-            type: 'error',
-            message: 'Cannot manually edit item on an aggregate list'
-          })
+
+          onNotFound && onNotFound()
         } else {
           if (process.env.NODE_ENV === 'development') console.error(`Unexpected error editing list item ${itemId}: `, err)
 
@@ -502,9 +505,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             type: 'error',
             message: "Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
-        }
 
-        error && error()
+          onInternalServerError && onInternalServerError()
+        }
       })
   }
 

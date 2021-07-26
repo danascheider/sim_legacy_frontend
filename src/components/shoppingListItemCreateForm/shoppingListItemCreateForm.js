@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
