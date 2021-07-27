@@ -175,7 +175,7 @@ describe('creating a new game from the dropdown', () => {
       fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
       fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
 
-      // The query string should be set to the first actual game
+      // The user should be redirected to the login page
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
   })
