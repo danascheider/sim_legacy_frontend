@@ -22,7 +22,7 @@ const GamesDropdown = () => {
   const history = useHistory()
   const queryString = useQuery()
 
-  const { games } = useGamesContext()
+  const { games, performGameCreate } = useGamesContext()
 
   const [activeGame, setActiveGame] = useState(null)
   const [dropdownExpanded, setDropdownExpanded] = useState(false)
@@ -65,8 +65,7 @@ const GamesDropdown = () => {
       const game = gameId ? games.find(game => game.id === gameId) : games[0]
 
       if (game) {
-        setActiveGame(game)
-        setInputValue(game.name)
+        selectGame(game)
       }
     }
   }, [activeGame, games, queryString])
@@ -129,7 +128,25 @@ const GamesDropdown = () => {
           onKeyDown={e => {
             if (e.key === 'Enter') {
               const game = games.find(g => g.name.toLowerCase() === e.target.value.toLowerCase())
-              game && selectGame(game)
+
+              if (game) {
+                selectGame(game)
+              } else {
+                const callbacks = {
+                  // Although `games` has just been set in the API response handler,
+                  // there is no guarantee that it will be updated yet by the time the
+                  // callback runs. So instead of `selectGame`, here we just clear the
+                  // query string and set the active game to `null`. The `useEffect`
+                  // hook will run when the `games` array is updated and will set the
+                  // query string and the active game to the newly created game.
+                  onSuccess: () => {
+                    history.push({ search: '' })
+                    setActiveGame(null)
+                  }
+                }
+
+                performGameCreate({ name: inputValue }, callbacks)
+              }
             } else if (e.key === 'ArrowUp') {
               e.preventDefault()
               const focusables = document.getElementsByClassName('focusable')
