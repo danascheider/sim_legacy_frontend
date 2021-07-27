@@ -17,7 +17,7 @@ import {
   emptyShoppingLists,
   allShoppingLists
 } from '../../../sharedTestData'
-import ShoppingListsPage from './../shoppingListsPage'
+import ShoppingListsPage from '../shoppingListsPage'
 
 describe('Displaying the shopping lists page', () => {
   let component
@@ -291,51 +291,6 @@ describe('Displaying the shopping lists page', () => {
         await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
         await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
-      })
-    })
-
-    describe('creating a new game from the dropdown', () => {
-      const server = setupServer(
-        rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
-          const gameId = parseInt(req.params.gameId)
-          const lists = allShoppingLists.filter(list => list.game_id === gameId)
-
-          return res(
-            ctx.status(200),
-            ctx.json(lists)
-          )
-        }),
-        rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
-          const name = req.body.game.name
-
-          return res(
-            ctx.status(201),
-            ctx.json({
-              id: 671,
-              user_id: 24,
-              description: null,
-              name
-            })
-          )
-        })
-      )
-
-      beforeAll(() => server.listen())
-      beforeEach(() => server.resetHandlers())
-      afterAll(() => server.close())
-
-      it('creates a new game and displays its (empty) shopping lists', async () => {
-        const { history } = component = renderComponentWithMockCookies(cookies)
-        
-        const dropdownComponent = await screen.findByTestId('games-dropdown')
-        const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
-
-        fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
-        fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
-
-        await waitFor(() => expect(within(dropdownComponent).queryByDisplayValue('Distinctive Name')).toBeVisible())
-        await waitFor(() => expect(history.location.search).toEqual('?game_id=671'))
-        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).toBeVisible())
       })
     })
 

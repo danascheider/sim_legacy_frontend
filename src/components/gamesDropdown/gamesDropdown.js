@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { BLUE } from '../../utils/colorSchemes'
-import { useGamesContext } from '../../hooks/contexts'
+import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import useQuery from '../../hooks/useQuery'
 import GamesDropdownOption from '../gamesDropdownOption/gamesDropdownOption'
 import styles from './gamesDropdown.module.css'
@@ -22,6 +22,7 @@ const GamesDropdown = () => {
   const history = useHistory()
   const queryString = useQuery()
 
+  const { setFlashVisible } = useAppContext()
   const { games, performGameCreate } = useGamesContext()
 
   const [activeGame, setActiveGame] = useState(null)
@@ -142,6 +143,14 @@ const GamesDropdown = () => {
                   onSuccess: () => {
                     history.push({ search: '' })
                     setActiveGame(null)
+                  },
+                  onUnprocessableEntity: () => {
+                    setFlashVisible(true)
+                    e.target.blur()
+                  },
+                  onInternalServerError: () => {
+                    setFlashVisible(true)
+                    e.target.blur()
                   }
                 }
 
