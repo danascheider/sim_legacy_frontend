@@ -141,6 +141,18 @@ export { SomeContext, SomeProvider }
 ```
 This way, the `onSuccess` callback will run after the API call is completed, unmounting the removed instance of `YourComponent`.
 
+## Failure Says Element Doesn't Appear and Shows Empty Body
+
+Sometimes, you'll see a message that an element you expected to be visible isn't visible and you will see in its output that there is an empty `body`, or a `body` with just an empty `div` inside:
+```html
+<body>
+  <div />
+</body>
+```
+
+This is generally caused by the execution of some request going off the rails. Put debug statements throughout the code to see how far along in the execution it gets before it fails and to inspect values. Eventually you'll see where it's broken and it's often a small fix.
+
 ## MSW Says Preflight (CORS) OPTIONS Request Is Unhandled
 
-I don't remember how I've solved this problem. The most recent instance of it turned out to be because there actually was a request without a handler.
+I don't remember how I've solved this problem. The most recent instance of it turned out to be
+ because there actually was a request without a handler.
