@@ -38,7 +38,7 @@ const appContextOverrideValue = { token, profileData }
 export const HappyPath = () => {
   return(
     <AppProvider overrideValue={appContextOverrideValue}>
-      <GamesProvider overrideValue={{ games }}>
+      <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
         <ShoppingListsProvider>
           <ShoppingListsPage />
         </ShoppingListsProvider>
@@ -47,6 +47,12 @@ export const HappyPath = () => {
   )
 }
 
+// Although POST requests to /games can originate from this page (from the games
+// dropdown), no handlers for that request are defined in this file. This is
+// because creating a new game that way will trigger a GET request for that game's
+// shopping lists, which will trigger a 404 response since the game isn't in the
+// `games` array. We could hack this but it's not really worth it for Storybook.
+// Better to rely on manual testing and Jest for this.
 HappyPath.parameters = {
   msw: [
     // This request retrieves a list of shopping lists for a given game, (if the game
@@ -392,6 +398,33 @@ export const NoGames = () => {
   )
 }
 
+// This is the only story where I'll define handlers for creating a game and
+// fetching its (empty) shopping lists, since it's easy to just say all requests
+// for shopping lists for this story will return an empty array.
+NoGames.parameters = {
+  msw: [
+    rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
+      const name = req.body.game.name
+
+      return res(
+        ctx.status(201),
+        ctx.json({
+          id: Math.floor(Math.random() * 10000),
+          user_id: profileData.id,
+          description: null,
+          name
+        })
+      )
+    }),
+    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json([])
+      )
+    })
+  ]
+}
+
 /*
  *
  * When the requested game doesn't exist or doesn't belong to
@@ -478,6 +511,12 @@ export const ListOrItemsNotFound = () => (
   </AppProvider>
 )
 
+// Although POST requests to /games can originate from this page (from the games
+// dropdown), no handlers for that request are defined in this file. This is
+// because creating a new game that way will trigger a GET request for that game's
+// shopping lists, which will trigger a 404 response since the game isn't in the
+// `games` array. We could hack this but it's not really worth it for Storybook.
+// Better to rely on manual testing and Jest for this.
 ListOrItemsNotFound.parameters = {
   msw: [
     rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
@@ -592,9 +631,10 @@ export const NoLists = () => (
   </AppProvider>
 )
 
-// This story will not offer the possibility to add shopping list items to lists
-// you create. It's just too hard to predict and mock application state so many
-// actions out.
+// This story will not offer the possibility to add shopping list items to lists you create.
+// It's just too hard to predict and mock application state so many actions out. It also
+// won't offer the ability to create new games from the games dropdown since that triggers
+// a GET request to shopping lists and becomes a whole thing.
 NoLists.parameters = {
   msw: [
     // This request creates a new shopping list for the given game (if it exists and belongs
