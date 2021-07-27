@@ -23,7 +23,7 @@ const GamesDropdown = () => {
   const queryString = useQuery()
 
   const { setFlashVisible } = useAppContext()
-  const { games, performGameCreate } = useGamesContext()
+  const { games, gameLoadingState, performGameCreate } = useGamesContext()
 
   const [activeGame, setActiveGame] = useState(null)
   const [dropdownExpanded, setDropdownExpanded] = useState(false)
@@ -117,7 +117,7 @@ const GamesDropdown = () => {
         <input
           className={classNames(styles.input, 'focusable')}
           type='text'
-          disabled={!games.length}
+          disabled={gameLoadingState !== 'done' /* if 'loading' or 'error' it should be disabled*/}
           value={inputValue}
           onChange={updateValue}
           placeholder='No games available'
@@ -185,7 +185,7 @@ const GamesDropdown = () => {
       </div>
       <ul
         id='gamesListbox'
-        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded || !games.length })}
+        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded || gameLoadingState !== 'done' })}
         role='listbox'
       >
         {games.map(({ id, name }, index) => {
