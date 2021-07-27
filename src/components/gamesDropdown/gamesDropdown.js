@@ -177,7 +177,7 @@ const GamesDropdown = () => {
               document.getElementsByClassName('focusable')[1].focus()
             }
           }}
-          disabled={!games.length && gameLoadingState !== 'done'}
+          disabled={gameLoadingState !== 'done'}
           data-testid='games-dropdown-trigger'
         >
           <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
