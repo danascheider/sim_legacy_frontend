@@ -177,7 +177,7 @@ const GamesDropdown = () => {
               document.getElementsByClassName('focusable')[1].focus()
             }
           }}
-          disabled={!games.length}
+          disabled={!games.length && gameLoadingState !== 'done'}
           data-testid='games-dropdown-trigger'
         >
           <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
@@ -185,7 +185,7 @@ const GamesDropdown = () => {
       </div>
       <ul
         id='gamesListbox'
-        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded || gameLoadingState !== 'done' })}
+        className={classNames(styles.dropdown, { [styles.hidden]: !dropdownExpanded || !games.length })}
         role='listbox'
       >
         {games.map(({ id, name }, index) => {
