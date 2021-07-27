@@ -73,6 +73,8 @@ For other cases where you absolutely must change app behaviour for Storybook, yo
 
 ### Testing with Jest
 
+**NB: If you are having issues with Jest, check out the docs on [common Jest failures](/docs/testing/common-jest-failures.md).**
+
 [Jest](https://jestjs.io/) has been set up with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro) to handle testing of components. We are in the process of [retrofitting tests](https://trello.com/c/ulddni7U/78-testing-with-jest) to the application, so tests will be added to components that don't currently have them.
 
 It is recommended, per the docs, to take a behaviour-based approach to testing with Jest, using the React Testing Library tooling to interact with elements like a user would. It's important that we write these tests with an eye to ensuring complete coverage of underlying logic, however. Most of the logic in the SIM front-end is in contexts and hooks, not in the components themselves, and we should make sure the tests simulate situations that will trigger this logic to run and test the outcome.

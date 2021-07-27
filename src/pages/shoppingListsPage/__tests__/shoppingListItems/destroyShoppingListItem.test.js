@@ -274,10 +274,7 @@ describe('Destroying a shopping list item', () => {
     const server = setupServer(
       rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         return res(
-          ctx.status(401),
-          ctx.json({
-            errors: ['Google OAuth token validation failed']
-          })
+          ctx.status(404)
         )
       })
     )
@@ -323,6 +320,9 @@ describe('Destroying a shopping list item', () => {
 
       // The list item should still be on the aggregate list too
       await waitFor(() => expect(within(aggListEl).queryByText(/frenzy/i)).toBeVisible())
+
+      // There should be a flash message visible
+      await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
     })
   })
 

@@ -108,13 +108,14 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
               header: `${data.errors.length} error(s) prevented your game from being created:`,
               message: data.errors
             })
+
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
             throw new Error(`Internal Server Error: ${data.errors[0]}`)
           }
         } else {
           // Something unexpected happened and we don't know what.
-          throw new Error("There was an unexpected error creating your new game. Unfortunately, we don't know more than that yet. We're sorry!")
+          throw new Error('No data were returned from the SIM API')
         }
       })
       .catch(err => {
@@ -126,7 +127,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           setFlashProps({
             type: 'error',
-            message: "There was an unexpected error creating your game. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while creating your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()

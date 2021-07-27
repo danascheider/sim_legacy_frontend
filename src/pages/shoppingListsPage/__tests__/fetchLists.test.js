@@ -17,7 +17,7 @@ import {
   emptyShoppingLists,
   allShoppingLists
 } from '../../../sharedTestData'
-import ShoppingListsPage from './../shoppingListsPage'
+import ShoppingListsPage from '../shoppingListsPage'
 
 describe('Displaying the shopping lists page', () => {
   let component

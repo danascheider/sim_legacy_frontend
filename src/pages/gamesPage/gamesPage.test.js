@@ -357,7 +357,7 @@ describe('GamesPage', () => {
           })
 
           const newGameEl = await screen.queryByText('Another Game')
-          const errorEl = await screen.findByText(/unexpected error/i)
+          const errorEl = await screen.findByText(/something unexpected happened/i)
 
           expect(newGameEl).not.toBeInTheDocument()
           expect(errorEl).toBeVisible()

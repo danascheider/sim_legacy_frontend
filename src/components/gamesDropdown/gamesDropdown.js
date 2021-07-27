@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import { BLUE } from '../../utils/colorSchemes'
-import { useGamesContext } from '../../hooks/contexts'
+import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import useQuery from '../../hooks/useQuery'
 import GamesDropdownOption from '../gamesDropdownOption/gamesDropdownOption'
 import styles from './gamesDropdown.module.css'
@@ -22,7 +22,8 @@ const GamesDropdown = () => {
   const history = useHistory()
   const queryString = useQuery()
 
-  const { games } = useGamesContext()
+  const { setFlashVisible } = useAppContext()
+  const { games, gameLoadingState, performGameCreate } = useGamesContext()
 
   const [activeGame, setActiveGame] = useState(null)
   const [dropdownExpanded, setDropdownExpanded] = useState(false)
@@ -65,8 +66,7 @@ const GamesDropdown = () => {
       const game = gameId ? games.find(game => game.id === gameId) : games[0]
 
       if (game) {
-        setActiveGame(game)
-        setInputValue(game.name)
+        selectGame(game)
       }
     }
   }, [activeGame, games, queryString])
@@ -117,7 +117,7 @@ const GamesDropdown = () => {
         <input
           className={classNames(styles.input, 'focusable')}
           type='text'
-          disabled={!games.length}
+          disabled={gameLoadingState !== 'done' /* if 'loading' or 'error' it should be disabled*/}
           value={inputValue}
           onChange={updateValue}
           placeholder='No games available'
@@ -129,7 +129,33 @@ const GamesDropdown = () => {
           onKeyDown={e => {
             if (e.key === 'Enter') {
               const game = games.find(g => g.name.toLowerCase() === e.target.value.toLowerCase())
-              game && selectGame(game)
+
+              if (game) {
+                selectGame(game)
+              } else {
+                const callbacks = {
+                  // Although `games` has just been set in the API response handler,
+                  // there is no guarantee that it will be updated yet by the time the
+                  // callback runs. So instead of `selectGame`, here we just clear the
+                  // query string and set the active game to `null`. The `useEffect`
+                  // hook will run when the `games` array is updated and will set the
+                  // query string and the active game to the newly created game.
+                  onSuccess: () => {
+                    history.push({ search: '' })
+                    setActiveGame(null)
+                  },
+                  onUnprocessableEntity: () => {
+                    setFlashVisible(true)
+                    e.target.blur()
+                  },
+                  onInternalServerError: () => {
+                    setFlashVisible(true)
+                    e.target.blur()
+                  }
+                }
+
+                performGameCreate({ name: inputValue }, callbacks)
+              }
             } else if (e.key === 'ArrowUp') {
               e.preventDefault()
               const focusables = document.getElementsByClassName('focusable')
@@ -151,7 +177,7 @@ const GamesDropdown = () => {
               document.getElementsByClassName('focusable')[1].focus()
             }
           }}
-          disabled={!games.length}
+          disabled={gameLoadingState !== 'done'}
           data-testid='games-dropdown-trigger'
         >
           <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
