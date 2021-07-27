@@ -4,6 +4,7 @@ There are several common errors in Jest that often come up as you're writing new
 
 * [Can't Perform a React State Update on an Unmounted Component](#cant-perform-a-react-state-update-on-an-unmounted-component)
 * [Failure Says Element Doesn't Appear and Shows an Empty Body](#failure-says-element-doesnt-appear-and-shows-an-empty-body)
+* [Tests Fail when Preceded by Other Tests with Form Events](#tests-fail-when-preceded-by-other-tests-with-form-events)
 * [MSW Says Preflight (CORS) OPTIONS Request Is Unhandled](#msw-says-preflight-cors-options-request-is-unhandled)
 
 ## Can't Perform a React State Update on an Unmounted Component
@@ -152,6 +153,14 @@ Sometimes, you'll see a message that an element you expected to be visible isn't
 ```
 
 This is generally caused by the execution of some request going off the rails. Put debug statements throughout the code to see how far along in the execution it gets before it fails and to inspect values. Eventually you'll see where it's broken and it's often a small fix.
+
+## Tests Fail when Preceded by Other Tests with Form Events
+
+Another common error is that, when you have a test that interacts with a form, especially one that calls `fireEvent.submit(form)`, the tests following that one in the same file will experience expectation failures. A little digging reveals that these failures are caused by state leakage between test renders. This happens even when `component.unmount()` is called after each test.
+
+There are some [known issues](https://github.com/testing-library/react-testing-library/issues/716) with React testing library that cause tests to become order-dependent in this way. The testing library maintainers have not yet figured out exactly what the problem is. There have been some other occurrences of the problem involving lazy loading and [Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html), which led maintainers to speculate that this could be the problem, however in this code base it has shown a clear pattern of coming after form events, primarily submits, in previous tests within the same file.
+
+Unfortunately, the only known workaround at this point is to separate affected tests into separate files, or remove them. Separating them is the preferred choice for this project and is a good idea when you have multiple tests with form submit events in them, even if they are passing, since we know state leakage and order dependence are possible in this situation. This could lead to false passes as well as false failures.
 
 ## MSW Says Preflight (CORS) OPTIONS Request Is Unhandled
 
