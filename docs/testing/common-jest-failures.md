@@ -3,6 +3,7 @@
 There are several common errors in Jest that often come up as you're writing new tests. This document describes some of the most common Jest failures, what they mean, and how to fix them.
 
 * [Can't Perform a React State Update on an Unmounted Component](#cant-perform-a-react-state-update-on-an-unmounted-component)
+* [Failure Says Element Doesn't Appear and Shows an Empty Body](#failure-says-element-doesnt-appear-and-shows-an-empty-body)
 * [MSW Says Preflight (CORS) OPTIONS Request Is Unhandled](#msw-says-preflight-cors-options-request-is-unhandled)
 
 ## Can't Perform a React State Update on an Unmounted Component
