@@ -56,7 +56,7 @@ describe('Editing a game on the games page', () => {
 
       // The modal and form element should be visible now
       const modal = await screen.findByRole('dialog')
-      const form = await within(modal).findByTestId('game-edit-form')
+      const form = await within(modal).findByTestId('game-form')
       expect(form).toBeVisible()
 
       // Press the escape key to hide the modal and form
@@ -84,7 +84,7 @@ describe('Editing a game on the games page', () => {
 
       // The modal and form element should be visible now
       const modal = await screen.findByRole('dialog')
-      const form = await within(modal).findByTestId('game-edit-form')
+      const form = await within(modal).findByTestId('game-form')
       expect(form).toBeVisible()
 
       // Click on the modal (outside the form)
@@ -129,7 +129,7 @@ describe('Editing a game on the games page', () => {
       // Display the edit form
       fireEvent.click(editIcon)
 
-      const form = await screen.findByTestId('game-edit-form')
+      const form = await screen.findByTestId('game-form')
       const nameInput = await within(form).findByLabelText('Name')
       const descInput = await within(form).findByLabelText('Description')
 
@@ -182,7 +182,7 @@ describe('Editing a game on the games page', () => {
       // Display the edit form
       fireEvent.click(editIcon)
 
-      const form = await screen.findByTestId('game-edit-form')
+      const form = await screen.findByTestId('game-form')
       const nameInput = await within(form).findByLabelText('Name')
       const descInput = await within(form).findByLabelText('Description')
 
@@ -238,7 +238,7 @@ describe('Editing a game on the games page', () => {
       // Display the edit form
       fireEvent.click(editIcon)
 
-      const form = await screen.findByTestId('game-edit-form')
+      const form = await screen.findByTestId('game-form')
       const nameInput = await within(form).findByLabelText('Name')
       const descInput = await within(form).findByLabelText('Description')
 
@@ -295,7 +295,7 @@ describe('Editing a game on the games page', () => {
       // Display the edit form
       fireEvent.click(editIcon)
 
-      const form = await screen.findByTestId('game-edit-form')
+      const form = await screen.findByTestId('game-form')
       const nameInput = await within(form).findByLabelText('Name')
       const descInput = await within(form).findByLabelText('Description')
 
@@ -348,7 +348,7 @@ describe('Editing a game on the games page', () => {
       // Display the edit form
       fireEvent.click(editIcon)
 
-      const form = await screen.findByTestId('game-edit-form')
+      const form = await screen.findByTestId('game-form')
       const nameInput = await within(form).findByLabelText('Name')
       const descInput = await within(form).findByLabelText('Description')
 

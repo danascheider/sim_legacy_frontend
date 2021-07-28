@@ -1,22 +1,35 @@
 import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
+import ModalForm from '../modalForm/modalForm'
 import styles from './shoppingListItemEditForm.module.css'
+
+const formFields = [
+  {
+    name: 'quantity',
+    tag: 'input',
+    label: 'Quantity',
+    type: 'number',
+    placeholder: 'Quantity',
+    inputMode: 'numeric'
+  },
+  {
+    name: 'notes',
+    tag: 'textarea',
+    label: 'Notes',
+    type: 'textarea',
+    placeholder: 'This item has no notes',
+    inputMode: 'text'
+  }
+]
 
 const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
   const { setFlashVisible } = useAppContext()
   const { performShoppingListItemUpdate, setListItemEditFormVisible } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
-  const formRef = useRef(null)
-  const inputRef = useRef(null)
 
-  const colorVars = {
-    '--button-background-color': buttonColor.schemeColorDarkest,
-    '--button-text-color': buttonColor.textColorPrimary,
-    '--button-hover-color': buttonColor.hoverColorDark,
-    '--button-border-color': buttonColor.borderColor
-  }
+  const fields = formFields.map(field => ({ defaultValue: currentAttributes[field.name], ...field }))
 
   const updateItem = e => {
     e.preventDefault()
@@ -41,43 +54,18 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
     performShoppingListItemUpdate(currentAttributes.id, { quantity, notes }, callbacks)
   }
 
-  useEffect(() => {
-    inputRef.current && inputRef.current.focus()
-
-    return () => mountedRef.current = false
-  }, [])
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
-    <form
-      ref={formRef}
-      className={styles.root}
-      style={colorVars}
+    <ModalForm
+      modelName='shopping-list-item'
+      buttonLabel='Update Item'
+      buttonColor={buttonColor}
       onSubmit={updateItem}
-      data-testid='shopping-list-item-edit-form'
-    >
-      <fieldset className={styles.fieldset}>
-        <label className={styles.quantityLabel} htmlFor='quantity'>Quantity</label>
-        <input
-          className={styles.input}
-          ref={inputRef}
-          type='number'
-          inputMode='numeric'
-          name='quantity'
-          defaultValue={currentAttributes.quantity}
-        />
-      </fieldset>
-      <fieldset className={styles.fieldset}>
-        <label className={styles.notesLabel} htmlFor='notes'>Notes</label>
-        <textarea
-          className={styles.input}
-          type='text'
-          name='notes'
-          placeholder='This item has no notes'
-          defaultValue={currentAttributes.notes}
-        />
-      </fieldset>
-      <button className={styles.submit}>Update Item</button>
-    </form>
+      fields={fields}
+    />
   )
 }
 

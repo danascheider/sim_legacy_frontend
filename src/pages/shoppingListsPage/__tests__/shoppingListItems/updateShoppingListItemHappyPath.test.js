@@ -93,7 +93,7 @@ describe('Updating a shopping list item - happy path', () => {
     fireEvent.click(editIcon)
 
     // It should display the list item edit form
-    const form = await screen.findByTestId('shopping-list-item-edit-form')
+    const form = await screen.findByTestId('shopping-list-item-form')
     await waitFor(() => expect(form).toBeVisible())
 
     // Now find the form fields and fill out the form. This item has no notes
@@ -156,7 +156,7 @@ describe('Updating a shopping list item - happy path', () => {
 
       // It should display the modal and form
       const modal = await screen.findByRole('dialog')
-      const form = await within(modal).findByTestId('shopping-list-item-edit-form')
+      const form = await within(modal).findByTestId('shopping-list-item-form')
       expect(form).toBeVisible()
 
       // Now press the escape key to hide the modal
@@ -187,7 +187,7 @@ describe('Updating a shopping list item - happy path', () => {
 
       // It should display the modal and form
       const modal = await screen.findByRole('dialog')
-      const form = await within(modal).findByTestId('shopping-list-item-edit-form')
+      const form = await within(modal).findByTestId('shopping-list-item-form')
       expect(form).toBeVisible()
 
       // Now click on the modal element, outside the form, to hide it
