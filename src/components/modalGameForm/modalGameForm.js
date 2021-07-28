@@ -22,7 +22,7 @@ const formFields = [
   }
 ]
 
-const ModalGameForm = ({ type, buttonLabel, currentAttributes = {} }) => {
+const ModalGameForm = ({ type, currentAttributes = {} }) => {
   const { setFlashVisible } = useAppContext()
   const { performGameCreate, performGameUpdate } = useGamesContext()
 
@@ -82,7 +82,6 @@ const ModalGameForm = ({ type, buttonLabel, currentAttributes = {} }) => {
 
 ModalGameForm.propTypes = {
   type: PropTypes.oneOf(['create', 'edit']).isRequired,
-  buttonLabel: PropTypes.string.isRequired,
   currentAttributes: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
