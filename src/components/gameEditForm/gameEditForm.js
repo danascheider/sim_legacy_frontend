@@ -35,30 +35,26 @@ const GameEditForm = forwardRef(({ gameId, currentAttributes }, ref) => {
       mountedRef.current = false
     }
 
-    const restUnmountAndDisplayFlash = () => {
+    const resetUnmountAndDisplayFlash = () => {
       setFlashVisible(true)
       resetAndUnmount()
     }
 
     const callbacks = {
-      onSuccess: restUnmountAndDisplayFlash,
-      onNotFound: restUnmountAndDisplayFlash,
-      onInternalServerError: restUnmountAndDisplayFlash,
+      onSuccess: resetUnmountAndDisplayFlash,
+      onNotFound: resetUnmountAndDisplayFlash,
+      onInternalServerError: resetUnmountAndDisplayFlash,
       onUnauthorized: resetAndUnmount,
-      onUnprocessableEntity: restUnmountAndDisplayFlash
+      onUnprocessableEntity: resetUnmountAndDisplayFlash
     }
 
     performGameUpdate(gameId, attrs, callbacks)
   }
 
   useEffect(() => {
-    document.getElementsByTagName('body')[0].classList.add('modal-open')
     inputRef && inputRef.current.focus()
 
-    return () => {
-      document.getElementsByTagName('body')[0].classList.remove('modal-open')
-      mountedRef.current = false
-    }
+    return () => mountedRef.current = false
   }, [])
 
   return(

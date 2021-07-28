@@ -34,19 +34,17 @@ const ShoppingListItemEditForm = forwardRef(({ listTitle, buttonColor, currentAt
       onSuccess: () => setFlashVisible(true),
       onNotFound: onError,
       onUnprocessableEntity: onError,
-      onInternalServerError: onError
+      onInternalServerError: onError,
+      onUnauthorized: () => mountedRef.current = false
     }
 
     performShoppingListItemUpdate(currentAttributes.id, { quantity, notes }, callbacks)
   }
 
   useEffect(() => {
-    document.getElementsByTagName('body')[0].classList.add('modal-open')
-    inputRef && inputRef.current.focus()
+    inputRef.current && inputRef.current.focus()
 
-    return () => {
-      document.getElementsByTagName('body')[0].classList.remove('modal-open')
-    }
+    return () => mountedRef.current = false
   }, [])
 
   return(
