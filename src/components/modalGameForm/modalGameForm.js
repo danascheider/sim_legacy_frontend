@@ -48,7 +48,7 @@ const ModalGameForm = ({ type, buttonColor = randomColor, currentAttributes = {}
     }
 
     for (const attr in attrs) {
-      if (!attrs[attr]) delete attrs[attr]
+      if (!attrs[attr] === currentAttributes[attr]) delete attrs[attr]
     }
 
     if (type === 'create') {

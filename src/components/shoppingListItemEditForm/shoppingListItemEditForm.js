@@ -21,9 +21,6 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
   const updateItem = e => {
     e.preventDefault()
 
-    const quantity = e.target.elements.quantity.value
-    const notes = e.target.elements.notes.value
-
     const onError = () => {
       setFlashVisible(true)
       setListItemEditFormVisible(false)
@@ -38,6 +35,9 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
       onUnauthorized: () => mountedRef.current = false
     }
 
+    const quantity = e.target.elements.quantity.value
+    const notes = e.target.elements.notes.value
+
     performShoppingListItemUpdate(currentAttributes.id, { quantity, notes }, callbacks)
   }
 
@@ -49,8 +49,8 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
 
   return(
     <form
-      className={styles.root}
       ref={formRef}
+      className={styles.root}
       style={colorVars}
       onSubmit={updateItem}
       data-testid='shopping-list-item-edit-form'
