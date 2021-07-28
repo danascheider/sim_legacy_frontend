@@ -13,8 +13,9 @@ const GameEditForm = forwardRef(({ gameId, currentAttributes }, ref) => {
   const mountedRef = useRef(true)
   const formRef = useRef(null)
   const inputRef = useRef(null)
-  const colorRef = useRef(colorSchemes[Math.floor(Math.random() * colorSchemes.length)])
 
+  // Make the button a random color
+  const colorRef = useRef(colorSchemes[Math.floor(Math.random() * colorSchemes.length)])
   const colorVars = {
     '--button-background-color': colorRef.current.schemeColorDarkest,
     '--button-text-color': colorRef.current.textColorPrimary,
@@ -52,40 +53,43 @@ const GameEditForm = forwardRef(({ gameId, currentAttributes }, ref) => {
   }
 
   useEffect(() => {
-    inputRef && inputRef.current.focus()
+    inputRef.current && inputRef.current.focus()
 
     return () => mountedRef.current = false
   }, [])
 
   return(
-    <div ref={ref} className={styles.root} style={colorVars}>
-      <h3 className={styles.header}>Edit Game</h3>
-      <form ref={formRef} className={styles.form} onSubmit={updateGame} data-testid='game-edit-form'>
-        <fieldset className={styles.fieldset}>
-          <label className={styles.label} htmlFor='editGameName'>Name</label>
-          <input
-            id='editGameName'
-            ref={inputRef}
-            className={styles.input}
-            name='name'
-            type='text'
-            defaultValue={name}
-          />
-        </fieldset>
-        <fieldset className={styles.fieldset}>
-          <label className={styles.label} htmlFor='editGameDescription'>Description</label>
-          <input
-            id='editGameDescription'
-            className={styles.input}
-            type='text'
-            name='description'
-            defaultValue={description}
-            placeholder='Description'
-          />
-        </fieldset>
-        <button className={styles.submit}>Update Game</button>
-      </form>
-    </div>
+    <form
+      ref={formRef}
+      className={styles.root}
+      style={colorVars}
+      onSubmit={updateGame}
+      data-testid='game-edit-form'
+    >
+      <fieldset className={styles.fieldset}>
+        <label className={styles.label} htmlFor='editGameName'>Name</label>
+        <input
+          id='editGameName'
+          ref={inputRef}
+          className={styles.input}
+          name='name'
+          type='text'
+          defaultValue={name}
+        />
+      </fieldset>
+      <fieldset className={styles.fieldset}>
+        <label className={styles.label} htmlFor='editGameDescription'>Description</label>
+        <input
+          id='editGameDescription'
+          className={styles.input}
+          type='text'
+          name='description'
+          defaultValue={description}
+          placeholder='Description'
+        />
+      </fieldset>
+      <button className={styles.submit}>Update Game</button>
+    </form>
   )
 })
 

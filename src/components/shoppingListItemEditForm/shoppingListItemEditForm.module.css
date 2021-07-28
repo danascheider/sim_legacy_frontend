@@ -1,24 +1,5 @@
 .root {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  margin: auto;
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  background-color: #f0f0f0;
-  padding: 24px;
-  max-width: 80%;
-}
-
-.header {
-  margin: 0;
-  font-weight: 900;
-  font-size: 1.25rem;
-}
-
-.subheader {
-  margin-top: 8px;
-  font-size: 1.125rem;
-  font-style: italic;
 }
 
 .fieldset {
