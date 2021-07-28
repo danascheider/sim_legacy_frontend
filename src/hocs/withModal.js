@@ -3,6 +3,7 @@ import Modal from '../components/modal/modal'
 
 const withModal = (WrappedComponent, setModalVisible) => {
   return (props) => {
+    const mountedRef = useRef(true)
     const contentRef = useRef(null)
 
     const contentRefContains = el => contentRef.current && (contentRef.current === el || contentRef.current.contains(el))
@@ -12,6 +13,7 @@ const withModal = (WrappedComponent, setModalVisible) => {
       // outside the content element, the modal should be hidden.
       if ((e.type === 'keydown' && e.key === 'Escape') || (e.type === 'click' && !contentRefContains(e.target))) {
         setModalVisible(false)
+        mountedRef.current = false
       }
     }, [contentRefContains, setModalVisible])
 
@@ -20,6 +22,16 @@ const withModal = (WrappedComponent, setModalVisible) => {
 
       return () => window.removeEventListener('keydown', hideModal)
     })
+
+    useEffect(() => {
+      document.getElementsByTagName('body')[0].classList.add('modal-open')
+
+      return () => document.getElementsByTagName('body')[0].classList.remove('modal-open')
+    })
+
+    useEffect(() => (
+      () => mountedRef.current = false
+    ), [])
 
     return(
       <Modal onClick={hideModal}>
