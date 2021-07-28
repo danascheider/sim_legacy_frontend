@@ -49,7 +49,7 @@ const ShoppingListItemEditForm = forwardRef(({ listTitle, buttonColor, currentAt
 
   return(
     <div ref={ref} className={styles.root} style={colorVars}>
-      <h4 className={styles.header}>{currentAttributes.description}</h4>
+      <h3 className={styles.header}>{currentAttributes.description}</h3>
       <p className={styles.subheader}>{`On list "${listTitle}"`}</p>
       <form className={styles.form} ref={formRef} onSubmit={updateItem} data-testid='shopping-list-item-edit-form'>
         <fieldset className={styles.fieldset}>
