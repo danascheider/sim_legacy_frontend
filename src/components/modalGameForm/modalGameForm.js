@@ -1,44 +1,48 @@
 import React, { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import colorSchemes from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
-import styles from './modalGameForm.module.css'
+import ModalForm from '../modalForm/modalForm'
 
-const randomColor = colorSchemes[Math.floor(Math.random() * colorSchemes.length)]
+const formFields = [
+  {
+    name: 'name',
+    tag: 'input',
+    label: 'Name',
+    type: 'text',
+    placeholder: 'Name',
+    inputMode: 'text'
+  },
+  {
+    name: 'description',
+    tag: 'input',
+    label: 'Description',
+    type: 'text',
+    placeholder: 'Description',
+    inputMode: 'text'
+  }
+]
 
-const ModalGameForm = ({ type, buttonColor = randomColor, currentAttributes = {} }) => {
+const ModalGameForm = ({ type, buttonLabel, currentAttributes = {} }) => {
   const { setFlashVisible } = useAppContext()
   const { performGameCreate, performGameUpdate } = useGamesContext()
 
   const mountedRef = useRef(true)
-  const formRef = useRef(null)
-  const inputRef = useRef(null)
-
-  const colorVars = {
-    '--button-background-color': buttonColor.schemeColorDarkest,
-    '--button-text-color': buttonColor.textColorPrimary,
-    '--button-hover-color': buttonColor.hoverColorDark,
-    '--button-border-color': buttonColor.borderColor
-  }
-
-  const buttonLabel = type === 'create' ? 'Create Game' : 'Update Game'
 
   const onSubmit = e => {
     e.preventDefault()
 
     setFlashVisible(false)
 
-    const resetUnmountAndDisplayFlash = () => {
+    const unmountAndDisplayFlash = () => {
       setFlashVisible(true)
-      formRef.current && formRef.current.reset()
       mountedRef.current = false
     }
 
     const callbacks = {
-      onSuccess: resetUnmountAndDisplayFlash,
-      onUnprocessableEntity: resetUnmountAndDisplayFlash,
-      onInternalServerError: resetUnmountAndDisplayFlash,
-      onNotFound: resetUnmountAndDisplayFlash, // only valid for update but won't break anything
+      onSuccess: unmountAndDisplayFlash,
+      onUnprocessableEntity: unmountAndDisplayFlash,
+      onInternalServerError: unmountAndDisplayFlash,
+      onNotFound: unmountAndDisplayFlash, // only valid for update but won't break anything
       onUnauthorized: () => mountedRef.current = false
     }
 
@@ -48,7 +52,7 @@ const ModalGameForm = ({ type, buttonColor = randomColor, currentAttributes = {}
     }
 
     for (const attr in attrs) {
-      if (!attrs[attr] === currentAttributes[attr]) delete attrs[attr]
+      if (attrs[attr] === currentAttributes[attr]) delete attrs[attr]
     }
 
     if (type === 'create') {
@@ -57,57 +61,28 @@ const ModalGameForm = ({ type, buttonColor = randomColor, currentAttributes = {}
       performGameUpdate(currentAttributes.id, attrs, callbacks)
     }
   }
-  
-  useEffect(() => {
-    inputRef.current && inputRef.current.focus()
 
-    return () => mountedRef.current = false
-  }, [])
+  const fields = formFields.map(field => (
+    currentAttributes[field.name] ? { defaultValue: currentAttributes[field.name], ...field } : field
+  ))
+  
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
-    <form
-      ref={formRef}
-      className={styles.root}
-      style={colorVars}
+    <ModalForm
+      modelName='game'
+      buttonLabel={type === 'create' ? 'Create Game' : 'Update Game'}
       onSubmit={onSubmit}
-      data-testid='game-form'
-    >
-      <fieldset className={styles.fieldset}>
-        <label className={styles.label} htmlFor='gameName'>Name</label>
-        <input
-          id='gameName'
-          ref={inputRef}
-          className={styles.input}
-          name='name'
-          type='text'
-          placeholder='Name'
-          defaultValue={currentAttributes.name}
-        />
-      </fieldset>
-      <fieldset className={styles.fieldset}>
-        <label className={styles.label} htmlFor='gameDescription'>Description</label>
-        <input
-          id='gameDescription'
-          className={styles.input}
-          name='description'
-          type='text'
-          placeholder='Description'
-          defaultValue={currentAttributes.description}
-        />
-      </fieldset>
-      <button className={styles.submit}>{buttonLabel}</button>
-    </form>
+      fields={fields}
+    />
   )  
 }
 
 ModalGameForm.propTypes = {
   type: PropTypes.oneOf(['create', 'edit']).isRequired,
-  buttonColor: PropTypes.shape({
-    schemeColorDarkest: PropTypes.string.isRequired,
-    textColorPrimary: PropTypes.string.isRequired,
-    hoverColorDark: PropTypes.string.isRequired,
-    borderColor: PropTypes.string.isRequired
-  }),
+  buttonLabel: PropTypes.string.isRequired,
   currentAttributes: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,

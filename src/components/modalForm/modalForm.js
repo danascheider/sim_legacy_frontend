@@ -43,7 +43,7 @@ const ModalForm = ({
         if (index === 0) inputProps['ref'] = inputRef
 
         return(
-          <fieldset className={styles.fieldset}>
+          <fieldset key={`${modelName}-${name}`} className={styles.fieldset}>
             <label className={styles.label} htmlFor={name}>{label}</label>
             <Tag
               className={styles.input}
@@ -95,7 +95,7 @@ ModalForm.propTypes = {
     // The starting `value` of the field, generally the current value of
     // the attribute, if there is one.
     defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-  }))
+  })).isRequired
 }
 
 export default ModalForm

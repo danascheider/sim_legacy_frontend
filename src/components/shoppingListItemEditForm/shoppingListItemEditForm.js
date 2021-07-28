@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
 import ModalForm from '../modalForm/modalForm'
-import styles from './shoppingListItemEditForm.module.css'
 
 const formFields = [
   {

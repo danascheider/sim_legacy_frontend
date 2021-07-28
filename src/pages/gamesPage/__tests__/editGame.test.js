@@ -111,7 +111,7 @@ describe('Editing a game on the games page', () => {
       })
     )
 
-    const { name } = games[0]
+    const { name, description } = games[0]
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
@@ -130,8 +130,8 @@ describe('Editing a game on the games page', () => {
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByLabelText('Name')
-      const descInput = await within(form).findByLabelText('Description')
+      const nameInput = await within(form).findByDisplayValue(name)
+      const descInput = await within(form).findByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -164,7 +164,7 @@ describe('Editing a game on the games page', () => {
       })
     )
 
-    const { name } = games[0]
+    const { name, description } = games[0]
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
@@ -183,8 +183,8 @@ describe('Editing a game on the games page', () => {
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByLabelText('Name')
-      const descInput = await within(form).findByLabelText('Description')
+      const nameInput = await within(form).findByDisplayValue(name)
+      const descInput = await within(form).findByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -220,7 +220,7 @@ describe('Editing a game on the games page', () => {
       })
     )
 
-    const { name } = games[0]
+    const { name, description } = games[0]
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
@@ -239,8 +239,8 @@ describe('Editing a game on the games page', () => {
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByLabelText('Name')
-      const descInput = await within(form).findByLabelText('Description')
+      const nameInput = await within(form).findByDisplayValue(name)
+      const descInput = await within(form).findByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -277,7 +277,7 @@ describe('Editing a game on the games page', () => {
       })
     )
 
-    const { name } = games[0]
+    const { name, description } = games[0]
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
@@ -296,8 +296,8 @@ describe('Editing a game on the games page', () => {
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByLabelText('Name')
-      const descInput = await within(form).findByLabelText('Description')
+      const nameInput = await within(form).findByDisplayValue(name)
+      const descInput = await within(form).findByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -330,7 +330,7 @@ describe('Editing a game on the games page', () => {
       })
     )
 
-    const { name } = games[0]
+    const { name, description } = games[0]
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
@@ -349,8 +349,8 @@ describe('Editing a game on the games page', () => {
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByLabelText('Name')
-      const descInput = await within(form).findByLabelText('Description')
+      const nameInput = await within(form).findByDisplayValue(name)
+      const descInput = await within(form).findByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
