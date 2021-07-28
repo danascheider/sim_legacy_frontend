@@ -39,6 +39,62 @@ describe('Editing a game on the games page', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
+  describe('cancelling update with the escape key', () => {
+    const { name } = games[0]
+
+    it('hides the form', async () => {
+      component = renderComponentWithMockCookies()
+
+      const gameTitle = await screen.findByText(name)
+      const gameEl = gameTitle.closest('.root')
+
+      // The icon you click to display the form
+      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+
+      // Display the edit form
+      fireEvent.click(editIcon)
+
+      // The modal and form element should be visible now
+      const modal = await screen.findByRole('dialog')
+      const form = await within(modal).findByTestId('game-edit-form')
+      expect(form).toBeVisible()
+
+      // Press the escape key to hide the modal and form
+      fireEvent.keyDown(modal, { key: 'Escape', code: 'Escape' })
+
+      // Modal and form should be hidden
+      await waitFor(() => expect(modal).not.toBeVisible())
+    })
+  })
+
+  describe('cancelling update with click outside the form', () => {
+    const { name } = games[0]
+
+    it('hides the form', async () => {
+      component = renderComponentWithMockCookies()
+
+      const gameTitle = await screen.findByText(name)
+      const gameEl = gameTitle.closest('.root')
+
+      // The icon you click to display the form
+      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+
+      // Display the edit form
+      fireEvent.click(editIcon)
+
+      // The modal and form element should be visible now
+      const modal = await screen.findByRole('dialog')
+      const form = await within(modal).findByTestId('game-edit-form')
+      expect(form).toBeVisible()
+
+      // Click on the modal (outside the form)
+      fireEvent.click(modal)
+
+      // Modal and form should be hidden
+      await waitFor(() => expect(modal).not.toBeVisible())
+    })
+  })
+
   describe('successful update', () => {
     const server = setupServer(
       rest.patch(`${backendBaseUri}/games/:id`, (req, res, ctx) => {

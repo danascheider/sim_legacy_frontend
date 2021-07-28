@@ -4,7 +4,7 @@ import styles from './modal.module.css'
 const Modal = ({ children, ...props }) => {
 
   return(
-    <div className={styles.root} {...props}>
+    <div role='dialog' className={styles.root} {...props}>
       {children}
     </div>
   )
