@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, forwardRef, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
 import styles from './shoppingListItemEditForm.module.css'
 
-const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentAttributes }) => {
+const ShoppingListItemEditForm = forwardRef(({ listTitle, buttonColor, currentAttributes }, ref) => {
   const { setFlashVisible } = useAppContext()
   const { performShoppingListItemUpdate, setListItemEditFormVisible } = useShoppingListsContext()
 
@@ -50,7 +50,7 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
   }, [])
 
   return(
-    <div ref={elementRef} className={styles.root} style={colorVars}>
+    <div ref={ref} className={styles.root} style={colorVars}>
       <h4 className={styles.header}>{currentAttributes.description}</h4>
       <p className={styles.subheader}>{`On list "${listTitle}"`}</p>
       <form className={styles.form} ref={formRef} onSubmit={updateItem} data-testid='shopping-list-item-edit-form'>
@@ -79,12 +79,9 @@ const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentA
       </form>
     </div>
   )
-}
+})
 
 ShoppingListItemEditForm.propTypes = {
-  elementRef: PropTypes.shape({
-    current: PropTypes.instanceOf(Element)
-  }),
   listTitle: PropTypes.string.isRequired,
   buttonColor: PropTypes.shape({
     schemeColorDarkest: PropTypes.string.isRequired,
