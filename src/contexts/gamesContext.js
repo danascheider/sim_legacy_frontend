@@ -183,7 +183,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           onNotFound && onNotFound()
         } else {
-          if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
+          if (process.env.NODE_ENV === 'development') console.error('Error updating game: ', err)
 
           setFlashProps({
             type: 'error',

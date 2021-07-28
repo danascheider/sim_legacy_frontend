@@ -48,38 +48,36 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
   }, [])
 
   return(
-    <>
-      <form
-        className={styles.root}
-        ref={formRef}
-        style={colorVars}
-        onSubmit={updateItem}
-        data-testid='shopping-list-item-edit-form'
-      >
-        <fieldset className={styles.fieldset}>
-          <label className={styles.quantityLabel} htmlFor='quantity'>Quantity</label>
-          <input
-            className={styles.input}
-            ref={inputRef}
-            type='number'
-            inputMode='numeric'
-            name='quantity'
-            defaultValue={currentAttributes.quantity}
-          />
-        </fieldset>
-        <fieldset className={styles.fieldset}>
-          <label className={styles.notesLabel} htmlFor='notes'>Notes</label>
-          <textarea
-            className={styles.input}
-            type='text'
-            name='notes'
-            placeholder='This item has no notes'
-            defaultValue={currentAttributes.notes}
-          />
-        </fieldset>
-        <button className={styles.submit}>Update Item</button>
-      </form>
-    </>
+    <form
+      className={styles.root}
+      ref={formRef}
+      style={colorVars}
+      onSubmit={updateItem}
+      data-testid='shopping-list-item-edit-form'
+    >
+      <fieldset className={styles.fieldset}>
+        <label className={styles.quantityLabel} htmlFor='quantity'>Quantity</label>
+        <input
+          className={styles.input}
+          ref={inputRef}
+          type='number'
+          inputMode='numeric'
+          name='quantity'
+          defaultValue={currentAttributes.quantity}
+        />
+      </fieldset>
+      <fieldset className={styles.fieldset}>
+        <label className={styles.notesLabel} htmlFor='notes'>Notes</label>
+        <textarea
+          className={styles.input}
+          type='text'
+          name='notes'
+          placeholder='This item has no notes'
+          defaultValue={currentAttributes.notes}
+        />
+      </fieldset>
+      <button className={styles.submit}>Update Item</button>
+    </form>
   )
 }
 

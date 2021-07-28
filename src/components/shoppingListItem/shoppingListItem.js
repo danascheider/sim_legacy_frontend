@@ -151,7 +151,7 @@ const ShoppingListItem = ({
       setFlashVisible(false)
 
       setListItemEditFormProps({
-        listTitle: listTitle,
+        listTitle,
         buttonColor: {
           schemeColorDarkest,
           hoverColorDark,
