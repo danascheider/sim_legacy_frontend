@@ -34,6 +34,7 @@ const Game = ({ gameId, name, description }) => {
   const showEditForm = () => {
     setFlashVisible(false)
 
+
     setGameEditFormProps({
       gameId: gameId,
       currentAttributes: { name, description }
@@ -74,7 +75,7 @@ const Game = ({ gameId, name, description }) => {
             ref={destroyRef}
             className={styles.icon}
             onClick={destroyGame}
-            data-testid={`destroy-icon-game-id-${gameId}`}
+            data-testid={`game-destroy-icon`}
           >
             <FontAwesomeIcon className={styles.fa} icon={faTimes} />
           </button>
@@ -82,7 +83,7 @@ const Game = ({ gameId, name, description }) => {
             ref={editRef}
             className={styles.icon}
             onClick={showEditForm}
-            data-testid={`edit-icon-game-id-${gameId}`}
+            data-testid={`game-edit-icon`}
           >
             <FontAwesomeIcon className={styles.fa} icon={faEdit} />
           </button>

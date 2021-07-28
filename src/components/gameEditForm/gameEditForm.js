@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, forwardRef } from 'react'
 import PropTypes from 'prop-types'
 import colorSchemes from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import styles from './gameEditForm.module.css'
 
-const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
+const GameEditForm = forwardRef(({ gameId, currentAttributes }, ref) => {
   const { name, description } = currentAttributes
 
   const { setFlashVisible } = useAppContext()
@@ -62,7 +62,7 @@ const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
   }, [])
 
   return(
-    <div ref={elementRef} className={styles.root} style={colorVars}>
+    <div ref={ref} className={styles.root} style={colorVars}>
       <h3 className={styles.header}>Edit Game</h3>
       <form ref={formRef} className={styles.form} onSubmit={updateGame} data-testid='game-edit-form'>
         <fieldset className={styles.fieldset}>
@@ -91,13 +91,10 @@ const GameEditForm = ({ gameId, elementRef, currentAttributes }) => {
       </form>
     </div>
   )
-}
+})
 
 GameEditForm.propTypes = {
   gameId: PropTypes.number.isRequired,
-  elementRef: PropTypes.shape({
-    current: PropTypes.instanceOf(Element)
-  }),
   currentAttributes: PropTypes.shape({
     name: PropTypes.string.isRequired,
     description: PropTypes.string

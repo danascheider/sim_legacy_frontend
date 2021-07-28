@@ -176,7 +176,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
-            message: 'The game you wanted to update could not be found. Try refreshing to fix this problem.'
+            message: "Oops! We couldn't find the game you wanted to update. Sorry! Try refreshing the page to solve this problem."
           })
 
           setGameEditFormVisible(false)
@@ -187,7 +187,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           setFlashProps({
             type: 'error',
-            message: "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to update your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           setGameEditFormVisible(false)
@@ -226,7 +226,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           setFlashProps({
             type: 'error',
-            message: "There was an unexpected error deleting your game. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to delete your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()
