@@ -135,4 +135,66 @@ describe('Updating a shopping list item - happy path', () => {
     // Finally, it should display the flash message.
     await waitFor(() => expect(screen.queryByText(/updated/i)).toBeVisible())
   })
+
+  describe('cancelling editing with the Escape key', () => {
+    it('hides the modal and form', async () => {
+      component = renderComponentWithMockCookies()
+
+      // We're going to update an item on the 'Lakeview Manor' list
+      const listTitleEl = await screen.findByText('Lakeview Manor')
+      const listEl = listTitleEl.closest('.root')
+
+      fireEvent.click(listTitleEl)
+
+      // The list item we're going for is titled 'Ingredients with "Frenzy"
+      // property'. Its initial quantity is 4 and it has no notes.
+      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      const itemEl = itemDescEl.closest('.root')
+      const editIcon = await within(itemEl).findByTestId('edit-item')
+
+      fireEvent.click(editIcon)
+
+      // It should display the modal and form
+      const modal = await screen.findByRole('dialog')
+      const form = await within(modal).findByTestId('shopping-list-item-edit-form')
+      expect(form).toBeVisible()
+
+      // Now press the escape key to hide the modal
+      fireEvent.keyDown(form, { key: 'Escape', code: 'Escape' })
+
+      // The form should be hidden 
+      await waitFor(() => expect(modal).not.toBeVisible())
+    })
+  })
+
+  describe('cancelling editing by clicking outside the form', () => {
+    it('hides the modal and form', async () => {
+      component = renderComponentWithMockCookies()
+
+      // We're going to update an item on the 'Lakeview Manor' list
+      const listTitleEl = await screen.findByText('Lakeview Manor')
+      const listEl = listTitleEl.closest('.root')
+
+      fireEvent.click(listTitleEl)
+
+      // The list item we're going for is titled 'Ingredients with "Frenzy"
+      // property'. Its initial quantity is 4 and it has no notes.
+      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      const itemEl = itemDescEl.closest('.root')
+      const editIcon = await within(itemEl).findByTestId('edit-item')
+
+      fireEvent.click(editIcon)
+
+      // It should display the modal and form
+      const modal = await screen.findByRole('dialog')
+      const form = await within(modal).findByTestId('shopping-list-item-edit-form')
+      expect(form).toBeVisible()
+
+      // Now click on the modal element, outside the form, to hide it
+      fireEvent.click(modal)
+
+      // The form should be hidden 
+      await waitFor(() => expect(modal).not.toBeVisible())
+    })
+  })
 })
