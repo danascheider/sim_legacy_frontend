@@ -6,7 +6,9 @@ const withModal = (WrappedComponent, setModalVisible) => {
     const mountedRef = useRef(true)
     const contentRef = useRef(null)
 
-    const contentRefContains = el => contentRef.current && (contentRef.current === el || contentRef.current.contains(el))
+    const contentRefContains = useCallback(el => (
+      contentRef.current && (contentRef.current === el || contentRef.current.contains(el))
+    ), [])
 
     const hideModal = useCallback(e => {
       // If the Escape key is pressed, or if the user clicks on the modal div
@@ -15,7 +17,7 @@ const withModal = (WrappedComponent, setModalVisible) => {
         setModalVisible(false)
         mountedRef.current = false
       }
-    }, [contentRefContains, setModalVisible])
+    }, [contentRefContains])
 
     useEffect(() => {
       window.addEventListener('keydown', hideModal)

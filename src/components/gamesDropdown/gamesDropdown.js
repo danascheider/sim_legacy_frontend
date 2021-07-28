@@ -69,7 +69,7 @@ const GamesDropdown = () => {
         selectGame(game)
       }
     }
-  }, [activeGame, games, queryString])
+  }, [activeGame, selectGame, games, queryString])
 
   useEffect(() => {
     const collapseDropdownAndResetValue = e => {

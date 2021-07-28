@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import { gameLoadingStates } from '../../contexts/gamesContext'

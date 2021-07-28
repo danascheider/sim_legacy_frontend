@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
 import withModal from '../../hocs/withModal'
 import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
