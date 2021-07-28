@@ -17,6 +17,7 @@ const ShoppingListItem = ({
   notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [collapsed, setCollapsed] = useState(true)
 
   // This enables us to set the quantity to the new quantity during the time between when
   // the user increments/decrements the quantity and the time the API responds.
@@ -61,7 +62,10 @@ const ShoppingListItem = ({
   const iconContains = el => editRefContains(el) || deleteRefContains(el) || incRefContains(el) || decRefContains(el)
   
   const toggleDetails = e => {
-    if (!iconContains(e.target)) setToggleEvent(Date.now)
+    if (!iconContains(e.target)) {
+      setToggleEvent(Date.now)
+      setCollapsed(!collapsed)
+    }
   }
 
   const displayFlash = (type, message, header = null) => {
@@ -178,7 +182,7 @@ const ShoppingListItem = ({
   ), [])
 
   return(
-    <div className={styles.root} style={styleVars}>
+    <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={styleVars}>
       <div className={styles.toggle} onClick={toggleDetails}>
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
