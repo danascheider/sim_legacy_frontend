@@ -3,11 +3,13 @@ import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import { gameLoadingStates } from '../../contexts/gamesContext'
 import DashboardLayout from '../../layouts/dashboardLayout'
-import withModal from '../../hocs/withModal'
+// import withModal from '../../hocs/withModal'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import Game from '../../components/game/game'
 import GameCreateForm from '../../components/gameCreateForm/gameCreateForm'
-import GameEditForm from '../../components/gameEditForm/gameEditForm'
+import ModalGameForm from '../../components/modalGameForm/modalGameForm'
+import Modal from '../../components/modal/modal'
+// import GameEditForm from '../../components/gameEditForm/gameEditForm'
 import Loading from '../../components/loading/loading'
 import styles from './gamesPage.module.css'
 
@@ -32,8 +34,6 @@ const GamesPage = () => {
     if (!e || e.key === 'Escape') setGameEditFormVisible(false)
   }, [setGameEditFormVisible])
 
-  const EditForm = withModal(GameEditForm, setGameEditFormVisible)
-
   useEffect(() => {
     window.addEventListener('keyup', hideForm)
 
@@ -52,7 +52,11 @@ const GamesPage = () => {
     <DashboardLayout title='Your Games'>
       <div className={styles.root}>
         {flashVisible && Object.keys(flashProps).length && <FlashMessage {...flashProps} />}
-        {gameEditFormVisible && <EditForm {...gameEditFormProps} />}
+        {gameEditFormVisible && 
+          <Modal title='Edit Game' setModalVisible={setGameEditFormVisible}>
+            <ModalGameForm type='edit' {...gameEditFormProps} />
+          </Modal>
+        }
         {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}
         {gameLoadingState === DONE && <GameCreateForm disabled={gameLoadingState === LOADING || gameLoadingState === ERROR} />}
         {games && games.length > 0 && gameLoadingState === DONE && <div className={styles.games}>

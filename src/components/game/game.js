@@ -35,10 +35,7 @@ const Game = ({ gameId, name, description }) => {
     setFlashVisible(false)
 
 
-    setGameEditFormProps({
-      gameId: gameId,
-      currentAttributes: { name, description }
-    })
+    setGameEditFormProps({ currentAttributes: { id: gameId, name, description } })
 
     setGameEditFormVisible(true)
   }

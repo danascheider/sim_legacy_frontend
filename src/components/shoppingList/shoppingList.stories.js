@@ -6,7 +6,7 @@ import { ColorProvider } from '../../contexts/colorContext'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
-import { token, games, allShoppingLists } from '../../sharedTestData'
+import { token, games } from '../../sharedTestData'
 import {
   adjustListItem,
   combineListItems,
