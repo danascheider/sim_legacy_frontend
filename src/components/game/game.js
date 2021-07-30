@@ -38,10 +38,16 @@ const Game = ({ gameId, name, description }) => {
   const showEditForm = () => {
     setFlashVisible(false)
 
+    const attributes = { id: gameId, name, description }
 
-    setGameEditFormProps({ currentAttributes: { id: gameId, name, description } })
-
-    setGameEditFormVisible(true)
+    const ModalComponent = withModal(ModalGameForm)
+    setModalProps({
+      Tag: ModalComponent,
+      title: 'Edit Game',
+      type: 'edit',
+      currentAttributes: attributes
+    })
+    setModalVisible(true)
   }
 
   const destroyGame = e => {
