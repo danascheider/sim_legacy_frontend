@@ -17,7 +17,7 @@ export const Default = () => (
         <Modal
           title={listItemData.description}
           subtitle={`On list "${shoppingLists[1].title}"`}
-          setModalVisible={() => {}}
+          setVisible={() => {}}
         >
           <ShoppingListItemEditForm buttonColor={GREEN} currentAttributes={listItemData} />
         </Modal>

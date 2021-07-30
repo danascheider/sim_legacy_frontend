@@ -23,15 +23,15 @@ describe('creating a new game from the dropdown', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
-    const route = `/dashboard/shopping_lists?game_id=${games[0].id}`
+    const route = '/dashboard/shopping_lists'
     const cookies = new Cookies('_sim_google_session=xxxxxx')
     cookies.HAS_DOCUMENT_COOKIE = false
 
     return renderWithRouter(
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
-          <GamesProvider overrideValue={{ games: games, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider>
+          <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }} >
+            <ShoppingListsProvider overrideValue={{ shoppingLists: emptyShoppingLists }}>
               <ShoppingListsPage />
             </ShoppingListsProvider>
           </GamesProvider>
@@ -182,15 +182,6 @@ describe('creating a new game from the dropdown', () => {
 
   describe('when there is a 500 or other unexpected error', () => {
     const server = setupServer(
-      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
-        const gameId = parseInt(req.params.gameId)
-        const lists = allShoppingLists.filter(list => list.game_id === gameId)
-
-        return res(
-          ctx.status(200),
-          ctx.json(lists)
-        )
-      }),
       rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
         return res(
           ctx.status(500),

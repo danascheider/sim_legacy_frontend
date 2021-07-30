@@ -1,8 +1,11 @@
 import React, { useRef, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { useAppContext } from '../../hooks/contexts'
 import styles from './modal.module.css'
 
-const Modal = ({ children, title, subtitle, setModalVisible }) => {
+const Modal = ({ children, title, subtitle, setVisible }) => {
+  const { setModalVisible } = useAppContext()
+
   const contentRef = useRef(null)
   const mountedRef = useRef(true)
 
@@ -10,21 +13,21 @@ const Modal = ({ children, title, subtitle, setModalVisible }) => {
     contentRef.current && (contentRef.current === el || contentRef.current.contains(el))
   ), [])
 
-  const hideModal = useCallback(e => {
+  const hide = useCallback(e => {
     if ((e.type === 'click' && !contentRefContains(e.target)) || (e.type === 'keydown' && e.key === 'Escape')) {
-      setModalVisible(false)
+      setVisible && setVisible(false) || setModalVisible(false)
       mountedRef.current = false
     }
-  }, [contentRefContains, setModalVisible])
+  }, [contentRefContains, setVisible, setModalVisible])
 
   useEffect(() => {
-    window.addEventListener('keydown', hideModal)
+    window.addEventListener('keydown', hide)
 
     return () => {
-      window.removeEventListener('keydown', hideModal)
+      window.removeEventListener('keydown', hide)
       document.getElementsByTagName('body')[0].classList.remove('modal-open')
     }
-  }, [hideModal])
+  }, [hide])
 
   useEffect(() => {
     document.getElementsByTagName('body')[0].classList.add('modal-open')
@@ -36,7 +39,7 @@ const Modal = ({ children, title, subtitle, setModalVisible }) => {
   }, [])
 
   return(
-    <div role='dialog' className={styles.root} onClick={hideModal}>
+    <div role='dialog' className={styles.root} onClick={() => setModalVisible(false)}>
       <div ref={contentRef} className={styles.content}>
         <h3 className={styles.title}>{title}</h3>
         <p className={styles.subtitle}>{subtitle}</p>
@@ -49,7 +52,8 @@ const Modal = ({ children, title, subtitle, setModalVisible }) => {
 Modal.propTypes = {
   children: PropTypes.node.isRequired,
   title: PropTypes.string.isRequired,
-  setModalVisible: PropTypes.func.isRequired
+  subtitle: PropTypes.string,
+  setVisible: PropTypes.func
 }
 
 export default Modal

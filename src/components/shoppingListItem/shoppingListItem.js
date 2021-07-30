@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
+import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListItemEditForm'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
@@ -42,9 +43,7 @@ const ShoppingListItem = ({
 
   const {
     performShoppingListItemUpdate,
-    performShoppingListItemDestroy,
-    setListItemEditFormProps,
-    setListItemEditFormVisible
+    performShoppingListItemDestroy
   } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
@@ -154,22 +153,24 @@ const ShoppingListItem = ({
     if (mountedRef.current) {
       setFlashVisible(false)
 
-      setListItemEditFormProps({
-        listTitle,
-        buttonColor: {
-          schemeColorDarkest,
-          hoverColorDark,
-          borderColor,
-          textColorPrimary
-        },
-        currentAttributes: {
-          id: itemId,
-          quantity: quantity,
-          description: description,
-          notes: notes,
+      displayModal({
+        ChildComponent: ShoppingListItemEditForm,
+        props: {
+          title: description,
+          subtitle: `On list "${listTitle}"`,
+          buttonColor: {
+            schemeColorDarkest,
+            hoverColorDark,
+            borderColor,
+            textColorPrimary
+          },
+          currentAttributes: {
+            id: itemId,
+            quantity,
+            notes
+          }
         }
       })
-      setListItemEditFormVisible(true)
     }
   }
 

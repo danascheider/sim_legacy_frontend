@@ -10,7 +10,7 @@ export default { title: 'ModalGameForm' }
 export const CreateForm = () => (
   <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games }}>
-      <Modal title='Create Game' setModalVisible={() => {}}>
+      <Modal title='Create Game' setVisible={() => {}}>
         <ModalForm type='create' onSubmit={e => e.preventDefault()} />
       </Modal>
     </GamesProvider>
@@ -27,7 +27,7 @@ const gameAttributes = {
 export const UpdateFormWithDescription = () => (
   <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games }}>
-      <Modal title='Edit Game' setModalVisible={() => {}}>
+      <Modal title='Edit Game' setVisible={() => {}}>
         <ModalForm type='edit' onSubmit={e => e.preventDefault()} currentAttributes={gameAttributes} />
       </Modal>
     </GamesProvider>
@@ -42,7 +42,7 @@ const gameAttributesNoDesc = {
 export const UpdateFormNoDescription = () => (
   <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games }}>
-      <Modal title='Edit Game' setModalVisible={() => {}}>
+      <Modal title='Edit Game' setVisible={() => {}}>
         <ModalForm type='edit' onSubmit={e => e.preventDefault()} currentAttributes={gameAttributesNoDesc} />
       </Modal>
     </GamesProvider>

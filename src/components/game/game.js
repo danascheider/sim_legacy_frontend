@@ -4,7 +4,9 @@ import SlideToggle from 'react-slide-toggle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import withModal from '../../hocs/withModal'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
+import ModalGameForm from '../modalGameForm/modalGameForm'
 import styles from './game.module.css'
 
 const DEFAULT_DESCRIPTION = 'This game has no description.'
@@ -13,12 +15,14 @@ const DESTROY_CONFIRMATION = 'Are you sure you want to delete this game? This ca
 const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
-  const { setFlashProps, setFlashVisible } = useAppContext()
   const {
-    performGameDestroy,
-    setGameEditFormVisible,
-    setGameEditFormProps
-  } = useGamesContext()
+    setFlashProps,
+    setFlashVisible,
+    setModalComponent,
+    setModalVisible,
+    setModalProps
+  } = useAppContext()
+  const { performGameDestroy } = useGamesContext()
 
   const mountedRef = useRef(true)
   const iconsRef = useRef(null)

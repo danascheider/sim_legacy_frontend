@@ -17,26 +17,16 @@ const GamesPage = () => {
   const {
     flashProps,
     flashVisible,
-    setFlashVisible
+    setFlashVisible,
+    modalVisible,
+    ModalComponent,
+    modalProps
   } = useAppContext()
 
   const {
     games,
-    gameLoadingState,
-    gameEditFormVisible,
-    gameEditFormProps,
-    setGameEditFormVisible
+    gameLoadingState
   } = useGamesContext()
-
-  const hideForm = useCallback(e => {
-    if (!e || e.key === 'Escape') setGameEditFormVisible(false)
-  }, [setGameEditFormVisible])
-
-  useEffect(() => {
-    window.addEventListener('keyup', hideForm)
-
-    return () => window.removeEventListener('keyup', hideForm)
-  }, [hideForm])
 
   useEffect(() => {
     // Flash message props will be set when the `GamesContext` handles the error.
@@ -48,13 +38,9 @@ const GamesPage = () => {
 
   return(
     <DashboardLayout title='Your Games'>
+      {modalVisible && <modalProps.Tag {...modalProps} />}
       <div className={styles.root}>
         {flashVisible && Object.keys(flashProps).length && <FlashMessage {...flashProps} />}
-        {gameEditFormVisible && 
-          <Modal title='Edit Game' setModalVisible={setGameEditFormVisible}>
-            <ModalGameForm type='edit' {...gameEditFormProps} />
-          </Modal>
-        }
         {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}
         {gameLoadingState === DONE && <GameCreateForm disabled={gameLoadingState === LOADING || gameLoadingState === ERROR} />}
         {games && games.length > 0 && gameLoadingState === DONE && <div className={styles.games}>

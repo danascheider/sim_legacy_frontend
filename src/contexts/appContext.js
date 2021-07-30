@@ -18,6 +18,7 @@ import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
 import { isTestEnv } from '../utils/isTestEnv'
+import withModal from '../hocs/withModal'
 import paths, { allPaths } from '../routing/paths'
 
 const LOADING = 'loading'
@@ -33,8 +34,14 @@ const AppContext = createContext()
 const AppProvider = ({ children, overrideValue = {} }) => {
   const { pathname } = useLocation()
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
+
+  const [ModalComponent, setModalComponent] = useState(null)
+  const [modalProps, setModalProps] = useState({})
+  const [modalVisible, setModalVisible] = useState(false)
+
   const [profileData, setProfileData] = useState(overrideValue.profileData)
   const [redirectPath, setRedirectPath] = useState(overrideValue.shouldRedirectTo)
   const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
@@ -77,6 +84,12 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     flashProps,
     setFlashVisible,
     setFlashProps,
+    setModalVisible,
+    setModalComponent,
+    setModalProps,
+    modalVisible,
+    ModalComponent,
+    modalProps,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -149,7 +162,12 @@ AppProvider.propTypes = {
     }),
     setFlashVisible: PropTypes.func,
     setFlashProps: PropTypes.func,
-    logOutAndRedirect: PropTypes.func
+    logOutAndRedirect: PropTypes.func,
+    setModalVisible: PropTypes.func,
+    setModalComponent: PropTypes.func,
+    setModalProps: PropTypes.func,
+    modalVisible: PropTypes.bool,
+    ModalComponent: PropTypes.elementType
   })
 }
 

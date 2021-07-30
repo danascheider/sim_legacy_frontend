@@ -39,7 +39,7 @@ const ShoppingListsPage = () => {
         <Modal
           title={listItemEditFormProps.currentAttributes.description}
           subtitle={`On list "${listItemEditFormProps.listTitle}"`}
-          setModalVisible={setListItemEditFormVisible}
+          setVisible={setListItemEditFormVisible}
         >
           <ShoppingListItemEditForm {...listItemEditFormProps} />
         </Modal>
