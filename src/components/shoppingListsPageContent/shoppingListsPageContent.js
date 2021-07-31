@@ -2,18 +2,41 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import paths from '../../routing/paths'
-import { useGamesContext, useShoppingListsContext } from '../../hooks/contexts'
+import { useAppContext, useGamesContext, useShoppingListsContext } from '../../hooks/contexts'
+import withModal from '../../hocs/withModal'
 import { ColorProvider } from '../../contexts/colorContext'
 import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
 import Loading from '../loading/loading'
 import ShoppingList from '../shoppingList/shoppingList'
+import ModalGameForm from '../modalGameForm/modalGameForm'
 import styles from './shoppingListsPageContent.module.css'
 
 const { LOADING, DONE } = shoppingListLoadingStates
 
 const ShoppingListsPageContent = () => {
+  const { setFlashVisible, setModalAttributes, setModalVisible } = useAppContext()
   const { games, gameLoadingState } = useGamesContext()
   const { shoppingLists, shoppingListLoadingState } = useShoppingListsContext()
+
+  /*
+   *
+   * Define click handler
+   *
+   */
+
+  const showGameForm = e => {
+    e.preventDefault()
+
+    setModalAttributes({
+      Tag: withModal(ModalGameForm),
+      props: {
+        title: 'Create Game',
+        type: 'create'
+      }
+    })
+
+    setModalVisible(true)
+  }
 
   /*
    *
@@ -32,7 +55,7 @@ const ShoppingListsPageContent = () => {
   if (gameLoadingState === DONE && !games.length) {
     return(
       <p className={styles.noLists}>
-        You need a game to use the shopping lists feature. <Link className={styles.link} to={paths.dashboard.games}>Create a game</Link> to get started.
+        You need a game to use the shopping lists feature. <a className={styles.link} href='#' onClick={showGameForm}>Create a game</a> to get started.
       </p>
     )
   } else if (listsLoadedAndNotEmpty) {

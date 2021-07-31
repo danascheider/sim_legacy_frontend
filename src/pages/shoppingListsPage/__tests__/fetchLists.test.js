@@ -329,14 +329,12 @@ describe('Displaying the shopping lists page', () => {
       beforeEach(() => server.resetHandlers())
       afterAll(() => server.close())
 
-      it('displays a link to create a game', async () => {
+      it('tells the user they need to create a game', async () => {
         const { history } = component = renderComponentWithMockCookies(cookies, null, emptyGames)
 
-        const link = await screen.findByText(/create a game/i)
+        const link = await screen.findByText(/you need a game/i)
 
-        fireEvent.click(link)
-
-        await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
+        await waitFor(() => expect(screen.queryByText(/you need a game/i)).toBeVisible())
       })
     })
 
