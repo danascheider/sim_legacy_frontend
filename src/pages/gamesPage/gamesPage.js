@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react'
+import React, { useEffect } from 'react'
 import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import { gameLoadingStates } from '../../contexts/gamesContext'
@@ -6,8 +6,6 @@ import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import Game from '../../components/game/game'
 import GameCreateForm from '../../components/gameCreateForm/gameCreateForm'
-import ModalGameForm from '../../components/modalGameForm/modalGameForm'
-import Modal from '../../components/modal/modal'
 import Loading from '../../components/loading/loading'
 import styles from './gamesPage.module.css'
 
@@ -19,8 +17,7 @@ const GamesPage = () => {
     flashVisible,
     setFlashVisible,
     modalVisible,
-    ModalComponent,
-    modalProps
+    modalAttributes
   } = useAppContext()
 
   const {
@@ -38,7 +35,7 @@ const GamesPage = () => {
 
   return(
     <DashboardLayout title='Your Games'>
-      {modalVisible && <modalProps.Tag {...modalProps} />}
+      {modalVisible && <modalAttributes.Tag {...modalAttributes.props} />}
       <div className={styles.root}>
         {flashVisible && Object.keys(flashProps).length && <FlashMessage {...flashProps} />}
         {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}

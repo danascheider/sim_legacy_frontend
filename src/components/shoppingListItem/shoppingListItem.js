@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
+import withModal from '../../hocs/withModal'
 import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListItemEditForm'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
@@ -26,7 +27,9 @@ const ShoppingListItem = ({
 
   const {
     setFlashProps,
-    setFlashVisible
+    setFlashVisible,
+    setModalVisible,
+    setModalAttributes
   } = useAppContext()
 
   const {
@@ -153,8 +156,10 @@ const ShoppingListItem = ({
     if (mountedRef.current) {
       setFlashVisible(false)
 
-      displayModal({
-        ChildComponent: ShoppingListItemEditForm,
+      const Tag = withModal(ShoppingListItemEditForm)
+
+      setModalAttributes({
+        Tag,
         props: {
           title: description,
           subtitle: `On list "${listTitle}"`,
@@ -167,10 +172,13 @@ const ShoppingListItem = ({
           currentAttributes: {
             id: itemId,
             quantity,
-            notes
+            notes,
+            description
           }
         }
       })
+
+      setModalVisible(true)
     }
   }
 

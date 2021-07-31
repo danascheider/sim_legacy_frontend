@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useAppContext } from '../../hooks/contexts'
 import styles from './modal.module.css'
 
-const Modal = ({ children, title, subtitle, setVisible }) => {
+const Modal = ({ children, title, subtitle }) => {
   const { setModalVisible } = useAppContext()
 
   const contentRef = useRef(null)
@@ -15,18 +15,15 @@ const Modal = ({ children, title, subtitle, setVisible }) => {
 
   const hide = useCallback(e => {
     if ((e.type === 'click' && !contentRefContains(e.target)) || (e.type === 'keydown' && e.key === 'Escape')) {
-      setVisible && setVisible(false) || setModalVisible(false)
+      setModalVisible(false)
       mountedRef.current = false
     }
-  }, [contentRefContains, setVisible, setModalVisible])
+  }, [contentRefContains, setModalVisible])
 
   useEffect(() => {
     window.addEventListener('keydown', hide)
 
-    return () => {
-      window.removeEventListener('keydown', hide)
-      document.getElementsByTagName('body')[0].classList.remove('modal-open')
-    }
+    return () => window.removeEventListener('keydown', hide)
   }, [hide])
 
   useEffect(() => {
@@ -39,7 +36,7 @@ const Modal = ({ children, title, subtitle, setVisible }) => {
   }, [])
 
   return(
-    <div role='dialog' className={styles.root} onClick={() => setModalVisible(false)}>
+    <div role='dialog' className={styles.root} onClick={hide}>
       <div ref={contentRef} className={styles.content}>
         <h3 className={styles.title}>{title}</h3>
         <p className={styles.subtitle}>{subtitle}</p>
@@ -52,8 +49,7 @@ const Modal = ({ children, title, subtitle, setVisible }) => {
 Modal.propTypes = {
   children: PropTypes.node.isRequired,
   title: PropTypes.string.isRequired,
-  subtitle: PropTypes.string,
-  setVisible: PropTypes.func
+  subtitle: PropTypes.string
 }
 
 export default Modal

@@ -18,7 +18,6 @@ import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
 import { isTestEnv } from '../utils/isTestEnv'
-import withModal from '../hocs/withModal'
 import paths, { allPaths } from '../routing/paths'
 
 const LOADING = 'loading'
@@ -38,8 +37,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
 
-  const [ModalComponent, setModalComponent] = useState(null)
-  const [modalProps, setModalProps] = useState({})
+  const [modalAttributes, setModalAttributes] = useState({})
   const [modalVisible, setModalVisible] = useState(false)
 
   const [profileData, setProfileData] = useState(overrideValue.profileData)
@@ -85,11 +83,9 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     setFlashVisible,
     setFlashProps,
     setModalVisible,
-    setModalComponent,
-    setModalProps,
+    setModalAttributes,
     modalVisible,
-    ModalComponent,
-    modalProps,
+    modalAttributes,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -164,10 +160,12 @@ AppProvider.propTypes = {
     setFlashProps: PropTypes.func,
     logOutAndRedirect: PropTypes.func,
     setModalVisible: PropTypes.func,
-    setModalComponent: PropTypes.func,
-    setModalProps: PropTypes.func,
+    setModalAttributes: PropTypes.func,
     modalVisible: PropTypes.bool,
-    ModalComponent: PropTypes.elementType
+    modalAttributes: PropTypes.shape({
+      Tag: PropTypes.elementType,
+      props: PropTypes.object
+    })
   })
 }
 

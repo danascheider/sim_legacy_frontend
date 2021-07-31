@@ -23,8 +23,8 @@ const formFields = [
 ]
 
 const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
-  const { setFlashVisible } = useAppContext()
-  const { performShoppingListItemUpdate, setListItemEditFormVisible } = useShoppingListsContext()
+  const { setFlashVisible, setModalVisible } = useAppContext()
+  const { performShoppingListItemUpdate } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
 
@@ -33,17 +33,17 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
   const updateItem = e => {
     e.preventDefault()
 
-    const onError = () => {
+    const callback = () => {
       setFlashVisible(true)
-      setListItemEditFormVisible(false)
+      setModalVisible(false)
       mountedRef.current = false
     }
 
     const callbacks = {
-      onSuccess: () => setFlashVisible(true),
-      onNotFound: onError,
-      onUnprocessableEntity: onError,
-      onInternalServerError: onError,
+      onSuccess: callback,
+      onNotFound: callback,
+      onUnprocessableEntity: callback,
+      onInternalServerError: callback,
       onUnauthorized: () => mountedRef.current = false
     }
 

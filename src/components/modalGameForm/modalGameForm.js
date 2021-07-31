@@ -23,7 +23,7 @@ const formFields = [
 ]
 
 const ModalGameForm = ({ type, currentAttributes = {} }) => {
-  const { setFlashVisible } = useAppContext()
+  const { setFlashVisible, setModalVisible } = useAppContext()
   const { performGameCreate, performGameUpdate } = useGamesContext()
 
   const mountedRef = useRef(true)
@@ -35,6 +35,7 @@ const ModalGameForm = ({ type, currentAttributes = {} }) => {
 
     const unmountAndDisplayFlash = () => {
       setFlashVisible(true)
+      setModalVisible(false)
       mountedRef.current = false
     }
 
