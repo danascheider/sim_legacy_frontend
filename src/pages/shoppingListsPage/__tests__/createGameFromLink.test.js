@@ -204,11 +204,20 @@ describe('Creating a new game from the link', () => {
     it('redirects to the login page', async () => {
       const { history } = component = renderComponentWithMockCookies()
       
-      const dropdownComponent = await screen.findByTestId('games-dropdown')
-      const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
+      // Find and click the link you click to display the creation form
+      const link = await screen.findByText(/create a game/i)
+      fireEvent.click(link)
 
-      fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
-      fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
+      // The modal with the form should now be visible
+      const form = await screen.findByTestId('game-form')
+
+      // Fill out and submit the form
+      const nameInput = await within(form).findByPlaceholderText('Name')
+      const descInput = await within(form).findByPlaceholderText('Description')
+
+      fireEvent.change(nameInput, { target: { value: 'Distinctive Name' } })
+      fireEvent.change(descInput, { target: { value: 'New description' } })
+      fireEvent.submit(form)
 
       // The user should be redirected to the login page
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
