@@ -117,7 +117,8 @@ describe('Editing a game on the games page', () => {
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    it('updates, hides the form, and displays a success message', async () => {
+    
+    fit('updates, hides the form, and displays a success message', async () => {
       component = renderComponentWithMockCookies()
 
       const gameTitle = await screen.findByText(name)
@@ -144,14 +145,14 @@ describe('Editing a game on the games page', () => {
       await waitForElementToBeRemoved(form)
       expect(form).not.toBeInTheDocument()
 
-      // Flash message should be displayed
-      expect(screen.queryByText(/success/i)).toBeVisible()
-
       // The game should no longer appear in the list under its old name
       await waitFor(() => expect(screen.queryByText(name)).not.toBeInTheDocument())
 
       // It should be in the list under its new name
       await waitFor(() => expect(screen.queryByText(/Changed Name/)).toBeVisible())
+
+      // Flash message should be displayed
+      await waitFor(() => expect(screen.queryByText(/success/i)).toBeVisible())
     })
   })
 

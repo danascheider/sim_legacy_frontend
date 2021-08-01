@@ -1,7 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
-import paths from '../../routing/paths'
 import { useAppContext, useGamesContext, useShoppingListsContext } from '../../hooks/contexts'
 import withModal from '../../hocs/withModal'
 import { ColorProvider } from '../../contexts/colorContext'
@@ -14,7 +12,7 @@ import styles from './shoppingListsPageContent.module.css'
 const { LOADING, DONE } = shoppingListLoadingStates
 
 const ShoppingListsPageContent = () => {
-  const { setFlashVisible, setModalAttributes, setModalVisible } = useAppContext()
+  const { setModalAttributes, setModalVisible } = useAppContext()
   const { games, gameLoadingState } = useGamesContext()
   const { shoppingLists, shoppingListLoadingState } = useShoppingListsContext()
 

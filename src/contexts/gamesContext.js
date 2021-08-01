@@ -93,12 +93,18 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     createGame(token, attrs)
       .then(resp => resp.json())
       .then(data => {
+        console.log('DATA: ', data)
         if (data && !data.errors) {
           if (mountedRef.current) {
             const newGames = [...games]
             newGames.unshift(data)
             setGames(newGames)
           }
+
+          setFlashProps({
+            type: 'success',
+            message: 'Success! Your game has been created.'
+          })
 
           onSuccess && onSuccess()
         } else if (data && data.errors) {
@@ -146,7 +152,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
             setGames(newGames)
             setGameEditFormVisible(false)
-            setFlashProps({ type: 'success', message: 'Success! Your game was updated.' })
+            setFlashProps({ type: 'success', message: 'Success! Your game has been updated.' })
           }
 
           onSuccess && onSuccess()
@@ -210,6 +216,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           newGames.splice(gameIndex, 1)
 
           setGames(newGames)
+          setFlashProps({
+            type: 'success',
+            message: 'Your game has been deleted.'
+          })
 
           onSuccess && onSuccess()
         } else if (mountedRef.current) {

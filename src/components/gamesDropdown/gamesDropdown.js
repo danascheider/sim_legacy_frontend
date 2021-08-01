@@ -61,15 +61,19 @@ const GamesDropdown = () => {
   const updateValue = e => setInputValue(e.currentTarget.value)
 
   useEffect(() => {
-    if (!activeGame && games.length) {
-      const gameId = parseInt(queryString.get('game_id'))
+    const gameId = parseInt(queryString.get('game_id'))
+
+    if (games.length && gameId) {
+      if (activeGame && activeGame.id === gameId) return
       const game = gameId ? games.find(game => game.id === gameId) : games[0]
 
       if (game) {
         selectGame(game)
       }
+    } else if (games.length) {
+      selectGame(games[0])
     }
-  }, [activeGame, selectGame, games, queryString])
+  }, [selectGame, games, queryString])
 
   useEffect(() => {
     const collapseDropdownAndResetValue = e => {

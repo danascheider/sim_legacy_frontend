@@ -1,5 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useHistory } from 'react-router-dom'
+import { pathsScopedToGames } from '../../routing/paths'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import ModalForm from '../modalForm/modalForm'
 
@@ -26,6 +28,8 @@ const ModalGameForm = ({ type, currentAttributes = {} }) => {
   const { setFlashVisible, setModalVisible } = useAppContext()
   const { performGameCreate, performGameUpdate } = useGamesContext()
 
+  const history = useHistory()
+
   const mountedRef = useRef(true)
 
   const onSubmit = e => {
@@ -40,7 +44,6 @@ const ModalGameForm = ({ type, currentAttributes = {} }) => {
     }
 
     const callbacks = {
-      onSuccess: unmountAndDisplayFlash,
       onUnprocessableEntity: unmountAndDisplayFlash,
       onInternalServerError: unmountAndDisplayFlash,
       onNotFound: unmountAndDisplayFlash, // only valid for update but won't break anything
@@ -57,8 +60,22 @@ const ModalGameForm = ({ type, currentAttributes = {} }) => {
     }
 
     if (type === 'create') {
+      const onSuccess = () => {
+        if (pathsScopedToGames.indexOf(history.location.pathname) > -1) {
+          history.push({ search: '' })
+          unmountAndDisplayFlash()
+        } else {
+          setModalVisible(false)
+          mountedRef.current = false
+        }
+      }
+
+      callbacks.onSuccess = onSuccess
+
       performGameCreate(attrs, callbacks)
     } else {
+      callbacks.onSuccess = unmountAndDisplayFlash
+
       performGameUpdate(currentAttributes.id, attrs, callbacks)
     }
   }

@@ -52,11 +52,18 @@ const Game = ({ gameId, name, description }) => {
   }
 
   const destroyGame = e => {
+    setFlashVisible(false)
+
     const confirmed = window.confirm(DESTROY_CONFIRMATION)
+
+    const displayFlashAndUnmount = () => {
+      setFlashVisible(true)
+      mountedRef.current = false
+    }
 
     if (confirmed) {
       const callbacks = {
-        onSuccess: () => mountedRef.current = false,
+        onSuccess: displayFlashAndUnmount,
         onInternalServerError: () => setFlashVisible(true)
       }
 
