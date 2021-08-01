@@ -69,6 +69,8 @@ const GamesDropdown = () => {
 
       if (game) {
         selectGame(game)
+      } else {
+        selectGame(games[0])
       }
     } else if (games.length && !activeGame) {
       selectGame(games[0])
