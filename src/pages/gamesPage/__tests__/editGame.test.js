@@ -118,7 +118,7 @@ describe('Editing a game on the games page', () => {
     afterAll(() => server.close())
 
     
-    fit('updates, hides the form, and displays a success message', async () => {
+    it('updates, hides the form, and displays a success message', async () => {
       component = renderComponentWithMockCookies()
 
       const gameTitle = await screen.findByText(name)
