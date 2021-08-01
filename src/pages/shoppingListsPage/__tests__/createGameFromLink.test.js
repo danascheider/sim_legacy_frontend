@@ -74,15 +74,17 @@ describe('Creating a new game from the link', () => {
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    fit('creates a new game and displays its (empty) shopping lists', async () => {
+    it('creates a new game and displays its (empty) shopping lists', async () => {
       const { history } = component = renderComponentWithMockCookies()
       
       // Find and click the link you click to display the creation form
       const link = await screen.findByText(/create a game/i)
       fireEvent.click(link)
 
+      // The modal with the form should now be visible
       const form = await screen.findByTestId('game-form')
 
+      // Fill out and submit the form
       const nameInput = await within(form).findByPlaceholderText('Name')
       const descInput = await within(form).findByPlaceholderText('Description')
 
@@ -90,12 +92,22 @@ describe('Creating a new game from the link', () => {
       fireEvent.change(descInput, { target: { value: 'New description' } })
       fireEvent.submit(form)
 
+      // After successful creation, the modal with the form should be hidden
       await waitFor(() => expect(form).not.toBeInTheDocument())
 
+      // The input of the games dropdown component should be updated so the
+      // active game is the newly created game
       const dropdownComponent = await screen.findByTestId('games-dropdown')
       await waitFor(() => expect(within(dropdownComponent).queryByDisplayValue('Distinctive Name')).toBeVisible())
+
+      // The message that the game has no shopping lists should be visible
       await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).toBeVisible())
+
+      // There should be a flash message that the game was created
       await waitFor(() => expect(screen.queryByText(/created/i)).toBeVisible())
+
+      // The query string should be updated so the `game_id` param is set to the
+      // ID of the newly created game
       await waitFor(() => expect(history.location.search).toEqual('?game_id=671'))
     })
   })
@@ -130,25 +142,37 @@ describe('Creating a new game from the link', () => {
     it('displays the validation error', async () => {
       const { history } = component = renderComponentWithMockCookies()
       
+      // Find and click the link you click to display the creation form
+      const link = await screen.findByText(/create a game/i)
+      fireEvent.click(link)
+
+      // The modal with the form should now be visible
+      const form = await screen.findByTestId('game-form')
+
+      // Fill out and submit the form
+      const nameInput = await within(form).findByPlaceholderText('Name')
+      const descInput = await within(form).findByPlaceholderText('Description')
+
+      fireEvent.change(nameInput, { target: { value: 'Distinctive Name' } })
+      fireEvent.change(descInput, { target: { value: 'New description' } })
+      fireEvent.submit(form)
+
+      // After successful creation, the modal with the form should be hidden
+      await waitFor(() => expect(form).not.toBeInTheDocument())
+
+      // The input of the games dropdown component should not be updated since
+      // there are still no games
       const dropdownComponent = await screen.findByTestId('games-dropdown')
-      const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
+      await waitFor(() => expect(within(dropdownComponent).queryByPlaceholderText(/no games available/i)).toBeVisible())
 
-      fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
-      fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
+      // The message that the user needs a game should be visible
+      await waitFor(() => expect(screen.queryByText(/you need a game/i)).toBeVisible())
 
-      // The game should not appear in the dropdown
-      await waitFor(() => expect(within(dropdownComponent).queryByText('Distinctive Name')).not.toBeInTheDocument())
+      // There should be a flash error message with the validation error
+      await waitFor(() => expect(screen.queryByText(/name can only contain/i)).toBeVisible())
 
-      // The dropdown should be hidden (jsdom doesn't pick up on CSS, so we have to
-      // verify that it has the class and just trust the CSS to define that it isn't
-      // visible)
-      await waitFor(() => expect(within(dropdownComponent).queryByRole('listbox')).toHaveClass('hidden'))
-
-      // The query string should be set to the first actual game
-      await waitFor(() => expect(history.location.search).toEqual(`?game_id=${games[0].id}`))
-
-      // The flash message should be displayed
-      await waitFor(() => expect(screen.queryByText(/can only contain/i)).toBeVisible())
+      // The query string should not be updated
+      await waitFor(() => expect(history.location.search).toEqual(''))
     })
   })
 
@@ -219,25 +243,38 @@ describe('Creating a new game from the link', () => {
     it("doesn't change games and displays an error message", async () => {
       const { history } = component = renderComponentWithMockCookies()
       
+      // Find and click the link you click to display the creation form
+      const link = await screen.findByText(/create a game/i)
+      fireEvent.click(link)
+
+      // The modal with the form should now be visible
+      const form = await screen.findByTestId('game-form')
+
+      // Fill out and submit the form
+      const nameInput = await within(form).findByPlaceholderText('Name')
+      const descInput = await within(form).findByPlaceholderText('Description')
+
+      fireEvent.change(nameInput, { target: { value: 'Distinctive Name' } })
+      fireEvent.change(descInput, { target: { value: 'New description' } })
+      fireEvent.submit(form)
+
+      // The modal with the form should be hidden after the 500 response
+      await waitFor(() => expect(form).not.toBeInTheDocument())
+
+      // The input of the games dropdown component should still be empty
+      // since no game was created
       const dropdownComponent = await screen.findByTestId('games-dropdown')
-      const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
+      await waitFor(() => expect(within(dropdownComponent).queryByPlaceholderText(/no games available/i)).toBeVisible())
 
-      fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
-      fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
+      // The message that the user needs a game to use the shopping lists
+      // feature should be visible
+      await waitFor(() => expect(screen.queryByText(/you need a game/i)).toBeVisible())
 
-      // The game should not appear in the dropdown
-      await waitFor(() => expect(within(dropdownComponent).queryByText('Distinctive Name')).not.toBeInTheDocument())
-
-      // The dropdown should be hidden (jsdom doesn't pick up on CSS, so we have to
-      // verify that it has the class and just trust the CSS to define that it isn't
-      // visible)
-      await waitFor(() => expect(within(dropdownComponent).queryByRole('listbox')).toHaveClass('hidden'))
-
-      // The query string should be set to the first actual game
-      await waitFor(() => expect(history.location.search).toEqual(`?game_id=${games[0].id}`))
-
-      // The flash message should be displayed
+      // There should be a flash error message
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
+
+      // The query string should not be updated since there are still no games
+      await waitFor(() => expect(history.location.search).toEqual(''))
     })
   })
 })
