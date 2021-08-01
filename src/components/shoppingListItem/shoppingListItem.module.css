@@ -4,6 +4,10 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+.root.collapsed {
+  border-bottom: none;
+}
+
 .root:hover {
   background-color: var(--hover-color);
 }

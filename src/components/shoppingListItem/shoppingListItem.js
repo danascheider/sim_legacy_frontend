@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
+import withModal from '../../hocs/withModal'
+import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListItemEditForm'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
@@ -17,6 +19,7 @@ const ShoppingListItem = ({
   notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [collapsed, setCollapsed] = useState(true)
 
   // This enables us to set the quantity to the new quantity during the time between when
   // the user increments/decrements the quantity and the time the API responds.
@@ -24,7 +27,9 @@ const ShoppingListItem = ({
 
   const {
     setFlashProps,
-    setFlashVisible
+    setFlashVisible,
+    setModalVisible,
+    setModalAttributes
   } = useAppContext()
 
   const {
@@ -41,9 +46,7 @@ const ShoppingListItem = ({
 
   const {
     performShoppingListItemUpdate,
-    performShoppingListItemDestroy,
-    setListItemEditFormProps,
-    setListItemEditFormVisible
+    performShoppingListItemDestroy
   } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
@@ -61,7 +64,10 @@ const ShoppingListItem = ({
   const iconContains = el => editRefContains(el) || deleteRefContains(el) || incRefContains(el) || decRefContains(el)
   
   const toggleDetails = e => {
-    if (!iconContains(e.target)) setToggleEvent(Date.now)
+    if (!iconContains(e.target)) {
+      setToggleEvent(Date.now)
+      setCollapsed(!collapsed)
+    }
   }
 
   const displayFlash = (type, message, header = null) => {
@@ -150,22 +156,29 @@ const ShoppingListItem = ({
     if (mountedRef.current) {
       setFlashVisible(false)
 
-      setListItemEditFormProps({
-        listTitle: listTitle,
-        buttonColor: {
-          schemeColorDarkest,
-          hoverColorDark,
-          borderColor,
-          textColorPrimary
-        },
-        currentAttributes: {
-          id: itemId,
-          quantity: quantity,
-          description: description,
-          notes: notes,
+      const Tag = withModal(ShoppingListItemEditForm)
+
+      setModalAttributes({
+        Tag,
+        props: {
+          title: description,
+          subtitle: `On list "${listTitle}"`,
+          buttonColor: {
+            schemeColorDarkest,
+            hoverColorDark,
+            borderColor,
+            textColorPrimary
+          },
+          currentAttributes: {
+            id: itemId,
+            quantity,
+            notes,
+            description
+          }
         }
       })
-      setListItemEditFormVisible(true)
+
+      setModalVisible(true)
     }
   }
 
@@ -178,7 +191,7 @@ const ShoppingListItem = ({
   ), [])
 
   return(
-    <div className={styles.root} style={styleVars}>
+    <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={styleVars}>
       <div className={styles.toggle} onClick={toggleDetails}>
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&

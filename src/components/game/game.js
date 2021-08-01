@@ -4,7 +4,9 @@ import SlideToggle from 'react-slide-toggle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import withModal from '../../hocs/withModal'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
+import ModalGameForm from '../modalGameForm/modalGameForm'
 import styles from './game.module.css'
 
 const DEFAULT_DESCRIPTION = 'This game has no description.'
@@ -13,12 +15,13 @@ const DESTROY_CONFIRMATION = 'Are you sure you want to delete this game? This ca
 const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
-  const { setFlashProps, setFlashVisible } = useAppContext()
   const {
-    performGameDestroy,
-    setGameEditFormVisible,
-    setGameEditFormProps
-  } = useGamesContext()
+    setFlashProps,
+    setFlashVisible,
+    setModalVisible,
+    setModalAttributes
+  } = useAppContext()
+  const { performGameDestroy } = useGamesContext()
 
   const mountedRef = useRef(true)
   const iconsRef = useRef(null)
@@ -34,20 +37,33 @@ const Game = ({ gameId, name, description }) => {
   const showEditForm = () => {
     setFlashVisible(false)
 
-    setGameEditFormProps({
-      gameId: gameId,
-      currentAttributes: { name, description }
-    })
+    const attributes = { id: gameId, name, description }
 
-    setGameEditFormVisible(true)
+    const ModalComponent = withModal(ModalGameForm)
+    setModalAttributes({
+      Tag: ModalComponent,
+      props: {
+        title: 'Edit Game',
+        type: 'edit',
+        currentAttributes: attributes
+      }
+    })
+    setModalVisible(true)
   }
 
   const destroyGame = e => {
+    setFlashVisible(false)
+
     const confirmed = window.confirm(DESTROY_CONFIRMATION)
+
+    const displayFlashAndUnmount = () => {
+      setFlashVisible(true)
+      mountedRef.current = false
+    }
 
     if (confirmed) {
       const callbacks = {
-        onSuccess: () => mountedRef.current = false,
+        onSuccess: displayFlashAndUnmount,
         onInternalServerError: () => setFlashVisible(true)
       }
 
@@ -74,7 +90,7 @@ const Game = ({ gameId, name, description }) => {
             ref={destroyRef}
             className={styles.icon}
             onClick={destroyGame}
-            data-testid={`destroy-icon-game-id-${gameId}`}
+            data-testid={`game-destroy-icon`}
           >
             <FontAwesomeIcon className={styles.fa} icon={faTimes} />
           </button>
@@ -82,7 +98,7 @@ const Game = ({ gameId, name, description }) => {
             ref={editRef}
             className={styles.icon}
             onClick={showEditForm}
-            data-testid={`edit-icon-game-id-${gameId}`}
+            data-testid={`game-edit-icon`}
           >
             <FontAwesomeIcon className={styles.fa} icon={faEdit} />
           </button>

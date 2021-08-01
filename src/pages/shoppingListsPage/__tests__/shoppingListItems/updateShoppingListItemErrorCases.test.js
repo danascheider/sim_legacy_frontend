@@ -75,7 +75,7 @@ describe('Updating a shopping list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-edit-form')
+      const form = await screen.findByTestId('shopping-list-item-form')
       await waitFor(() => expect(form).toBeVisible())
 
       // Now find the form fields and fill out the form. This item has no notes
@@ -125,7 +125,7 @@ describe('Updating a shopping list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-edit-form')
+      const form = await screen.findByTestId('shopping-list-item-form')
       await waitFor(() => expect(form).toBeVisible())
 
       // Now find the form fields and fill out the form. This item has no notes
@@ -203,7 +203,7 @@ describe('Updating a shopping list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-edit-form')
+      const form = await screen.findByTestId('shopping-list-item-form')
       await waitFor(() => expect(form).toBeVisible())
 
       // Now find the form fields and fill out the form.
@@ -279,7 +279,7 @@ describe('Updating a shopping list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-edit-form')
+      const form = await screen.findByTestId('shopping-list-item-form')
       await waitFor(() => expect(form).toBeVisible())
 
       // Now find the form fields and fill out the form.

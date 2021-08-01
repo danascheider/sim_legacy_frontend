@@ -9,11 +9,15 @@ const paths = {
 }
 
 export const allPaths = [
-  '/',
-  '/login',
-  '/dashboard',
-  '/dashboard/shopping_lists',
-  '/dashboard/games'
+  paths.home,
+  paths.login,
+  paths.dashboard.main,
+  paths.dashboard.games,
+  paths.dashboard.shoppingLists
+]
+
+export const pathsScopedToGames = [
+  paths.dashboard.shoppingLists
 ]
 
 export default paths

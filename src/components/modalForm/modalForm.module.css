@@ -1,18 +1,5 @@
 .root {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  margin: auto;
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  background-color: #f0f0f0;
-  padding: 24px;
-  max-width: 80%;
-}
-
-.header {
-  margin: 0;
-  font-weight: 900;
-  font-size: 1.25rem;
 }
 
 .fieldset {
@@ -60,23 +47,5 @@
 
   .label {
     margin: auto 0;
-  }
-}
-
-@media (min-width: 769px) {
-  .root {
-    max-width: 60%;
-  }
-}
-
-@media (min-width: 1025px) {
-  .root {
-    max-width: 50%;
-  }
-}
-
-@media (min-width: 1201px) {
-  .root {
-    max-width: 35%;
   }
 }

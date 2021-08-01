@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import styles from './shoppingListItemCreateForm.module.css'
 
 const ShoppingListItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [collapsed, setCollapsed] = useState(true)
   const { setFlashVisible } = useAppContext()
   const { performShoppingListItemCreate } = useShoppingListsContext()
   const {
@@ -28,7 +30,10 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     '--text-color-secondary': textColorTertiary
   }
 
-  const toggleForm = () => setToggleEvent(Date.now)
+  const toggleForm = () => {
+    setToggleEvent(Date.now)
+    setCollapsed(!collapsed)
+  }
 
   const createShoppingListItem = e => {
     e.preventDefault()
@@ -62,7 +67,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
   }
 
   return(
-    <div className={styles.root} style={colorVars}>
+    <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={colorVars}>
       <div className={styles.triggerContainer}>
         <button className={styles.triggerButton} onClick={toggleForm}>
           Add item to list...

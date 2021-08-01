@@ -152,7 +152,7 @@ Sometimes, you'll see a message that an element you expected to be visible isn't
 </body>
 ```
 
-This is generally caused by the execution of some request going off the rails. Put debug statements throughout the code to see how far along in the execution it gets before it fails and to inspect values. Eventually you'll see where it's broken and it's often a small fix.
+This is generally caused by the execution of some request going off the rails. Put debug statements throughout the code to see how far along in the execution it gets before it fails or diverges from what it was meant to do, and to inspect values. Eventually you'll see where it's broken and it's often a small fix.
 
 ## Tests Fail when Preceded by Other Tests with Form Events
 

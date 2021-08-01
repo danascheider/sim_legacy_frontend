@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect } from 'react'
 import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
 import { gameLoadingStates } from '../../contexts/gamesContext'
@@ -6,9 +6,7 @@ import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import Game from '../../components/game/game'
 import GameCreateForm from '../../components/gameCreateForm/gameCreateForm'
-import GameEditForm from '../../components/gameEditForm/gameEditForm'
 import Loading from '../../components/loading/loading'
-import Modal from '../../components/modal/modal'
 import styles from './gamesPage.module.css'
 
 const { LOADING, DONE, ERROR } = gameLoadingStates
@@ -17,30 +15,15 @@ const GamesPage = () => {
   const {
     flashProps,
     flashVisible,
-    setFlashVisible
+    setFlashVisible,
+    modalVisible,
+    modalAttributes
   } = useAppContext()
 
   const {
     games,
-    gameLoadingState,
-    gameEditFormVisible,
-    gameEditFormProps,
-    setGameEditFormVisible
+    gameLoadingState
   } = useGamesContext()
-
-  const formRef = useRef(null)
-
-  const formRefContains = el => formRef.current && (formRef.current === el || formRef.current.contains(el))
-
-  const hideForm = useCallback(e => {
-    if (!e || e.key === 'Escape' || !formRefContains(e.target)) setGameEditFormVisible(false)
-  }, [setGameEditFormVisible])
-
-  useEffect(() => {
-    window.addEventListener('keyup', hideForm)
-
-    return () => window.removeEventListener('keyup', hideForm)
-  }, [hideForm])
 
   useEffect(() => {
     // Flash message props will be set when the `GamesContext` handles the error.
@@ -52,9 +35,9 @@ const GamesPage = () => {
 
   return(
     <DashboardLayout title='Your Games'>
+      {modalVisible && <modalAttributes.Tag {...modalAttributes.props} />}
       <div className={styles.root}>
         {flashVisible && Object.keys(flashProps).length && <FlashMessage {...flashProps} />}
-        {gameEditFormVisible && <Modal onClick={hideForm}><GameEditForm elementRef={formRef} {...gameEditFormProps} /></Modal>}
         {games && games.length === 0 && gameLoadingState === DONE && <p className={styles.noGames}>You have no games.</p>}
         {gameLoadingState === DONE && <GameCreateForm disabled={gameLoadingState === LOADING || gameLoadingState === ERROR} />}
         {games && games.length > 0 && gameLoadingState === DONE && <div className={styles.games}>

@@ -33,8 +33,13 @@ const AppContext = createContext()
 const AppProvider = ({ children, overrideValue = {} }) => {
   const { pathname } = useLocation()
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
+
+  const [modalAttributes, setModalAttributes] = useState({})
+  const [modalVisible, setModalVisible] = useState(false)
+
   const [profileData, setProfileData] = useState(overrideValue.profileData)
   const [redirectPath, setRedirectPath] = useState(overrideValue.shouldRedirectTo)
   const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
@@ -77,6 +82,10 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     flashProps,
     setFlashVisible,
     setFlashProps,
+    setModalVisible,
+    setModalAttributes,
+    modalVisible,
+    modalAttributes,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -149,7 +158,14 @@ AppProvider.propTypes = {
     }),
     setFlashVisible: PropTypes.func,
     setFlashProps: PropTypes.func,
-    logOutAndRedirect: PropTypes.func
+    logOutAndRedirect: PropTypes.func,
+    setModalVisible: PropTypes.func,
+    setModalAttributes: PropTypes.func,
+    modalVisible: PropTypes.bool,
+    modalAttributes: PropTypes.shape({
+      Tag: PropTypes.elementType,
+      props: PropTypes.object
+    })
   })
 }
 

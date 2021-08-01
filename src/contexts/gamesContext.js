@@ -100,6 +100,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             setGames(newGames)
           }
 
+          setFlashProps({
+            type: 'success',
+            message: 'Success! Your game has been created.'
+          })
+
           onSuccess && onSuccess()
         } else if (data && data.errors) {
           if (allErrorsAreValidationErrors(data.errors)) {
@@ -146,7 +151,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
             setGames(newGames)
             setGameEditFormVisible(false)
-            setFlashProps({ type: 'success', message: 'Success! Your game was updated.' })
+            setFlashProps({ type: 'success', message: 'Success! Your game has been updated.' })
           }
 
           onSuccess && onSuccess()
@@ -176,18 +181,18 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
-            message: 'The game you wanted to update could not be found. Try refreshing to fix this problem.'
+            message: "Oops! We couldn't find the game you wanted to update. Sorry! Try refreshing the page to solve this problem."
           })
 
           setGameEditFormVisible(false)
 
           onNotFound && onNotFound()
         } else {
-          if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
+          if (process.env.NODE_ENV === 'development') console.error('Error updating game: ', err)
 
           setFlashProps({
             type: 'error',
-            message: "There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to update your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           setGameEditFormVisible(false)
@@ -210,6 +215,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           newGames.splice(gameIndex, 1)
 
           setGames(newGames)
+          setFlashProps({
+            type: 'success',
+            message: 'Your game has been deleted.'
+          })
 
           onSuccess && onSuccess()
         } else if (mountedRef.current) {
@@ -226,7 +235,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
           setFlashProps({
             type: 'error',
-            message: "There was an unexpected error deleting your game. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to delete your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()
