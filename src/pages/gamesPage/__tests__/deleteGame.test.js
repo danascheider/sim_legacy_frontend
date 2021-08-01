@@ -67,31 +67,38 @@ describe('Deleting a game on the games page', () => {
     it('confirms before deleting', async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the title of the game and get the container element
       const gameTitle = await screen.findByText(games[0].name)
       const gameEl = gameTitle.closest('.root')
 
+      // Find the destroy icon next to the game's title
       const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
 
+      // The user should be asked to confirm if they want to destroy the game
       expect(confirm).toHaveBeenCalled()
     })
 
     it('removes the game from the list, leaving other games alone', async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the title of the game and get the container element
       const gameTitle = await screen.findByText(games[0].name)
       const gameEl = gameTitle.closest('.root')
 
+      // Find the destroy icon next to the game's title
       const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
 
+      // The other game should still be visible
       await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
-      await waitForElementToBeRemoved(gameEl)
-      expect(gameEl).not.toBeInTheDocument()
+
+      // The game should be removed from the view
+      await waitFor(() => expect(gameEl).not.toBeInTheDocument())
     })
   })
 
@@ -106,26 +113,14 @@ describe('Deleting a game on the games page', () => {
 
     afterEach(() => confirm.mockRestore())
 
-    it('confirms before deleting', async () => {
-      component = renderComponentWithMockCookies()
-
-      const gameTitle = await screen.findByText(games[0].name)
-      const gameEl = gameTitle.closest('.root')
-
-      const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
-
-      // Click the icon
-      fireEvent.click(destroyIcon)
-
-      expect(confirm).toHaveBeenCalled()
-    })
-
     it("shows a flash message and doesn't remove any games", async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the title of the game and get the container element
       const gameTitle = await screen.findByText(games[0].name)
       const gameEl = gameTitle.closest('.root')
 
+      // Find the destroy icon next to the game's title
       const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
 
       // Click the icon
@@ -171,9 +166,11 @@ describe('Deleting a game on the games page', () => {
     it('behaves like successful deletion', async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the title of the game and get the container element
       const gameTitle = await screen.findByText(games[0].name)
       const gameEl = gameTitle.closest('.root')
 
+      // Find the destroy icon next to the game's title
       const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
 
       // Click the icon
@@ -214,9 +211,11 @@ describe('Deleting a game on the games page', () => {
     it("shows an error message and doesn't remove the game", async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the title of the game and get the container element
       const gameTitle = await screen.findByText(games[0].name)
       const gameEl = gameTitle.closest('.root')
 
+      // Find the destroy icon next to the game's title
       const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
 
       // Click the icon
@@ -259,9 +258,11 @@ describe('Deleting a game on the games page', () => {
     it('redirects to the login page', async () => {
       const { history } = component = renderComponentWithMockCookies()
 
+      // Find the title of the game and get the container element
       const gameTitle = await screen.findByText(games[0].name)
       const gameEl = gameTitle.closest('.root')
 
+      // Find the destroy icon next to the game's title
       const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
 
       // Click the icon

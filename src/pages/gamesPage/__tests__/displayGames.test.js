@@ -142,11 +142,8 @@ describe('Displaying the games page', () => {
         it('displays the list of games', async () => {
           component = renderComponentWithMockCookies()
 
-          const el1 = await screen.findByText(games[0].name)
-          const el2 = await screen.findByText(games[1].name)
-
-          expect(el1).toBeInTheDocument()
-          expect(el2).toBeInTheDocument()
+          await waitFor(() => expect(screen.queryByText(games[0].name)).toBeVisible())
+          await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
         })
 
         it("doesn't display the 'You have no games' message", async () => {
@@ -172,11 +169,12 @@ describe('Displaying the games page', () => {
         it('expands one description at a time', async () => {
           component = renderComponentWithMockCookies()
 
+          // Clicking the game's title expands its description
           const titleEl = await screen.findByText(games[0].name)
-
           fireEvent.click(titleEl)
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).toBeVisible())
+          await waitFor(() => expect(screen.queryByText(games[1].description)).not.toBeVisible())
           await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
         })
       })
