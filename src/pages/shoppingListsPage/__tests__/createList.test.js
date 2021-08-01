@@ -179,7 +179,7 @@ describe('Creating a shopping list', () => {
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    it("displays a flash error message but keeps the form enabled and doesn't clear it", async () => {
+    it("displays a flash error message and clears the form but doesn't disable it", async () => {
       component = renderComponentWithMockCookies()
 
       // Find the shopping list create form
@@ -196,7 +196,7 @@ describe('Creating a shopping list', () => {
       // The input form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
-      await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
+      await waitFor(() => expect(input.value).toEqual(''))
     })
   })
 
@@ -274,7 +274,7 @@ describe('Creating a shopping list', () => {
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    it("displays a flash error message and doesn't create the shopping list or clear the form", async () => {
+    it("displays a flash error message and clears the form but doesn't create the shopping list", async () => {
       component = renderComponentWithMockCookies()
 
       // Find the shopping list create form
@@ -294,7 +294,7 @@ describe('Creating a shopping list', () => {
       // The form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
-      await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
+      await waitFor(() => expect(input.value).toEqual(''))
     })
   })
 

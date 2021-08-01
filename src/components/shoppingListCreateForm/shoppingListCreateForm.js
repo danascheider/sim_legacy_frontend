@@ -28,11 +28,17 @@ const ShoppingListCreateForm = ({ disabled }) => {
     e.preventDefault()
     setFlashVisible(false)
     const title = e.target.elements.title.value
+
+    const showFlashAndClearInput = () => {
+      setInputValue('')
+      setFlashVisible(true)
+    }
+
     const callbacks = {
       onSuccess: () => setInputValue(''),
-      onNotFound: () => setFlashVisible(true),
+      onNotFound: showFlashAndClearInput,
       onUnprocessableEntity: () => setFlashVisible(true),
-      onInternalServerError: () => setFlashVisible(true)
+      onInternalServerError: showFlashAndClearInput
     }
     performShoppingListCreate(title, callbacks)
   }
