@@ -19,7 +19,7 @@ import {
 } from '../../../sharedTestData'
 import ShoppingListsPage from '../shoppingListsPage'
 
-xdescribe('Creating a new game from the link', () => {
+describe('Creating a new game from the link', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -74,7 +74,7 @@ xdescribe('Creating a new game from the link', () => {
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    it('creates a new game and displays its (empty) shopping lists', async () => {
+    fit('creates a new game and displays its (empty) shopping lists', async () => {
       const { history } = component = renderComponentWithMockCookies()
       
       // Find and click the link you click to display the creation form
@@ -94,9 +94,9 @@ xdescribe('Creating a new game from the link', () => {
 
       const dropdownComponent = await screen.findByTestId('games-dropdown')
       await waitFor(() => expect(within(dropdownComponent).queryByDisplayValue('Distinctive Name')).toBeVisible())
-      await waitFor(() => expect(history.location.search).toEqual('?game_id=671'))
       await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).toBeVisible())
       await waitFor(() => expect(screen.queryByText(/created/i)).toBeVisible())
+      await waitFor(() => expect(history.location.search).toEqual('?game_id=671'))
     })
   })
 

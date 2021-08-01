@@ -62,7 +62,6 @@ const ModalGameForm = ({ type, currentAttributes = {} }) => {
     if (type === 'create') {
       const onSuccess = () => {
         if (pathsScopedToGames.indexOf(history.location.pathname) > -1) {
-          history.push({ search: '' })
           unmountAndDisplayFlash()
         } else {
           setModalVisible(false)
