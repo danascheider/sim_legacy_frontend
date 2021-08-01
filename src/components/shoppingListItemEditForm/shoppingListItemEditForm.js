@@ -1,79 +1,74 @@
 import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { useShoppingListContext } from '../../hooks/contexts'
-import styles from './shoppingListItemEditForm.module.css'
+import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
+import ModalForm from '../modalForm/modalForm'
 
-const ShoppingListItemEditForm = ({ listTitle, elementRef, buttonColor, currentAttributes }) => {
-  const { performShoppingListItemUpdate } = useShoppingListContext()
+const formFields = [
+  {
+    name: 'quantity',
+    tag: 'input',
+    label: 'Quantity',
+    type: 'number',
+    placeholder: 'Quantity',
+    inputMode: 'numeric'
+  },
+  {
+    name: 'notes',
+    tag: 'textarea',
+    label: 'Notes',
+    type: 'textarea',
+    placeholder: 'This item has no notes',
+    inputMode: 'text'
+  }
+]
+
+const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
+  const { setFlashVisible, setModalVisible } = useAppContext()
+  const { performShoppingListItemUpdate } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
-  const formRef = useRef(null)
-  const inputRef = useRef(null)
 
-  const colorVars = {
-    '--button-background-color': buttonColor.schemeColorDarkest,
-    '--button-text-color': buttonColor.textColorPrimary,
-    '--button-hover-color': buttonColor.hoverColorDark,
-    '--button-border-color': buttonColor.borderColor
-  }
+  const fields = formFields.map(field => ({ defaultValue: currentAttributes[field.name], ...field }))
 
   const updateItem = e => {
     e.preventDefault()
 
+    const callback = () => {
+      setFlashVisible(true)
+      setModalVisible(false)
+      mountedRef.current = false
+    }
+
+    const callbacks = {
+      onSuccess: callback,
+      onNotFound: callback,
+      onUnprocessableEntity: callback,
+      onInternalServerError: callback,
+      onUnauthorized: () => mountedRef.current = false
+    }
+
     const quantity = e.target.elements.quantity.value
     const notes = e.target.elements.notes.value
 
-    performShoppingListItemUpdate(currentAttributes.id, { quantity, notes }, true, () => {
-      mountedRef.current = false
-      if (formRef.current) formRef.current.reset()
-    })
+    performShoppingListItemUpdate(currentAttributes.id, { quantity, notes }, callbacks)
   }
 
-  useEffect(() => {
-    document.getElementsByTagName('body')[0].classList.add('modal-open')
-    inputRef && inputRef.current.focus()
-
-    return () => {
-      document.getElementsByTagName('body')[0].classList.remove('modal-open')
-    }
-  }, [])
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
-    <div ref={elementRef} className={styles.root} style={colorVars}>
-      <h4 className={styles.header}>{currentAttributes.description}</h4>
-      <p className={styles.subheader}>{`On list "${listTitle}"`}</p>
-      <form className={styles.form} ref={formRef} onSubmit={updateItem}>
-        <fieldset className={styles.fieldset}>
-          <label className={styles.quantityLabel} htmlFor='quantity'>Quantity</label>
-          <input
-            className={styles.input}
-            ref={inputRef}
-            type='number'
-            inputMode='numeric'
-            name='quantity'
-            defaultValue={currentAttributes.quantity}
-          />
-        </fieldset>
-        <fieldset className={styles.fieldset}>
-          <label className={styles.notesLabel} htmlFor='notes'>Notes</label>
-          <textarea
-            className={styles.input}
-            type='text'
-            name='notes'
-            defaultValue={currentAttributes.notes}
-          />
-        </fieldset>
-        <button className={styles.submit}>Update Item</button>
-      </form>
-    </div>
+    <ModalForm
+      modelName='shopping-list-item'
+      buttonLabel='Update Item'
+      buttonColor={buttonColor}
+      onSubmit={updateItem}
+      fields={fields}
+    />
   )
 }
 
 ShoppingListItemEditForm.propTypes = {
-  elementRef: PropTypes.shape({
-    current: PropTypes.instanceOf(Element)
-  }),
-  listTitle: PropTypes.string.isRequired,
   buttonColor: PropTypes.shape({
     schemeColorDarkest: PropTypes.string.isRequired,
     textColorPrimary: PropTypes.string.isRequired,

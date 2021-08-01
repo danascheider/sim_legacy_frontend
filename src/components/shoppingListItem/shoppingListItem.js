@@ -4,7 +4,9 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
+import withModal from '../../hocs/withModal'
+import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListItemEditForm'
 import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
 
@@ -17,14 +19,17 @@ const ShoppingListItem = ({
   notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
+  const [collapsed, setCollapsed] = useState(true)
 
   // This enables us to set the quantity to the new quantity during the time between when
   // the user increments/decrements the quantity and the time the API responds.
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
-    displayFlash,
-    hideFlash,
+    setFlashProps,
+    setFlashVisible,
+    setModalVisible,
+    setModalAttributes
   } = useAppContext()
 
   const {
@@ -41,13 +46,10 @@ const ShoppingListItem = ({
 
   const {
     performShoppingListItemUpdate,
-    performShoppingListItemDestroy,
-    setListItemEditFormProps,
-    setListItemEditFormVisible
-  } = useShoppingListContext()
+    performShoppingListItemDestroy
+  } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
-  const headerRef = useRef(null)
   const iconsRef = useRef(null)
   const editRef = useRef(null)
   const deleteRef = useRef(null)
@@ -62,7 +64,17 @@ const ShoppingListItem = ({
   const iconContains = el => editRefContains(el) || deleteRefContains(el) || incRefContains(el) || decRefContains(el)
   
   const toggleDetails = e => {
-    if (!e || !iconContains(e.target)) setToggleEvent(Date.now)
+    if (!iconContains(e.target)) {
+      setToggleEvent(Date.now)
+      setCollapsed(!collapsed)
+    }
+  }
+
+  const displayFlash = (type, message, header = null) => {
+    if (mountedRef.current) {
+      setFlashProps({ type, message, header })
+      setFlashVisible(true)
+    }
   }
 
   const styleVars = {
@@ -78,9 +90,20 @@ const ShoppingListItem = ({
     const oldQuantity = currentQuantity
     const newQuantity = currentQuantity + 1
 
-    setCurrentQuantity(newQuantity)
+    if (mountedRef.current) setCurrentQuantity(newQuantity)
 
-    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
+    const callbacks = {
+      onNotFound: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      },
+      onInternalServerError: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      }
+    }
+
+    performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
   }
 
   const decrementQuantity = () => {
@@ -88,8 +111,19 @@ const ShoppingListItem = ({
     const newQuantity = currentQuantity - 1
 
     if (newQuantity > 0) {
+      const callbacks = {
+        onNotFound: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        },
+        onInternalServerError: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        }
+      }
+
       setCurrentQuantity(newQuantity)
-      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, false, null, () => { setCurrentQuantity(oldQuantity) })
+      performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
     } else if (newQuantity === 0) {
       const confirmed = window.confirm("Item quantity must be greater than zero. Delete the item instead?")
 
@@ -105,60 +139,80 @@ const ShoppingListItem = ({
     const confirmed = window.confirm("Destroy shopping list item? Your aggregate list will be updated to reflect the change. This action cannot be undone.")
 
     if (confirmed) {
-      performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
+      const callbacks = {
+        onSuccess: () => mountedRef.current = false,
+        onUnauthorized: () => mountedRef.current = false,
+        onNotFound: () => setFlashVisible(true),
+        onInternalServerError: () => setFlashVisible(true)
+      }
+
+      performShoppingListItemDestroy(itemId, callbacks)
     } else {
       displayFlash('info', 'Your item was not deleted.')
     }
   }
 
   const showEditForm = () => {
-    hideFlash()
-    setListItemEditFormProps({
-      listTitle: listTitle,
-      buttonColor: {
-        schemeColorDarkest,
-        hoverColorDark,
-        borderColor,
-        textColorPrimary
-      },
-      currentAttributes: {
-        id: itemId,
-        quantity: quantity,
-        description: description,
-        notes: notes,
-      }
-    })
-    setListItemEditFormVisible(true)
+    if (mountedRef.current) {
+      setFlashVisible(false)
+
+      const Tag = withModal(ShoppingListItemEditForm)
+
+      setModalAttributes({
+        Tag,
+        props: {
+          title: description,
+          subtitle: `On list "${listTitle}"`,
+          buttonColor: {
+            schemeColorDarkest,
+            hoverColorDark,
+            borderColor,
+            textColorPrimary
+          },
+          currentAttributes: {
+            id: itemId,
+            quantity,
+            notes,
+            description
+          }
+        }
+      })
+
+      setModalVisible(true)
+    }
   }
 
   useEffect(() => {
-    setCurrentQuantity(quantity)
+    if (mountedRef.current) setCurrentQuantity(quantity)
   }, [quantity])
 
   useEffect(() => (
     () => mountedRef.current = false
-  ))
+  ), [])
 
   return(
-    <div className={styles.root} style={styleVars}>
+    <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={styleVars}>
       <div className={styles.toggle} onClick={toggleDetails}>
-        <span ref={headerRef} className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
+        <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
             <span className={styles.editIcons} ref={iconsRef}>
-              <button className={styles.icon} ref={deleteRef} onClick={destroyItem}><FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon
-              )} icon={faTimes} /></button>
-              <button className={styles.icon} ref={editRef} onClick={showEditForm}><FontAwesomeIcon className={styles.fa} icon={faEdit} /></button>
+              <button className={styles.icon} ref={deleteRef} onClick={destroyItem} data-testid='destroy-item'>
+                <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
+              </button>
+              <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>
+                <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+              </button>
             </span>}
           <h4 className={styles.description}>{description}</h4>
         </span>
         <span className={styles.quantity}>
-          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity} data-testid='incrementer'>
             <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
           </button>}
           <div className={styles.quantityContent}>
             {currentQuantity}
           </div>
-          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity}>
+          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity} data-testid='decrementer'>
             <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
           </button>}
         </span>

@@ -1,0 +1,51 @@
+
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  margin: 0 auto;
+  border-bottom: 1px solid #ccc;
+}
+
+.root:first-of-type {
+  border-top: 1px solid #ccc;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+}
+
+.name {
+  font-size: 1.15rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.editIcons {
+  display: flex;
+  flex-direction: row;
+  margin: auto 12px auto 0;
+}
+
+.icon {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.description {
+  font-size: 1.025rem;
+  padding-bottom: 16px;
+  margin: 0;
+}
+
+@media (min-width: 769px) {
+  .description {
+    font-size: 1.125rem;
+  }
+}

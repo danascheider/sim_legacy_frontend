@@ -1,43 +1,19 @@
 .root {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  margin: auto;
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  background-color: #f0f0f0;
-  padding: 24px;
-  max-width: 80%;
-}
-
-.header {
-  margin: 0;
-  font-weight: 900;
-  font-size: 1.25rem;
-}
-
-.subheader {
-  margin-top: 8px;
-  font-size: 1.125rem;
-  font-style: italic;
 }
 
 .fieldset {
   border: none;
   padding: 4px 0;
   display: grid;
-  grid-template-columns: 1fr 4fr;
+}
+
+.fieldset:first-of-type {
+  margin-top: 8px;
 }
 
 .fieldset:last-of-type {
   padding-bottom: 16px;
-}
-
-.quantityLabel {
-  margin: auto 0;
-}
-
-.notesLabel {
-  margin-top: 2px;
 }
 
 .input {
@@ -64,14 +40,12 @@
   background-color: var(--button-hover-color);
 }
 
-@media (min-width: 1025px) {
-  .root {
-    max-width: 50%;
+@media (min-width: 601px) {
+  .fieldset {
+    grid-template-columns: 1fr 4fr;
   }
-}
 
-@media (min-width: 1201px) {
-  .root {
-    max-width: 35%;
+  .label {
+    margin: auto 0;
   }
 }

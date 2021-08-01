@@ -1,0 +1,50 @@
+.root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.content {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: auto;
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: #f0f0f0;
+  padding: 24px;
+  max-width: 80%;
+}
+
+.title {
+  margin: 0;
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-size: 1.125rem;
+  font-style: italic;
+}
+
+@media (min-width: 769px) {
+  .content {
+    max-width: 60%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .content {
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .content {
+    max-width: 35%;
+  }
+}

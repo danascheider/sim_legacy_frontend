@@ -17,7 +17,7 @@ import styles from './dashboardPage.module.css'
 const cards = [
   {
     colorScheme: YELLOW,
-    href: '#',
+    href: paths.dashboard.games,
     children: 'Your Games',
     key: 'your-games'
   },

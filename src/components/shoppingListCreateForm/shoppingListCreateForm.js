@@ -1,16 +1,14 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { BLUE } from '../../utils/colorSchemes'
-import { useAppContext, useShoppingListContext } from '../../hooks/contexts'
-import styles from './shoppingListCreateForm.module.css'
 import classNames from 'classnames'
+import { BLUE } from '../../utils/colorSchemes'
+import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
+import styles from './shoppingListCreateForm.module.css'
 
 const ShoppingListCreateForm = ({ disabled }) => {
-  const { hideFlash } = useAppContext()
+  const { setFlashVisible } = useAppContext()
 
-  const {
-    performShoppingListCreate
-  } = useShoppingListContext()
+  const { performShoppingListCreate } = useShoppingListsContext()
 
   const [inputValue, setInputValue] = useState('')
 
@@ -28,20 +26,33 @@ const ShoppingListCreateForm = ({ disabled }) => {
 
   const createShoppingList = e => {
     e.preventDefault()
-    hideFlash()
+    setFlashVisible(false)
     const title = e.target.elements.title.value
-    performShoppingListCreate(title, () => setInputValue(''))
+
+    const showFlashAndClearInput = () => {
+      setInputValue('')
+      setFlashVisible(true)
+    }
+
+    const callbacks = {
+      onSuccess: () => setInputValue(''),
+      onNotFound: showFlashAndClearInput,
+      onUnprocessableEntity: () => setFlashVisible(true),
+      onInternalServerError: showFlashAndClearInput
+    }
+    performShoppingListCreate(title, callbacks)
   }
 
   return(
     <div className={styles.root} style={colorVars}>
-      <form className={styles.form} onSubmit={createShoppingList}>
+      <form data-testid='shopping-list-create-form' onSubmit={createShoppingList}>
         <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
           <input
             className={styles.input}
             type='text'
             name='title'
             placeholder='Title'
+            aria-label='Title'
             value={inputValue}
             onChange={updateValue}
           />

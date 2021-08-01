@@ -10,6 +10,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   const getInputTextWidth = (text) => {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
+
     context.font = '21px Quattrocento Sans'
 
     const max = (maxTextWidth || maxTotalWidth)
@@ -24,6 +25,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   const [inputValue, setInputValue] = useState(title)
   const [maxTextWidth, setMaxTextWidth] = useState(null)
   const [inputWidth, setInputWidth] = useState(`${getInputTextWidth(title)}px`)
+
   const inputRef = useRef(null)
   const buttonRef = useRef(null)
 
@@ -60,6 +62,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
         onChange={updateInputWidth}
         type='text'
         name='title'
+        aria-label='Title'
         ref={inputRef}
         style={{width: inputWidth}}
         value={inputValue}

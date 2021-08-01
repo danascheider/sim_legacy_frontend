@@ -62,13 +62,14 @@ export const fetchUserProfile = token => {
 
 /*
  *
- * Shopping List Endpoints (Scoped to Authenticated User)
- *
+ * Game Endpoints (Scoped to Authenticated User)
+ * 
  */
 
-// GET /shopping_lists
-export const fetchShoppingLists = token => {
-  const uri = `${backendBaseUri}/shopping_lists`
+// GET /games
+export const fetchGames = token => {
+  const uri = `${backendBaseUri}/games`
+
   return(
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
@@ -78,9 +79,81 @@ export const fetchShoppingLists = token => {
   )
 }
 
-// POST /shopping_lists
-export const createShoppingList = (token, attrs) => {
-  const uri = `${backendBaseUri}/shopping_lists`
+// POST /games
+export const createGame = (token, attrs) => {
+  const uri = `${backendBaseUri}/games`
+  const body = JSON.stringify({ game: attrs })
+
+  return fetch(uri, {
+    method: 'POST',
+    headers: combinedHeaders(token),
+    body: body
+  })
+  .then(resp => {
+    if (resp.status === 401) throw new AuthorizationError()
+    return resp
+  })
+}
+
+// PATCH /games/:id
+export const updateGame = (token, gameId, attrs) => {
+  const uri = `${backendBaseUri}/games/${gameId}`
+  const body = JSON.stringify({ game: attrs })
+
+  return fetch(uri, {
+    method: 'PATCH',
+    headers: combinedHeaders(token),
+    body: body
+  })
+  .then(resp => {
+    if (resp.status === 401) throw new AuthorizationError()
+    if (resp.status === 404) throw new NotFoundError()
+    return resp
+  })
+}
+
+// DELETE /games/:id
+export const destroyGame = (token, gameId) => {
+  const uri = `${backendBaseUri}/games/${gameId}`
+
+  return fetch(uri, {
+    method: 'DELETE',
+    headers: authHeader(token)
+  })
+  .then(resp => {
+    // I deviated from the usual pattern of throwing a NotFoundError here
+    // on 404 since the behaviour for 404s is the same as the behaviour for
+    // successful deletion of the game, and making it throw an error here
+    // would just mean duplicating all thatlogic in the handlers in the
+    // GamesProvider.
+    if (resp.status === 401) throw new AuthorizationError()
+    return resp
+  })
+}
+
+/*
+ *
+ * Shopping List Endpoints (Scoped to Game)
+ *
+ */
+
+// GET /games/:id/shopping_lists
+export const fetchShoppingLists = (token, gameId) => {
+  const uri = `${backendBaseUri}/games/${gameId}/shopping_lists`
+
+  return(
+    fetch(uri, { headers: authHeader(token) })
+      .then(resp => {
+        if (resp.status === 401) throw new AuthorizationError()
+        if (resp.status === 404) throw new NotFoundError()
+        return resp
+      })
+  )
+}
+
+// POST /games/:game_id/shopping_lists
+export const createShoppingList = (token, gameId, attrs) => {
+  const uri = `${backendBaseUri}/games/${gameId}/shopping_lists`
   const body = JSON.stringify({ shopping_list: attrs })
 
   return fetch(uri, {
@@ -90,6 +163,7 @@ export const createShoppingList = (token, attrs) => {
   })
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
+    if (resp.status === 404) throw new NotFoundError()
     return resp
   })
 }
@@ -182,7 +256,7 @@ export const updateShoppingListItem = (token, itemId, attrs) => {
 }
 
 // DELETE /shopping_list_items/:id
-export const destroyShoppingListItem = (token, itemId, attrs) => {
+export const destroyShoppingListItem = (token, itemId) => {
   const uri = `${backendBaseUri}/shopping_list_items/${itemId}`
 
   return(

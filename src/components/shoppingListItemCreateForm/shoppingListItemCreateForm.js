@@ -1,13 +1,15 @@
 import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
-import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import styles from './shoppingListItemCreateForm.module.css'
 
 const ShoppingListItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
-  const { hideFlash } = useAppContext()
-  const { performShoppingListItemCreate } = useShoppingListContext()
+  const [collapsed, setCollapsed] = useState(true)
+  const { setFlashVisible } = useAppContext()
+  const { performShoppingListItemCreate } = useShoppingListsContext()
   const {
     schemeColorDark,
     hoverColorLight,
@@ -16,7 +18,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     textColorSecondary,
     textColorTertiary
   } = useColorScheme()
-  
+
   const formRef = useRef(null)
 
   const colorVars = {
@@ -30,26 +32,42 @@ const ShoppingListItemCreateForm = ({ listId }) => {
 
   const toggleForm = () => {
     setToggleEvent(Date.now)
+    setCollapsed(!collapsed)
   }
 
   const createShoppingListItem = e => {
     e.preventDefault()
 
-    hideFlash()
+    setFlashVisible(false)
 
     const description = e.target.elements.description.value
-    const quantity = Number(e.target.elements.quantity.value)
+    const quantity = parseInt(e.target.elements.quantity.value)
     const notes = e.target.elements.notes.value
     const attrs = { description, quantity, notes }
 
-    performShoppingListItemCreate(listId, attrs, () => {
-      formRef.current.reset()
-      toggleForm()
-    })
+    const callbacks = {
+      onSuccess: () => {
+        formRef.current.reset()
+        toggleForm()
+      },
+      onNotFound: () => {
+        formRef.current.reset()
+        toggleForm()
+        setFlashVisible(true)
+      },
+      onUnprocessableEntity: () => setFlashVisible(true),
+      onInternalServerError: () => {
+        formRef.current.reset()
+        toggleForm()
+        setFlashVisible(true)
+      }
+    }
+
+    performShoppingListItemCreate(listId, attrs, callbacks)
   }
 
   return(
-    <div className={styles.root} style={colorVars}>
+    <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={colorVars}>
       <div className={styles.triggerContainer}>
         <button className={styles.triggerButton} onClick={toggleForm}>
           Add item to list...

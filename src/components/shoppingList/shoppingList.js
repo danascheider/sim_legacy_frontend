@@ -4,9 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
+import titlecase from '../../utils/titlecase'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
-import { useAppContext, useColorScheme, useShoppingListContext } from '../../hooks/contexts'
+import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import styles from './shoppingList.module.css'
@@ -24,10 +25,14 @@ const isValid = str => (
 )
 
 const ShoppingList = ({ canEdit = true, listId, title}) => {
+  const DELETE_CONFIRMATION = `Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`
+
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
   const [maxEditFormWidth, setMaxEditFormWidth] = useState(null)
   const [listItems, setListItems] = useState([])
+
+  const mountedRef = useRef(true)
   const slideTriggerRef = useRef(null)
   const deleteTriggerRef = useRef(null)
   const iconsRef = useRef(null)
@@ -36,13 +41,13 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
 
   const { componentRef, triggerRef, isComponentVisible, setIsComponentVisible } = useComponentVisible()
 
-  const { displayFlash, hideFlash } = useAppContext()
+  const { setFlashProps, setFlashVisible } = useAppContext()
 
   const {
     shoppingLists,
     performShoppingListUpdate,
     performShoppingListDestroy,
-  } = useShoppingListContext()
+  } = useShoppingListsContext()
 
   const originalTitle = title // to switch back in case of API error on update
 
@@ -52,7 +57,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const componentRefContains = element => componentRef.current && (componentRef.current === element || componentRef.current.contains(element))
   const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element)) && !componentRefContains(element) && !deleteTriggerRefContains(element)
 
-  const toggleListItems = (e) => {
+  const toggleListItems = e => {
     if (shouldToggleListItems(e.target)) {
       setToggleEvent(Date.now)
     }
@@ -82,32 +87,53 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   const submitAndHideForm = e => {
     e.preventDefault()
 
-    hideFlash()
+    setFlashVisible(false)
 
     const newTitle = e.nativeEvent.target.children[0].defaultValue
 
-    if (!newTitle || isValid(newTitle)) setCurrentTitle(newTitle)
+    if (!newTitle || isValid(newTitle)) setCurrentTitle(titlecase(newTitle))
 
-    performShoppingListUpdate(listId, newTitle, null, () => { setCurrentTitle(originalTitle) })
+    const resetTitleAndDisplayError = () => {
+      setCurrentTitle(originalTitle)
+      setFlashVisible(true)
+    }
+
+    const callbacks = {
+      onNotFound: resetTitleAndDisplayError,
+      onUnprocessableEntity: resetTitleAndDisplayError,
+      onInternalServerError: resetTitleAndDisplayError
+    }
+
+    performShoppingListUpdate(listId, newTitle, callbacks)
     setIsComponentVisible(false)
   }
 
   const deleteList = e => {
-    e.preventDefault()
+    const confirmed = window.confirm(DELETE_CONFIRMATION)
 
-    const confirmed = window.confirm(`Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`)
-
-    hideFlash()
+    setFlashVisible(false)
 
     if (confirmed) {
-      performShoppingListDestroy(listId)
-    } else {
-      displayFlash('info', 'Your list was not deleted.')
+      const onSuccess = () => {
+        setFlashVisible(true)
+        mountedRef.current = false
+      }
+
+      const onError = () => setFlashVisible(true)
+
+      performShoppingListDestroy(listId, { onSuccess, onNotFound: onError, onInternalServerError: onError })
+    } else if (mountedRef.current) {
+      setFlashProps({
+        type: 'info',
+        message: 'Your list was not deleted.'
+      })
+
+      setFlashVisible(true)
     }
   }
 
   useEffect(() => {
-    if (!shoppingLists) return // it'll run again when they populate
+    if (!shoppingLists || !mountedRef.current) return // it'll run again when they populate
 
     const items = shoppingLists.find(obj => obj.id === listId).list_items
 
@@ -115,10 +141,14 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
   }, [shoppingLists, listId])
 
   useEffect(() => {
-    if (!size || !iconsRef.current) return
+    if (!size || !iconsRef.current || !mountedRef.current) return
 
     setMaxEditFormWidth(size.width - iconsRef.current.offsetWidth - 16)
   }, [size])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
     <div className={styles.root} style={styleVars}>
@@ -126,10 +156,10 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
           <span className={styles.editIcons} ref={iconsRef}>
-            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList}>
+            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid='delete-shopping-list'>
               <FontAwesomeIcon className={styles.fa} icon={faTimes} />
             </div>
-            <div className={styles.icon} ref={triggerRef}>
+            <div className={styles.icon} ref={triggerRef} data-testid='edit-shopping-list'>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
             </div>
           </span>}

@@ -33,8 +33,13 @@ const AppContext = createContext()
 const AppProvider = ({ children, overrideValue = {} }) => {
   const { pathname } = useLocation()
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
+
   const [flashProps, setFlashProps] = useState({})
   const [flashVisible, setFlashVisible] = useState(false)
+
+  const [modalAttributes, setModalAttributes] = useState({})
+  const [modalVisible, setModalVisible] = useState(false)
+
   const [profileData, setProfileData] = useState(overrideValue.profileData)
   const [redirectPath, setRedirectPath] = useState(overrideValue.shouldRedirectTo)
   const [profileLoadState, setProfileLoadState] = useState(overrideValue.profileLoadState || LOADING)
@@ -45,17 +50,9 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const setSessionCookie = token => setCookie(sessionCookieName, token)
 
   const setShouldRedirectTo = useCallback(path => {
-    setRedirectPath(path)
+    mountedRef.current && setRedirectPath(path)
     mountedRef.current = false
   }, [])
-
-  const displayFlash = useCallback((type, message, header = null) => {
-    setFlashProps({ type, message, header })
-    setFlashVisible(true)
-    window.scrollTo(0, 0)
-  }, [])
-
-  const hideFlash = useCallback(() => { setFlashVisible(false) }, [])
 
   const onAuthenticatedPage = useCallback(() => {
     return pathname !== paths.login && pathname !== paths.home && allPaths.indexOf(pathname) !== -1
@@ -67,11 +64,11 @@ const AppProvider = ({ children, overrideValue = {} }) => {
 
   const logOutAndRedirect = useCallback((path = paths.login, callback = null) => {
     logOutWithGoogle(() => {
-      cookies[sessionCookieName] && removeSessionCookie()
+      removeSessionCookie()
       callback && callback()
       onAuthenticatedPage() && setShouldRedirectTo(path)
     })
-  }, [cookies, removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
+  }, [removeSessionCookie, onAuthenticatedPage, setShouldRedirectTo])
 
   const value = {
     token: cookies[sessionCookieName],
@@ -83,8 +80,12 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     logOutAndRedirect,
     flashVisible,
     flashProps,
-    displayFlash,
-    hideFlash,
+    setFlashVisible,
+    setFlashProps,
+    setModalVisible,
+    setModalAttributes,
+    modalVisible,
+    modalAttributes,
     ...overrideValue // enables you to only change certain values
   }
 
@@ -126,7 +127,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
                                 cookies
                               ])
 
-  useEffect(() => (() => mountedRef.current = false))
+  useEffect(() => (() => mountedRef.current = false), [])
 
   return(
     <AppContext.Provider value={value}>
@@ -155,9 +156,16 @@ AppProvider.propTypes = {
       message: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]).isRequired,
       header: PropTypes.string
     }),
-    displayFlash: PropTypes.func,
-    hideFlash: PropTypes.func,
-    logOutAndRedirect: PropTypes.func
+    setFlashVisible: PropTypes.func,
+    setFlashProps: PropTypes.func,
+    logOutAndRedirect: PropTypes.func,
+    setModalVisible: PropTypes.func,
+    setModalAttributes: PropTypes.func,
+    modalVisible: PropTypes.bool,
+    modalAttributes: PropTypes.shape({
+      Tag: PropTypes.elementType,
+      props: PropTypes.object
+    })
   })
 }
 
