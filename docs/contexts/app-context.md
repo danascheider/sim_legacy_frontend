@@ -15,6 +15,14 @@ The `AppProvider`'s value includes the following:
 * `flashVisible`: Whether the flash message element (if any) should be visible on the page
 * `setFlashProps`: A function that enables you to set the type ('error', 'info', or 'success'), message, and header of the `FlashMessage` component (consumers are responsible for rendering the flash message)
 * `setFlashVisible`: A function that enables you to set the `flashVisible` value to `true` or `false`
+* `modalVisible`: A boolean value indicating whether a modal, if it is present on the page, should be shown
+* `modalAttributes`: An object indicating the component the modal should display as well as the props that should be passed through to the modal component
+* `setModalVisible`: A function that enables you to set the `modalVisible` value to `true` or `false`
+* `setModalAttributes`: A function enabling you to set the attributes for the modal. There are two required keys:
+  * `Tag`: The component that the modal should wrap
+  * `props`: The combined props for the modal component and the wrapped component; any values that are not possible props of the `Modal` component will be passed through to the wrapped component. Possible values depend on the props of the wrapped component, but the following are always allowed:
+    * `title` (required): The main heading of the modal itself
+    * `subtitle`: The subheading of the modal itself
 
 ## Redirect Behaviour
 
