@@ -67,11 +67,7 @@ const GamesDropdown = () => {
       if (activeGame && activeGame.id === gameId) return
       const game = gameId ? games.find(game => game.id === gameId) : games[0]
 
-      if (game) {
-        selectGame(game)
-      } else {
-        selectGame(games[0])
-      }
+      selectGame(game || games[0])
     } else if (games.length && !activeGame) {
       selectGame(games[0])
     }

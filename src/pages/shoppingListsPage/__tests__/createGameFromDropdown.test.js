@@ -77,14 +77,21 @@ describe('creating a new game from the dropdown', () => {
     it('creates a new game and displays its (empty) shopping lists', async () => {
       const { history } = component = renderComponentWithMockCookies()
       
+      // Find the games dropdown and its input
       const dropdownComponent = await screen.findByTestId('games-dropdown')
       const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
 
+      // Enter the name of a game that doesn't exist yet in the input
       fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
       fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
 
+      // The new game should be added to the list
       await waitFor(() => expect(within(dropdownComponent).queryByDisplayValue('Distinctive Name')).toBeVisible())
+
+      // The query string should be updated to set the active game to the new game
       await waitFor(() => expect(history.location.search).toEqual('?game_id=671'))
+
+      // The (empty) shopping lists for the new game should be loaded
       await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).toBeVisible())
     })
   })
@@ -119,9 +126,11 @@ describe('creating a new game from the dropdown', () => {
     it('displays the validation error', async () => {
       const { history } = component = renderComponentWithMockCookies()
       
+      // Find the games dropdown and its input
       const dropdownComponent = await screen.findByTestId('games-dropdown')
       const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
 
+      // Enter the name of a game that doesn't exist yet in the input
       fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
       fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
 
@@ -169,9 +178,11 @@ describe('creating a new game from the dropdown', () => {
     it('redirects to the login page', async () => {
       const { history } = component = renderComponentWithMockCookies()
       
+      // Find the games dropdown and its input
       const dropdownComponent = await screen.findByTestId('games-dropdown')
       const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
 
+      // Enter the name of a game that doesn't exist yet in the input
       fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
       fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
 
@@ -199,9 +210,11 @@ describe('creating a new game from the dropdown', () => {
     it("doesn't change games and displays an error message", async () => {
       const { history } = component = renderComponentWithMockCookies()
       
+      // Find the games dropdown and its input
       const dropdownComponent = await screen.findByTestId('games-dropdown')
       const dropdownInput = dropdownComponent.getElementsByTagName('input')[0]
 
+      // Enter the name of a game that doesn't exist yet in the input
       fireEvent.change(dropdownInput, { target: { value: 'Distinctive Name' } })
       fireEvent.keyDown(dropdownInput, { key: 'Enter', code: 'Enter' })
 

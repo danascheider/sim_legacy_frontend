@@ -61,6 +61,9 @@ const ModalGameForm = ({ type, currentAttributes = {} }) => {
 
     if (type === 'create') {
       const onSuccess = () => {
+        // If the user is on a page where there is a games dropdown,
+        // they should see a flash message when a game is created since
+        // they won't see the game added to a list.
         if (pathsScopedToGames.indexOf(history.location.pathname) > -1) {
           unmountAndDisplayFlash()
         } else {

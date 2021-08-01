@@ -67,35 +67,45 @@ describe('Editing a shopping list', () => {
     it('displays without toggling the list items when you click the edit icon', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      // Find the shopping list we'll edit
       const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
 
+      // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
       const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
+      // It should not display the list items when you click on it
       await waitFor(() => expect(within(listEl).queryByText(list.list_items[0].description)).not.toBeVisible())
       await waitFor(() => expect(within(listEl).queryByText(list.list_items[1].description)).not.toBeVisible())
+
+      // There should be an input with the list's title as its `value`
       await waitFor(() => expect(within(listEl).queryByDisplayValue(list.title)).toBeVisible())
     })
 
     it('hides the form again when you click outside', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      // Find the shopping list we'll edit
       const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
 
+      // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
       const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
-      const form = await within(listEl).queryByDisplayValue(list.title)
+      // The there should be a form with an input with the list's title as its `value`
+      const input = await within(listEl).queryByDisplayValue(list.title)
 
-      fireEvent.click(listEl) // it could be anywhere but you have to specify
+      fireEvent.click(listEl) // click could be anywhere but you have to specify
 
-      await waitFor(() => expect(form).not.toBeInTheDocument())
+      // The input should no longer be present, but the list should
+      await waitFor(() => expect(input).not.toBeInTheDocument())
+      await waitFor(() => expect(listEl).toBeInTheDocument())
     })
   })
 
@@ -125,20 +135,25 @@ describe('Editing a shopping list', () => {
     it('edits the shopping list and hides the form', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      // Find the shopping list we'll edit
       const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
 
+      // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
       const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
+      // Find the title input and the `form` it is part of
       const input = await within(listEl).findByDisplayValue(list.title)
       const form = input.closest('.root')
 
+      // Fill out the title input and submit the form
       fireEvent.change(input, { target: { value: 'Honeyside' } })
       fireEvent.submit(form)
 
+      // The input should be hidden and the new title should be visible
       await waitFor(() => expect(input).not.toBeInTheDocument())
       await waitFor(() => expect(within(listEl).queryByText('Honeyside')).toBeVisible())
     })
@@ -163,17 +178,21 @@ describe('Editing a shopping list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      // Find the shopping list we'll edit
       const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
 
+      // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
       const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
+      // Find the title input and the `form` it is part of
       const input = await within(listEl).findByDisplayValue(list.title)
       const form = input.closest('.root')
 
+      // Fill out the title input and submit the form
       fireEvent.change(input, { target: { value: 'Honeyside' } })
       fireEvent.submit(form)
 
@@ -205,25 +224,32 @@ describe('Editing a shopping list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      const gameLists = allShoppingLists.filter(l => l.game_id === games[0].id)
+      // Find the shopping list we'll edit
+      const gameLists = allShoppingLists.filter(list => list.game_id === games[0].id)
       const list = gameLists[1]
 
+      // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
       const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
+      // Find the title input and the `form` it is part of
       const input = await within(listEl).findByDisplayValue(list.title)
       const form = input.closest('.root')
 
-      // MSW will return whatever we tell it to but for maximum realism let's
-      // give it the same title as another list
-      fireEvent.change(input, { target: { value: gameLists[2].name } })
+      // Fill out the title input and submit the form
+      fireEvent.change(input, { target: { value: 'Honeyside' } })
       fireEvent.submit(form)
 
+      // The input and form should be hidden
       await waitFor(() => expect(input).not.toBeInTheDocument())
+
+      // The title should not be updated in the view
       await waitFor(() => expect(within(listEl).queryByText(gameLists[2].title)).not.toBeInTheDocument())
+
+      // There should be a flash error message with the validation errors
       await waitFor(() => expect(screen.queryByText(/title must be unique per game/i)).toBeVisible())
     })
 
@@ -251,23 +277,31 @@ describe('Editing a shopping list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      const gameLists = allShoppingLists.filter(l => l.game_id === games[0].id)
-      const list = gameLists[1]
+      // Find the shopping list we'll edit
+      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
 
+      // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
       const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
+      // Find the title input and the `form` it is part of
       const input = await within(listEl).findByDisplayValue(list.title)
       const form = input.closest('.root')
 
-      fireEvent.change(input, { target: { value: 'This will not work' } })
+      // Fill out the title input and submit the form
+      fireEvent.change(input, { target: { value: 'Honeyside' } })
       fireEvent.submit(form)
 
+      // The input and form should be hidden
       await waitFor(() => expect(input).not.toBeInTheDocument())
+
+      // The title should not be updated
       await waitFor(() => expect(within(listEl).queryByText('This will not work')).not.toBeInTheDocument())
+
+      // There should be a flash error message explaining what happened
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
     })
   })
@@ -294,21 +328,25 @@ describe('Editing a shopping list', () => {
     it('redirects to the login page', async () => {
       const { history } = component = renderComponentWithMockCookies(games[0].id)
 
-      const gameLists = allShoppingLists.filter(l => l.game_id === games[0].id)
-      const list = gameLists[1]
+      // Find the shopping list we'll edit
+      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
 
+      // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
       const editIcon = await within(listEl).findByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
+      // Find the title input and the `form` it is part of
       const input = await within(listEl).findByDisplayValue(list.title)
       const form = input.closest('.root')
 
-      fireEvent.change(input, { target: { value: 'This will not work' } })
+      // Fill out the title input and submit the form
+      fireEvent.change(input, { target: { value: 'Honeyside' } })
       fireEvent.submit(form)
 
+      // The user should be redirected to the login page
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
   })

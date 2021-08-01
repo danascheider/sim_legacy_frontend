@@ -39,7 +39,7 @@ const Modal = ({ children, title, subtitle }) => {
     <div role='dialog' className={styles.root} onClick={hide}>
       <div ref={contentRef} className={styles.content}>
         <h3 className={styles.title}>{title}</h3>
-        <p className={styles.subtitle}>{subtitle}</p>
+        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         {children}
       </div>
     </div>

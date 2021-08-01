@@ -34,14 +34,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
 
   const [games, setGames] = useState(overrideValue.games || [])
   const [gameLoadingState, setGameLoadingState] = useState(overrideValue.gameLoadingState || LOADING)
-  const [gameEditFormVisible, setGameEditFormVisible] = useState(false)
-  const [gameEditFormProps, setGameEditFormProps] = useState({})
 
   const mountedRef = useRef(true)
   const gamesOverridden = useRef(false)
 
-  // Check if undefined or null because an empty array would evaluate to false
-  if (overrideValue.games !== undefined && overrideValue.games !== null) {
+  if (overrideValue.games) {
     // Use this as the initial value only so that the games can be
     // updated when we interact in Storybook or other tests
     delete overrideValue.games
@@ -125,8 +122,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
-          onUnauthorized && onUnauthorized()
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
@@ -150,7 +149,6 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           if (mountedRef.current) {
             const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
             setGames(newGames)
-            setGameEditFormVisible(false)
             setFlashProps({ type: 'success', message: 'Success! Your game has been updated.' })
           }
 
@@ -163,7 +161,6 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
               header: `${data.errors.length} error(s) prevented your game from being updated:`
             })
 
-            setGameEditFormVisible(false)
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
             // Something unexpected happened and we don't know what
@@ -175,16 +172,15 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
-
-          onUnauthorized && onUnauthorized()
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
             message: "Oops! We couldn't find the game you wanted to update. Sorry! Try refreshing the page to solve this problem."
           })
-
-          setGameEditFormVisible(false)
 
           onNotFound && onNotFound()
         } else {
@@ -194,8 +190,6 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             type: 'error',
             message: "Something unexpected happened while trying to update your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
-
-          setGameEditFormVisible(false)
 
           onInternalServerError && onInternalServerError()
         }
@@ -227,9 +221,10 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
-
-          onUnauthorized && onUnauthorized()
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error destroying game: ', err)
 
@@ -249,16 +244,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     performGameCreate,
     performGameUpdate,
     performGameDestroy,
-    gameEditFormVisible,
-    setGameEditFormVisible,
-    gameEditFormProps,
-    setGameEditFormProps,
     ...overrideValue
   }
 
   useEffect(() => {
     mountedRef.current && fetchUserGames()
-    return () => mountedRef.current = false
   }, [fetchUserGames])
 
   useEffect(() => (

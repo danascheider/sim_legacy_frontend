@@ -87,18 +87,23 @@ describe('Destroying a shopping list', () => {
     it('prompts the user and removes the list and aggregate list', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
       const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
+      // The user should be prompted to confirm that they want to destroy the
+      // list
       expect(confirm).toHaveBeenCalled()
 
-      await waitForElementToBeRemoved(listEl)
-      expect(listEl).not.toBeInTheDocument()
+      // Both the list and aggregate list should be removed
+      await waitFor(() => expect(listEl).not.toBeInTheDocument())
       expect(screen.queryByText(/all items/i)).not.toBeInTheDocument()
 
+      // There should be a flash message indicating that the list and its aggregate list
+      // have both been destroyed
       await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
       await waitFor(() => expect(screen.queryByText(/aggregate list has been deleted/i)).toBeVisible())
     })
@@ -147,19 +152,24 @@ describe('Destroying a shopping list', () => {
     it('removes the list but not the aggregate list', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
       const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
+      // The user should be prompted to confirm that they want to destroy the
+      // list
       expect(confirm).toHaveBeenCalled()
 
-      await waitForElementToBeRemoved(listEl)
-      expect(listEl).not.toBeInTheDocument()
-      
+      // The list should be removed
+      await waitFor(() => expect(listEl).not.toBeInTheDocument())
+
+      // The aggregate list should still be visible on the page
       await waitFor(() => expect(screen.queryByText(/all items/i)).toBeVisible())
 
+      // There should be a flash message indicating the list was deleted
       await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
     })
   })
@@ -206,26 +216,36 @@ describe('Destroying a shopping list', () => {
     it('removes the list and updates the aggregate list items to match the response', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      // Find the regular list and the all-items list by first locating their
+      // title elements and then finding the containers
       const listTitle = await screen.findByText('Lakeview Manor')
       const allItemsTitle = await screen.findByText('All Items')
 
       const listEl = listTitle.closest('.root')
       const allItemsEl = allItemsTitle.closest('.root')
 
+      // Get the destroy icon for the regular list and click it
       const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
+      // The user should be asked to confirm they want to delete the list
       expect(confirm).toHaveBeenCalled()
 
-      await waitForElementToBeRemoved(listEl)
-      expect(listEl).not.toBeInTheDocument()
-      
+      // The list should be removed
+      await waitFor(() => expect(listEl).not.toBeInTheDocument())
+
+      // The aggregate list should still be visible on the page
       await waitFor(() => expect(allItemsEl).toBeVisible())
+
+      // There should be a flash message indicating the list was deleted
       await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
 
+      // Expand the aggregate list so its list items are visible
       fireEvent.click(allItemsTitle)
 
+      // Find the relevant list items and check that the quantity has been reduced
+      // from 2 to 1 in accordance with the API response
       const listItemTitle = await within(allItemsEl).findByText(/ebony sword/i)
       const listItemEl = listItemTitle.closest('.root')
 
@@ -265,16 +285,23 @@ describe('Destroying a shopping list', () => {
     it("doesn't remove the list and displays an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      component = renderComponentWithMockCookies(games[0].id)
+
+      // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
       const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
+      // The user should be prompted to confirm that they want to destroy the
+      // list
       expect(confirm).toHaveBeenCalled()
 
+      // The list should not be removed from the page
       await waitFor(() => expect(listEl).toBeVisible())
 
+      // There should be a flash error message explaining what happened
       await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
     })
   })
@@ -311,15 +338,23 @@ describe('Destroying a shopping list', () => {
     it("doesn't remove the list and displays an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      component = renderComponentWithMockCookies(games[0].id)
+
+      // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
       const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
+      // The user should be prompted to confirm that they want to destroy the
+      // list
       expect(confirm).toHaveBeenCalled()
 
+      // The list should not be removed from the page
       await waitFor(() => expect(listEl).toBeVisible())
+
+      // There should be a flash error message
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
     })
   })
@@ -353,17 +388,23 @@ describe('Destroying a shopping list', () => {
 
     afterAll(() => server.close())
 
-    it("doesn't remove the list and displays an error message", async () => {
+    it('redirects the user to the login page', async () => {
       const { history } = component = renderComponentWithMockCookies(games[0].id)
 
+      component = renderComponentWithMockCookies(games[0].id)
+
+      // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
       const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
+      // The user should be prompted to confirm that they want to destroy the
+      // list
       expect(confirm).toHaveBeenCalled()
 
+      // The user should be redirected to the login page
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })
   })
@@ -387,13 +428,23 @@ describe('Destroying a shopping list', () => {
     it("doesn't remove the list and displays a message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
+      component = renderComponentWithMockCookies(games[0].id)
+
+      // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
       const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
+      // The user should be prompted to confirm that they want to destroy the
+      // list
+      expect(confirm).toHaveBeenCalled()
+
+      // When the user cancels, the list should not be removed
       await waitFor(() => expect(listEl).toBeVisible())
+
+      // There should be a flash info message indicating the list was not deleted
       await waitFor(() => expect(screen.queryByText(/not deleted/i)).toBeVisible())
     })
   })

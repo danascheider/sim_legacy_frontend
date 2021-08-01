@@ -61,8 +61,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   }, [games, queryString])
 
   const [shoppingLists, setShoppingLists] = useState(overrideValue.shoppingLists || [])
-  const [listItemEditFormProps, setListItemEditFormProps] = useState({})
-  const [listItemEditFormVisible, setListItemEditFormVisible] = useState(false)
   const [shoppingListLoadingState, setShoppingListLoadingState] = useState(LOADING)
 
   const shoppingListsOverridden = useRef(false)
@@ -115,7 +113,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         .then(data => {
           if (mountedRef.current && data && !data.errors) {
             setShoppingLists(data)
-            overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
           } else if (mountedRef.current) {
             const message = data && data.errors ? `Internal ServerError: ${data.errors[0]}` : 'No shopping list data returned from the SIM API'
             throw new Error(message)
@@ -133,7 +131,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
             setFlashVisible(true)
 
-            overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(ERROR)
+            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
           } else {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
@@ -147,7 +145,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           }
         })
     } else {
-      mountedRef.current && overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+      mountedRef.current && !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
     }
   }, [token, overrideValue.shoppingListLoadingState, setFlashProps, setFlashVisible, activeGameId, logOutAndRedirect])
 
@@ -171,7 +169,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         if (data && !data.errors) {
           const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
           setShoppingLists(newShoppingLists)
-          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
           onSuccess && onSuccess()
         } else if (data && data.errors) {
           // Since only the title can be updated, any validation errors should start with 'Title'.
@@ -184,7 +182,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
               header: `${data.errors.length} error(s) prevented your changes from being saved:`
             })
 
-            overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE) // still just done bc no error thrown
+            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE) // still just done bc no error thrown
 
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
@@ -209,7 +207,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             message: "Oops! The shopping list you wanted to update could not be found. Try refreshing the page to fix this issue."
           })
 
-          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
           
           onNotFound && onNotFound()
         } else {
@@ -218,7 +216,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             message: "Something unexpected happened while trying to update your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
-          overrideValue.shoppingListLoadingState === undefined && setShoppingListLoadingState(DONE)
+          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
 
           onInternalServerError && onInternalServerError()
         }
@@ -271,8 +269,10 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
-          onUnauthorized && onUnauthorized()
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error',
@@ -461,7 +461,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           setShoppingLists(newShoppingLists)
 
-          setListItemEditFormVisible(false)
           setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
 
           onSuccess && onSuccess()
@@ -469,7 +468,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           // If all the errors returned start with one of the allowed attributes, then it's safe to say it's
           // a validation error. If not, assume it's a 500.
           if (data.errors.filter(msg => allowedAttributes.indexOf(msg.split(' ')[0]) !== -1).length === data.errors.length) {
-            setListItemEditFormVisible(false)
             setFlashProps({
               type: 'error',
               message: data.errors,
@@ -478,7 +476,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
-            setListItemEditFormVisible(false)
             throw new Error('Internal Server Error: ' + data.errors[0])
           }
         } else {
@@ -552,9 +549,10 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
       .catch(err => {
         if (err.code === 401) {
-          logOutAndRedirect(paths.login, () => mountedRef.current = false)
-
-          onUnauthorized && onUnauthorized()
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
         } else if (err.code === 404) {
           setFlashProps({
             type: 'error', 
@@ -583,10 +581,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     performShoppingListItemCreate,
     performShoppingListItemUpdate,
     performShoppingListItemDestroy,
-    listItemEditFormVisible,
-    setListItemEditFormVisible,
-    listItemEditFormProps,
-    setListItemEditFormProps,
     ...overrideValue
   }
 

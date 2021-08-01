@@ -84,6 +84,7 @@ describe('Creating a shopping list', () => {
     it('creates the new shopping list and aggregate list for the active game', async () => {
       component = renderComponentWithMockCookies(games[2].id)
 
+      // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
       const input = await screen.findByLabelText('Title')
       const button = await screen.findByText('Create')
@@ -91,8 +92,13 @@ describe('Creating a shopping list', () => {
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
 
+      // The new list should be visible on the page
       await waitFor(() => expect(screen.queryByText('Proudspire Manor')).toBeVisible())
+
+      // The aggregate list should be visible on the page
       await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
+
+      // The create form should be cleared and still be enabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
       await waitFor(() => expect(input.value).toEqual(''))
@@ -133,14 +139,18 @@ describe('Creating a shopping list', () => {
     it('creates the new shopping list for the active game', async () => {
       component = renderComponentWithMockCookies(games[1].id)
 
+      // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
       const input = await screen.findByLabelText('Title')
       const button = await screen.findByText('Create')
-      
+
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
 
+      // The new shopping list should be visible
       await waitFor(() => expect(screen.queryByText('Proudspire Manor')).toBeVisible())
+
+      // The input form should be cleared and not disabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
       await waitFor(() => expect(input.value).toEqual(''))
@@ -172,14 +182,18 @@ describe('Creating a shopping list', () => {
     it("displays a flash error message but keeps the form enabled and doesn't clear it", async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
       const input = await screen.findByLabelText('Title')
       const button = await screen.findByText('Create')
-      
+
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
 
+      // There should be a flash message indicating that the game could not be found
       await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
+
+      // The input form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
       await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
@@ -214,15 +228,21 @@ describe('Creating a shopping list', () => {
     it("displays a flash error message, doesn't create the shopping list or clear the form", async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
       const input = await screen.findByLabelText('Title')
       const button = await screen.findByText('Create')
-      
+
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
 
+      // There should be a flash error message with the validation errors
       await waitFor(() => expect(screen.queryByText(/title must be unique per game/i)).toBeVisible())
+
+      // The new list should not be added to the page
       await waitFor(() => expect(screen.queryByText(/proudspire manor/i)).not.toBeInTheDocument())
+
+      // The form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
       await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
@@ -257,15 +277,21 @@ describe('Creating a shopping list', () => {
     it("displays a flash error message and doesn't create the shopping list or clear the form", async () => {
       component = renderComponentWithMockCookies()
 
+      // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
       const input = await screen.findByLabelText('Title')
       const button = await screen.findByText('Create')
-      
+
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
 
+      // There should be a flash error message
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
+
+      // The new shopping list should not be added to the page
       await waitFor(() => expect(screen.queryByText(/proudspire manor/i)).not.toBeInTheDocument())
+
+      // The form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
       await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
@@ -300,11 +326,13 @@ describe('Creating a shopping list', () => {
     it('redirects to the login page', async () => {
       const { history } = component = renderComponentWithMockCookies()
 
+      // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
       const input = await screen.findByLabelText('Title')
-      
+
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
+
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })

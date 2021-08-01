@@ -5,7 +5,7 @@ import { ShoppingListsProvider } from '../../contexts/shoppingListsContext'
 import { token, games } from '../../sharedTestData'
 import ShoppingListCreateForm from './shoppingListCreateForm'
 
-const performShoppingListCreate = e => { e.preventDefault() }
+const performShoppingListCreate = e => e.preventDefault()
 
 const listItems = [
   {

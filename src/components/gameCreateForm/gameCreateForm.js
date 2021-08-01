@@ -62,7 +62,7 @@ const GameCreateForm = ({ disabled }) => {
         {({ setCollapsibleElement }) => (
           /* Include this div so we can set the form ref to something else */
           <div ref={setCollapsibleElement}>
-            {/* Unfortunately, setting data-testid seems the only way to test this since fireEvent.click doesn't work */}
+            {/* Unfortunately, setting data-testid seems the only way to test this since fireEvent.click on the button doesn't work */}
             <form ref={formRef} className={styles.form} data-testid='game-create-form' onSubmit={createGame}>
               <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>
                 <input

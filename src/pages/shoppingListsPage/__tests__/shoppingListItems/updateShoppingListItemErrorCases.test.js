@@ -320,5 +320,4 @@ describe('Updating a shopping list item - error cases', () => {
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
     })
   })
-
 })

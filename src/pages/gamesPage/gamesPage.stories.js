@@ -3,13 +3,8 @@ import { rest } from 'msw'
 import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
-import { profileData, emptyGames, games } from '../../sharedTestData'
+import { token, profileData, emptyGames, games } from '../../sharedTestData'
 import GamesPage from './gamesPage'
-
-const appContextOverrideValue = {
-  token: 'xxxxxx',
-  profileData
-}
 
 export default { title: 'GamesPage' }
 
@@ -22,7 +17,7 @@ export default { title: 'GamesPage' }
  */
 
 export const HappyPath = () => (
-  <AppProvider overrideValue={appContextOverrideValue}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
       <GamesPage />
     </GamesProvider>
@@ -75,7 +70,7 @@ HappyPath.parameters = {
  */
 
 export const HappyPathEmpty = () => (
-  <AppProvider overrideValue={appContextOverrideValue}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ gameLoadingState: 'done', games: emptyGames }}>
       <GamesPage />
     </GamesProvider>
@@ -129,7 +124,7 @@ HappyPathEmpty.parameters = {
  */
 
 export const NotFound = () => (
-  <AppProvider overrideValue={appContextOverrideValue}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
       <GamesPage />
     </GamesProvider>
@@ -171,7 +166,7 @@ NotFound.parameters = {
  */
 
 export const UnprocessableEntity = () => (
-  <AppProvider overrideValue={appContextOverrideValue}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
       <GamesPage />
     </GamesProvider>
@@ -217,7 +212,7 @@ UnprocessableEntity.parameters = {
  */
 
 export const InternalServerError = () => (
-  <AppProvider overrideValue={appContextOverrideValue}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ gameLoadingState: 'done', games }}>
       <GamesPage />
     </GamesProvider>
@@ -260,7 +255,7 @@ InternalServerError.parameters = {
  */
 
 export const Loading = () => (
-  <AppProvider overrideValue={appContextOverrideValue}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ gameLoadingState: 'loading', games: emptyGames }}>
       <GamesPage />
     </GamesProvider>
@@ -275,7 +270,7 @@ export const Loading = () => (
  */
 
 export const Error = () => (
-  <AppProvider overrideValue={appContextOverrideValue}>
+  <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider>
       <GamesPage />
     </GamesProvider>

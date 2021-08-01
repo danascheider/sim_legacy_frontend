@@ -1,6 +1,7 @@
 .root {
   width: 100%;
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
 }
 
 .noGames {
@@ -17,6 +18,10 @@
 }
 
 @media (min-width: 769px) {
+  .root {
+    font-size: 1.125rem;
+  }
+
   .games {
     max-width: 75%;
     margin: unset
