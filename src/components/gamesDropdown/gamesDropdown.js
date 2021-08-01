@@ -73,7 +73,7 @@ const GamesDropdown = () => {
     } else if (games.length && !activeGame) {
       selectGame(games[0])
     }
-  }, [selectGame, games, queryString])
+  }, [selectGame, activeGame, games, queryString])
 
   useEffect(() => {
     const collapseDropdownAndResetValue = e => {
@@ -147,6 +147,7 @@ const GamesDropdown = () => {
                   onSuccess: () => {
                     history.push({ search: '' })
                     setActiveGame(null)
+                    e.target.blur()
                   },
                   onUnprocessableEntity: () => {
                     setFlashVisible(true)

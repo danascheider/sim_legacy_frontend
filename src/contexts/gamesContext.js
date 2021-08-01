@@ -93,7 +93,6 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     createGame(token, attrs)
       .then(resp => resp.json())
       .then(data => {
-        console.log('DATA: ', data)
         if (data && !data.errors) {
           if (mountedRef.current) {
             const newGames = [...games]
