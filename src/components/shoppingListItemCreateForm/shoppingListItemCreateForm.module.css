@@ -59,7 +59,7 @@
 }
 
 .label {
-  font-size: 1rem;
+  font-size: 1.025rem;
   margin: auto 0;
 }
 
@@ -85,6 +85,10 @@
 
   .fieldset {
     grid-template-columns: 1fr 4fr;
+  }
+
+  .label {
+    font-size: 1.125rem;
   }
 }
 

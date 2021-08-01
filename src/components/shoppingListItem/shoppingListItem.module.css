@@ -1,5 +1,6 @@
 .root {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
   background-color: var(--main-color);
   border-bottom: 1px solid var(--border-color);
 }
@@ -40,6 +41,11 @@
   align-items: flex-start;
 }
 
+.description {
+  font-size: 1.025rem;
+  margin: 0;
+}
+
 .editIcons {
   display: flex;
   flex-direction: row;
@@ -48,7 +54,7 @@
 
 .quantity {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
-  font-size: 1rem;
+  font-size: 1.025rem;
   color: var(--title-text-color);
   display: inline-block;
   margin: auto 0;
@@ -67,6 +73,7 @@
   border: none;
   padding: 4px;
   cursor: pointer;
+  font-size: 1rem;
 }
 
 .icon:hover .fa {
@@ -101,11 +108,20 @@
 }
 
 @media (min-width: 769px) {
+  .root {
+    font-size: 1.125rem;
+  }
+
   .header {
     padding: 32px 16px;
   }
 
+  .description {
+    font-size: 1.125rem;
+  }
+
   .quantity {
+    font-size: 1.125rem;
     padding: 32px 16px;
   }
 
