@@ -154,44 +154,26 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     updateShoppingList(token, listId, { title: newTitle })
-      .then(resp => {
-        switch(resp.status) {
-          case 200:
-          case 422:
-          case 500:
-            return resp.json()
-          default:
-            throw Error('Something unexpected went wrong while updating your list.')
-        }
-      })
-      .then(data => {
+      .then(({ status, json }) => {
         if (!mountedRef.current) return
 
-        if (data && !data.errors) {
-          const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return data } else { return list } })
+        if (status === 200) {
+          const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return json } else { return list } })
           setShoppingLists(newShoppingLists)
           !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
           onSuccess && onSuccess()
-        } else if (data && data.errors) {
-          // Since only the title can be updated, any validation errors should start with 'Title'.
-          // If all the validation errors start with 'Title', assume it's a validation error. If
-          // not, assume it's a 500 error.
-          if (data.errors.filter(msg => msg.match(/^Title/)).length === data.errors.length) {
-            setFlashProps({
-              type: 'error',
-              message: data.errors,
-              header: `${data.errors.length} error(s) prevented your changes from being saved:`
-            })
+        } else if (status === 422) {
+          setFlashProps({
+            type: 'error',
+            message: json.errors,
+            header: `${json.errors.length} error(s) prevented your changes from being saved:`
+          })
 
-            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE) // still just done bc no error thrown
+          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
 
-            onUnprocessableEntity && onUnprocessableEntity()
-          } else {
-            // 500 errors only return a single error message so data.errors[0] is all of them
-            throw new Error('Internal Server Error: ' + data.errors[0])
-          }
+          onUnprocessableEntity && onUnprocessableEntity()
         } else {
-          throw new Error('Unknown error occurred when updating shopping list: no data returned from SIM API')
+          throw new Error(json.errors ? `Error ${status} when updating shopping list: ${json.errors}` : `Unknown error ${status} when updating shopping list`)
         }
       })
       .catch(err => {

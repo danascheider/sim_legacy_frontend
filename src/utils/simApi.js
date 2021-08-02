@@ -188,8 +188,7 @@ export const updateShoppingList = (token, listId, attrs) => {
       // JSON to handle the error
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError('Shopping list not found. Try refreshing the page to resolve this issue.')
-      if (resp.status === 405) throw new MethodNotAllowedError('Aggregate lists are managed automatically and cannot be updated manually.')
-      return resp
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }
