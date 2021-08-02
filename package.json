@@ -64,15 +64,15 @@
     ]
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^6.3.4",
-    "@storybook/addon-essentials": "^6.3.4",
-    "@storybook/addon-links": "^6.3.4",
-    "@storybook/node-logger": "^6.3.4",
+    "@storybook/addon-actions": "^6.3.6",
+    "@storybook/addon-essentials": "^6.3.6",
+    "@storybook/addon-links": "^6.3.6",
+    "@storybook/node-logger": "^6.3.6",
     "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "^6.3.4",
+    "@storybook/react": "^6.3.6",
     "canvas": "^2.8.0",
     "msw": "^0.30.0",
-    "msw-storybook-addon": "^1.1.0",
+    "msw-storybook-addon": "^1.2.0",
     "universal-cookie": "^4.0.4"
   },
   "msw": {

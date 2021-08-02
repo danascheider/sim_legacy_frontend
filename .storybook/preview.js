@@ -1,8 +1,8 @@
 import { addDecorator } from '@storybook/react'
 import { BrowserRouter } from 'react-router-dom'
-import { initializeWorker, mswDecorator } from 'msw-storybook-addon'
+import { initialize, mswDecorator } from 'msw-storybook-addon'
 
-initializeWorker()
+initialize()
 addDecorator(mswDecorator)
 
 export const parameters = {
