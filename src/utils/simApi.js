@@ -74,7 +74,7 @@ export const fetchGames = token => {
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
         if (resp.status === 401) throw new AuthorizationError()
-        return resp
+        return resp.json().then(json => ({ status: resp.status, json }))
       })
   )
 }
@@ -108,7 +108,7 @@ export const updateGame = (token, gameId, attrs) => {
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
     if (resp.status === 404) throw new NotFoundError()
-    return resp
+    return resp.json().then(json => ({ status: resp.status, json }))
   })
 }
 

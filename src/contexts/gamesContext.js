@@ -52,15 +52,14 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
   const fetchUserGames = useCallback(() => {
     if (token && !gamesOverridden.current) {
       fetchGames(token)
-        .then(resp => resp.json())
-        .then(data => {
-          if (data && !data.errors) {
+        .then(({ status, json }) => {
+          if (status === 200) {
             if (mountedRef.current) {
-              setGames(data)
+              setGames(json)
               !overrideValue.gameLoadingState && setGameLoadingState(DONE)
             }
           } else {
-            const message = data && data.errors ? `Internal Server Error: ${data.errors[0]}` : 'No game data returned from SIM'
+            const message = json && json.errors ? `Error ${status} when fetching games: ${json.errors}` : 'No game data returned from SIM'
             throw new Error(message)
           }
         })
@@ -143,28 +142,27 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     const { onSuccess, onUnprocessableEntity, onNotFound, onInternalServerError, onUnauthorized } = callbacks
 
     updateGame(token, gameId, attrs)
-      .then(resp => resp.json())
-      .then(data => {
-        if (data && !data.errors) {
+      .then(({ status, json }) => {
+        if (status === 200) {
           if (mountedRef.current) {
-            const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
+            const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? json : game)
             setGames(newGames)
             setFlashProps({ type: 'success', message: 'Success! Your game has been updated.' })
           }
 
           onSuccess && onSuccess()
-        } else if (data && data.errors) {
-          if (allErrorsAreValidationErrors(data.errors)) {
+        } else if (status === 422) {
+          if (allErrorsAreValidationErrors(json.errors)) {
             setFlashProps({
               type: 'error',
-              message: data.errors,
-              header: `${data.errors.length} error(s) prevented your game from being updated:`
+              message: json.errors,
+              header: `${json.errors.length} error(s) prevented your game from being updated:`
             })
 
             onUnprocessableEntity && onUnprocessableEntity()
           } else {
             // Something unexpected happened and we don't know what
-            throw new Error(`Internal Server Error: ${data.errors[0]}`)
+            throw new Error(`Error ${status} while updating game: ${json.errors}`)
           }
         } else {
           throw new Error("There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're sorry!")
