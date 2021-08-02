@@ -178,7 +178,7 @@ HappyPath.parameters = {
         // If the regular list matches an ID in the allShoppingLists array, check if
         // the aggregate list has any items on it once the list is destroyed.
         const items = regularList.list_items
-        const aggregateList = findAggregateList(allShoppingLists, listId)
+        const aggregateList = findAggregateList(allShoppingLists, regularList.game_id)
 
         const newAggregateList = removeOrAdjustItemsOnListDestroy(aggregateList, items)
 
@@ -242,7 +242,7 @@ HappyPath.parameters = {
           const regListItem = regList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
           const notes = req.body.shopping_list_item.notes
 
-          const aggregateList = findAggregateList(allShoppingLists, regList.id)
+          const aggregateList = findAggregateList(allShoppingLists, regList.game_id)
           const aggregateListItem = aggregateList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
 
           if (regListItem) adjustListItem(regListItem, parseInt(quantity), regListItem.notes, notes)
@@ -294,7 +294,7 @@ HappyPath.parameters = {
         // aggregate list the item is on. The corresponding item on that list 
         // will need to be updated as well.
         const existingItem = regList.list_items.find(item => item.id === itemId)
-        const aggregateList = findAggregateList(allShoppingLists, regList.id)
+        const aggregateList = findAggregateList(allShoppingLists, regList.game_id)
         const newItem = { ...existingItem, ...req.body.shopping_list_item }
 
         if (parseInt(newItem.quantity) > 0) {
