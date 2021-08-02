@@ -270,19 +270,11 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     const { onSuccess, onUnauthorized, onNotFound, onInternalServerError } = callbacks
 
     destroyShoppingList(token, listId)
-      .then(resp => {
-        // Error responses, including 404 and 405 responses, result
-        // in a NotFoundError or MethodNotAllowedError to be thrown
-        // (respectively).
-        if (resp.status === 204) {
-          return null
-        } else {
-          return resp.json()
-        }
-      })
-      .then(data => {
-        if (mountedRef.current && !data) {
-          // This means that the list was the user's last shopping list and both
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 204) {
+          // This means that the list was the game's last shopping list and both
           // it and the aggregate list have been destroyed.
           setShoppingLists([])
           
@@ -293,11 +285,11 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
-        } else if (mountedRef.current && data && !data.errors) {
+        } else if (status === 200) {
           // This means that the aggregate list has been updated and returned,
           // to adjust for any items that were deleted with the other list.
           const newShoppingLists = shoppingLists.filter(list => list.id !== listId)
-                                                .map(list => (list.aggregate === true ? data : list))
+                                                .map(list => (list.aggregate === true ? json : list))
 
           setShoppingLists(newShoppingLists)
 
@@ -307,8 +299,9 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
-        } else if (data && data.errors) {
-          throw new Error('Internal Server Error: ', data.errors[0])
+        } else {
+          const message = json.errors ? `Error ${status} when deleting shopping list: ${json.errors}` : `Unknown error ${status} when deleting shopping list`
+          throw new Error(message)
         }
       })
       .catch(err => {
