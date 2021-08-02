@@ -231,7 +231,7 @@ export const createShoppingListItem = (token, listId, attrs) => {
     .then(resp => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError("You tried to create an item on a list that doesn't exist. Try refreshing to resolve this issue.")
-      return resp
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }

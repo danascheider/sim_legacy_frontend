@@ -100,12 +100,12 @@ describe('Destroying a shopping list', () => {
 
       // Both the list and aggregate list should be removed
       await waitFor(() => expect(listEl).not.toBeInTheDocument())
-      expect(screen.queryByText(/all items/i)).not.toBeInTheDocument()
+      expect(screen.queryByText('All Items')).not.toBeInTheDocument()
 
       // There should be a flash message indicating that the list and its aggregate list
       // have both been destroyed
       await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
-      await waitFor(() => expect(screen.queryByText(/aggregate list has been deleted/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/"All Items" list has been deleted/i)).toBeVisible())
     })
   })
 

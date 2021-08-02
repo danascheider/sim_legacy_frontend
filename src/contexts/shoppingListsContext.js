@@ -280,7 +280,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           
           setFlashProps({
             type: 'success',
-            message: 'Since it was your last list, your aggregate list has been deleted as well.',
+            message: 'Since it was the last list for this game, the "All Items" list has been deleted as well.',
             header: 'Your shopping list has been deleted.'
           })
 
@@ -331,18 +331,14 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   }
 
   const performShoppingListItemCreate = (listId, attrs, callbacks = {}) => {
-    if (!mountedRef.current) return
-
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
-    const allowedAttributes = ['Description', 'Quantity', 'Notes']
 
     createShoppingListItem(token, listId, attrs)
-      .then(resp => resp.json())
-      .then(data => {
+      .then(({ status, json }) => {
         if (!mountedRef.current) return
 
-        if (data && data.length) {
-          const [aggregateListItem, regularListItem] = data
+        if (status === 200) {
+          const [aggregateListItem, regularListItem] = json
 
           // Have to create an actual new object or the state change won't cause useEffect
           // hooks to run.
@@ -360,20 +356,17 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           setShoppingLists(newLists)
 
           onSuccess && onSuccess()
-        } else if (data && typeof data === 'object' && data.errors) {
-          // If all the errors returned start with one of the allowed attributes, it's a safe bet that
-          // this is a validation error. Otherwise, assume it is a 500.
-          if (data.errors.filter(msg => allowedAttributes.indexOf(msg.split(' ')[0]) !== -1).length === data.errors.length) {
-            setFlashProps({
-              type: 'error',
-              message: data.errors,
-              header: `${data.errors.length} error(s) prevented your shopping list item from being created:`
-            })
+        } else if (status === 422) {
+          setFlashProps({
+            type: 'error',
+            message: json.errors,
+            header: `${json.errors.length} error(s) prevented your shopping list item from being created:`
+          })
 
-            onUnprocessableEntity && onUnprocessableEntity()
-          } else {
-            throw new Error('Internal Server Error: ' + data.errors[0])
-          }
+          onUnprocessableEntity && onUnprocessableEntity()
+        } else {
+          const message = json.errors ? `Error ${status} when creating shopping list item: ${json.errors}` : `Unknown error ${status} when creating shopping list item`
+          throw new Error(message)
         }
       })
       .catch(err => {
