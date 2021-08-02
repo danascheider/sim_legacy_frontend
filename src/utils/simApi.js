@@ -91,7 +91,7 @@ export const createGame = (token, attrs) => {
   })
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
-    return resp
+    return resp.json().then(json => ({ status: resp.status, json }))
   })
 }
 

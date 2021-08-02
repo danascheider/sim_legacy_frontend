@@ -87,12 +87,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     const { onSuccess, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     createGame(token, attrs)
-      .then(resp => resp.json())
-      .then(data => {
-        if (data && !data.errors) {
+      .then(({ status, json }) => {
+        if (status === 201) {
           if (mountedRef.current) {
             const newGames = [...games]
-            newGames.unshift(data)
+            newGames.unshift(json)
             setGames(newGames)
           }
 
@@ -102,21 +101,17 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
-        } else if (data && data.errors) {
-          if (allErrorsAreValidationErrors(data.errors)) {
-            setFlashProps({
-              type: 'error',
-              header: `${data.errors.length} error(s) prevented your game from being created:`,
-              message: data.errors
-            })
+        } else if (status === 422) {
+          setFlashProps({
+            type: 'error',
+            header: `${json.errors.length} error(s) prevented your game from being created:`,
+            message: json.errors
+          })
 
-            onUnprocessableEntity && onUnprocessableEntity()
-          } else {
-            throw new Error(`Internal Server Error: ${data.errors[0]}`)
-          }
+          onUnprocessableEntity && onUnprocessableEntity()
         } else {
           // Something unexpected happened and we don't know what.
-          throw new Error('No data were returned from the SIM API')
+          throw new Error(json.errors ? `Error ${status} when creating game: ${json.errors}` : `Error ${status} when creating game`)
         }
       })
       .catch(err => {
