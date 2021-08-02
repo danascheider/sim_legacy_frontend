@@ -164,7 +164,7 @@ export const createShoppingList = (token, gameId, attrs) => {
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
     if (resp.status === 404) throw new NotFoundError()
-    return resp
+    return resp.json().then(json => ({ status: resp.status, json }))
   })
 }
 

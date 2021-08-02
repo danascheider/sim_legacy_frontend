@@ -228,44 +228,34 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     const { onSuccess, onUnauthorized, onNotFound, onUnprocessableEntity, onInternalServerError } = callbacks
 
     createShoppingList(token, activeGameId, { title })
-      .then(resp => resp.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length === 2) {
-          // It is an array of shopping lists. It includes the shopping list that was
-          // created and an aggregate list that was created automatically. This case only
-          // arises if there were no existing shopping lists, so in this case, we want
-          // to set the shopping lists array to the lists returned.
-          setShoppingLists(data)
-
-          onSuccess && onSuccess()
-        } else if (data && typeof data === 'object' && !data.errors) {
-          // It is the single shopping list that was created. This will happen if there
-          // is already an existing aggregate list.
-          const newShoppingLists = [...shoppingLists]
-          newShoppingLists.splice(1, 0, data)
-          setShoppingLists(newShoppingLists)
-
-          onSuccess && onSuccess()
-        } else if (data && typeof data === 'object' && data.errors ) {
-          // Since we're only setting the title here, all validation errors should start with 'Title'.
-          // If all errors start with 'Title', assume it's a validation error. Otherwise, assume it's a
-          // 500. This will mess up if the 500 error message starts with 'Title', but I see that scenario
-          // as unlikely.
-          if (data.errors.filter(msg => msg.match(/^Title/)).length === data.errors.length) {
-            setFlashProps({
-              type: 'error',
-              message: data.errors,
-              header: `${data.errors.length} error(s) prevented your shopping list from being created:`
-            })
-
-            onUnprocessableEntity && onUnprocessableEntity()
-          } else {
-            // 500 responses return only one error message so this is all of them.
-            throw new Error('Internal Server Error: ' + data.errors[0])
+      .then(({ status, json }) => {
+        if (status === 201) {
+          if (Array.isArray(json) && json.length === 2) {
+            // It is an array of shopping lists. It includes the shopping list that was
+            // created and an aggregate list that was created automatically. This case only
+            // arises if there were no existing shopping lists, so in this case, we want
+            // to set the shopping lists array to the lists returned.
+            setShoppingLists(json)
+          } else if (json && typeof json === 'object') {
+            // It is the single shopping list that was created. This will happen if there
+            // is already an existing aggregate list.
+            const newShoppingLists = [...shoppingLists]
+            newShoppingLists.splice(1, 0, json)
+            setShoppingLists(newShoppingLists)
           }
+
+          onSuccess && onSuccess()
+        } else if (status === 422) {
+          setFlashProps({
+            type: 'error',
+            message: json.errors,
+            header: `${json.errors.length} error(s) prevented your shopping list from being created:`
+          })
+
+          onUnprocessableEntity && onUnprocessableEntity()
         } else {
           // Something unexpected happened and we don't know what
-          throw new Error('There was an unexpected error creating your new list. Unfortunately, we don\'t know more than that yet. We\'re sorry!')
+          throw new Error(json.errors ? `Error ${status} while creating shopping list: ${json.errors}` : `Unknown error ${status} while creating shopping list`)
         }
       })
       .catch(err => {
