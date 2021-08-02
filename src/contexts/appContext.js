@@ -92,12 +92,11 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const fetchProfileData = () => {
     if (shouldFetchProfileData()) {
       fetchUserProfile(cookies[sessionCookieName])
-        .then(response => response.json())
-        .then(data => {
-          if (data.errors) {
-            throw new Error('Internal Server Error: ', data.errors[0])
+        .then(({ status, json }) => {
+          if (status !== 200) {
+            throw new Error('Internal Server Error: ', json.errors[0])
           } else if (mountedRef.current === true) {
-            setProfileData(data)
+            setProfileData(json)
             if (!overrideValue.profileLoadState) setProfileLoadState(DONE)
           }
         })

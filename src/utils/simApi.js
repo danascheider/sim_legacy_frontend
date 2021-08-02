@@ -55,7 +55,7 @@ export const fetchUserProfile = token => {
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
         if (resp.status === 401) throw new AuthorizationError()
-        return resp
+        return resp.json().then(json => ({ status: resp.status, json }))
       })
   )
 }
