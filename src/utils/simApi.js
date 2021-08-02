@@ -267,7 +267,8 @@ export const destroyShoppingListItem = (token, itemId) => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError("You tried to delete a list item that doesn't exist. Try refreshing to fix this issue.")
       if (resp.status === 405) throw new MethodNotAllowedError()
-      return resp
+      if (resp.status === 204) return { status: resp.status, json: null }
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }

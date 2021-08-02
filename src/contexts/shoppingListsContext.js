@@ -476,40 +476,36 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     const { onSuccess, onNotFound, onUnauthorized, onInternalServerError } = callbacks
 
     destroyShoppingListItem(token, itemId)
-      .then(resp => {
-        if (resp.status === 204) return null
+      .then(({ status, json }) => {
+        if (status === 200 || status === 204) {
+          const regularListToRemoveItemFrom = listFromListItemId(itemId)
+          const regularListIndex = shoppingLists.indexOf(regularListToRemoveItemFrom)
+          const newLists = [...shoppingLists]
+          let newAggregateList
 
-        return resp.json()
-      })
-      .then(data => {
-        const regularListToRemoveItemFrom = listFromListItemId(itemId)
-        const regularListIndex = shoppingLists.indexOf(regularListToRemoveItemFrom)
-        const newLists = [...shoppingLists]
-        let newAggregateList
+          if (status === 200) {
+            // If there is an updated aggregate list item, it will be returned. If
+            // the aggregate list item has been destroyed, the status will be 204.
+            newAggregateList = addOrUpdateListItem(shoppingLists[0], json)
+          } else {
+            const deletedItem = regularListToRemoveItemFrom.list_items.find(item => item.id === itemId)
+            const aggregateListItem = shoppingLists[0].list_items.find(item => item.description.toLowerCase() === deletedItem.description.toLowerCase())
 
-        if (data && typeof data === 'object' && !data.errors) {
-          // It is the aggregate list item that was updated
-          newAggregateList = addOrUpdateListItem(shoppingLists[0], data)
-        } else if (data && typeof data === 'object' && data.errors) {
-          throw new Error('Internal Server Error: ' + data.errors[0])
+            newAggregateList = removeItemFromList(shoppingLists[0], aggregateListItem.id)
+          }
+
+          const newRegularList = removeItemFromList(regularListToRemoveItemFrom, itemId)
+
+          newLists[0] = newAggregateList
+          newLists.splice(regularListIndex, 1, newRegularList)
+
+          setShoppingLists(newLists)
+
+          onSuccess && onSuccess()
         } else {
-          const deletedItem = regularListToRemoveItemFrom.list_items.find(item => item.id === itemId)
-
-          // It's a bit of a pain in the ass to figure out which item to remove from the aggregate list in
-          // the case where it's been deleted. Might be something to think about for API development.
-          const aggregateListItem = shoppingLists[0].list_items.find(item => item.description.toLowerCase() === deletedItem.description.toLowerCase())
-
-          newAggregateList = removeItemFromList(shoppingLists[0], aggregateListItem.id)
+          const message = json.errors ? `Error ${status} when deleting shopping list item ${itemId}: ${json.errors}` : `Unknown error ${status} when deleting shopping list item ${itemId}`
+          throw new Error(message)
         }
-
-        const newRegularList = removeItemFromList(regularListToRemoveItemFrom, itemId)
-
-        newLists[0] = newAggregateList
-        newLists.splice(regularListIndex, 1, newRegularList)
-
-        setShoppingLists(newLists)
-          
-        onSuccess && onSuccess()
       })
       .catch(err => {
         if (err.code === 401) {
@@ -526,6 +522,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           onNotFound && onNotFound()
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error destroying shopping list item: ', err)
+
           setFlashProps({
             type: 'error', 
             message: "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
