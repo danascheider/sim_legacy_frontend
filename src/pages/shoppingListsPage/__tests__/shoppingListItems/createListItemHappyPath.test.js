@@ -67,7 +67,7 @@ describe('Creating a shopping list item - happy path', () => {
         ]
 
         return res(
-          ctx.status(200),
+          ctx.status(201),
           ctx.json(json)
         )
       })
@@ -124,15 +124,19 @@ describe('Creating a shopping list item - happy path', () => {
 
       fireEvent.click(allItemsTitle)
 
-      const item = await within(allItemsEl).findByText('Dwarven metal ingots')
-      const itemEl = item.closest('.root')
+      const itemTitleOnAggList = await within(allItemsEl).findByText('Dwarven metal ingots')
+      const itemElOnAggList = itemTitleOnAggList.closest('.root')
 
-      expect(item).toBeVisible()
-      
-      fireEvent.click(item)
+      expect(itemElOnAggList).toBeVisible()
 
-      await waitFor(() => expect(within(itemEl).queryByText('10')).toBeVisible())
-      await waitFor(() => expect(within(itemEl).queryByText('To make bolts with')).toBeVisible())
+      // Expand the item to show its attributes
+      fireEvent.click(itemTitleOnAggList)
+
+      await waitFor(() => expect(within(itemElOnAggList).queryByText('10')).toBeVisible())
+      await waitFor(() => expect(within(itemElOnAggList).queryByText('To make bolts with')).toBeVisible())
+
+      // There should be a flash message visible
+      await waitFor(() => expect(screen.queryByText(/has been created/i)).toBeVisible())
     })
   })
 
@@ -162,7 +166,7 @@ describe('Creating a shopping list item - happy path', () => {
         ]
 
         return res(
-          ctx.status(200),
+          ctx.status(201),
           ctx.json(json)
         )
       })
@@ -315,15 +319,19 @@ describe('Creating a shopping list item - happy path', () => {
 
       fireEvent.click(allItemsTitle)
 
-      const item = await within(allItemsEl).findByText('Ebony sword')
-      const itemEl = item.closest('.root')
+      const itemTitleOnAggList = await within(allItemsEl).findByText('Ebony sword')
+      const itemElOnAggList = itemTitleOnAggList.closest('.root')
 
-      expect(itemEl).toBeVisible()
-      
-      fireEvent.click(item)
+      expect(itemElOnAggList).toBeVisible()
 
-      await waitFor(() => expect(within(itemEl).queryByText('4')).toBeVisible())
-      await waitFor(() => expect(within(itemEl).queryByText('notes 1 -- notes 2 -- notes 3')).toBeVisible())
+      // Expand the item to see its attributes
+      fireEvent.click(itemTitleOnAggList)
+
+      await waitFor(() => expect(within(itemElOnAggList).queryByText('4')).toBeVisible())
+      await waitFor(() => expect(within(itemElOnAggList).queryByText('notes 1 -- notes 2 -- notes 3')).toBeVisible())
+
+      // There should be a flash message indicating the item was combined with another item
+      await waitFor(() => expect(screen.queryByText(/combined with another item/i)).toBeVisible())
     })
   })
 })

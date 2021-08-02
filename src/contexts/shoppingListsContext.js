@@ -337,7 +337,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       .then(({ status, json }) => {
         if (!mountedRef.current) return
 
-        if (status === 200) {
+        if (status === 200 || status === 201) {
           const [aggregateListItem, regularListItem] = json
 
           // Have to create an actual new object or the state change won't cause useEffect
@@ -354,6 +354,18 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           newLists[regularListPosition] = newRegularList
 
           setShoppingLists(newLists)
+
+          if (status === 201) {
+            setFlashProps({
+              type: 'success',
+              message: 'Success! Your shopping list item has been created.'
+            })
+          } else {
+            setFlashProps({
+              type: 'success',
+              message: 'Success! Your new shopping list item has been combined with another item with the same description.'
+            })
+          }
 
           onSuccess && onSuccess()
         } else if (status === 422) {
