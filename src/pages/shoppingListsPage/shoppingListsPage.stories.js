@@ -305,11 +305,6 @@ HappyPath.parameters = {
 
           adjustListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes)
 
-          console.log('aggregate list: ', aggregateList)
-          console.log('regular list: ', regList)
-          console.log('regular list item: ', newItem)
-          console.log('aggregateListItem: ', aggregateListItem)
-
           return res(
             ctx.status(200),
             ctx.json([aggregateListItem, newItem])
