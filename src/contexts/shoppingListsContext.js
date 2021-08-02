@@ -109,13 +109,14 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   const fetchLists = useCallback(() => {
     if (token && !shoppingListsOverridden.current) {
       fetchShoppingLists(token, activeGameId)
-        .then(resp => resp.json())
-        .then(data => {
-          if (mountedRef.current && data && !data.errors) {
-            setShoppingLists(data)
-            !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
-          } else if (mountedRef.current) {
-            const message = data && data.errors ? `Internal ServerError: ${data.errors[0]}` : 'No shopping list data returned from the SIM API'
+        .then(({ status, json }) => {
+          if (status === 200) {
+            if (mountedRef.current) {
+              setShoppingLists(json)
+              !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
+            }
+          } else {
+            const message = json.errors ? `Error ${status} while fetching shopping lists: ${json.errors}` : `Unknown error ${status} while fetching shopping lists`
             throw new Error(message)
           }
         })
