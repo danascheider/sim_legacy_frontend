@@ -408,16 +408,14 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   }
 
   const performShoppingListItemUpdate = (itemId, attrs, callbacks) => {
-    const allowedAttributes = ['Quantity', 'Notes']
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     updateShoppingListItem(token, itemId, attrs)
-      .then(resp => resp.json())
-      .then(data => {
+      .then(({ status, json }) => {
         if (!mountedRef.current) return
 
-        if (Array.isArray(data)) {
-          const [aggregateListItem, regularListItem] = data
+        if (status === 200) {
+          const [aggregateListItem, regularListItem] = json
 
           let newShoppingLists = [...shoppingLists]
 
@@ -435,22 +433,17 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
 
           onSuccess && onSuccess()
-        } else if (data && typeof data === 'object' && data.errors) {
-          // If all the errors returned start with one of the allowed attributes, then it's safe to say it's
-          // a validation error. If not, assume it's a 500.
-          if (data.errors.filter(msg => allowedAttributes.indexOf(msg.split(' ')[0]) !== -1).length === data.errors.length) {
-            setFlashProps({
-              type: 'error',
-              message: data.errors,
-              header: `${data.errors.length} error(s) prevented your shopping list item from being updated:`
-            })
+        } else if (status === 422) {
+          setFlashProps({
+            type: 'error',
+            message: json.errors,
+            header: `${json.errors.length} error(s) prevented your shopping list item from being updated:`
+          })
 
-            onUnprocessableEntity && onUnprocessableEntity()
-          } else {
-            throw new Error('Internal Server Error: ' + data.errors[0])
-          }
+          onUnprocessableEntity && onUnprocessableEntity()
         } else {
-          throw new Error(`Something unexpected went wrong: could not update shopping list item id=${itemId}`)
+          const message = json.errors ? `Error ${status} updating item ${itemId}: ${json.errors}` : `Unknown error ${status} updating item ${itemId}`
+          throw new Error(message)
         }
       })
       .catch(err => {
