@@ -55,7 +55,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
               !overrideValue.gameLoadingState && setGameLoadingState(DONE)
             }
           } else {
-            const message = json && json.errors ? `Error ${status} when fetching games: ${json.errors}` : 'No game data returned from SIM'
+            const message = json.errors ? `Error ${status} when fetching games: ${json.errors}` : 'No game data returned from SIM'
             throw new Error(message)
           }
         })
