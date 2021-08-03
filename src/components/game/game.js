@@ -64,7 +64,7 @@ const Game = ({ gameId, name, description }) => {
     if (confirmed) {
       const callbacks = {
         onSuccess: displayFlashAndUnmount,
-        onInternalServerError: () => setFlashVisible(true)
+        onInternalServerError: () => mountedRef.current && setFlashVisible(true)
       }
 
       performGameDestroy(gameId, callbacks)
@@ -79,7 +79,7 @@ const Game = ({ gameId, name, description }) => {
   }
 
   useEffect(() => (
-    mountedRef.current = false
+    () => mountedRef.current = false
   ), [])
 
   return(

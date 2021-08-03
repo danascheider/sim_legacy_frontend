@@ -45,22 +45,17 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     const notes = e.target.elements.notes.value
     const attrs = { description, quantity, notes }
 
+    const resetToggleAndDisplayFlash = () => {
+      formRef.current.reset()
+      toggleForm()
+      setFlashVisible(true)
+    }
+
     const callbacks = {
-      onSuccess: () => {
-        formRef.current.reset()
-        toggleForm()
-      },
-      onNotFound: () => {
-        formRef.current.reset()
-        toggleForm()
-        setFlashVisible(true)
-      },
+      onSuccess: resetToggleAndDisplayFlash,
+      onNotFound: resetToggleAndDisplayFlash,
       onUnprocessableEntity: () => setFlashVisible(true),
-      onInternalServerError: () => {
-        formRef.current.reset()
-        toggleForm()
-        setFlashVisible(true)
-      }
+      onInternalServerError: resetToggleAndDisplayFlash
     }
 
     performShoppingListItemCreate(listId, attrs, callbacks)

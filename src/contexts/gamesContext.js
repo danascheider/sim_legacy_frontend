@@ -45,22 +45,17 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     gamesOverridden.current = true
   }
 
-  const allErrorsAreValidationErrors = useCallback(errors => (
-    errors.filter(msg => msg.match(/^(Name|Description)/)).length === errors.length
-  ), [])
-
   const fetchUserGames = useCallback(() => {
     if (token && !gamesOverridden.current) {
       fetchGames(token)
-        .then(resp => resp.json())
-        .then(data => {
-          if (data && !data.errors) {
+        .then(({ status, json }) => {
+          if (status === 200) {
             if (mountedRef.current) {
-              setGames(data)
+              setGames(json)
               !overrideValue.gameLoadingState && setGameLoadingState(DONE)
             }
           } else {
-            const message = data && data.errors ? `Internal Server Error: ${data.errors[0]}` : 'No game data returned from SIM'
+            const message = json.errors ? `Error ${status} when fetching games: ${json.errors}` : 'No game data returned from SIM'
             throw new Error(message)
           }
         })
@@ -88,12 +83,11 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
     const { onSuccess, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     createGame(token, attrs)
-      .then(resp => resp.json())
-      .then(data => {
-        if (data && !data.errors) {
+      .then(({ status, json }) => {
+        if (status === 201) {
           if (mountedRef.current) {
             const newGames = [...games]
-            newGames.unshift(data)
+            newGames.unshift(json)
             setGames(newGames)
           }
 
@@ -103,21 +97,17 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
-        } else if (data && data.errors) {
-          if (allErrorsAreValidationErrors(data.errors)) {
-            setFlashProps({
-              type: 'error',
-              header: `${data.errors.length} error(s) prevented your game from being created:`,
-              message: data.errors
-            })
+        } else if (status === 422) {
+          setFlashProps({
+            type: 'error',
+            header: `${json.errors.length} error(s) prevented your game from being created:`,
+            message: json.errors
+          })
 
-            onUnprocessableEntity && onUnprocessableEntity()
-          } else {
-            throw new Error(`Internal Server Error: ${data.errors[0]}`)
-          }
+          onUnprocessableEntity && onUnprocessableEntity()
         } else {
           // Something unexpected happened and we don't know what.
-          throw new Error('No data were returned from the SIM API')
+          throw new Error(json.errors ? `Error ${status} when creating game: ${json.errors}` : `Unknown error ${status} when creating game`)
         }
       })
       .catch(err => {
@@ -137,37 +127,33 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, setFlashProps, logOutAndRedirect, allErrorsAreValidationErrors])
+  }, [token, games, setFlashProps, logOutAndRedirect])
 
   const performGameUpdate = useCallback((gameId, attrs, callbacks) => {
     const { onSuccess, onUnprocessableEntity, onNotFound, onInternalServerError, onUnauthorized } = callbacks
 
     updateGame(token, gameId, attrs)
-      .then(resp => resp.json())
-      .then(data => {
-        if (data && !data.errors) {
+      .then(({ status, json }) => {
+        if (status === 200) {
           if (mountedRef.current) {
-            const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? data : game)
+            const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? json : game)
             setGames(newGames)
             setFlashProps({ type: 'success', message: 'Success! Your game has been updated.' })
           }
 
           onSuccess && onSuccess()
-        } else if (data && data.errors) {
-          if (allErrorsAreValidationErrors(data.errors)) {
+        } else if (status === 422) {
+          if (mountedRef.current) {
             setFlashProps({
               type: 'error',
-              message: data.errors,
-              header: `${data.errors.length} error(s) prevented your game from being updated:`
+              message: json.errors,
+              header: `${json.errors.length} error(s) prevented your game from being updated:`
             })
-
-            onUnprocessableEntity && onUnprocessableEntity()
-          } else {
-            // Something unexpected happened and we don't know what
-            throw new Error(`Internal Server Error: ${data.errors[0]}`)
           }
+
+          onUnprocessableEntity && onUnprocessableEntity()
         } else {
-          throw new Error("There was an unexpected error updating your game. Unfortunately, we don't know more than that yet. We're sorry!")
+          throw new Error(json.errors ? `Error ${status} while updating game: ${json.errors}` : `Error ${status} while updating game`)
         }
       })
       .catch(err => {
@@ -194,13 +180,15 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, setFlashProps, logOutAndRedirect, allErrorsAreValidationErrors])
+  }, [token, games, setFlashProps, logOutAndRedirect])
 
   const performGameDestroy = useCallback((gameId, callbacks) => {
     const { onSuccess, onUnauthorized, onInternalServerError } = callbacks
 
     destroyGame(token, gameId)
       .then(resp => {
+        // If the game isn't found we should treat it as if it's been destroyed
+        // and just remove it successfully
         if ((resp.status === 204 || resp.status === 404) && mountedRef.current) {
           const destroyedGame = games.find(game => parseInt(game.id) === parseInt(gameId))
           const gameIndex = games.indexOf(destroyedGame)
@@ -215,8 +203,8 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
-        } else if (mountedRef.current) {
-          throw new Error(`Something went wrong destroying game ${gameId}`)
+        } else {
+          throw new Error(`Error ${resp.status} while destroying game ${gameId}`)
         }
       })
       .catch(err => {
@@ -228,10 +216,12 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error destroying game: ', err)
 
-          setFlashProps({
-            type: 'error',
-            message: "Something unexpected happened while trying to delete your game. Unfortunately, we don't know more than that yet. We're working on it!"
-          })
+          if (mountedRef.current) {
+            setFlashProps({
+              type: 'error',
+              message: "Something unexpected happened while trying to delete your game. Unfortunately, we don't know more than that yet. We're working on it!"
+            })
+          }
 
           onInternalServerError && onInternalServerError()
         }

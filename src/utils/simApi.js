@@ -55,7 +55,7 @@ export const fetchUserProfile = token => {
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
         if (resp.status === 401) throw new AuthorizationError()
-        return resp
+        return resp.json().then(json => ({ status: resp.status, json }))
       })
   )
 }
@@ -74,7 +74,7 @@ export const fetchGames = token => {
     fetch(uri, { headers: authHeader(token) })
       .then(resp => {
         if (resp.status === 401) throw new AuthorizationError()
-        return resp
+        return resp.json().then(json => ({ status: resp.status, json }))
       })
   )
 }
@@ -91,7 +91,7 @@ export const createGame = (token, attrs) => {
   })
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
-    return resp
+    return resp.json().then(json => ({ status: resp.status, json }))
   })
 }
 
@@ -108,7 +108,7 @@ export const updateGame = (token, gameId, attrs) => {
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
     if (resp.status === 404) throw new NotFoundError()
-    return resp
+    return resp.json().then(json => ({ status: resp.status, json }))
   })
 }
 
@@ -146,7 +146,7 @@ export const fetchShoppingLists = (token, gameId) => {
       .then(resp => {
         if (resp.status === 401) throw new AuthorizationError()
         if (resp.status === 404) throw new NotFoundError()
-        return resp
+        return resp.json().then(json => ({ status: resp.status, json }))
       })
   )
 }
@@ -164,7 +164,7 @@ export const createShoppingList = (token, gameId, attrs) => {
   .then(resp => {
     if (resp.status === 401) throw new AuthorizationError()
     if (resp.status === 404) throw new NotFoundError()
-    return resp
+    return resp.json().then(json => ({ status: resp.status, json }))
   })
 }
 
@@ -188,8 +188,7 @@ export const updateShoppingList = (token, listId, attrs) => {
       // JSON to handle the error
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError('Shopping list not found. Try refreshing the page to resolve this issue.')
-      if (resp.status === 405) throw new MethodNotAllowedError('Aggregate lists are managed automatically and cannot be updated manually.')
-      return resp
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }
@@ -207,7 +206,8 @@ export const destroyShoppingList = (token, listId) => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError('Shopping list not found. Try refreshing the page to resolve this issue.')
       if (resp.status === 405) throw new MethodNotAllowedError('Aggregate lists are managed automatically and cannot be deleted manually.')
-      return resp
+      if (resp.status === 204) return { status: resp.status, json: null }
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }
@@ -231,7 +231,7 @@ export const createShoppingListItem = (token, listId, attrs) => {
     .then(resp => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError("You tried to create an item on a list that doesn't exist. Try refreshing to resolve this issue.")
-      return resp
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }
@@ -249,8 +249,8 @@ export const updateShoppingListItem = (token, itemId, attrs) => {
     .then(resp => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError("You tried to update a list item that doesn't exist. Try refreshing to fix this issue.")
-      if (resp.status === 405) throw new MethodNotAllowedError()
-      return resp
+      if (resp.status === 405) throw new MethodNotAllowedError('Items on aggregate shopping lists cannot be updated through the API')
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }
@@ -268,7 +268,8 @@ export const destroyShoppingListItem = (token, itemId) => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError("You tried to delete a list item that doesn't exist. Try refreshing to fix this issue.")
       if (resp.status === 405) throw new MethodNotAllowedError()
-      return resp
+      if (resp.status === 204) return { status: resp.status, json: null }
+      return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
 }
