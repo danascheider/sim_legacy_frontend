@@ -107,7 +107,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onUnprocessableEntity && onUnprocessableEntity()
         } else {
           // Something unexpected happened and we don't know what.
-          throw new Error(json.errors ? `Error ${status} when creating game: ${json.errors}` : `Error ${status} when creating game`)
+          throw new Error(json.errors ? `Error ${status} when creating game: ${json.errors}` : `Unknown error ${status} when creating game`)
         }
       })
       .catch(err => {
