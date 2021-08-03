@@ -72,6 +72,7 @@ const GameCreateForm = ({ disabled }) => {
                   name='name'
                   placeholder='Name'
                   aria-label='Name'
+                  required
                 />
               </fieldset>
               <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>

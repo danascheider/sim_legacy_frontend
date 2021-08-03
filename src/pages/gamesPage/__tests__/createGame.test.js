@@ -77,6 +77,32 @@ describe('Creating a game on the games page', () => {
     })
   })
 
+  describe('form validation errors', () => {
+    it("doesn't submit without a name", async () => {
+      component = renderComponentWithMockCookies()
+
+      // Click the link that triggers the create form to become visible
+      const toggleLink = await screen.findByText('Create Game...')
+      fireEvent.click(toggleLink)
+
+      // Fill out and submit the creation form, leaving the name blank
+      const nameInput = await screen.findByLabelText('Name')
+      const descInput = await screen.findByLabelText('Description')
+      const form = await screen.findByTestId('game-create-form')
+
+      fireEvent.change(nameInput, { target: { value: '' } })
+      fireEvent.change(descInput, { target: { value: 'New game description' } })
+      fireEvent.submit(form)
+
+      // The form should not be reset or hidden
+      await waitFor(() => expect(form).toBeVisible())
+      await waitFor(() => expect(screen.queryByDisplayValue('New game description')).toBeVisible())
+
+      // The flash message should not be visible
+      await waitFor(() => expect(screen.queryByText(/error\(s\)/)).not.toBeInTheDocument())
+    })
+  })
+
   describe('with invalid attributes', () => {
     const server = setupServer(
       rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
