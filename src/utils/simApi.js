@@ -249,6 +249,7 @@ export const updateShoppingListItem = (token, itemId, attrs) => {
     .then(resp => {
       if (resp.status === 401) throw new AuthorizationError()
       if (resp.status === 404) throw new NotFoundError("You tried to update a list item that doesn't exist. Try refreshing to fix this issue.")
+      if (resp.status === 405) throw new MethodNotAllowedError('Items on aggregate shopping lists cannot be updated through the API')
       return resp.json().then(json => ({ status: resp.status, json }))
     })
   )
