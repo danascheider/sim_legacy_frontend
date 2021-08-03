@@ -119,7 +119,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
-          setFlashProps({
+          mountedRef.current && setFlashProps({
             type: 'error',
             message: "Something unexpected happened while creating your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
