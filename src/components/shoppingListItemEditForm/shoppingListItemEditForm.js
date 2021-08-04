@@ -10,7 +10,9 @@ const formFields = [
     label: 'Quantity',
     type: 'number',
     placeholder: 'Quantity',
-    inputMode: 'numeric'
+    inputMode: 'numeric',
+    min: 1,
+    required: true
   },
   {
     name: 'notes',

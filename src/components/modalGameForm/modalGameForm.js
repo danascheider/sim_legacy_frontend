@@ -12,7 +12,10 @@ const formFields = [
     label: 'Name',
     type: 'text',
     placeholder: 'Name',
-    inputMode: 'text'
+    inputMode: 'text',
+    required: true,
+    pattern: "^\\s*[A-Za-z0-9 \\-',]*\\s*$",
+    title: 'Name can only contain alphanumeric characters, spaces, commas, hyphens, and apostrophes'
   },
   {
     name: 'description',

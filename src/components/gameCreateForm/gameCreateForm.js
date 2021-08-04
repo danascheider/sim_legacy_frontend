@@ -72,6 +72,9 @@ const GameCreateForm = ({ disabled }) => {
                   name='name'
                   placeholder='Name'
                   aria-label='Name'
+                  pattern="^\s*[A-Za-z0-9 \-',]*\s*$"
+                  title="Name can contain only alphanumeric characters, spaces, commas, hyphens, and apostrophes"
+                  required
                 />
               </fieldset>
               <fieldset className={classNames(styles.fieldset, { [styles.fieldsetDisabled]: disabled })} disabled={disabled}>

@@ -77,6 +77,72 @@ describe('Creating a game on the games page', () => {
     })
   })
 
+  // I'm commenting out these tests. They are passing, but CORS errors in
+  // the console are telling me that something isn't quite right with them.
+  // The form is submitting despite the validation errors due to a bug in
+  // JSDOM that has unfortunately been around for quite some time without
+  // being fixed or anyone finding a workaround.
+  // https://github.com/jsdom/jsdom/issues/2898
+
+  // I'm leaving the dead code here because I don't want the tests to be
+  // forgotten about.
+
+  // describe('form validation errors', () => {
+  //   it("doesn't submit without a name", async () => {
+  //     component = renderComponentWithMockCookies()
+
+  //     // Click the link that triggers the create form to become visible
+  //     const toggleLink = await screen.findByText('Create Game...')
+  //     fireEvent.click(toggleLink)
+
+  //     // Fill out and submit the creation form, leaving the name blank
+  //     const nameInput = await screen.findByLabelText('Name')
+  //     const descInput = await screen.findByLabelText('Description')
+  //     const form = await screen.findByTestId('game-create-form')
+
+  //     fireEvent.change(nameInput, { target: { value: '' } })
+  //     fireEvent.change(descInput, { target: { value: 'New game description' } })
+  //     fireEvent.submit(form)
+
+  //     // The form should not be reset or hidden
+  //     await waitFor(() => expect(form).toBeVisible())
+  //     await waitFor(() => expect(screen.queryByDisplayValue('New game description')).toBeVisible())
+
+  //     // The flash message should not be visible. A validation error should not show up
+  //     // and neither should the CORS error that will be returned if the form submits
+  //     // during this test since no API request handler is defined.
+  //     await waitFor(() => expect(screen.queryByText(/error\(s\)/)).not.toBeInTheDocument())
+  //     await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).not.toBeInTheDocument())
+  //   })
+
+  //   it("doesn't submit with an invalid name", async () => {
+  //     component = renderComponentWithMockCookies()
+
+  //     // Click the link that triggers the create form to become visible
+  //     const toggleLink = await screen.findByText('Create Game...')
+  //     fireEvent.click(toggleLink)
+
+  //     // Fill out and submit the creation form, leaving the name blank
+  //     const nameInput = await screen.findByLabelText('Name')
+  //     const descInput = await screen.findByLabelText('Description')
+  //     const form = await screen.findByTestId('game-create-form')
+
+  //     fireEvent.change(nameInput, { target: { value: '@$75*&@$' } })
+  //     fireEvent.change(descInput, { target: { value: 'New game description' } })
+  //     fireEvent.submit(form)
+
+  //     // The form should not be reset or hidden
+  //     await waitFor(() => expect(form).toBeVisible())
+  //     await waitFor(() => expect(screen.queryByDisplayValue('New game description')).toBeVisible())
+
+  //     // The flash message should not be visible. A validation error should not show up
+  //     // and neither should the CORS error that will be returned if the form submits
+  //     // during this test since no API request handler is defined.
+  //     await waitFor(() => expect(screen.queryByText(/error\(s\)/)).not.toBeInTheDocument())
+  //     await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).not.toBeInTheDocument())
+  //   })
+  // })
+
   describe('with invalid attributes', () => {
     const server = setupServer(
       rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
