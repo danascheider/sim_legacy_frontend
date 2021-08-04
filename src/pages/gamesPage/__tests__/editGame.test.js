@@ -167,44 +167,6 @@ describe('Editing a game on the games page', () => {
   // describe('form validations', () => {
   //   const { name, description } = games[0]
 
-  //   it("doesn't submit without a name", async () => {
-  //     component = renderComponentWithMockCookies()
-
-  //     const gameTitle = await screen.findByText(name)
-  //     const gameEl = gameTitle.closest('.root')
-
-  //     // The icon you click to display the form
-  //     const editIcon = await within(gameEl).findByTestId('game-edit-icon')
-
-  //     // Display the edit form
-  //     fireEvent.click(editIcon)
-
-  //     const form = await screen.findByTestId('game-form')
-  //     const nameInput = await within(form).findByDisplayValue(name)
-  //     const descInput = await within(form).findByDisplayValue(description)
-
-  //     // Fill out the inputs
-  //     fireEvent.change(nameInput, { target: { value: '' } })
-  //     fireEvent.change(descInput, { target: { value: 'New description' } })
-
-  //     // Submit the edit form
-  //     fireEvent.submit(form)
-
-  //     // Form should be visible and not cleared
-  //     await waitFor(() => expect(form).toBeVisible())
-  //     await waitFor(() => expect(screen.queryByDisplayValue('New description')).toBeVisible())
-
-  //     // The game should still appear in the list under its old name
-  //     await waitFor(() => expect(screen.queryByText(name)).toBeVisible())
-
-  //     // No flash message should be displayed, either for the validation error
-  //     // or for the CORS error that will be raised if this test makes an API
-  //     // request (since it isn't expected to)
-  //     await waitFor(() => expect(screen.queryByText(/success/i)).not.toBeInTheDocument())
-  //     await waitFor(() => expect(screen.queryByText(/error\(s\)/i)).not.toBeInTheDocument())
-  //     await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).not.toBeInTheDocument())
-  //   })
-
   //   it("doesn't submit with an invalid name", async () => {
   //     component = renderComponentWithMockCookies()
 
