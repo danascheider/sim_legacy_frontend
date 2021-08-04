@@ -66,7 +66,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
         ref={inputRef}
         style={{width: inputWidth}}
         value={inputValue}
-        pattern="\s*[A-Za-z0-9 \-',]*\s*"
+        pattern="^\s*[A-Za-z0-9 \-',]*\s*$"
         title='Title can only contain alphanumeric characters, spaces, hyphens, commas, and apostrophes'
         required
       />

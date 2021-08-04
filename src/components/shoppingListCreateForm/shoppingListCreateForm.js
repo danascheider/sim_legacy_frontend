@@ -55,7 +55,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
             aria-label='Title'
             value={inputValue}
             onChange={updateValue}
-            pattern="\s*[A-Za-z0-9 \-',]*\s*"
+            pattern="^\s*[A-Za-z0-9 \-',]*\s*$"
             title='Title can only contain alphanumeric characters, spaces, commas, hyphens, and apostrophes'
             required
           />
