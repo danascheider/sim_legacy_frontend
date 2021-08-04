@@ -73,17 +73,17 @@ const ShoppingListItemCreateForm = ({ listId }) => {
           <div className={styles.collapsible} ref={setCollapsibleElement}>
             <form className={styles.form} ref={formRef} onSubmit={createShoppingListItem}>
               <fieldset className={styles.fieldset}>
-                <label className={styles.label} htmlFor='description'>Description</label>
-                <input className={styles.input} type='text' name='description' placeholder='Description' />
+                <label className={styles.label}>Description</label>
+                <input className={styles.input} type='text' name='description' placeholder='Description' required />
               </fieldset>
 
               <fieldset className={styles.fieldset}>
-                <label className={styles.label} htmlFor='quantity'>Quantity</label>
-                <input className={styles.input} type='number' inputMode='numeric' name='quantity' defaultValue={1} />
+                <label className={styles.label}>Quantity</label>
+                <input className={styles.input} type='number' inputMode='numeric' min={1} name='quantity' defaultValue={1} required />
               </fieldset>
 
               <fieldset className={styles.fieldset}>
-                <label className={styles.label} htmlFor='notes'>Notes</label>
+                <label className={styles.label}>Notes</label>
                 <input className={styles.input} type='text' name='notes' placeholder='Notes' />
               </fieldset>
 
