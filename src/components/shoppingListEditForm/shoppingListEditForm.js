@@ -68,7 +68,6 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
         value={inputValue}
         pattern="^\s*[A-Za-z0-9 \-',]*\s*$"
         title='Title can only contain alphanumeric characters, spaces, hyphens, commas, and apostrophes'
-        required
       />
       <button className={styles.submit} ref={buttonRef} name='submit' type='submit'>
         <FontAwesomeIcon className={styles.fa} icon={faCheckSquare} />
