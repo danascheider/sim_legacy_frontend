@@ -34,7 +34,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const { pathname } = useLocation()
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
 
-  const [flashProps, setFlashProps] = useState({})
+  const [flashProps, setFlashProps] = useState({ type: 'info', message: '' })
   const [flashVisible, setFlashVisible] = useState(false)
 
   const [modalAttributes, setModalAttributes] = useState({})

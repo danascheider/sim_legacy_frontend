@@ -35,7 +35,7 @@ const ShoppingListsPage = () => {
   return(
     <DashboardLayout title='Your Shopping Lists' includeGameSelect>
       {modalVisible && <modalAttributes.Tag {...modalAttributes.props} />}
-      {flashVisible && <div className={styles.flash}><FlashMessage {...flashProps} /></div>}
+      <FlashMessage />
       <div className={styles.createForm}><ShoppingListCreateForm disabled={shouldDisableForm} /></div>
       <ShoppingListsPageContent /> {/* This component implements its own loading & error handling behaviour */}
     </DashboardLayout>
