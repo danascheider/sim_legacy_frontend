@@ -10,7 +10,7 @@ export const Success = () => (
     overrideValue={{
       profileData,
       flashVisible: true,
-      flashProps: {
+      flashAttributes: {
         type: 'success',
         header: 'Success!',
         message: 'You have succeeded.'
@@ -27,7 +27,7 @@ export const Info = () => (
     overrideValue={{
       profileData,
       flashVisible: true,
-      flashProps: {
+      flashAttributes: {
         type: 'info',
         header: 'Just so you know:',
         message: 'Your changes have been saved.'
@@ -43,7 +43,7 @@ export const InfoNoHeader = () => (
     overrideValue={{
       profileData,
       flashVisible: true,
-      flashProps: {
+      flashAttributes: {
         type: 'info',
         message: 'Your changes have been saved.'
       }
@@ -58,7 +58,7 @@ export const Warning = () => (
     overrideValue={{
       profileData,
       flashVisible: true,
-      flashProps: {
+      flashAttributes: {
         type: 'warning',
         header: "I'm warning you:",
         message: 'Your changes have not been saved.'
@@ -74,7 +74,7 @@ export const Error = () => (
     overrideValue={{
       profileData,
       flashVisible: true,
-      flashProps: {
+      flashAttributes: {
         type: 'error',
         header: 'There was an error saving your changes:',
         message: 'Title cannot be blank.'
@@ -90,7 +90,7 @@ export const ErrorMultiple = () => (
     overrideValue={{
       profileData,
       flashVisible: true,
-      flashProps: {
+      flashAttributes: {
         type: 'error',
         header: 'There were errors saving your changes:',
         message: ['Title cannot be blank', 'You are a nerd']

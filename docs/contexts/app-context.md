@@ -11,9 +11,9 @@ The `AppProvider`'s value includes the following:
 * `profileLoadState`: The status of profile data loading, either 'loading' or 'done'
 * `setShouldRedirectTo`: A setter function that immediately causes the user to be redirected to the path passed in. If you are logging the user out, you should use the `logOutAndRedirect` function instead.
 * `logOutAndRedirect`: A function that logs the user out with Google, redirects to the `path` passed in, unmounts the context provider, and runs a callback function if one is given. The callback function takes no arguments and can be used to clean up refs/unmount consumer components following the redirect.
-* `flashProps`: The props with which to render the flash message element (if any)
+* `flashAttributes`: The attributes of the flash message, if any, that should be displayed, including `type` ('error', 'info', 'success', or 'warning'), `header`, and `message` that will be rendered by the `FlashMessage` component
 * `flashVisible`: Whether the flash message element (if any) should be visible on the page
-* `setFlashProps`: A function that enables you to set the type ('error', 'info', or 'success'), message, and header of the `FlashMessage` component (consumers are responsible for rendering the flash message)
+* `setFlashAttributes`: A function that enables you to set the type ('error', 'info', 'success', or 'warning'), message, and header of the `FlashMessage` component (consumers are responsible for rendering the flash message)
 * `setFlashVisible`: A function that enables you to set the `flashVisible` value to `true` or `false`
 * `modalVisible`: A boolean value indicating whether a modal, if it is present on the page, should be shown
 * `modalAttributes`: An object indicating the component the modal should display as well as the props that should be passed through to the modal component

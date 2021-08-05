@@ -16,7 +16,7 @@ const Game = ({ gameId, name, description }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
 
   const {
-    setFlashProps,
+    setFlashAttributes,
     setFlashVisible,
     setModalVisible,
     setModalAttributes
@@ -69,7 +69,7 @@ const Game = ({ gameId, name, description }) => {
 
       performGameDestroy(gameId, callbacks)
     } else {
-      setFlashProps({
+      setFlashAttributes({
         type: 'info',
         message: 'Your game was not deleted.'
       })

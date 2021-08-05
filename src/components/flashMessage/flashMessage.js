@@ -16,9 +16,9 @@ const colors = {
 }
 
 const FlashMessage = () => {
-  const { flashVisible, setFlashVisible, flashProps } = useAppContext()
+  const { flashVisible, setFlashVisible, flashAttributes } = useAppContext()
 
-  const { type, header, message } = flashProps
+  const { type, header, message } = flashAttributes
 
   const colorVars = { '--text-color': colors[type] }
 

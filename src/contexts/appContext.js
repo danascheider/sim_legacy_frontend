@@ -34,7 +34,7 @@ const AppProvider = ({ children, overrideValue = {} }) => {
   const { pathname } = useLocation()
   const [cookies, setCookie, removeCookie] = useCookies([sessionCookieName])
 
-  const [flashProps, setFlashProps] = useState({ type: 'info', message: '' })
+  const [flashAttributes, setFlashAttributes] = useState({ type: 'info', message: '' })
   const [flashVisible, setFlashVisible] = useState(false)
 
   const [modalAttributes, setModalAttributes] = useState({})
@@ -79,9 +79,9 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     setShouldRedirectTo,
     logOutAndRedirect,
     flashVisible,
-    flashProps,
+    flashAttributes,
     setFlashVisible,
-    setFlashProps,
+    setFlashAttributes,
     setModalVisible,
     setModalAttributes,
     modalVisible,
@@ -152,13 +152,13 @@ AppProvider.propTypes = {
     removeSessionCookie: PropTypes.func,
     setProfileData: PropTypes.func,
     flashVisible: PropTypes.bool,
-    flashProps: PropTypes.shape({
+    flashAttributes: PropTypes.shape({
       type: PropTypes.oneOf(['error', 'info', 'success']).isRequired,
       message: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]).isRequired,
       header: PropTypes.string
     }),
     setFlashVisible: PropTypes.func,
-    setFlashProps: PropTypes.func,
+    setFlashAttributes: PropTypes.func,
     logOutAndRedirect: PropTypes.func,
     setModalVisible: PropTypes.func,
     setModalAttributes: PropTypes.func,

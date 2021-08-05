@@ -11,7 +11,6 @@ const { LOADING, ERROR } = shoppingListLoadingStates
 
 const ShoppingListsPage = () => {
   const { 
-    flashProps, 
     flashVisible, 
     setFlashVisible,
     modalVisible,

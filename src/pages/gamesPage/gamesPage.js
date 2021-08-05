@@ -13,8 +13,6 @@ const { LOADING, DONE, ERROR } = gameLoadingStates
 
 const GamesPage = () => {
   const {
-    flashProps,
-    flashVisible,
     setFlashVisible,
     modalVisible,
     modalAttributes

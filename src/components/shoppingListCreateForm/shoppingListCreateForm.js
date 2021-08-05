@@ -35,7 +35,7 @@ const ShoppingListCreateForm = ({ disabled }) => {
     }
 
     const callbacks = {
-      onSuccess: () => setInputValue(''),
+      onSuccess: showFlashAndClearInput,
       onNotFound: showFlashAndClearInput,
       onUnprocessableEntity: () => setFlashVisible(true),
       onInternalServerError: showFlashAndClearInput

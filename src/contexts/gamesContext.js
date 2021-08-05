@@ -30,7 +30,7 @@ const gameLoadingStates = { LOADING, DONE, ERROR }
 const GamesContext = createContext()
 
 const GamesProvider = ({ children, overrideValue = {} }) => {
-  const { token, logOutAndRedirect, setFlashProps } = useAppContext()
+  const { token, logOutAndRedirect, setFlashAttributes } = useAppContext()
 
   const [games, setGames] = useState(overrideValue.games || [])
   const [gameLoadingState, setGameLoadingState] = useState(overrideValue.gameLoadingState || LOADING)
@@ -67,7 +67,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching games: ', err)
 
             if (mountedRef.current) {
-              setFlashProps({
+              setFlashAttributes({
                 type: 'error',
                 message: "There was an error loading your games. It may have been on our end. We're sorry!"
               })
@@ -77,7 +77,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           }
         })
     }
-  }, [token, overrideValue.gameLoadingState, setFlashProps, logOutAndRedirect])
+  }, [token, overrideValue.gameLoadingState, setFlashAttributes, logOutAndRedirect])
 
   const performGameCreate = useCallback((attrs, callbacks) => {
     const { onSuccess, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
@@ -91,14 +91,14 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             setGames(newGames)
           }
 
-          setFlashProps({
+          setFlashAttributes({
             type: 'success',
             message: 'Success! Your game has been created.'
           })
 
           onSuccess && onSuccess()
         } else if (status === 422) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             header: `${json.errors.length} error(s) prevented your game from being created:`,
             message: json.errors
@@ -119,7 +119,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating game: ', err)
 
-          mountedRef.current && setFlashProps({
+          mountedRef.current && setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while creating your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -127,7 +127,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, setFlashProps, logOutAndRedirect])
+  }, [token, games, setFlashAttributes, logOutAndRedirect])
 
   const performGameUpdate = useCallback((gameId, attrs, callbacks) => {
     const { onSuccess, onUnprocessableEntity, onNotFound, onInternalServerError, onUnauthorized } = callbacks
@@ -138,13 +138,13 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           if (mountedRef.current) {
             const newGames = games.map(game => parseInt(game.id) === parseInt(gameId) ? json : game)
             setGames(newGames)
-            setFlashProps({ type: 'success', message: 'Success! Your game has been updated.' })
+            setFlashAttributes({ type: 'success', message: 'Success! Your game has been updated.' })
           }
 
           onSuccess && onSuccess()
         } else if (status === 422) {
           if (mountedRef.current) {
-            setFlashProps({
+            setFlashAttributes({
               type: 'error',
               message: json.errors,
               header: `${json.errors.length} error(s) prevented your game from being updated:`
@@ -163,7 +163,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
             onUnauthorized && onUnauthorized()
           })
         } else if (err.code === 404) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Oops! We couldn't find the game you wanted to update. Sorry! Try refreshing the page to solve this problem."
           })
@@ -172,7 +172,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error updating game: ', err)
 
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while trying to update your game. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -180,7 +180,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, setFlashProps, logOutAndRedirect])
+  }, [token, games, setFlashAttributes, logOutAndRedirect])
 
   const performGameDestroy = useCallback((gameId, callbacks) => {
     const { onSuccess, onUnauthorized, onInternalServerError } = callbacks
@@ -197,7 +197,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           newGames.splice(gameIndex, 1)
 
           setGames(newGames)
-          setFlashProps({
+          setFlashAttributes({
             type: 'success',
             message: 'Your game has been deleted.'
           })
@@ -217,7 +217,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           if (process.env.NODE_ENV === 'development') console.error('Error destroying game: ', err)
 
           if (mountedRef.current) {
-            setFlashProps({
+            setFlashAttributes({
               type: 'error',
               message: "Something unexpected happened while trying to delete your game. Unfortunately, we don't know more than that yet. We're working on it!"
             })
@@ -226,7 +226,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, games, logOutAndRedirect, setFlashProps])
+  }, [token, games, logOutAndRedirect, setFlashAttributes])
 
   const value = {
     games,

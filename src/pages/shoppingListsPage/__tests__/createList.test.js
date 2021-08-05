@@ -98,6 +98,9 @@ describe('Creating a shopping list', () => {
       // The aggregate list should be visible on the page
       await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
 
+      // A flash success message should be visible on the page
+      await waitFor(() => expect(screen.queryByText(/success/i)).toBeVisible())
+
       // The create form should be cleared and still be enabled
       await waitFor(() => expect(input).not.toBeDisabled())
       await waitFor(() => expect(button).not.toBeDisabled())
