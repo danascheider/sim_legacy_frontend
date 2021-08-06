@@ -28,15 +28,10 @@ import {
   updateShoppingListItem,
   destroyShoppingListItem
 } from '../utils/simApi'
+import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
 import useQuery from '../hooks/useQuery'
 import paths from '../routing/paths'
-
-const LOADING = 'loading'
-const DONE = 'done'
-const ERROR = 'error'
-
-const shoppingListLoadingStates = { LOADING, DONE, ERROR }
 
 const ShoppingListsContext = createContext()
 
@@ -587,4 +582,4 @@ ShoppingListsProvider.propTypes = {
   })
 }
 
-export { ShoppingListsContext, ShoppingListsProvider, shoppingListLoadingStates }
+export { ShoppingListsContext, ShoppingListsProvider }

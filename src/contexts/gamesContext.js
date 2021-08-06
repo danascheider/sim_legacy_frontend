@@ -18,14 +18,9 @@ import {
   updateGame,
   destroyGame
 } from '../utils/simApi'
+import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext } from '../hooks/contexts'
 import paths from '../routing/paths'
-
-const LOADING = 'loading'
-const DONE = 'done'
-const ERROR = 'error'
-
-const gameLoadingStates = { LOADING, DONE, ERROR }
 
 const GamesContext = createContext()
 
@@ -261,4 +256,4 @@ GamesProvider.propTypes = {
   })
 }
 
-export { GamesContext, GamesProvider, gameLoadingStates }
+export { GamesContext, GamesProvider }

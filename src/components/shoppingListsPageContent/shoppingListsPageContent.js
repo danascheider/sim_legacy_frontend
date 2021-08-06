@@ -3,14 +3,12 @@ import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext, useShoppingListsContext } from '../../hooks/contexts'
 import withModal from '../../hocs/withModal'
 import { ColorProvider } from '../../contexts/colorContext'
-import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
+import { LOADING, DONE, ERROR } from '../../utils/loadingStates'
 import Loading from '../loading/loading'
 import LoadingError from '../loadingError/loadingError'
 import ShoppingList from '../shoppingList/shoppingList'
 import ModalGameForm from '../modalGameForm/modalGameForm'
 import styles from './shoppingListsPageContent.module.css'
-
-const { LOADING, ERROR, DONE } = shoppingListLoadingStates
 
 const ShoppingListsPageContent = () => {
   const { setModalAttributes, setModalVisible } = useAppContext()

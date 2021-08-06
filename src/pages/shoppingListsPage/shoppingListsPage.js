@@ -1,13 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
-import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
+import { LOADING, ERROR } from '../../utils/loadingStates'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import ShoppingListCreateForm from '../../components/shoppingListCreateForm/shoppingListCreateForm'
 import ShoppingListsPageContent from '../../components/shoppingListsPageContent/shoppingListsPageContent'
 import styles from './shoppingListsPage.module.css'
-
-const { LOADING, ERROR } = shoppingListLoadingStates
 
 const ShoppingListsPage = () => {
   const { 

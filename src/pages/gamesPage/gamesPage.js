@@ -1,7 +1,7 @@
 import React from 'react'
 import { YELLOW } from '../../utils/colorSchemes'
 import { useAppContext, useGamesContext } from '../../hooks/contexts'
-import { gameLoadingStates } from '../../contexts/gamesContext'
+import { LOADING, DONE, ERROR } from '../../utils/loadingStates'
 import DashboardLayout from '../../layouts/dashboardLayout'
 import FlashMessage from '../../components/flashMessage/flashMessage'
 import Game from '../../components/game/game'
@@ -9,8 +9,6 @@ import GameCreateForm from '../../components/gameCreateForm/gameCreateForm'
 import Loading from '../../components/loading/loading'
 import LoadingError from '../../components/loadingError/loadingError'
 import styles from './gamesPage.module.css'
-
-const { LOADING, DONE, ERROR } = gameLoadingStates
 
 const GamesPage = () => {
   const {
