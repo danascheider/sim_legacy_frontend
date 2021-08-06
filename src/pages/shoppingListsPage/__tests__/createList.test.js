@@ -2,6 +2,7 @@ import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import { waitFor, screen, fireEvent } from '@testing-library/react'
+import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
 import { renderWithRouter } from '../../../setupTests'
@@ -86,8 +87,8 @@ describe('Creating a shopping list', () => {
 
       // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
-      const input = await screen.findByLabelText('Title')
-      const button = await screen.findByText('Create')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
 
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
@@ -96,15 +97,15 @@ describe('Creating a shopping list', () => {
       await waitFor(() => expect(screen.queryByText('Proudspire Manor')).toBeVisible())
 
       // The aggregate list should be visible on the page
-      await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
+      expect(screen.queryByText('All Items')).toBeVisible()
 
       // A flash success message should be visible on the page
       await waitFor(() => expect(screen.queryByText(/success/i)).toBeVisible())
 
       // The create form should be cleared and still be enabled
       await waitFor(() => expect(input).not.toBeDisabled())
-      await waitFor(() => expect(button).not.toBeDisabled())
-      await waitFor(() => expect(input.value).toEqual(''))
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
     })
   })
 
@@ -144,8 +145,8 @@ describe('Creating a shopping list', () => {
 
       // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
-      const input = await screen.findByLabelText('Title')
-      const button = await screen.findByText('Create')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
 
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
@@ -155,8 +156,8 @@ describe('Creating a shopping list', () => {
 
       // The input form should be cleared and not disabled
       await waitFor(() => expect(input).not.toBeDisabled())
-      await waitFor(() => expect(button).not.toBeDisabled())
-      await waitFor(() => expect(input.value).toEqual(''))
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
     })
   })
 
@@ -187,8 +188,8 @@ describe('Creating a shopping list', () => {
 
       // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
-      const input = await screen.findByLabelText('Title')
-      const button = await screen.findByText('Create')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
 
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
@@ -198,8 +199,8 @@ describe('Creating a shopping list', () => {
 
       // The input form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
-      await waitFor(() => expect(button).not.toBeDisabled())
-      await waitFor(() => expect(input.value).toEqual(''))
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
     })
   })
 
@@ -233,8 +234,8 @@ describe('Creating a shopping list', () => {
 
       // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
-      const input = await screen.findByLabelText('Title')
-      const button = await screen.findByText('Create')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
 
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
@@ -247,8 +248,8 @@ describe('Creating a shopping list', () => {
 
       // The form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
-      await waitFor(() => expect(button).not.toBeDisabled())
-      await waitFor(() => expect(input.value).toEqual('Proudspire Manor'))
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('Proudspire Manor')
     })
   })
 
@@ -282,8 +283,8 @@ describe('Creating a shopping list', () => {
 
       // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
-      const input = await screen.findByLabelText('Title')
-      const button = await screen.findByText('Create')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
 
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
@@ -296,8 +297,8 @@ describe('Creating a shopping list', () => {
 
       // The form should not be cleared or disabled
       await waitFor(() => expect(input).not.toBeDisabled())
-      await waitFor(() => expect(button).not.toBeDisabled())
-      await waitFor(() => expect(input.value).toEqual(''))
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
     })
   })
 
@@ -331,11 +332,10 @@ describe('Creating a shopping list', () => {
 
       // Find the shopping list create form
       const form = await screen.findByTestId('shopping-list-create-form')
-      const input = await screen.findByLabelText('Title')
+      const input = within(form).getByLabelText('Title')
 
       fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
       fireEvent.submit(form)
-
 
       await waitFor(() => expect(history.location.pathname).toEqual('/login'))
     })

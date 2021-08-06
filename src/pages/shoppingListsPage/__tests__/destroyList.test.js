@@ -90,7 +90,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
@@ -105,7 +105,7 @@ describe('Destroying a shopping list', () => {
       // There should be a flash message indicating that the list and its aggregate list
       // have both been destroyed
       await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
-      await waitFor(() => expect(screen.queryByText(/"All Items" list has been deleted/i)).toBeVisible())
+      expect(screen.queryByText(/"All Items" list has been deleted/i)).toBeVisible()
     })
   })
 
@@ -155,7 +155,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
@@ -219,13 +219,13 @@ describe('Destroying a shopping list', () => {
       // Find the regular list and the all-items list by first locating their
       // title elements and then finding the containers
       const listTitle = await screen.findByText('Lakeview Manor')
-      const allItemsTitle = await screen.findByText('All Items')
+      const allItemsTitle = screen.getByText('All Items')
 
       const listEl = listTitle.closest('.root')
       const allItemsEl = allItemsTitle.closest('.root')
 
       // Get the destroy icon for the regular list and click it
-      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
@@ -236,7 +236,7 @@ describe('Destroying a shopping list', () => {
       await waitFor(() => expect(listEl).not.toBeInTheDocument())
 
       // The aggregate list should still be visible on the page
-      await waitFor(() => expect(allItemsEl).toBeVisible())
+      expect(allItemsEl).toBeVisible()
 
       // There should be a flash message indicating the list was deleted
       await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
@@ -250,7 +250,7 @@ describe('Destroying a shopping list', () => {
       const listItemEl = listItemTitle.closest('.root')
 
       await waitFor(() => expect(within(listItemEl).queryByText('2')).not.toBeInTheDocument())
-      await waitFor(() => expect(within(listItemEl).queryByText('1')).toBeVisible())
+      expect(within(listItemEl).queryByText('1')).toBeVisible()
     })
   })
 
@@ -285,12 +285,10 @@ describe('Destroying a shopping list', () => {
     it("doesn't remove the list and displays an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      component = renderComponentWithMockCookies(games[0].id)
-
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
@@ -343,7 +341,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
@@ -396,7 +394,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 
@@ -428,12 +426,10 @@ describe('Destroying a shopping list', () => {
     it("doesn't remove the list and displays a message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      component = renderComponentWithMockCookies(games[0].id)
-
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = await within(listEl).findByTestId('delete-shopping-list')
+      const deleteIcon =within(listEl).getByTestId('delete-shopping-list')
 
       fireEvent.click(deleteIcon)
 

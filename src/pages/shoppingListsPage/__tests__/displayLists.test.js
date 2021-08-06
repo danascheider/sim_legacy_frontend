@@ -108,14 +108,14 @@ describe('Displaying the shopping lists page', () => {
 
         // games[0]'s shopping lists should be visible on the page
         await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
-        await waitFor(() => expect(screen.queryByText('Lakeview Manor')).toBeVisible())
-        await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).toBeVisible())
-        await waitFor(() => expect(screen.queryByText('Breezehome')).toBeVisible())
+        expect(screen.queryByText('Lakeview Manor')).toBeVisible()
+        expect(screen.queryByText('Heljarchen Hall')).toBeVisible()
+        expect(screen.queryByText('Breezehome')).toBeVisible()
 
         // games[1]'s shopping lists should not be visible
-        await waitFor(() => expect(screen.queryByText('Windstad Manor')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText('Hjerim')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+        expect(screen.queryByText('Windstad Manor')).not.toBeInTheDocument()
+        expect(screen.queryByText('Hjerim')).not.toBeInTheDocument()
+        expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument()
       })
 
       describe('toggling a shopping list', () => {
@@ -126,9 +126,9 @@ describe('Displaying the shopping lists page', () => {
           // returns a promise, so I had to use waitFor ... getByText instead.
           const lakeviewManorList = await waitFor(() => screen.getByText('Lakeview Manor').closest('.root'))
 
-          await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).not.toBeVisible())
-          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).not.toBeVisible())
-          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ingredients with "frenzy" property/i)).not.toBeVisible())
+          expect(within(lakeviewManorList).getByText(/add item to list/i)).not.toBeVisible()
+          expect(within(lakeviewManorList).getByText(/ebony sword/i)).not.toBeVisible()
+          expect(within(lakeviewManorList).getByText(/ingredients with "frenzy" property/i)).not.toBeVisible()
         })
 
         it('displays the list item descriptions but not notes', async () => {
@@ -140,8 +140,8 @@ describe('Displaying the shopping lists page', () => {
           fireEvent.click(lakeviewManor)
 
           await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).toBeVisible())
-          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).toBeVisible())
-          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ingredients with "frenzy" property/i)).toBeVisible())
+          expect(within(lakeviewManorList).getByText(/ebony sword/i)).toBeVisible()
+          expect(within(lakeviewManorList).getByText(/ingredients with "frenzy" property/i)).toBeVisible()
         })
 
         it('collapses again when clicked a second time', async () => {
@@ -150,12 +150,13 @@ describe('Displaying the shopping lists page', () => {
           const lakeviewManor = await screen.findByText(/lakeview manor/i)
           const lakeviewManorList = lakeviewManor.closest('.root')
 
+          // Toggle the list items twice by clicking the list title twice
           fireEvent.click(lakeviewManor)
           fireEvent.click(lakeviewManor)
 
           await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).not.toBeVisible())
-          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).not.toBeVisible())
-          await waitFor(() => expect(within(lakeviewManorList).queryByText(/ingredients with "frenzy" property/i)).not.toBeVisible())
+          expect(within(lakeviewManorList).getByText(/ebony sword/i)).not.toBeVisible()
+          expect(within(lakeviewManorList).getByText(/ingredients with "frenzy" property/i)).not.toBeVisible()
         })
 
         describe('toggling a list item', () => {
@@ -165,10 +166,14 @@ describe('Displaying the shopping lists page', () => {
             const lakeviewManor = await screen.findByText('Lakeview Manor')
             const lakeviewManorList = lakeviewManor.closest('.root')
 
+            // Toggle the list items by clicking the list title
             fireEvent.click(lakeviewManor)
 
-            await waitFor(() => expect(within(lakeviewManorList).queryByText(/notes 1/i)).not.toBeVisible())
-            await waitFor(() => expect(within(lakeviewManorList).queryByText(/no details available/i)).not.toBeVisible())
+            // The list item titles should be visible but not the notes
+            await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).toBeVisible())
+            expect(within(lakeviewManorList).getByText(/ingredients with "frenzy" property/i)).toBeVisible()
+            expect(within(lakeviewManorList).getByText(/notes 1/i)).not.toBeVisible()
+            expect(within(lakeviewManorList).getByText(/no details available/i)).not.toBeVisible()
           })
 
           it('expands one item when you click on it', async () => {
@@ -188,7 +193,7 @@ describe('Displaying the shopping lists page', () => {
             await waitFor(() => expect(within(ebonySwordItem).queryByText('notes 1')).toBeVisible())
 
             // Notes for the other item should not be visible
-            await waitFor(() => expect(within(lakeviewManorList).queryByText(/no details available/i)).not.toBeVisible())
+            expect(within(lakeviewManorList).queryByText(/no details available/i)).not.toBeVisible()
           })
 
           it('collapses the item when you click it again', async () => {
@@ -237,14 +242,14 @@ describe('Displaying the shopping lists page', () => {
 
         // The lists belonging to game 1 should be visible
         await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
-        await waitFor(() => expect(screen.queryByText('Windstad Manor')).toBeVisible())
-        await waitFor(() => expect(screen.queryByText('Hjerim')).toBeVisible())
+        expect(screen.getByText('Windstad Manor')).toBeVisible()
+        expect(screen.getByText('Hjerim')).toBeVisible()
 
         // The lists belonging to game 0 should be absent
-        await waitFor(() => expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+        expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument()
+        expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument()
+        expect(screen.queryByText('Breezehome')).not.toBeInTheDocument()
+        expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument()
       })
     })
 
@@ -269,7 +274,7 @@ describe('Displaying the shopping lists page', () => {
         const { history } = component = renderComponentWithMockCookies(cookies)
 
         const dropdownComponent = await screen.findByTestId('games-dropdown')
-        const dropdownTrigger = await screen.findByTestId('games-dropdown-trigger')
+        const dropdownTrigger = screen.getByTestId('games-dropdown-trigger')
 
         fireEvent.click(dropdownTrigger)
 
@@ -282,15 +287,15 @@ describe('Displaying the shopping lists page', () => {
         await waitFor(() => expect(history.location.search).toEqual(`?game_id=${games[1].id}`))
 
         // The lists belonging to game 1 should be visible
-        await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
-        await waitFor(() => expect(screen.queryByText('Windstad Manor')).toBeVisible())
-        await waitFor(() => expect(screen.queryByText('Hjerim')).toBeVisible())
+        await waitFor(() => expect(screen.getByText('Windstad Manor')).toBeVisible())
+        expect(screen.getByText('Hjerim')).toBeVisible()
+        expect(screen.getByText('All Items')).toBeVisible()
 
         // The lists belonging to game 0 should be absent
-        await waitFor(() => expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText('Breezehome')).not.toBeInTheDocument())
-        await waitFor(() => expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument())
+        expect(screen.queryByText('Lakeview Manor')).not.toBeInTheDocument()
+        expect(screen.queryByText('Heljarchen Hall')).not.toBeInTheDocument()
+        expect(screen.queryByText('Breezehome')).not.toBeInTheDocument()
+        expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument()
       })
     })
 
@@ -331,8 +336,6 @@ describe('Displaying the shopping lists page', () => {
 
       it('tells the user they need to create a game', async () => {
         const { history } = component = renderComponentWithMockCookies(cookies, null, emptyGames)
-
-        const link = await screen.findByText(/you need a game/i)
 
         await waitFor(() => expect(screen.queryByText(/you need a game/i)).toBeVisible())
       })

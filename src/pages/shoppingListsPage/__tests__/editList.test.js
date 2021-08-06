@@ -73,13 +73,13 @@ describe('Editing a shopping list', () => {
       // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
       // It should not display the list items when you click on it
       await waitFor(() => expect(within(listEl).queryByText(list.list_items[0].description)).not.toBeVisible())
-      await waitFor(() => expect(within(listEl).queryByText(list.list_items[1].description)).not.toBeVisible())
+      expect(within(listEl).queryByText(list.list_items[1].description)).not.toBeVisible()
 
       // There should be an input with the list's title as its `value`
       await waitFor(() => expect(within(listEl).queryByDisplayValue(list.title)).toBeVisible())
@@ -94,7 +94,7 @@ describe('Editing a shopping list', () => {
       // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
@@ -105,7 +105,7 @@ describe('Editing a shopping list', () => {
 
       // The input should no longer be present, but the list should
       await waitFor(() => expect(input).not.toBeInTheDocument())
-      await waitFor(() => expect(listEl).toBeInTheDocument())
+      expect(listEl).toBeInTheDocument()
     })
   })
 
@@ -141,7 +141,7 @@ describe('Editing a shopping list', () => {
       // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
@@ -155,7 +155,7 @@ describe('Editing a shopping list', () => {
 
       // The input should be hidden and the new title should be visible
       await waitFor(() => expect(input).not.toBeInTheDocument())
-      await waitFor(() => expect(within(listEl).queryByText('Honeyside')).toBeVisible())
+      expect(listEl).toHaveTextContent(/Honeyside/)
     })
   })
 
@@ -184,7 +184,7 @@ describe('Editing a shopping list', () => {
       // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
@@ -196,8 +196,13 @@ describe('Editing a shopping list', () => {
       fireEvent.change(input, { target: { value: 'Honeyside' } })
       fireEvent.submit(form)
 
+      // The input should be hidden
       await waitFor(() => expect(input).not.toBeInTheDocument())
-      await waitFor(() => expect(within(listEl).queryByText('Honeyside')).not.toBeInTheDocument())
+
+      // The title should not be updated
+      await waitFor(() => expect(listEl).not.toHaveTextContent(/Honeyside/))
+
+      // The flash error message should be visible
       await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
     })
   })
@@ -231,7 +236,7 @@ describe('Editing a shopping list', () => {
       // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
@@ -247,7 +252,7 @@ describe('Editing a shopping list', () => {
       await waitFor(() => expect(input).not.toBeInTheDocument())
 
       // The title should not be updated in the view
-      await waitFor(() => expect(within(listEl).queryByText(gameLists[2].title)).not.toBeInTheDocument())
+      await waitFor(() => expect(listEl).not.toHaveTextContent(gameLists[2].title))
 
       // There should be a flash error message with the validation errors
       await waitFor(() => expect(screen.queryByText(/title must be unique per game/i)).toBeVisible())
@@ -283,7 +288,7 @@ describe('Editing a shopping list', () => {
       // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
@@ -299,7 +304,7 @@ describe('Editing a shopping list', () => {
       await waitFor(() => expect(input).not.toBeInTheDocument())
 
       // The title should not be updated
-      await waitFor(() => expect(within(listEl).queryByText('This will not work')).not.toBeInTheDocument())
+      await waitFor(() => expect(listEl).not.toHaveTextContent(/Honeyside/))
 
       // There should be a flash error message explaining what happened
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
@@ -334,7 +339,7 @@ describe('Editing a shopping list', () => {
       // Find the shopping list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = await within(listEl).findByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-shopping-list')
 
       fireEvent.click(editIcon)
 
