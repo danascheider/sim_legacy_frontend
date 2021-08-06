@@ -86,7 +86,7 @@ describe('Incrementing a shopping list item - happy path', () => {
     // property'. Its initial quantity is 4.
     const itemDescEl = await within(listEl).findByText(/frenzy/i)
     const itemEl = itemDescEl.closest('.root')
-    const incrementer = await within(itemEl).findByTestId('incrementer')
+    const incrementer = within(itemEl).getByTestId('incrementer')
 
     fireEvent.click(incrementer)
 
@@ -95,7 +95,7 @@ describe('Incrementing a shopping list item - happy path', () => {
 
     // Now find the corresponding item on the aggregate list. Start by
     // finding the list itself.
-    const aggListTitleEl = await screen.findByText('All Items')
+    const aggListTitleEl = screen.getByText('All Items')
     const aggListEl = aggListTitleEl.closest('.root')
 
     // Expand the list
