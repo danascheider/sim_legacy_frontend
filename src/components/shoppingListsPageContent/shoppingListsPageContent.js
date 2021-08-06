@@ -5,11 +5,12 @@ import withModal from '../../hocs/withModal'
 import { ColorProvider } from '../../contexts/colorContext'
 import { shoppingListLoadingStates } from '../../contexts/shoppingListsContext'
 import Loading from '../loading/loading'
+import LoadingError from '../loadingError/loadingError'
 import ShoppingList from '../shoppingList/shoppingList'
 import ModalGameForm from '../modalGameForm/modalGameForm'
 import styles from './shoppingListsPageContent.module.css'
 
-const { LOADING, DONE } = shoppingListLoadingStates
+const { LOADING, ERROR, DONE } = shoppingListLoadingStates
 
 const ShoppingListsPageContent = () => {
   const { setModalAttributes, setModalVisible } = useAppContext()
@@ -84,6 +85,10 @@ const ShoppingListsPageContent = () => {
     return <p className={styles.noLists}>This game has no shopping lists.</p>
   } else if (shoppingListLoadingState === LOADING) {
     return <Loading className={styles.loading} color={YELLOW.schemeColorDarkest} height='15%' width='15%' />
+  } else if (gameLoadingState === ERROR || shoppingListLoadingState === ERROR) {
+    // It's possible both are errored but we'll worry about games first
+    const name = gameLoadingState === ERROR ? 'games' : 'shopping lists'
+    return <LoadingError modelName={name} />
   } else {
     return null
   }

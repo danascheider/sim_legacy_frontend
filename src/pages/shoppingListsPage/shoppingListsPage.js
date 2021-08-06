@@ -23,10 +23,6 @@ const ShoppingListsPage = () => {
 
   const mountedRef = useRef(true)
 
-  useEffect(() => {
-    if (mountedRef.current && shoppingListLoadingState === ERROR) setFlashVisible(true)
-  }, [shoppingListLoadingState, setFlashVisible])
-
   useEffect(() => (
     () => mountedRef.current = false
   ), [])

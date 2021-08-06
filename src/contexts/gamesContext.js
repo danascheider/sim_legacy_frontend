@@ -66,14 +66,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           } else {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching games: ', err)
 
-            if (mountedRef.current) {
-              setFlashAttributes({
-                type: 'error',
-                message: "There was an error loading your games. It may have been on our end. We're sorry!"
-              })
-
-              setGameLoadingState(ERROR)
-            }
+            if (mountedRef.current) setGameLoadingState(ERROR)
           }
         })
     }

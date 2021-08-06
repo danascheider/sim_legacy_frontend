@@ -137,10 +137,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
             if (mountedRef.current) {
-              setFlashAttributes({
-                type: 'error',
-                message: "There was an unexpected error loading your lists. It may have been on our end. We're sorry!"
-              })
               !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
             }
           }
