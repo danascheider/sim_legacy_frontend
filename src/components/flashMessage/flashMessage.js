@@ -1,5 +1,6 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { useEffect } from 'react'
+import classNames from 'classnames'
+import { useAppContext } from '../../hooks/contexts'
 import styles from './flashMessage.module.css'
 
 const SUCCESS = 'success'
@@ -8,37 +9,29 @@ const ERROR = 'error'
 const WARNING = 'warning'
 
 const colors = {
-  [SUCCESS]: {
-    body: '#e5f2e5',
-    border: '#b2d8b2',
-    text: '#329932'
-  },
-  [INFO]: {
-    body: '#cce5ff',
-    border: '#b3d8ff',
-    text: '#4e6d8e',
-  },
-  [ERROR]: {
-    body: '#ffcccc',
-    border: '#ff9999',
-    text: '#cc0000'
-  },
-  [WARNING]: {
-    body: '#fefde4',
-    border: '#fdf797',
-    text: '#b0a723'
-  }
+  [SUCCESS]: '#329932',
+  [INFO]: '#4e6d8e',
+  [ERROR]: '#cc0000',
+  [WARNING]: '#b0a723'
 }
 
-const FlashMessage = ({ type = INFO, header, message }) => {
-  const colorVars = {
-    '--body-color': colors[type].body,
-    '--border-color': colors[type].border,
-    '--text-color': colors[type].text
-  }
+const FlashMessage = () => {
+  const { flashVisible, setFlashVisible, flashAttributes } = useAppContext()
+
+  const { type, header, message } = flashAttributes
+
+  const colorVars = { '--text-color': colors[type] }
+
+  useEffect(() => {
+    if (flashVisible) {
+      setTimeout(() => {
+        setFlashVisible(false)
+      }, 4000)
+    }
+  }, [flashVisible, setFlashVisible])
 
   return(
-    <div className={styles.root} style={colorVars}>
+    <div className={classNames(styles.root, { [styles.hidden]: !flashVisible })} style={colorVars}>
       {header && <p className={styles.header}>{header}</p>}
       {typeof message === 'string' ? message :
       <ul className={styles.messageList}>
@@ -46,14 +39,6 @@ const FlashMessage = ({ type = INFO, header, message }) => {
       </ul>}
     </div>
   )
-}
-
-FlashMessage.propTypes = {
-  type: PropTypes.oneOf([SUCCESS, INFO, ERROR, WARNING]),
-  header: PropTypes.string,
-  message: PropTypes.oneOfType([
-    PropTypes.string, PropTypes.arrayOf(PropTypes.string)
-  ]).isRequired
 }
 
 export default FlashMessage

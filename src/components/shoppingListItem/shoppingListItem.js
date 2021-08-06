@@ -26,7 +26,7 @@ const ShoppingListItem = ({
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
   const {
-    setFlashProps,
+    setFlashAttributes,
     setFlashVisible,
     setModalVisible,
     setModalAttributes
@@ -72,7 +72,7 @@ const ShoppingListItem = ({
 
   const displayFlash = (type, message, header = null) => {
     if (mountedRef.current) {
-      setFlashProps({ type, message, header })
+      setFlashAttributes({ type, message, header })
       setFlashVisible(true)
     }
   }

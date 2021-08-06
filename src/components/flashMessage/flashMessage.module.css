@@ -2,17 +2,30 @@
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   font-size: 1.1rem;
   line-height: 1.25;
-  background-color: var(--body-color);
+  background-color: rgba(255,255,255,0.92);
   color: var(--text-color);
-  border: 1px solid var(--border-color);
+  border: 1px solid #dedede;
   padding: 16px;
   text-align: center;
   border-radius: 8px;
-  margin: 0 auto;
+  box-shadow: 1px 1px 8px #dedede;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 128px;
+  z-index: 1001;
+  width: 82%;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 300ms linear,visibility 300ms linear;
 }
 
 .content {
   margin: 0 auto; 
+  line-height: 1.25;
 }
 
 .header {
@@ -29,14 +42,26 @@
   list-style-position: inside;
 }
 
+@media (min-width: 601px) {
+  .root {
+    max-width: 50%;
+  }
+}
+
 @media (min-width: 769px) {
   .root {
-    max-width: 60%;
+    max-width: 40%;
   }
 }
 
 @media (min-width: 1025px) {
   .root {
     max-width: 30%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .root {
+    max-width: 20%;
   }
 }

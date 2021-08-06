@@ -1,0 +1,40 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  color: #cc0000;
+  font-size: 1.025rem;
+  background-color: #ffcccc;
+  border: 1px solid #ff9999;
+  border-radius: 8px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.text {
+  margin: 0;
+  line-height: 1.25;
+}
+
+@media (min-width: 601px) {
+  .root {
+    max-width: 60%;
+  }
+}
+
+@media (min-width: 769px) {
+  .root {
+    font-size: 1.125rem;
+    max-width: 50%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .root {
+    max-width: 40%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .root {
+    max-width: 30%
+  }
+}

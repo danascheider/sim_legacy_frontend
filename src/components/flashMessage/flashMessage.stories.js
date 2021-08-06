@@ -1,47 +1,102 @@
 import React from 'react'
+import { AppProvider } from '../../contexts/appContext'
+import { profileData } from '../../sharedTestData'
 import FlashMessage from './flashMessage'
 
 export default { title: 'FlashMessage' }
 
 export const Success = () => (
-  <FlashMessage
-    type='success'
-    header='Success!'
-    message='You have succeeded.'
-  />
+  <AppProvider
+    overrideValue={{
+      profileData,
+      flashVisible: true,
+      flashAttributes: {
+        type: 'success',
+        header: 'Success!',
+        message: 'You have succeeded.'
+      }
+    }}
+  >
+    <FlashMessage />
+  </AppProvider>
 )
 
 
 export const Info = () => (
-  <FlashMessage
-    type='info'
-    header='Just so you know:'
-    message='Your changes have been saved.'
-  />
+  <AppProvider
+    overrideValue={{
+      profileData,
+      flashVisible: true,
+      flashAttributes: {
+        type: 'info',
+        header: 'Just so you know:',
+        message: 'Your changes have been saved.'
+      }
+    }}
+  >
+    <FlashMessage />
+  </AppProvider>
 )
 
-export const InfoNoHeader = () => <FlashMessage type='info' message='Your changes have been saved.' />
+export const InfoNoHeader = () => (
+  <AppProvider
+    overrideValue={{
+      profileData,
+      flashVisible: true,
+      flashAttributes: {
+        type: 'info',
+        message: 'Your changes have been saved.'
+      }
+    }}
+  >
+    <FlashMessage />
+  </AppProvider>
+)
 
 export const Warning = () => (
-  <FlashMessage
-    type='warning'
-    header="I'm warning you:"
-    message='Your changes have not been saved.'
-  />
+  <AppProvider
+    overrideValue={{
+      profileData,
+      flashVisible: true,
+      flashAttributes: {
+        type: 'warning',
+        header: "I'm warning you:",
+        message: 'Your changes have not been saved.'
+      }
+    }}
+  >
+    <FlashMessage />
+  </AppProvider>
 )
 
 export const Error = () => (
-  <FlashMessage
-    type='error'
-    header='There was an error saving your changes:'
-    message='Title cannot be blank'
-  />
+  <AppProvider
+    overrideValue={{
+      profileData,
+      flashVisible: true,
+      flashAttributes: {
+        type: 'error',
+        header: 'There was an error saving your changes:',
+        message: 'Title cannot be blank.'
+      }
+    }}
+  >
+    <FlashMessage />
+  </AppProvider>
 )
 
 export const ErrorMultiple = () => (
-  <FlashMessage
-    type='error'
-    header='There were errors saving your changes:'
-    message={['Title cannot be blank', 'You are a nerd']}
-  />
+  <AppProvider
+    overrideValue={{
+      profileData,
+      flashVisible: true,
+      flashAttributes: {
+        type: 'error',
+        header: 'There were errors saving your changes:',
+        message: ['Title cannot be blank', 'You are a nerd']
+      }
+    }}
+  >
+    <FlashMessage />
+  </AppProvider>
 )

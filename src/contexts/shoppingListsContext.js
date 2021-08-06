@@ -28,15 +28,10 @@ import {
   updateShoppingListItem,
   destroyShoppingListItem
 } from '../utils/simApi'
+import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
 import useQuery from '../hooks/useQuery'
 import paths from '../routing/paths'
-
-const LOADING = 'loading'
-const DONE = 'done'
-const ERROR = 'error'
-
-const shoppingListLoadingStates = { LOADING, DONE, ERROR }
 
 const ShoppingListsContext = createContext()
 
@@ -46,7 +41,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
   const {
     token,
     logOutAndRedirect,
-    setFlashProps,
+    setFlashAttributes,
     setFlashVisible
   } = useAppContext()
 
@@ -125,7 +120,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             logOutAndRedirect(paths.login, () => mountedRef.current = false)
             // Don't set the loading state because it's redirecting anyway
           } else if (err.code === 404 && mountedRef.current) {
-            setFlashProps({
+            setFlashAttributes({
               type: 'error',
               message: "We couldn't find the game you're looking for."
             })
@@ -137,10 +132,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching shopping lists: ', err)
 
             if (mountedRef.current) {
-              setFlashProps({
-                type: 'error',
-                message: "There was an unexpected error loading your lists. It may have been on our end. We're sorry!"
-              })
               !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(ERROR)
             }
           }
@@ -148,7 +139,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
     } else {
       mountedRef.current && !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
     }
-  }, [token, overrideValue.shoppingListLoadingState, setFlashProps, setFlashVisible, activeGameId, logOutAndRedirect])
+  }, [token, overrideValue.shoppingListLoadingState, setFlashAttributes, setFlashVisible, activeGameId, logOutAndRedirect])
 
   const performShoppingListUpdate = (listId, newTitle, callbacks = {}) => {
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
@@ -163,7 +154,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
           onSuccess && onSuccess()
         } else if (status === 422) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: json.errors,
             header: `${json.errors.length} error(s) prevented your changes from being saved:`
@@ -185,7 +176,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             onUnauthorized && onUnauthorized()
           })
         } else if (err.code === 404) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Oops! The shopping list you wanted to update could not be found. Try refreshing the page to fix this issue."
           })
@@ -194,7 +185,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           
           onNotFound && onNotFound()
         } else {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while trying to update your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -226,9 +217,14 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             setShoppingLists(newShoppingLists)
           }
 
+          setFlashAttributes({
+            type: 'success',
+            message: 'Success! Your shopping list was created.',
+          })
+
           onSuccess && onSuccess()
         } else if (status === 422) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: json.errors,
             header: `${json.errors.length} error(s) prevented your shopping list from being created:`
@@ -247,7 +243,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             onUnauthorized && onUnauthorized()
           })
         } else if (err.code === 404) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: 'The game you wanted to create a shopping list for could not be found. Try refreshing the page to fix this issue.'
           })
@@ -256,7 +252,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Error creating shopping list: ', err)
           
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -278,7 +274,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           // it and the aggregate list have been destroyed.
           setShoppingLists([])
           
-          setFlashProps({
+          setFlashAttributes({
             type: 'success',
             message: 'Since it was the last list for this game, the "All Items" list has been deleted as well.',
             header: 'Your shopping list has been deleted.'
@@ -293,7 +289,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           setShoppingLists(newShoppingLists)
 
-          setFlashProps({
+          setFlashAttributes({
             type: 'success',
             message: 'Your shopping list has been deleted.'
           })
@@ -311,7 +307,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             onUnauthorized && onUnauthorized()
           })
         } else if (err.code === 404) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Oops! We couldn't find the shopping list you wanted to delete. Sorry! Try refreshing the page to solve this problem."
           })
@@ -320,7 +316,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error deleting shopping list: ', err.message)
 
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while trying to delete your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -356,12 +352,12 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
           setShoppingLists(newLists)
 
           if (status === 201) {
-            setFlashProps({
+            setFlashAttributes({
               type: 'success',
               message: 'Success! Your shopping list item has been created.'
             })
           } else {
-            setFlashProps({
+            setFlashAttributes({
               type: 'success',
               message: 'Success! Your new shopping list item has been combined with another item with the same description.'
             })
@@ -369,7 +365,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           onSuccess && onSuccess()
         } else if (status === 422) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: json.errors,
             header: `${json.errors.length} error(s) prevented your shopping list item from being created:`
@@ -388,7 +384,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             onUnauthorized && onUnauthorized()
           })
         } else if (err.code === 404) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Oops! We couldn't find the shopping list you wanted to add an item to. Sorry! Try refreshing the page to solve this problem."
           })
@@ -397,7 +393,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error when creating shopping list item: ', err.message)
 
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while trying to create your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -430,11 +426,11 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           setShoppingLists(newShoppingLists)
 
-          setFlashProps({ type: 'success', message: 'Success! Your shopping list item was updated.' })
+          setFlashAttributes({ type: 'success', message: 'Success! Your shopping list item was updated.' })
 
           onSuccess && onSuccess()
         } else if (status === 422) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: json.errors,
             header: `${json.errors.length} error(s) prevented your shopping list item from being updated:`
@@ -453,7 +449,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             onUnauthorized && onUnauthorized()
           })
         } else if (err.code === 404) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem."
           })
@@ -462,7 +458,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error(`Unexpected error editing list item ${itemId}: `, err)
 
-          setFlashProps({
+          setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while trying to update your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -514,7 +510,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             onUnauthorized && onUnauthorized()
           })
         } else if (err.code === 404) {
-          setFlashProps({
+          setFlashAttributes({
             type: 'error', 
             message: "Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem."
           })
@@ -523,7 +519,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error destroying shopping list item: ', err)
 
-          setFlashProps({
+          setFlashAttributes({
             type: 'error', 
             message: "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
@@ -586,4 +582,4 @@ ShoppingListsProvider.propTypes = {
   })
 }
 
-export { ShoppingListsContext, ShoppingListsProvider, shoppingListLoadingStates }
+export { ShoppingListsContext, ShoppingListsProvider }

@@ -375,7 +375,7 @@ describe('Displaying the shopping lists page', () => {
       it('displays an error', async () => {
         component = renderComponentWithMockCookies(cookies, 4582)
 
-        await waitFor(() => expect(screen.queryByText(/unexpected error/i)).toBeVisible())
+        await waitFor(() => expect(screen.queryByText(/there was an error/i)).toBeVisible())
       })
     })
 
