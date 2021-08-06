@@ -144,7 +144,7 @@ describe('Editing a game on the games page', () => {
       // Form should be hidden on a successful response
       await waitFor(() => expect(form).not.toBeInTheDocument())
 
-      // The game' should no longer appear in the list under its old name
+      // The game should no longer appear in the list under its old name
       await waitFor(() => expect(screen.queryByText(name)).not.toBeInTheDocument())
 
       // It should be in the list under its new name
