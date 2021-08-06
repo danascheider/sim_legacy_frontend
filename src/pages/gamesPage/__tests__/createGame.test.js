@@ -62,8 +62,8 @@ describe('Creating a game on the games page', () => {
 
       // Fill out and submit the creation form
       const nameInput = await screen.findByLabelText('Name')
-      const descInput = await screen.findByLabelText('Description')
-      const form = await screen.findByTestId('game-create-form')
+      const descInput = screen.getByLabelText('Description')
+      const form = screen.getByTestId('game-create-form')
 
       fireEvent.change(nameInput, { target: { value: 'Another Game' } })
       fireEvent.change(descInput, { target: { value: 'New game description' } })
@@ -141,8 +141,8 @@ describe('Creating a game on the games page', () => {
 
       // Fill out and submit the creation form
       const nameInput = await screen.findByLabelText('Name')
-      const descInput = await screen.findByLabelText('Description')
-      const form = await screen.findByTestId('game-create-form')
+      const descInput = screen.getByLabelText('Description')
+      const form = screen.getByTestId('game-create-form')
 
       fireEvent.change(nameInput, { target: { value: 'Another Game' } })
       fireEvent.change(descInput, { target: { value: 'New game description' } })
@@ -184,8 +184,8 @@ describe('Creating a game on the games page', () => {
 
       // Fill out and submit the creation form
       const nameInput = await screen.findByLabelText('Name')
-      const descInput = await screen.findByLabelText('Description')
-      const form = await screen.findByTestId('game-create-form')
+      const descInput = screen.getByLabelText('Description')
+      const form = screen.getByTestId('game-create-form')
 
       fireEvent.change(nameInput, { target: { value: 'Another Game' } })
       fireEvent.change(descInput, { target: { value: 'New game description' } })
@@ -227,8 +227,8 @@ describe('Creating a game on the games page', () => {
 
       // Fill out and submit the creation form
       const nameInput = await screen.findByLabelText('Name')
-      const descInput = await screen.findByLabelText('Description')
-      const form = await screen.findByTestId('game-create-form')
+      const descInput = screen.getByLabelText('Description')
+      const form = screen.getByTestId('game-create-form')
 
       fireEvent.change(nameInput, { target: { value: 'Another Game' } })
       fireEvent.change(descInput, { target: { value: 'New game description' } })

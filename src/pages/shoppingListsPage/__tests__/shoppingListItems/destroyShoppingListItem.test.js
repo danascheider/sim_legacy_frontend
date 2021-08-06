@@ -67,7 +67,7 @@ describe('Destroying a shopping list item', () => {
       const regItemDescEl = await within(listEl).findByText(/frenzy/i)
       const regItemEl = regItemDescEl.closest('.root')
 
-      const destroyIcon = await within(regItemEl).findByTestId('destroy-item')
+      const destroyIcon = within(regItemEl).getByTestId('destroy-item')
 
       // Click on the destroy icon
       fireEvent.click(destroyIcon)
@@ -79,14 +79,14 @@ describe('Destroying a shopping list item', () => {
       await waitFor(() => expect(regItemEl).toBeVisible())
 
       // Find the aggregate list
-      const aggListTitle = await screen.findByText('All Items')
+      const aggListTitle = screen.getByText('All Items')
       const aggListEl = aggListTitle.closest('.root')
 
       // Expand the aggregate list to show the list items
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list too
-      await waitFor(() => expect(within(aggListEl).queryByText(/frenzy/i)).toBeVisible())
+      await waitFor(() => expect(aggListEl).toHaveTextContent(/frenzy/i))
 
       // There should be a flash info message
       await waitFor(() => expect(screen.queryByText(/not deleted/i)).toBeVisible())
@@ -131,7 +131,7 @@ describe('Destroying a shopping list item', () => {
       const regItemDescEl = await within(listEl).findByText(/frenzy/i)
       const regItemEl = regItemDescEl.closest('.root')
 
-      const destroyIcon = await within(regItemEl).findByTestId('destroy-item')
+      const destroyIcon = within(regItemEl).getByTestId('destroy-item')
 
       // Click on the destroy icon
       fireEvent.click(destroyIcon)
@@ -140,8 +140,7 @@ describe('Destroying a shopping list item', () => {
       await waitFor(() => expect(confirm).toHaveBeenCalled())
 
       // The item should be removed from the regular list
-      await waitForElementToBeRemoved(regItemEl)
-      expect(regItemEl).not.toBeInTheDocument()
+      await waitFor(() => expect(regItemEl).not.toBeInTheDocument())
 
       // Find the aggregate list
       const aggListTitle = await screen.findByText('All Items')
@@ -151,7 +150,7 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(aggListTitle)
 
       // The list item should not be on the aggregate list either
-      await waitFor(() => expect(within(aggListEl).queryByText(/frenzy/i)).not.toBeInTheDocument())
+      await waitFor(() => expect(aggListEl).not.toHaveTextContent(/frenzy/i))
     })
   })
 
@@ -200,7 +199,7 @@ describe('Destroying a shopping list item', () => {
       const regItemDescEl = await within(listEl).findByText('Ebony sword')
       const regItemEl = regItemDescEl.closest('.root')
 
-      const destroyIcon = await within(regItemEl).findByTestId('destroy-item')
+      const destroyIcon = within(regItemEl).getByTestId('destroy-item')
 
       // Click on the destroy icon
       fireEvent.click(destroyIcon)
@@ -209,18 +208,17 @@ describe('Destroying a shopping list item', () => {
       await waitFor(() => expect(confirm).toHaveBeenCalled())
 
       // The item should be removed from the regular list
-      await waitForElementToBeRemoved(regItemEl)
-      expect(regItemEl).not.toBeInTheDocument()
+      await waitFor(() => expect(regItemEl).not.toBeInTheDocument())
 
       // Find the aggregate list
-      const aggListTitle = await screen.findByText('All Items')
+      const aggListTitle = screen.getByText('All Items')
       const aggListEl = aggListTitle.closest('.root')
 
       // Expand the aggregate list to show the list items
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list
-      await waitFor(() => expect(within(aggListEl).queryByText('Ebony sword')).toBeVisible())
+      await waitFor(() => expect(aggListEl).toHaveTextContent(/Ebony sword/))
     })
   })
 
@@ -261,7 +259,7 @@ describe('Destroying a shopping list item', () => {
       // property'
       const itemDescEl = await within(listEl).findByText(/frenzy/i)
       const itemEl = itemDescEl.closest('.root')
-      const destroyIcon = await within(itemEl).findByTestId('destroy-item')
+      const destroyIcon = within(itemEl).getByTestId('destroy-item')
 
       fireEvent.click(destroyIcon)
 
@@ -304,7 +302,7 @@ describe('Destroying a shopping list item', () => {
       // property'. Its initial quantity is 4 and it has no notes.
       const itemDescEl = await within(listEl).findByText(/frenzy/i)
       const itemEl = itemDescEl.closest('.root')
-      const destroy = await within(itemEl).findByTestId('destroy-item')
+      const destroy = within(itemEl).getByTestId('destroy-item')
 
       fireEvent.click(destroy)
 
@@ -312,14 +310,14 @@ describe('Destroying a shopping list item', () => {
       await waitFor(() => expect(listEl).toBeVisible())
 
       // Find the aggregate list
-      const aggListTitle = await screen.findByText('All Items')
+      const aggListTitle = screen.getByText('All Items')
       const aggListEl = aggListTitle.closest('.root')
 
       // Expand the aggregate list to show the list items
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list too
-      await waitFor(() => expect(within(aggListEl).queryByText(/frenzy/i)).toBeVisible())
+      await waitFor(() => expect(aggListEl).toHaveTextContent(/frenzy/i))
 
       // There should be a flash message visible
       await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
@@ -363,7 +361,7 @@ describe('Destroying a shopping list item', () => {
       // property'. Its initial quantity is 4 and it has no notes.
       const itemDescEl = await within(listEl).findByText(/frenzy/i)
       const itemEl = itemDescEl.closest('.root')
-      const destroy = await within(itemEl).findByTestId('destroy-item')
+      const destroy = within(itemEl).getByTestId('destroy-item')
 
       fireEvent.click(destroy)
 
@@ -371,14 +369,14 @@ describe('Destroying a shopping list item', () => {
       await waitFor(() => expect(listEl).toBeVisible())
 
       // Find the aggregate list
-      const aggListTitle = await screen.findByText('All Items')
+      const aggListTitle = screen.getByText('All Items')
       const aggListEl = aggListTitle.closest('.root')
 
       // Expand the aggregate list to show the list items
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list too
-      await waitFor(() => expect(within(aggListEl).queryByText(/frenzy/i)).toBeVisible())
+      await waitFor(() => expect(aggListEl).toHaveTextContent(/frenzy/i))
 
       // There should be a flash error message
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())

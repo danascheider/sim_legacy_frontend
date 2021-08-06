@@ -85,8 +85,8 @@ describe('Creating a new game from the link', () => {
       const form = await screen.findByTestId('game-form')
 
       // Fill out and submit the form
-      const nameInput = await within(form).findByPlaceholderText('Name')
-      const descInput = await within(form).findByPlaceholderText('Description')
+      const nameInput = within(form).getByPlaceholderText('Name')
+      const descInput = within(form).getByPlaceholderText('Description')
 
       fireEvent.change(nameInput, { target: { value: 'Distinctive Name' } })
       fireEvent.change(descInput, { target: { value: 'New description' } })
@@ -97,7 +97,7 @@ describe('Creating a new game from the link', () => {
 
       // The input of the games dropdown component should be updated so the
       // active game is the newly created game
-      const dropdownComponent = await screen.findByTestId('games-dropdown')
+      const dropdownComponent = screen.getByTestId('games-dropdown')
       await waitFor(() => expect(within(dropdownComponent).queryByDisplayValue('Distinctive Name')).toBeVisible())
 
       // The message that the game has no shopping lists should be visible
@@ -150,8 +150,8 @@ describe('Creating a new game from the link', () => {
       const form = await screen.findByTestId('game-form')
 
       // Fill out and submit the form
-      const nameInput = await within(form).findByPlaceholderText('Name')
-      const descInput = await within(form).findByPlaceholderText('Description')
+      const nameInput = within(form).getByPlaceholderText('Name')
+      const descInput = within(form).getByPlaceholderText('Description')
 
       fireEvent.change(nameInput, { target: { value: 'Distinctive Name' } })
       fireEvent.change(descInput, { target: { value: 'New description' } })
@@ -162,7 +162,7 @@ describe('Creating a new game from the link', () => {
 
       // The input of the games dropdown component should not be updated since
       // there are still no games
-      const dropdownComponent = await screen.findByTestId('games-dropdown')
+      const dropdownComponent = screen.getByTestId('games-dropdown')
       await waitFor(() => expect(within(dropdownComponent).queryByPlaceholderText(/no games available/i)).toBeVisible())
 
       // The message that the user needs a game should be visible
@@ -212,8 +212,8 @@ describe('Creating a new game from the link', () => {
       const form = await screen.findByTestId('game-form')
 
       // Fill out and submit the form
-      const nameInput = await within(form).findByPlaceholderText('Name')
-      const descInput = await within(form).findByPlaceholderText('Description')
+      const nameInput = within(form).getByPlaceholderText('Name')
+      const descInput = within(form).getByPlaceholderText('Description')
 
       fireEvent.change(nameInput, { target: { value: 'Distinctive Name' } })
       fireEvent.change(descInput, { target: { value: 'New description' } })
@@ -260,8 +260,8 @@ describe('Creating a new game from the link', () => {
       const form = await screen.findByTestId('game-form')
 
       // Fill out and submit the form
-      const nameInput = await within(form).findByPlaceholderText('Name')
-      const descInput = await within(form).findByPlaceholderText('Description')
+      const nameInput = within(form).getByPlaceholderText('Name')
+      const descInput = within(form).getByPlaceholderText('Description')
 
       fireEvent.change(nameInput, { target: { value: 'Distinctive Name' } })
       fireEvent.change(descInput, { target: { value: 'New description' } })
@@ -272,7 +272,7 @@ describe('Creating a new game from the link', () => {
 
       // The input of the games dropdown component should still be empty
       // since no game was created
-      const dropdownComponent = await screen.findByTestId('games-dropdown')
+      const dropdownComponent = screen.getByTestId('games-dropdown')
       await waitFor(() => expect(within(dropdownComponent).queryByPlaceholderText(/no games available/i)).toBeVisible())
 
       // The message that the user needs a game to use the shopping lists

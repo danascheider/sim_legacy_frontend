@@ -134,16 +134,14 @@ describe('Displaying the games page', () => {
         it('displays the games page', async () => {
           component = renderComponentWithMockCookies()
 
-          const el = await screen.findByText(/your games/i)
-
-          expect(el).toBeInTheDocument()
+          await waitFor(() => expect(screen.queryByText(/your games/i)).toBeVisible())
         })
 
         it('displays the list of games', async () => {
           component = renderComponentWithMockCookies()
 
           await waitFor(() => expect(screen.queryByText(games[0].name)).toBeVisible())
-          await waitFor(() => expect(screen.queryByText(games[1].name)).toBeVisible())
+          expect(screen.queryByText(games[1].name)).toBeVisible()
         })
 
         it("doesn't display the 'You have no games' message", async () => {
@@ -162,8 +160,8 @@ describe('Displaying the games page', () => {
           component = renderComponentWithMockCookies()
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).not.toBeVisible())
-          await waitFor(() => expect(screen.queryByText(games[1].description)).not.toBeVisible())
-          await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
+          expect(screen.queryByText(games[1].description)).not.toBeVisible()
+          expect(screen.queryByText('This game has no description.')).not.toBeVisible()
         })
 
         it('expands one description at a time', async () => {
@@ -174,8 +172,8 @@ describe('Displaying the games page', () => {
           fireEvent.click(titleEl)
 
           await waitFor(() => expect(screen.queryByText(games[0].description)).toBeVisible())
-          await waitFor(() => expect(screen.queryByText(games[1].description)).not.toBeVisible())
-          await waitFor(() => expect(screen.queryByText('This game has no description.')).not.toBeVisible())
+          expect(screen.queryByText(games[1].description)).not.toBeVisible()
+          expect(screen.queryByText('This game has no description.')).not.toBeVisible()
         })
       })
     })

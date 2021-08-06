@@ -83,13 +83,13 @@ describe('DashboardPage', () => {
     it('displays the user name', async () => {
       component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
-      expect(await screen.findByText('Jane Doe')).toBeInTheDocument()
+      await waitFor(() => expect(screen.queryByText('Jane Doe')).toBeVisible())
     })
 
     it('displays the user email', async () => {
       component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
-      expect(await screen.findByText('dragonborn@gmail.com')).toBeInTheDocument()
+      await waitFor(() => expect(screen.queryByText('dragonborn@gmail.com')).toBeVisible())
     })
 
     it('displays the link to the shopping list page', async () => {

@@ -92,8 +92,8 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(formTrigger)
 
       const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
-      const quantityInput = await within(listEl).findByDisplayValue('1')
-      const notesInput = await within(listEl).findByPlaceholderText(/notes/i)
+      const quantityInput = within(listEl).getByDisplayValue('1')
+      const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
       const form = descriptionInput.closest('form')
 
@@ -116,7 +116,7 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(itemTitle)
 
       await waitFor(() => expect(within(itemElOnRegList).queryByText('10')).toBeVisible())
-      await waitFor(() => expect(within(itemElOnRegList).queryByText('To make bolts with')).toBeVisible())
+      expect(within(itemElOnRegList).getByText('To make bolts with')).toBeVisible()
 
       // The item should be added to the all items list - expand the list to see
       const allItemsTitle = await screen.findByText(/all items/i)
@@ -133,7 +133,7 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(itemTitleOnAggList)
 
       await waitFor(() => expect(within(itemElOnAggList).queryByText('10')).toBeVisible())
-      await waitFor(() => expect(within(itemElOnAggList).queryByText('To make bolts with')).toBeVisible())
+      expect(itemElOnAggList).toHaveTextContent(/To make bolts with/)
 
       // There should be a flash message visible
       await waitFor(() => expect(screen.queryByText(/has been created/i)).toBeVisible())
@@ -191,8 +191,8 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(formTrigger)
 
       const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
-      const quantityInput = await within(listEl).findByDisplayValue('1')
-      const notesInput = await within(listEl).findByPlaceholderText(/notes/i)
+      const quantityInput = within(listEl).getByDisplayValue('1')
+      const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
       const form = descriptionInput.closest('form')
 
@@ -215,7 +215,7 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(itemTitle)
 
       await waitFor(() => expect(within(itemElOnRegList).queryByText('5')).toBeVisible())
-      await waitFor(() => expect(within(itemElOnRegList).queryByText('To make poison with')).toBeVisible())
+      expect(itemElOnRegList).toHaveTextContent(/To make poison with/)
 
       // The item should be updated on the all items list but should not appear
       // on the list twice.
@@ -232,7 +232,7 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(item)
 
       await waitFor(() => expect(within(itemEl).queryByText('9')).toBeVisible())
-      await waitFor(() => expect(within(itemEl).queryByText('To make poison with')).toBeVisible())
+      expect(itemEl).toHaveTextContent(/To make poison with/)
     })
   })
 
@@ -286,8 +286,8 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(formTrigger)
 
       const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
-      const quantityInput = await within(listEl).findByDisplayValue('1')
-      const notesInput = await within(listEl).findByPlaceholderText(/notes/i)
+      const quantityInput = within(listEl).getByDisplayValue('1')
+      const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
       const form = descriptionInput.closest('form')
 
@@ -311,7 +311,7 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(itemTitle)
 
       await waitFor(() => expect(within(itemElOnRegList).queryByText('3')).toBeVisible())
-      await waitFor(() => expect(within(itemElOnRegList).queryByText('notes 1 -- notes 3')).toBeVisible())
+      expect(itemElOnRegList).toHaveTextContent('notes 1 -- notes 3')
 
       // The item should be on the all items list only once as well.
       const allItemsTitle = await screen.findByText(/all items/i)
@@ -328,7 +328,7 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(itemTitleOnAggList)
 
       await waitFor(() => expect(within(itemElOnAggList).queryByText('4')).toBeVisible())
-      await waitFor(() => expect(within(itemElOnAggList).queryByText('notes 1 -- notes 2 -- notes 3')).toBeVisible())
+      expect(itemElOnAggList).toHaveTextContent('notes 1 -- notes 2 -- notes 3')
 
       // There should be a flash message indicating the item was combined with another item
       await waitFor(() => expect(screen.queryByText(/combined with another item/i)).toBeVisible())

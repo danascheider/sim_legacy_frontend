@@ -74,8 +74,8 @@ describe('Creating a shopping list item when the server returns a 404', () => {
     fireEvent.click(formTrigger)
 
     const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
-    const quantityInput = await within(listEl).findByDisplayValue('1')
-    const notesInput = await within(listEl).findByPlaceholderText(/notes/i)
+    const quantityInput = within(listEl).getByDisplayValue('1')
+    const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
     const form = descriptionInput.closest('form')
 
@@ -90,7 +90,7 @@ describe('Creating a shopping list item when the server returns a 404', () => {
     await waitFor(() => expect(form).not.toBeVisible())
 
     // The item should not be added to the list
-    expect(within(listEl).queryByText('Dwarven metal ingots')).not.toBeInTheDocument()
+    expect(listEl).not.toHaveTextContent(/Dwarven metal ingots/)
 
     //  There should be an error message
     await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
