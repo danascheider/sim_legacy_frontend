@@ -74,8 +74,8 @@ describe('Creating a shopping list item when the attributes are invalid', () => 
     fireEvent.click(formTrigger)
 
     const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
-    const quantityInput = await within(listEl).findByDisplayValue('1')
-    const notesInput = await within(listEl).findByPlaceholderText(/notes/i)
+    const quantityInput = within(listEl).getByDisplayValue('1')
+    const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
     const form = descriptionInput.closest('form')
 
@@ -87,10 +87,10 @@ describe('Creating a shopping list item when the attributes are invalid', () => 
     fireEvent.submit(form)
 
     // Form should not be hidden in this case
-    expect(form).toBeVisible()
+    await waitFor(() => expect(form).toBeVisible())
 
     // The item should not be added to the list
-    expect(within(listEl).queryByText('Dwarven metal ingots')).not.toBeInTheDocument()
+    expect(listEl).not.toHaveTextContent(/Dwarven metal ingots/)
 
     //  There should be an error message
     await waitFor(() => expect(screen.queryByText(/quantity must be greater than zero/i)).toBeVisible())
