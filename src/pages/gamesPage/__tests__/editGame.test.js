@@ -49,14 +49,14 @@ describe('Editing a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // The icon you click to display the form
-      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+      const editIcon = within(gameEl).getByTestId('game-edit-icon')
 
       // Display the edit form
       fireEvent.click(editIcon)
 
       // The modal and form element should be visible now
       const modal = await screen.findByRole('dialog')
-      const form = await within(modal).findByTestId('game-form')
+      const form = within(modal).getByTestId('game-form')
       expect(form).toBeVisible()
 
       // Press the escape key to hide the modal and form
@@ -77,14 +77,14 @@ describe('Editing a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // The icon you click to display the form
-      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+      const editIcon = within(gameEl).getByTestId('game-edit-icon')
 
       // Display the edit form
       fireEvent.click(editIcon)
 
       // The modal and form element should be visible now
       const modal = await screen.findByRole('dialog')
-      const form = await within(modal).findByTestId('game-form')
+      const form = within(modal).getByTestId('game-form')
       expect(form).toBeVisible()
 
       // Click on the modal (outside the form)
@@ -125,14 +125,14 @@ describe('Editing a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // The icon you click to display the form
-      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+      const editIcon = within(gameEl).getByTestId('game-edit-icon')
 
       // Display the edit form
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByDisplayValue(name)
-      const descInput = await within(form).findByDisplayValue(description)
+      const nameInput = within(form).getByDisplayValue(name)
+      const descInput = within(form).getByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -142,10 +142,9 @@ describe('Editing a game on the games page', () => {
       fireEvent.submit(form)
 
       // Form should be hidden on a successful response
-      await waitForElementToBeRemoved(form)
-      expect(form).not.toBeInTheDocument()
+      await waitFor(() => expect(form).not.toBeInTheDocument())
 
-      // The game should no longer appear in the list under its old name
+      // The game' should no longer appear in the list under its old name
       await waitFor(() => expect(screen.queryByText(name)).not.toBeInTheDocument())
 
       // It should be in the list under its new name
@@ -228,14 +227,14 @@ describe('Editing a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // The icon you click to display the form
-      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+      const editIcon = within(gameEl).getByTestId('game-edit-icon')
 
       // Display the edit form
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByDisplayValue(name)
-      const descInput = await within(form).findByDisplayValue(description)
+      const nameInput = within(form).getByDisplayValue(name)
+      const descInput = within(form).getByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -245,8 +244,7 @@ describe('Editing a game on the games page', () => {
       fireEvent.submit(form)
 
       // Form should be hidden
-      await waitForElementToBeRemoved(form)
-      expect(form).not.toBeInTheDocument()
+      await waitFor(() => expect(form).not.toBeInTheDocument())
 
       // Flash message should be displayed
       await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
@@ -255,7 +253,7 @@ describe('Editing a game on the games page', () => {
       await waitFor(() => expect(screen.queryByText('Changed Name')).not.toBeInTheDocument())
 
       // It should be in the list under its original name
-      await waitFor(() => expect(screen.queryByText(name)).toBeVisible())
+      expect(screen.queryByText(name)).toBeVisible()
     })
   })
 
@@ -284,14 +282,14 @@ describe('Editing a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // The icon you click to display the form
-      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+      const editIcon = within(gameEl).getByTestId('game-edit-icon')
 
       // Display the edit form
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByDisplayValue(name)
-      const descInput = await within(form).findByDisplayValue(description)
+      const nameInput = within(form).getByDisplayValue(name)
+      const descInput = within(form).getByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -341,14 +339,14 @@ describe('Editing a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // The icon you click to display the form
-      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+      const editIcon = within(gameEl).getByTestId('game-edit-icon')
 
       // Display the edit form
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByDisplayValue(name)
-      const descInput = await within(form).findByDisplayValue(description)
+      const nameInput = within(form).getByDisplayValue(name)
+      const descInput = within(form).getByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })
@@ -358,8 +356,7 @@ describe('Editing a game on the games page', () => {
       fireEvent.submit(form)
 
       // Form should be hidden
-      await waitForElementToBeRemoved(form)
-      expect(form).not.toBeInTheDocument()
+      await waitFor(() => expect(form).not.toBeInTheDocument())
 
       // The game should appear in the list under its old name
       await waitFor(() => expect(gameEl).toHaveTextContent(name))
@@ -394,14 +391,14 @@ describe('Editing a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // The icon you click to display the form
-      const editIcon = await within(gameEl).findByTestId('game-edit-icon')
+      const editIcon = within(gameEl).getByTestId('game-edit-icon')
 
       // Display the edit form
       fireEvent.click(editIcon)
 
       const form = await screen.findByTestId('game-form')
-      const nameInput = await within(form).findByDisplayValue(name)
-      const descInput = await within(form).findByDisplayValue(description)
+      const nameInput = within(form).getByDisplayValue(name)
+      const descInput = within(form).getByDisplayValue(description)
 
       // Fill out the inputs
       fireEvent.change(nameInput, { target: { value: 'Changed Name' } })

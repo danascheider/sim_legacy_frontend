@@ -72,7 +72,7 @@ describe('Deleting a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // Find the destroy icon next to the game's title
-      const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
+      const destroyIcon = within(gameEl).getByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
@@ -89,7 +89,7 @@ describe('Deleting a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // Find the destroy icon next to the game's title
-      const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
+      const destroyIcon = within(gameEl).getByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
@@ -121,7 +121,7 @@ describe('Deleting a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // Find the destroy icon next to the game's title
-      const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
+      const destroyIcon = within(gameEl).getByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
@@ -171,7 +171,7 @@ describe('Deleting a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // Find the destroy icon next to the game's title
-      const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
+      const destroyIcon = within(gameEl).getByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
@@ -216,7 +216,7 @@ describe('Deleting a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // Find the destroy icon next to the game's title
-      const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
+      const destroyIcon = within(gameEl).getByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
@@ -263,7 +263,7 @@ describe('Deleting a game on the games page', () => {
       const gameEl = gameTitle.closest('.root')
 
       // Find the destroy icon next to the game's title
-      const destroyIcon = await within(gameEl).findByTestId('game-destroy-icon')
+      const destroyIcon = within(gameEl).getByTestId('game-destroy-icon')
 
       // Click the icon
       fireEvent.click(destroyIcon)
