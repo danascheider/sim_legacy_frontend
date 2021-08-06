@@ -65,7 +65,7 @@ const GamesProvider = ({ children, overrideValue = {} }) => {
           }
         })
     }
-  }, [token, overrideValue.gameLoadingState, setFlashAttributes, logOutAndRedirect])
+  }, [token, overrideValue.gameLoadingState, logOutAndRedirect])
 
   const performGameCreate = useCallback((attrs, callbacks) => {
     const { onSuccess, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
