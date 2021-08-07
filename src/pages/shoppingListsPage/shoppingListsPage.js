@@ -8,13 +8,7 @@ import ShoppingListsPageContent from '../../components/shoppingListsPageContent/
 import styles from './shoppingListsPage.module.css'
 
 const ShoppingListsPage = () => {
-  const { 
-    flashVisible, 
-    setFlashVisible,
-    modalVisible,
-    modalAttributes
-  } = useAppContext()
-
+  const {  modalVisible, modalAttributes } = useAppContext()
   const { shoppingListLoadingState } = useShoppingListsContext()
 
   const shouldDisableForm = shoppingListLoadingState === LOADING || shoppingListLoadingState === ERROR

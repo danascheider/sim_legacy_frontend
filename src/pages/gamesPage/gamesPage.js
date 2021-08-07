@@ -11,16 +11,8 @@ import LoadingError from '../../components/loadingError/loadingError'
 import styles from './gamesPage.module.css'
 
 const GamesPage = () => {
-  const {
-    setFlashVisible,
-    modalVisible,
-    modalAttributes
-  } = useAppContext()
-
-  const {
-    games,
-    gameLoadingState
-  } = useGamesContext()
+  const { modalVisible, modalAttributes } = useAppContext()
+  const { games, gameLoadingState } = useGamesContext()
 
   return(
     <DashboardLayout title='Your Games'>
