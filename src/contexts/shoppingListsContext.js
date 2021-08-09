@@ -334,20 +334,23 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         if (!mountedRef.current) return
 
         if (status === 200 || status === 201) {
-          const [aggregateListItem, regularListItem] = json
-
           // Have to create an actual new object or the state change won't cause useEffect
           // hooks to run.
           const newLists = [...shoppingLists]
-          const aggregateList = shoppingLists[0]
-          const regularList = shoppingLists.find(list => list.id === listId)
-          const regularListPosition = shoppingLists.indexOf(regularList)
 
-          const newAggregateList = addOrUpdateListItem(aggregateList, aggregateListItem)
-          const newRegularList = addOrUpdateListItem(regularList, regularListItem)
+          // The JSON object returned from this endpoint is the array of all items
+          // that have been updated while handling this request. Because changing the
+          // `unit_weight` of a shopping list item can cause items other than the
+          // list item edited and the aggregate list item to be updated, it's not
+          // possible to know for sure how many items the array will contain. It will
+          // be at least two though.
+          for (let i = 0; i < json.length; i++) {
+            const list = shoppingLists.find(list => list.id === json[i].list_id)
+            const listPosition = shoppingLists.indexOf(list)
+            const newList = addOrUpdateListItem(list, json[i])
 
-          newLists[0] = newAggregateList
-          newLists[regularListPosition] = newRegularList
+            newLists[listPosition] = newList
+          }
 
           setShoppingLists(newLists)
 
@@ -411,18 +414,14 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         if (!mountedRef.current) return
 
         if (status === 200) {
-          const [aggregateListItem, regularListItem] = json
-
           let newShoppingLists = [...shoppingLists]
 
-          const regularList = shoppingLists.find(list => list.id === regularListItem.list_id)
-          const regularListPosition = shoppingLists.indexOf(regularList)
-
-          const newAggregateList = addOrUpdateListItem(shoppingLists[0], aggregateListItem)
-          const newRegularList = addOrUpdateListItem(regularList, regularListItem)
-
-          newShoppingLists[0] = newAggregateList
-          newShoppingLists[regularListPosition] = newRegularList
+          for (let i = 0; i < json.length; i++) {
+            const list = shoppingLists.find(list => list.id === json[i].list_id)
+            const newList = addOrUpdateListItem(list, json[i])
+            const listPosition = shoppingLists.indexOf(list)
+            newShoppingLists[listPosition] = newList
+          }
 
           setShoppingLists(newShoppingLists)
 
