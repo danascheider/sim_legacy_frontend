@@ -29,9 +29,9 @@ const cards = [
   },
   {
     colorScheme: BLUE,
-    href: '#',
-    children: 'Nav Link 3',
-    key: 'nav-link-3'
+    href: paths.dashboard.inventory,
+    children: 'Your Inventory',
+    key: 'your-inventory'
   },
   {
     colorScheme: GREEN,

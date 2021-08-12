@@ -92,14 +92,34 @@ describe('DashboardPage', () => {
       await waitFor(() => expect(screen.queryByText('dragonborn@gmail.com')).toBeVisible())
     })
 
+    it('displays the link to the games page', async () => {
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
+
+      const element = await screen.findByText(/Your Games/)
+
+      fireEvent.click(element)
+
+      await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/games'))
+    })
+
     it('displays the link to the shopping list page', async () => {
       const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
 
-      const element = await screen.findByText(/shopping lists/i)
+      const element = await screen.findByText(/Your Shopping Lists/)
 
       fireEvent.click(element)
 
       await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/shopping_lists'))
+    })
+
+    it('displays the link to the inventory page', async () => {
+      const { history } = component = renderWithRouter(<CookiesProvider cookies={cookies}><AppProvider><DashboardPage /></AppProvider></CookiesProvider>, { route: '/dashboard' })
+
+      const element = await screen.findByText(/Your Inventory/)
+
+      fireEvent.click(element)
+
+      await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/inventory'))
     })
 
     describe('logging out', () => {
