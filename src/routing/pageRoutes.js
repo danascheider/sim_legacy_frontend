@@ -8,6 +8,7 @@ import HomePage from '../pages/homePage/homePage'
 import LoginPage from '../pages/loginPage/loginPage'
 import DashboardPage from '../pages/dashboardPage/dashboardPage'
 import GamesPage from '../pages/gamesPage/gamesPage'
+import InventoryPage from '../pages/inventoryPage/inventoryPage'
 import ShoppingListsPage from '../pages/shoppingListsPage/shoppingListsPage'
 import NotFoundPage from '../pages/notFoundPage/notFoundPage'
 import paths from './paths'
@@ -49,6 +50,12 @@ const pages = [
     description: 'Manage Skyrim Shopping Lists',
     jsx: <GamesProvider><ShoppingListsProvider><ShoppingListsPage /></ShoppingListsProvider></GamesProvider>,
     path: paths.dashboard.shoppingLists
+  },
+  {
+    pageId: 'inventory',
+    title: `${siteTitle} Manage Inventory`,
+    description: 'Manage Skyrim Inventory',
+    jsx: <InventoryPage />
   }
 ]
 
