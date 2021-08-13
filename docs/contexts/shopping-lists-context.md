@@ -2,9 +2,9 @@
 
 The `ShoppingListsContext` is used to fetch all the relevant shopping lists when the shopping list page renders. It uses some similar patterns to the `AppContext`, including the use of the `overrideValue` prop to set the value of the provider in Storybook.
 
-The `ShoppingList` context is a consumer of the `AppContext` and the `GamesContext`, implying that the `ShoppingListsProvider` can only be rendered inside both an `AppProvider` and a `GamesProvider`. You will see an error to this effect if you try to implement it another way. From the `AppProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `logOutAndRedirect` function. The latter is used in the event an API call returns status 401 and the user needs to be logged out. From the `GamesProvider`, the context takes the list of the user's games, which is used to determine how to populate the dropdown on the shopping lists page and which shopping lists to display.
+The `ShoppingListsContext` is a consumer of the `AppContext` and the `GamesContext`, implying that the `ShoppingListsProvider` can only be rendered inside both an `AppProvider` and a `GamesProvider`. You will see an error to this effect if you try to implement it another way. From the `AppProvider`, the context takes the `token` (which it needs to make its API calls) as well as the `logOutAndRedirect` function. The latter is used in the event an API call returns status 401 and the user needs to be logged out. From the `GamesProvider`, the context takes the list of the user's games, which is used to determine how to populate the dropdown on the shopping lists page and which shopping lists to display.
 
-On render, the `ShoppingListsProvider` fetches all the user's shopping lists. 
+On render, the `ShoppingListsProvider` fetches all the shopping lists for the active game. 
 
 ## Value
 
@@ -12,7 +12,7 @@ The value of the `ShoppingListsProvider` includes the following.
 
 ### `shoppingLists`
 
-The array of all the user's shopping lists, with the aggregate list first.
+The array of all the shopping lists for the active game, with the aggregate list first.
 
 ### `shoppingListLoadingState`
 
