@@ -103,7 +103,7 @@ describe('Displaying the inventory page', () => {
         await waitFor(() => expect(history.location.pathname).toEqual('/dashboard/inventory'))
       })
 
-      it('displays inventory lists for the first gamee', async () => {
+      it('displays inventory lists for the first game', async () => {
         component = renderComponentWithMockCookies(cookies)
 
         // games[0]'s inventory lists should be visible on the page
@@ -116,6 +116,17 @@ describe('Displaying the inventory page', () => {
         expect(screen.queryByText('Windstad Manor')).not.toBeInTheDocument()
         expect(screen.queryByText('Hjerim')).not.toBeInTheDocument()
         expect(screen.queryByText(/no shopping lists/i)).not.toBeInTheDocument()
+      })
+
+      describe('toggling an inventory list', () => {
+        it('starts out collapsed', async () => {
+          component = renderComponentWithMockCookies(cookies)
+
+          const lakeviewManorList = await waitFor(() => screen.getByText('Lakeview Manor').closest('.root'))
+
+          expect(within(lakeviewManorList).getByText(/ebony sword/i)).not.toBeVisible()
+          expect(within(lakeviewManorList).getByText(/nirnroot/i)).not.toBeVisible()
+        })
       })
     })
   })

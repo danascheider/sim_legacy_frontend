@@ -4,6 +4,7 @@ import SlideToggle from 'react-slide-toggle'
 import titlecase from '../../utils/titlecase'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import { useColorScheme, useInventoryListsContext } from '../../hooks/contexts'
+import InventoryListItem from '../inventoryListItem/inventoryListItem'
 import styles from './inventoryList.module.css'
 
 const InventoryList = ({ canEdit = true, listId, title }) => {
@@ -58,7 +59,21 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            <p>No Content</p>
+            {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes, unit_weight }) => {
+              const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
+
+              return(
+                <InventoryListItem
+                  key={itemKey}
+                  itemId={id}
+                  listTitle={title}
+                  description={description}
+                  quantity={quantity}
+                  notes={notes}
+                  unitWeight={unit_weight}
+                />
+              )
+            })}
           </div>
         )}
       </SlideToggle>
