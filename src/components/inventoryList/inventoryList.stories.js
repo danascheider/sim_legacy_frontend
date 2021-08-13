@@ -1,7 +1,5 @@
 import React from 'react'
-import { rest } from 'msw'
 import { AQUA } from '../../utils/colorSchemes'
-import { backendBaseUri } from '../../utils/config'
 import { ColorProvider } from '../../contexts/colorContext'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
@@ -61,6 +59,13 @@ const inventoryLists = [
     title: 'My List 1',
     aggregate: false,
     list_items: regularListItems
+  },
+  {
+    id: 3,
+    user_id: 24,
+    title: 'My List 2',
+    aggregate: false,
+    list_items: []
   }
 ]
 
@@ -74,6 +79,21 @@ export const Default = () => (
           <InventoryList
             listId={2}
             title='My List 1'
+          />
+        </InventoryListsProvider>
+      </ColorProvider>
+    </GamesProvider>
+  </AppProvider>
+)
+
+export const EmptyList = () => (
+  <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
+    <GamesProvider overrideValue={{ games }}>
+      <ColorProvider colorScheme={AQUA}>
+        <InventoryListsProvider overrideValue={{ inventoryLists }}>
+          <InventoryList
+            listId={3}
+            title='My List 2'
           />
         </InventoryListsProvider>
       </ColorProvider>
