@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { AppProvider } from '../contexts/appContext'
 import { GamesProvider } from '../contexts/gamesContext'
 import { ShoppingListsProvider } from '../contexts/shoppingListsContext'
+import { InventoryListsProvider } from '../contexts/inventoryListsContext'
 import HomePage from '../pages/homePage/homePage'
 import LoginPage from '../pages/loginPage/loginPage'
 import DashboardPage from '../pages/dashboardPage/dashboardPage'
@@ -55,7 +56,7 @@ const pages = [
     pageId: 'inventory',
     title: `${siteTitle} Manage Inventory`,
     description: 'Manage Skyrim Inventory',
-    jsx: <InventoryPage />
+    jsx: <GamesProvider><InventoryListsProvider><InventoryPage /></InventoryListsProvider></GamesProvider>
   }
 ]
 

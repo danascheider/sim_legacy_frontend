@@ -21,6 +21,10 @@ export const emptyShoppingLists = []
 
 export const emptyShoppingListItems = []
 
+export const emptyInventoryLists = []
+
+export const emptyInventoryListItems = []
+
 export const token = 'xxxxxxx'
 
 export const profileData = {
@@ -56,12 +60,6 @@ export const games = [
 // has 4 lists, the second has 2, and the third has none, so we can
 // illustrate the cases where a game has lists as well as the case
 // where it doesn't.
-//
-// In the future, we'll do a similar thing with shopping lists and
-// list items - two of the first game's regular lists will have list
-// items and one won't. In Storybook, we'll be able to see how a
-// list looks with no items, as well as having a realistic example of
-// items combining themselves on the aggregate ('All Items') list.
 //
 // To use these lists in tests, this array can be filtered to select
 // just shopping lists for a particular game:
@@ -165,5 +163,120 @@ export const allShoppingLists = [
     title: 'Hjerim',
     aggregate: false,
     list_items: emptyShoppingListItems
+  }
+]
+
+// These are inventory lists for the first two games. The first game
+// has 4 lists, the second has 2, and the third has none, so we can
+// illustrate the cases where a game has lists as well as the case
+// where it doesn't.
+//
+// To use these lists in tests, this array can be filtered to select
+// just inventory lists for a particular game:
+//
+//     const inventoryLists = allInventoryLists.filter(
+//       list => list.game_id === games[0].id
+//     )
+//     return(
+//       <InventoryListsProvider overrideValue={{ shoppingLists }}>
+//         {/* children go here */}
+//       </InventoryListsProvider>)/>
+//     )
+//
+export const allInventoryLists = [
+  // Game 1 inventory lists
+  {
+    id: 823,
+    game_id: games[0].id,
+    title: 'All Items',
+    aggregate: true,
+    list_items: [
+      {
+        id: 2,
+        list_id: 823,
+        description: 'Ebony sword',
+        quantity: 2,
+        notes: 'notes 1 -- notes 2',
+        unit_weight: 14.0
+      },
+      {
+        id: 4,
+        list_id: 823,
+        description: 'Nirnroot',
+        quantity: 4,
+        notes: null,
+        unit_weight: 0.3
+      }
+    ]
+  },
+  {
+    id: 837,
+    game_id: games[0].id,
+    title: 'Lakeview Manor',
+    aggregate: false,
+    list_items: [
+      {
+        id: 1,
+        list_id: 837,
+        description: 'Ebony sword',
+        quantity: 1,
+        notes: 'notes 1',
+        unit_weight: 14.0
+      },
+      {
+        id: 3,
+        list_id: 837,
+        description: 'Nirnroot',
+        quantity: 4,
+        notes: null,
+        unit_weight: 0.3
+      }
+    ]
+  },
+  {
+    id: 721,
+    game_id: games[0].id,
+    title: 'Heljarchen Hall',
+    aggregate: false,
+    list_items: [
+      {
+        id: 5,
+        list_id: 721,
+        description: 'Ebony sword',
+        quantity: 1,
+        notes: 'notes 2',
+        unit_weight: 14.0
+      }
+    ]
+  },
+  {
+    id: 963,
+    game_id: games[0].id,
+    title: 'Breezehome',
+    aggregate: false,
+    list_items: emptyInventoryListItems
+  },
+
+  // Game 2 inventory lists
+  {
+    id: 3451,
+    game_id: games[1].id,
+    title: 'All Items',
+    aggregate: true,
+    list_items: emptyShoppingListItems
+  },
+  {
+    id: 4352,
+    game_id: games[1].id,
+    title: 'Windstad Manor',
+    aggregate: false,
+    list_items: emptyInventoryListItems
+  },
+  {
+    id: 6818,
+    game_id: games[1].id,
+    title: 'Hjerim',
+    aggregate: false,
+    list_items: emptyInventoryListItems
   }
 ]

@@ -28,7 +28,7 @@ describe('Displaying the shopping lists page', () => {
     return renderWithRouter(
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
-          <GamesProvider overrideValue={{ games: allGames, gameLoadingState: 'done' }} >
+          <GamesProvider overrideValue={{ games: allGames, gameLoadingState: 'done' }}>
             <ShoppingListsProvider>
               <ShoppingListsPage />
             </ShoppingListsProvider>

@@ -1,0 +1,56 @@
+.root {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--scheme-color);
+  color: var(--text-color-primary);
+  border-radius: 8px;
+  padding: 8px;
+  margin: 0 auto;
+}
+
+.root:hover,
+.root:hover .trigger {
+  background-color: var(--hover-color);
+}
+
+.trigger {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.125rem;
+  background-color: var(--scheme-color);
+  color: var(--text-color-primary);
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  text-align: left;
+}
+
+.title {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  margin-left: 16px;
+  margin-block-start: 17px;
+  margin-block-end: 15px;
+}
+
+.collapsible {
+  border: 1px solid var(--border-color);
+}
+
+@media (min-width: 769px) {
+  .root {
+    width: 80%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .root {
+    width: 65%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .root {
+    width: 50%;
+  }
+}

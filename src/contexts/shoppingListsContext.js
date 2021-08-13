@@ -120,6 +120,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             logOutAndRedirect(paths.login, () => mountedRef.current = false)
             // Don't set the loading state because it's redirecting anyway
           } else if (err.code === 404 && mountedRef.current) {
+            // TODO: Is this necessary?
             setFlashAttributes({
               type: 'error',
               message: "We couldn't find the game you're looking for."
@@ -560,15 +561,16 @@ ShoppingListsProvider.propTypes = {
   overrideValue: PropTypes.shape({
     shoppingLists: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.number.isRequired,
-      user_id: PropTypes.number,
+      game_id: PropTypes.number,
       title: PropTypes.string.isRequired,
       aggregate: PropTypes.bool.isRequired,
       list_items: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.number,
-        list_id: PropTypes.number,
+        id: PropTypes.number.isRequired,
+        list_id: PropTypes.number.isRequired,
         description: PropTypes.string.isRequired,
         quantity: PropTypes.number.isRequired,
-        notes: PropTypes.string
+        notes: PropTypes.string,
+        unit_weight: PropTypes.number
       })).isRequired
     })),
     shoppingListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
