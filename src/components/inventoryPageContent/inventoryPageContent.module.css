@@ -5,6 +5,17 @@
   text-align: center;
 }
 
+.link {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.1rem;
+  border: none;
+  text-decoration: underline;
+  color: #000;
+  cursor: pointer;
+  background-color: rgba(0,0,0,0);
+  padding: 0;
+}
+
 .inventoryList {
   margin-bottom: 32px;
 }

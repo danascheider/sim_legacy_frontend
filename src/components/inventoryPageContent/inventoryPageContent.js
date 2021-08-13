@@ -1,16 +1,39 @@
 import React from 'react'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
-import { useGamesContext, useInventoryListsContext } from '../../hooks/contexts'
+import { useAppContext, useGamesContext, useInventoryListsContext } from '../../hooks/contexts'
+import withModal from '../../hocs/withModal'
 import { ColorProvider } from '../../contexts/colorContext'
 import { LOADING, DONE, ERROR } from '../../utils/loadingStates'
 import Loading from '../loading/loading'
 import LoadingError from '../loadingError/loadingError'
 import InventoryList from '../inventoryList/inventoryList'
+import ModalGameForm from '../modalGameForm/modalGameForm'
 import styles from './inventoryPageContent.module.css'
 
 const InventoryPageContent = () => {
+  const { setModalAttributes, setModalVisible } = useAppContext()
   const { games, gameLoadingState } = useGamesContext()
   const { inventoryLists, inventoryListLoadingState } = useInventoryListsContext()
+
+  /*
+   *
+   * Define click handler
+   *
+   */
+
+  const showGameForm = e => {
+    e.preventDefault()
+
+    setModalAttributes({
+      Tag: withModal(ModalGameForm),
+      props: {
+        title: 'Create Game',
+        type: 'create'
+      }
+    })
+
+    setModalVisible(true)
+  }
 
   /*
    *
@@ -29,7 +52,7 @@ const InventoryPageContent = () => {
     if (gameLoadingState === DONE && !games.length) {
       return(
         <p className={styles.noLists}>
-          You need a game to use the inventory lists feature.
+          You need a game to use the inventory lists feature. <button className={styles.link} onClick={showGameForm}>Create a game</button> to get started.
         </p>
       )
     } else if (listsLoadedAndNotEmpty) {
