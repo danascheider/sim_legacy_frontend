@@ -134,12 +134,19 @@ describe('Displaying the shopping lists page', () => {
         it('displays the list item descriptions but not notes', async () => {
           component = renderComponentWithMockCookies(cookies)
 
+          // Find the header of the "Lakeview Manor" list
           const lakeviewManor = await screen.findByText(/lakeview manor/i)
+
+          // Use the header to find the list element itself
           const lakeviewManorList = lakeviewManor.closest('.root')
 
+          // Click to toggle the list
           fireEvent.click(lakeviewManor)
 
+          // The list item creation form should be visible
           await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).toBeVisible())
+
+          // The list items for the "Lakeview Manor" list should be visible
           expect(within(lakeviewManorList).getByText(/ebony sword/i)).toBeVisible()
           expect(within(lakeviewManorList).getByText(/ingredients with "frenzy" property/i)).toBeVisible()
         })
@@ -154,7 +161,10 @@ describe('Displaying the shopping lists page', () => {
           fireEvent.click(lakeviewManor)
           fireEvent.click(lakeviewManor)
 
+          // The list item creation form should not be visible
           await waitFor(() => expect(within(lakeviewManorList).queryByText(/add item to list/i)).not.toBeVisible())
+
+          // The list items should not be visible
           expect(within(lakeviewManorList).getByText(/ebony sword/i)).not.toBeVisible()
           expect(within(lakeviewManorList).getByText(/ingredients with "frenzy" property/i)).not.toBeVisible()
         })
