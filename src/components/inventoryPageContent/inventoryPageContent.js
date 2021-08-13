@@ -1,6 +1,6 @@
 import React from 'react'
 import colorSchemes, { YELLOW } from '../../utils/colorSchemes'
-import { useAppContext, useGamesContext, useInventoryListsContext } from '../../hooks/contexts'
+import { useGamesContext, useInventoryListsContext } from '../../hooks/contexts'
 import { ColorProvider } from '../../contexts/colorContext'
 import { LOADING, DONE, ERROR } from '../../utils/loadingStates'
 import Loading from '../loading/loading'

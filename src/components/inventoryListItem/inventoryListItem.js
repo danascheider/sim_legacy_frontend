@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
@@ -27,9 +27,6 @@ const InventoryListItem = ({
   const [collapsed, setCollapsed] = useState(true)
 
   const {
-    schemeColorDarkest,
-    textColorPrimary,
-    hoverColorDark,
     schemeColorDark,
     hoverColorLight,
     textColorSecondary,

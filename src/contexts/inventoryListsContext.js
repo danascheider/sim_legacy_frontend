@@ -91,7 +91,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           }
         })
     }
-  }, [token, overrideValue.inventoryListLoadingState, activeGameId])
+  }, [token, logOutAndRedirect, setFlashAttributes, setFlashVisible, overrideValue.inventoryListLoadingState, activeGameId])
 
   const value = {
     inventoryLists,

@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import SlideToggle from 'react-slide-toggle'
-import titlecase from '../../utils/titlecase'
-import useComponentVisible from '../../hooks/useComponentVisible'
 import { useColorScheme, useInventoryListsContext } from '../../hooks/contexts'
 import InventoryListItem from '../inventoryListItem/inventoryListItem'
 import styles from './inventoryList.module.css'
