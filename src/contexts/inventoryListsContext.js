@@ -30,7 +30,7 @@ const InventoryListsContext = createContext()
 const InventoryListsProvider = ({ children, overrideValue = {} }) => {
   const queryString = useQuery()
 
-  const { token, logOutAndRedirect } = useAppContext()
+  const { token, logOutAndRedirect, setFlashAttributes, setFlashVisible } = useAppContext()
   const { games } = useGamesContext()
 
   const activeGameId = useMemo(() => {
@@ -64,6 +64,29 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
             if (mountedRef.current) {
               setInventoryLists(json)
               !overrideValue.inventoryListLoadingState && setInventoryListLoadingState(DONE)
+            }
+          } else {
+            const message = json.errors ? `Error ${status} while fetching inventory lists: ${json.errors}` : `Unknown error ${status} while fetching inventory lists`
+            throw new Error(message)
+          }
+        })
+        .catch(err => {
+          if (err.code === 401) {
+            logOutAndRedirect(paths.login, () => mountedRef.current = false)
+          } else if (err.code === 404 && mountedRef.current) {
+            setFlashAttributes({
+              type: 'error',
+              message: "We couldn't find the game you're looking for."
+            })
+
+            setFlashVisible(true)
+
+            !overrideValue.inventoryListLoadingState && setInventoryListLoadingState(ERROR)
+          } else {
+            if (process.env.NODE_ENV === 'development') console.error('Unexpected error fetching inventory lists: ', err)
+
+            if (mountedRef.current) {
+              !overrideValue.inventoryListLoadingState && setInventoryListLoadingState(ERROR)
             }
           }
         })

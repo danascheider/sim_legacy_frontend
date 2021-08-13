@@ -120,7 +120,6 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             logOutAndRedirect(paths.login, () => mountedRef.current = false)
             // Don't set the loading state because it's redirecting anyway
           } else if (err.code === 404 && mountedRef.current) {
-            // TODO: Is this necessary?
             setFlashAttributes({
               type: 'error',
               message: "We couldn't find the game you're looking for."

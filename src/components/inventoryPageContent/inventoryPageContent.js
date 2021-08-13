@@ -26,8 +26,13 @@ const InventoryPageContent = () => {
     * Return appropriate values for component state
     *
     */
-
-    if (listsLoadedAndNotEmpty) {
+    if (gameLoadingState === DONE && !games.length) {
+      return(
+        <p className={styles.noLists}>
+          You need a game to use the inventory lists feature.
+        </p>
+      )
+    } else if (listsLoadedAndNotEmpty) {
       return(
         <>
           {inventoryLists.map(({ id, title, aggregate }, index) => {
@@ -50,8 +55,16 @@ const InventoryPageContent = () => {
           })}
         </>
       )
+    } else if (listsLoadedAndEmpty) {
+      return <p className={styles.noLists}>This game has no inventory lists.</p>
     } else if (inventoryListLoadingState === LOADING) {
       return <Loading className={styles.loading} color={YELLOW.schemeColorDarkest} height='15%' width='15%' />
+    } else if (gameLoadingState === ERROR || inventoryListLoadingState === ERROR) {
+      // It's possible both are errored but we'll worry about games first
+      const name = gameLoadingState === ERROR ? 'games' : 'inventory lists'
+      return <LoadingError modelName={name} />
+    } else {
+      return null
     }
 }
 

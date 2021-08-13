@@ -292,8 +292,10 @@ describe('Displaying the shopping lists page', () => {
         // so we can't look for the option with the whole name.
         const gameOption = await within(dropdownComponent).findByText(/neque porro/i)
 
+        // Select the game from the dropdown
         fireEvent.click(gameOption)
 
+        // The query string should be updated so the game selected is the active one
         await waitFor(() => expect(history.location.search).toEqual(`?game_id=${games[1].id}`))
 
         // The lists belonging to game 1 should be visible

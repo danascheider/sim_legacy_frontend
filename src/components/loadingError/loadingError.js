@@ -11,7 +11,7 @@ const LoadingError = ({ modelName }) => (
 )
 
 LoadingError.propTypes = {
-  modelName: PropTypes.oneOf(['games', 'shopping lists'])
+  modelName: PropTypes.oneOf(['games', 'shopping lists', 'inventory lists'])
 }
 
 export default LoadingError
