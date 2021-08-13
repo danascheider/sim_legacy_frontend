@@ -9,9 +9,7 @@ const paths = {
   }
 }
 
-export const allPaths = [
-  paths.home,
-  paths.login,
+export const authenticatedPaths = [
   paths.dashboard.main,
   paths.dashboard.games,
   paths.dashboard.shoppingLists,
