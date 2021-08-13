@@ -179,7 +179,7 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
           <div className={styles.collapsible} ref={setCollapsibleElement}>
             {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>You have no shopping list items.</div>}
             {canEdit && <ShoppingListItemCreateForm listId={listId} />}
-            {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes }) => {
+            {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes, unit_weight }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
               return(
@@ -191,6 +191,7 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
                   description={description}
                   quantity={quantity}
                   notes={notes}
+                  unitWeight={unit_weight}
                 />
               )
             })}
