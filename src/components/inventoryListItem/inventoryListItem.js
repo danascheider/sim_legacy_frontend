@@ -16,7 +16,7 @@ const formatWeight = weight => {
 }
 
 const InventoryListItem = ({
-  canEdit = false,
+  canEdit = true,
   itemId,
   description,
   quantity,
