@@ -61,7 +61,7 @@ HappyPath.parameters = {
       } else {
         // If the game whose lists were requested doesn't exist, the API will return a 404
         // error. This will happen if the user manually changes the query string `game_id`
-        // param to an ID that doesn't exist, or if the user attempts to retrieve shopping
+        // param to an ID that doesn't exist, or if the user attempts to retrieve inventory
         // lists for a game that has been destroyed on another device/browser without
         // refreshing the page first.
         return res(
@@ -92,8 +92,8 @@ export const NoGames = () => {
 
 
 // This is the only story where I'll define handlers for creating a game and
-// fetching its (empty) shopping lists, since it's easy to just say all requests
-// for shopping lists for this story will return an empty array.
+// fetching its (empty) inventory lists, since it's easy to just say all requests
+// for inventory lists for this story will return an empty array.
 NoGames.parameters = {
   msw: [
     rest.post(`${backendBaseUri}/games`, (req, res, ctx) => {
@@ -148,7 +148,7 @@ GameNotFoundOnLoad.parameters = {
 /*
  *
  * When the requested game has loaded and then been deleted on
- * another device or browser, attempting to create a shopping list
+ * another device or browser, attempting to create an inventory list
  * for that game will result in a 404. This is an edge case.
  *
  */
