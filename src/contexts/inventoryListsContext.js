@@ -19,7 +19,10 @@ import {
   useMemo
 } from 'react'
 import PropTypes from 'prop-types'
-import { fetchInventoryLists } from '../utils/simApi'
+import {
+  fetchInventoryLists,
+  createInventoryList
+} from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
 import useQuery from '../hooks/useQuery'
@@ -93,9 +96,74 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, logOutAndRedirect, setFlashAttributes, setFlashVisible, overrideValue.inventoryListLoadingState, activeGameId])
 
+  const performInventoryListCreate = useCallback((title, callbacks) => {
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
+    createInventoryList(token, activeGameId, { title })
+      .then(({ status, json }) => {
+        if (status === 201) {
+          if (Array.isArray(json) && json.length === 2) {
+            // It is an array of inventory lists. It includes the inventory list that was
+            // created and an aggregate list that was created automatically. This case only
+            // arises if there were no existing inventory lists, so in this case, we want
+            // to set the inventory lists array to the lists returned.
+            setInventoryLists(json)
+          } else if (json && typeof json === 'object') {
+            // It is the single inventory list that was created. This will happen if there
+            // is already an existing aggregate list.
+            const newInventoryLists = [...inventoryLists]
+            newInventoryLists.splice(1, 0, json)
+            setInventoryLists(newInventoryLists)
+          }
+
+          setFlashAttributes({
+            type: 'success',
+            message: 'Success! Your inventory list was created.',
+          })
+
+          onSuccess && onSuccess()
+        } else if (status === 422) {
+          setFlashAttributes({
+            type: 'error',
+            message: json.errors,
+            header: `${json.errors.length} error(s) prevented your inventory list from being created:`
+          })
+
+          onUnprocessableEntity && onUnprocessableEntity()
+        } else {
+          throw new Error(json.errors ? `Error ${status} while creating inventory list: ${json.errors}` : `Unknown error ${status} while creating inventory list`)
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: 'The game you wanted to create an inventory list for could not be found. Try refreshing the page to fix this issue.'
+          })
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error('Error creating inventory list: ', err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
+    performInventoryListCreate,
     ...overrideValue
   }
 
@@ -131,7 +199,8 @@ InventoryListsProvider.propTypes = {
         unit_weight: PropTypes.number
       })).isRequired
     })),
-    inventoryListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR])
+    inventoryListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
+    performInventoryListCreate: PropTypes.func
   })
 }
 

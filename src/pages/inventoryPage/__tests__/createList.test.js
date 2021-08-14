@@ -1,0 +1,343 @@
+import React from 'react'
+import { rest } from 'msw'
+import { setupServer } from 'msw/node'
+import { waitFor, screen, fireEvent } from '@testing-library/react'
+import { within } from '@testing-library/dom'
+import { cleanCookies } from 'universal-cookie/lib/utils'
+import { Cookies, CookiesProvider } from 'react-cookie'
+import { renderWithRouter } from '../../../setupTests'
+import { backendBaseUri } from '../../../utils/config'
+import { AppProvider } from '../../../contexts/appContext'
+import { GamesProvider } from '../../../contexts/gamesContext'
+import { InventoryListsProvider } from '../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../sharedTestData'
+import InventoryPage from './../inventoryPage'
+
+describe('Creating an inventory list', () => {
+  let component
+
+  const renderComponentWithMockCookies = (gameId = null, allGames = games) => {
+    const route = gameId ? `/dashboard/inventory?game_id=${gameId}` : '/dashboard/inventory'
+
+    const cookies = new Cookies('_sim_google_session="xxxxxx"')
+    cookies.HAS_DOCUMENT_COOKIE = false
+
+    return renderWithRouter(
+      <CookiesProvider cookies={cookies}>
+        <AppProvider overrideValue={{ profileData }}>
+          <GamesProvider overrideValue={{ games: allGames, gameLoadingState: 'done' }} >
+            <InventoryListsProvider>
+              <InventoryPage />
+            </InventoryListsProvider>
+          </GamesProvider>
+        </AppProvider>
+      </CookiesProvider>,
+      { route }
+    )
+  }
+
+  beforeEach(() => cleanCookies())
+  afterEach(() => component && component.unmount())
+
+  describe('happy path when the game has no other lists', () => {
+    const server = setupServer(
+      rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allInventoryLists.filter(list => list.game_id === gameId)
+
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const title = req.body.inventory_list.title
+
+        const returnData = [
+          {
+            id: 1866,
+            game_id: gameId,
+            aggregate: true,
+            title: 'All Items',
+            list_items: []
+          },
+          {
+            id: 1867,
+            game_id: gameId,
+            aggregate: false,
+            title: title,
+            list_items: []
+          }
+        ]
+
+        return res(
+          ctx.status(201),
+          ctx.json(returnData)
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it('creates the new inventory list and aggregate list for the active game', async () => {
+      component = renderComponentWithMockCookies(games[2].id)
+
+      // Find the inventory list create form
+      const form = await screen.findByTestId('inventory-list-create-form')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
+
+      fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
+      fireEvent.submit(form)
+
+      // The new list should be visible on the page
+      await waitFor(() => expect(screen.queryByText('Proudspire Manor')).toBeVisible())
+
+      // The aggregate list should be visible on the page
+      expect(screen.queryByText('All Items')).toBeVisible()
+
+      // A flash success message should be visible on the page
+      await waitFor(() => expect(screen.queryByText(/success/i)).toBeVisible())
+
+      // The create form should be cleared and still be enabled
+      await waitFor(() => expect(input).not.toBeDisabled())
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
+    })
+  })
+
+  describe('happy path when the game has other lists', () => {
+    const server = setupServer(
+      rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allInventoryLists.filter(list => list.game_id === gameId)
+
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const title = req.body.inventory_list.title
+
+        return res(
+          ctx.status(201),
+          ctx.json({
+            id: 1866,
+            game_id: gameId,
+            list_items: [],
+            title
+          })
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it('creates the new inventory list for the active game', async () => {
+      component = renderComponentWithMockCookies(games[1].id)
+
+      // Find the inventory list create form
+      const form = await screen.findByTestId('inventory-list-create-form')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
+
+      fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
+      fireEvent.submit(form)
+
+      // The new inventory list should be visible
+      await waitFor(() => expect(screen.queryByText('Proudspire Manor')).toBeVisible())
+
+      // The input form should be cleared and not disabled
+      await waitFor(() => expect(input).not.toBeDisabled())
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
+    })
+  })
+
+  describe('when the game is not found', () => {
+    const server = setupServer(
+      rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allInventoryLists.filter(list => list.game_id === gameId)
+
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(404),
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it("displays a flash error message and clears the form but doesn't disable it", async () => {
+      component = renderComponentWithMockCookies()
+
+      // Find the inventory list create form
+      const form = await screen.findByTestId('inventory-list-create-form')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
+
+      fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
+      fireEvent.submit(form)
+
+      // There should be a flash message indicating that the game could not be found
+      await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
+
+      // The input form should not be cleared or disabled
+      await waitFor(() => expect(input).not.toBeDisabled())
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
+    })
+  })
+
+  describe('when the attributes are invalid', () => {
+    const server = setupServer(
+      rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allInventoryLists.filter(list => list.game_id === gameId)
+
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(422),
+          ctx.json({
+            errors: ['Title must be unique per game']
+          })
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it("displays a flash error message, doesn't create the inventory list or clear the form", async () => {
+      component = renderComponentWithMockCookies()
+
+      // Find the inventory list create form
+      const form = await screen.findByTestId('inventory-list-create-form')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
+
+      fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
+      fireEvent.submit(form)
+
+      // There should be a flash error message with the validation errors
+      await waitFor(() => expect(screen.queryByText(/title must be unique per game/i)).toBeVisible())
+
+      // The new list should not be added to the page
+      await waitFor(() => expect(screen.queryByText(/proudspire manor/i)).not.toBeInTheDocument())
+
+      // The form should not be cleared or disabled
+      await waitFor(() => expect(input).not.toBeDisabled())
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('Proudspire Manor')
+    })
+  })
+
+  describe('when there is an unexpected error', () => {
+    const server = setupServer(
+      rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allInventoryLists.filter(list => list.game_id === gameId)
+
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(500),
+          ctx.json({
+            errors: ['Something went horribly wrong']
+          })
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it("displays a flash error message and clears the form but doesn't create the inventory list", async () => {
+      component = renderComponentWithMockCookies()
+
+      // Find the inventory list create form
+      const form = await screen.findByTestId('inventory-list-create-form')
+      const input = within(form).getByLabelText('Title')
+      const button = within(form).getByText('Create')
+
+      fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
+      fireEvent.submit(form)
+
+      // There should be a flash error message
+      await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
+
+      // The new inventory list should not be added to the page
+      await waitFor(() => expect(screen.queryByText(/proudspire manor/i)).not.toBeInTheDocument())
+
+      // The form should not be cleared or disabled
+      await waitFor(() => expect(input).not.toBeDisabled())
+      expect(button).not.toBeDisabled()
+      expect(input.value).toEqual('')
+    })
+  })
+
+  describe('when the response indicates the user is logged out', () => {
+    const server = setupServer(
+      rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        const gameId = parseInt(req.params.gameId)
+        const lists = allShoppingLists.filter(list => list.game_id === gameId)
+
+        return res(
+          ctx.status(200),
+          ctx.json(lists)
+        )
+      }),
+      rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+        return res(
+          ctx.status(401),
+          ctx.json({
+            errors: ['Google OAuth token validation failed']
+          })
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it('redirects to the login page', async () => {
+      const { history } = component = renderComponentWithMockCookies()
+
+      // Find the inventory list create form
+      const form = await screen.findByTestId('inventory-list-create-form')
+      const input = within(form).getByLabelText('Title')
+
+      fireEvent.change(input, { target: { value: 'Proudspire Manor' } })
+      fireEvent.submit(form)
+
+      await waitFor(() => expect(history.location.pathname).toEqual('/login'))
+    })
+  })
+})

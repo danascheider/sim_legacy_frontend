@@ -1,0 +1,52 @@
+.root {
+  text-align: center;
+  margin: 0 auto 32px;
+}
+
+.button {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  background-color: var(--button-color);
+  color: var(--button-text-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 3px;
+  font-size: 1.025rem;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.fieldset {
+  border: none;
+}
+
+.fieldsetDisabled * {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.input {
+  font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
+  font-size: 1.025rem;
+  padding: 8px 12px;
+  margin-right: 12px;
+  border: 1px solid #5f5f5f;
+  border-radius: 3px;
+}
+
+.button:hover {
+  background-color: var(--button-hover-color)
+}
+
+.buttonDisabled {
+  background-color: #7c8388;
+  border-color: #4b5053;
+}
+
+.buttonDisabled:hover {
+  background-color: #7c8388;
+}
+
+@media (min-width: 769px) {
+  .input, .button {
+    font-size: 1.125rem;
+  }
+}
