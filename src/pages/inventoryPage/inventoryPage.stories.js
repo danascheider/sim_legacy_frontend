@@ -37,6 +37,12 @@ export const HappyPath = () => (
   </AppProvider>
 )
 
+// Although POST requests to /games can originate from this page (from the games
+// dropdown), no handlers for that request are defined in these stories. This is
+// because creating a new game that way will trigger a GET request for that game's
+// inventory lists, which will trigger a 404 response since the game isn't in the
+// `games` array. We could hack this but it's not really worth it for Storybook.
+// Better to rely on manual testing and Jest for this.
 HappyPath.parameters = {
   msw: [
     // This request retrieves a list of inventory lists for a given game, (if the game
@@ -64,6 +70,43 @@ HappyPath.parameters = {
         // param to an ID that doesn't exist, or if the user attempts to retrieve inventory
         // lists for a game that has been destroyed on another device/browser without
         // refreshing the page first.
+        return res(
+          ctx.status(404)
+        )
+      }
+    }),
+    // This request creates a new inventory list for the given game (if it exists and belongs
+    // to the authenticated user). For the purposes of Storybook, we'll assume the user is
+    // authenticated and the `games` array represents all their games.
+    rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+      const gameId = parseInt(req.params.gameId)
+      const game = games.find(g => g.id === gameId)
+      const lists = allInventoryLists.filter(list => list.game_id === gameId)
+
+      if (game) {
+        // If the game exists, the API will create a new inventory list for that game and
+        // return a 201 Created status with the inventory list in the response body.
+        const title = req.body.inventory_list.title || 'My List 3'
+        const existingList = lists.find(list => list.title === title)
+
+        if (existingList) {
+          return res(
+            ctx.status(422),
+            ctx.json({
+              errors: ['Title must be unique per game']
+            })
+          )
+        } else {
+          const returnData = { id: Math.floor(Math.random() * 10000), game_id: gameId, title, aggregate: false, list_items: [] }
+
+          return res(
+            ctx.status(201),
+            ctx.json(returnData)
+          )
+        }
+      } else {
+        // If the game doesn't exist (or doesn't belong to the authenticated user), the API
+        // will return a 404 Not Found status.
         return res(
           ctx.status(404)
         )
@@ -202,6 +245,55 @@ export const NoLists = () => (
     </GamesProvider>
   </AppProvider>
 )
+
+// This story will not offer the possibility to add inventory list items to lists you create.
+// It's just too hard to predict and mock application state so many actions out. It also
+// won't offer the ability to create new games from the games dropdown since that triggers
+// a GET request to inventory lists and becomes a whole thing.
+NoLists.parameters = {
+  msw: [
+    // This request creates a new inventory list for the given game (if it exists and belongs
+    // to the authenticated user). For the purposes of Storybook, we'll assume the user is
+    // authenticated and the `games` array represents all their games. Since this story
+    // illustrates the case where there are no existing lists for a given game, this API call
+    // will always return both an aggregate list and a regular list. That means that if you
+    // use the create form multiple times in Storybook between refreshes, you'll end up with
+    // multiple aggregate lists + problems.
+    rest.post(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
+      const gameId = parseInt(req.params.gameId)
+      const game = games.find(g => g.id === gameId)
+
+      if (game) {
+        // If the game exists, the API will create a new inventory list for that game and
+        // return a 201 Created status with the inventory list in the response body.
+        const title = req.body.inventory_list.title || 'My List 3'
+
+        if (title === 'All Items') {
+          return res(
+            ctx.status(422),
+            ctx.json({
+              errors: ['Title cannot be "All Items"']
+            })
+          )
+        } else {
+          const list = { id: Math.floor(Math.random() * 10000), game_id: gameId, title, aggregate: false, list_items: [] }
+          const aggList = { id: list.id - 1, game_id: gameId, title: 'All Items', aggregate: true, list_items: [] }
+
+          return res(
+            ctx.status(201),
+            ctx.json([aggList, list])
+          )
+        }
+      } else {
+        // If the game doesn't exist (or doesn't belong to the authenticated user), the API
+        // will return a 404 Not Found status.
+        return res(
+          ctx.status(404)
+        )
+      }
+    }),
+  ]
+}
 
 /*
  *
