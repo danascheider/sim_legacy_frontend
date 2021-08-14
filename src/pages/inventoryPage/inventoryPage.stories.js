@@ -195,7 +195,7 @@ GameNotFoundOnCreate.parameters = {
 
 export const NoLists = () => (
   <AppProvider overrideValue={{ profileData, token }}>
-    <GamesProvider overrideValue={{ games }}>
+    <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
       <InventoryListsProvider overrideValue={{ inventoryLists: emptyInventoryLists, inventoryListLoadingState: 'done' }}>
         <InventoryPage />
       </InventoryListsProvider>
