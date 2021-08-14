@@ -68,7 +68,7 @@ const shoppingLists = [
 
 export default { title: 'ShoppingList' }
 
-export const Default = () => (
+export const Editable = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
     <GamesProvider overrideValue={{ games }}>
       <ColorProvider colorScheme={PINK}>
@@ -83,7 +83,7 @@ export const Default = () => (
   </AppProvider>
 )
 
-Default.parameters = {
+Editable.parameters = {
   msw: [
     // This enables you to edit the title of the editable list in Storybook.
     rest.patch(`${backendBaseUri}/shopping_lists/2`, (req, res, ctx) => {
@@ -214,30 +214,6 @@ export const NotEditable = () => (
   </AppProvider>
 )
 
-NotEditable.parameters = {
-  msw: [
-    rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json([
-          {
-            id: 1,
-            title: 'All Items',
-            aggregate: true,
-            list_items: aggregateListItems
-          },
-          {
-            id: 2,
-            title: 'My List 1',
-            aggregate: false,
-            list_items: regularListItems
-          }
-        ])
-      )
-    })
-  ]
-}
-
 const emptyShoppingLists = [
   {
     id: 1,
@@ -263,7 +239,6 @@ export const EmptyList = () => (
           <ShoppingList
             title='Severin Manor'
             listId={2}
-            canEdit={true}
           />
         </ShoppingListsProvider>
       </ColorProvider>

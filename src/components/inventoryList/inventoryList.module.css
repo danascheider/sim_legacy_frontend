@@ -28,9 +28,28 @@
 .title {
   font-size: 1.25rem;
   line-height: 1.25;
+  max-width: var(--max-title-width);
   margin-left: 16px;
   margin-block-start: 17px;
   margin-block-end: 15px;
+}
+
+.icon {
+  display: inline;
+}
+
+.editIcons {
+  margin: auto 0;
+}
+
+.fa {
+  margin-left: 8px;
+  font-size: 1rem;
+  display: inline-block;
+}
+
+.fa:hover {
+  color: var(--scheme-color-lightest);
 }
 
 .collapsible {
