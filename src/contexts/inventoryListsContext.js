@@ -158,7 +158,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [])
+  }, [token, activeGameId, setFlashAttributes, inventoryLists, logOutAndRedirect])
 
   const value = {
     inventoryLists,
