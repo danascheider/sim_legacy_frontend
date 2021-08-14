@@ -73,7 +73,7 @@ export default { title: 'InventoryList' }
 
 export const Default = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
-    <GamesProvider overrideValue={{ games }}>
+    <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
       <ColorProvider colorScheme={AQUA}>
         <InventoryListsProvider overrideValue={{ inventoryLists }}>
           <InventoryList
@@ -88,7 +88,7 @@ export const Default = () => (
 
 export const EmptyList = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
-    <GamesProvider overrideValue={{ games }}>
+    <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
       <ColorProvider colorScheme={AQUA}>
         <InventoryListsProvider overrideValue={{ inventoryLists }}>
           <InventoryList
