@@ -19,7 +19,7 @@ export default { title: 'ShoppingListsPageContent' }
 
 /*
  *
- * When all toes well and there are shopping lists for the selected game
+ * When all goes well and there are shopping lists for the selected game
  *
  */
 

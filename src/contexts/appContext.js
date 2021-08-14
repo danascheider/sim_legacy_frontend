@@ -18,7 +18,7 @@ import { sessionCookieName } from '../utils/config'
 import { fetchUserProfile } from '../utils/simApi'
 import logOutWithGoogle from '../utils/logOutWithGoogle'
 import { isTestEnv } from '../utils/isTestEnv'
-import paths, { allPaths } from '../routing/paths'
+import paths, { authenticatedPaths } from '../routing/paths'
 
 const LOADING = 'loading'
 const DONE = 'done'
@@ -54,9 +54,9 @@ const AppProvider = ({ children, overrideValue = {} }) => {
     mountedRef.current = false
   }, [])
 
-  const onAuthenticatedPage = useCallback(() => {
-    return pathname !== paths.login && pathname !== paths.home && allPaths.indexOf(pathname) !== -1
-  }, [pathname])
+  const onAuthenticatedPage = useCallback(() => (
+    authenticatedPaths.indexOf(pathname) > -1
+  ), [pathname])
 
   const shouldFetchProfileData = useCallback(() => {
     return !overrideValue.profileData && cookies[sessionCookieName] && onAuthenticatedPage()

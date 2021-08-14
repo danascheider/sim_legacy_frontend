@@ -3,12 +3,18 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
+import SlideToggle from 'react-slide-toggle'
 import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import withModal from '../../hocs/withModal'
 import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListItemEditForm'
-import SlideToggle from 'react-slide-toggle'
 import styles from './shoppingListItem.module.css'
+
+const formatWeight = weight => {
+  if (!weight) return '-'
+
+  return weight % 1 === 0 ? weight.toFixed(0) : weight.toFixed(1)
+}
 
 const ShoppingListItem = ({
   itemId,
@@ -16,6 +22,7 @@ const ShoppingListItem = ({
   canEdit,
   description,
   quantity,
+  unitWeight,
   notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
@@ -203,7 +210,7 @@ const ShoppingListItem = ({
                 <FontAwesomeIcon className={styles.fa} icon={faEdit} />
               </button>
             </span>}
-          <h4 className={styles.description}>{description}</h4>
+          <h3 className={styles.description}>{description}</h3>
         </span>
         <span className={styles.quantity}>
           {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity} data-testid='incrementer'>
@@ -220,7 +227,11 @@ const ShoppingListItem = ({
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            <p className={styles.notes}>{notes || 'No details available'}</p>
+            <h4 className={styles.label}>Unit Weight:</h4>
+            <p className={styles.value}>{formatWeight(unitWeight)}</p>
+
+            <h4 className={styles.label}>Notes:</h4>
+            <p className={styles.value}>{notes || 'No details available'}</p>
           </div>
         )}
       </SlideToggle>
@@ -234,6 +245,7 @@ ShoppingListItem.propTypes = {
   canEdit: PropTypes.bool.isRequired,
   description: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
+  unitWeight: PropTypes.number,
   notes: PropTypes.string
 }
 

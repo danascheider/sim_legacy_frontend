@@ -273,3 +273,25 @@ export const destroyShoppingListItem = (token, itemId) => {
     })
   )
 }
+
+/*
+ *
+ * Inventory List Endpoints (Scoped to Game)
+ * 
+ */
+
+// GET /games/:game_id/inventory_lists
+
+export const fetchInventoryLists = (token, gameId) => {
+  const uri = `${backendBaseUri}/games/${gameId}/inventory_lists`
+
+  return(
+    fetch(uri, { headers: authHeader(token) })
+      .then(resp => {
+        if (resp.status === 401) throw new AuthorizationError()
+        if (resp.status === 404) throw new NotFoundError()
+
+        return resp.json().then(json => ({ status: resp.status, json }))
+      })
+  )
+}

@@ -1,7 +1,7 @@
 .root {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   font-size: 1.025rem;
-  background-color: var(--main-color);
+  background-color: var(--scheme-color);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -36,17 +36,6 @@
   border-right: 1px solid var(--border-color);
 }
 
-.headerEditable {
-  display: flex;
-  align-items: flex-start;
-}
-
-.editIcons {
-  display: flex;
-  flex-direction: row;
-  margin: auto 12px auto 0;
-}
-
 .quantity {
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;
   font-size: 1.025rem;
@@ -60,19 +49,6 @@
 
 .quantityContent {
   margin: auto;
-}
-
-.icon {
-  display: inline-block;
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.icon:hover .fa {
-  color: var(--body-background-color)
 }
 
 .description {

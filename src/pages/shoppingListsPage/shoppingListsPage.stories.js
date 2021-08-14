@@ -419,7 +419,7 @@ NoGames.parameters = {
     rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       return res(
         ctx.status(200),
-        ctx.json([])
+        ctx.json(emptyShoppingLists)
       )
     })
   ]
@@ -617,7 +617,7 @@ ListOrItemsNotFound.parameters = {
 
 /*
  *
- * When the user has no shopping lists
+ * When the game has no shopping lists
  * 
  */
 
@@ -737,7 +737,7 @@ export const ErrorState = () => (
 
 ErrorState.parameters = {
   msw: [
-    rest.get(`${backendBaseUri}/shopping_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
       return res(
         ctx.status(500)
       )

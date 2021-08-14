@@ -10,8 +10,8 @@ import useSize from '../../hooks/useSize'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
 import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
-import styles from './shoppingList.module.css'
 import ShoppingListItemCreateForm from '../shoppingListItemCreateForm/shoppingListItemCreateForm'
+import styles from './shoppingList.module.css'
 
 const isValid = str => (
   // The title is valid if the entire string matches the regex. It can
@@ -24,7 +24,7 @@ const isValid = str => (
   !!str && str.match(/^\s*[a-z0-9 ]*\s*$/i) && str.match(/^\s*[a-z0-9 ]*\s*$/i)[0] === str && str.toLowerCase() !== 'all items'
 )
 
-const ShoppingList = ({ canEdit = true, listId, title}) => {
+const ShoppingList = ({ canEdit = true, listId, title }) => {
   const DELETE_CONFIRMATION = `Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`
 
   const [toggleEvent, setToggleEvent] = useState(0)
@@ -179,7 +179,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
           <div className={styles.collapsible} ref={setCollapsibleElement}>
             {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>You have no shopping list items.</div>}
             {canEdit && <ShoppingListItemCreateForm listId={listId} />}
-            {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes }) => {
+            {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes, unit_weight }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
               return(
@@ -191,6 +191,7 @@ const ShoppingList = ({ canEdit = true, listId, title}) => {
                   description={description}
                   quantity={quantity}
                   notes={notes}
+                  unitWeight={unit_weight}
                 />
               )
             })}
