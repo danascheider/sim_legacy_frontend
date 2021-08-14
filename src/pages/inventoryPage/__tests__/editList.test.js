@@ -13,15 +13,15 @@ import { renderWithRouter } from '../../../setupTests'
 import { backendBaseUri } from '../../../utils/config'
 import { AppProvider } from '../../../contexts/appContext'
 import { GamesProvider } from '../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../sharedTestData'
-import ShoppingListsPage from './../shoppingListsPage'
+import { InventoryListsProvider } from '../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../sharedTestData'
+import InventoryPage from './../inventoryPage'
 
-describe('Editing a shopping list', () => {
+describe('Editing a inventory list', () => {
   let component
 
   const renderComponentWithMockCookies = (gameId = null, allGames = games) => {
-    const route = gameId ? `/dashboard/shopping_lists?game_id=${gameId}` : '/dashboard/shopping_lists'
+    const route = gameId ? `/dashboard/inventory?game_id=${gameId}` : '/dashboard/inventory'
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -30,9 +30,9 @@ describe('Editing a shopping list', () => {
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games: allGames, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -41,9 +41,9 @@ describe('Editing a shopping list', () => {
   }
 
   const sharedHandlers = [
-    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
       const gameId = parseInt(req.params.gameId)
-      const lists = allShoppingLists.filter(list => list.game_id === gameId)
+      const lists = allInventoryLists.filter(list => list.game_id === gameId)
 
       return res(
         ctx.status(200),
@@ -55,23 +55,23 @@ describe('Editing a shopping list', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
-  describe('showing and hiding the form', () => {
+  fdescribe('showing and hiding the form', () => {
     const server = setupServer.apply(null, sharedHandlers)
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    it('displays without toggling the list items when you click the edit icon', async () => {
+    fit('displays without toggling the list items when you click the edit icon', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 

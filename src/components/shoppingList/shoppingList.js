@@ -8,7 +8,7 @@ import titlecase from '../../utils/titlecase'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
-import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
+import ListEditForm from '../listEditForm/listEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import ShoppingListItemCreateForm from '../shoppingListItemCreateForm/shoppingListItemCreateForm'
 import styles from './shoppingList.module.css'
@@ -164,7 +164,7 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
             </div>
           </span>}
           {canEdit && isComponentVisible ?
-            <ShoppingListEditForm
+            <ListEditForm
               formRef={componentRef}
               maxTotalWidth={maxEditFormWidth}
               className={styles.form}
