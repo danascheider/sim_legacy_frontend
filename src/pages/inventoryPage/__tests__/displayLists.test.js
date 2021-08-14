@@ -376,7 +376,7 @@ describe('Displaying the inventory page', () => {
       })
     })
 
-    describe('when something unexpected goes wrong fetching games', () => {
+    describe('when something unexpected goes wrong fetching lists', () => {
       const server = setupServer(
         rest.get(`${backendBaseUri}/games/:id/inventory_lists`, (req, res, ctx) => {
           return res(
