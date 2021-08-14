@@ -241,7 +241,7 @@ export const ErrorState = () => (
 
 ErrorState.parameters = {
   msw: [
-    rest.get(`${backendBaseUri}/inventory_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
       return res(
         ctx.status(500)
       )
