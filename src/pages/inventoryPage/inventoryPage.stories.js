@@ -13,6 +13,13 @@ import {
   emptyInventoryLists,
   allInventoryLists
 } from '../../sharedTestData'
+import {
+  findAggregateList,
+  findListByListItem,
+  adjustListItem,
+  removeOrAdjustItemsOnListDestroy,
+  removeOrAdjustItemOnItemDestroy
+} from '../../sharedTestUtilities'
 import InventoryPage from './inventoryPage'
 
 export default { title: 'InventoryPage' }
@@ -151,6 +158,49 @@ HappyPath.parameters = {
           ctx.status(404)
         )
       }
+    }),
+    // This request deletes the given inventory list if it exists and belongs to the
+    // authenticated user. For the purposes of Storybook, we assume the user is logged
+    // in and the `allInventoryLists` array represents all of their inventory lists for
+    // all of their games.
+    rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
+      // Find the requested list
+      const listId = parseInt(req.params.id)
+      const regularList = allInventoryLists.find(list => list.id === listId)
+
+      if (regularList) {
+        // If the regular list matches an ID in the allInventoryLists array, check if
+        // the aggregate list has any items on it once the list is destroyed.
+        const items = regularList.list_items
+        const aggregateList = findAggregateList(allInventoryLists, regularList.game_id)
+
+        const newAggregateList = removeOrAdjustItemsOnListDestroy(aggregateList, items)
+
+        if (newAggregateList === null) {
+          // If the updated aggregate list has no items on it, that means the list being
+          // deleted is the game's last regular list and the aggregate list will be
+          // destroyed as well on the back end. In this scenario, the API will return a
+          // 204 No Content response.
+          return res(
+            ctx.status(204)
+          )
+        } else {
+          // If the updated aggregate list still has items on it, that means the list being
+          // deleted is not the game's last regular list. In this scenario, the API will return
+          // a 200 response with the updated aggregate list.
+          return res(
+            ctx.status(200),
+            ctx.json(newAggregateList)
+          )
+        }
+      } else {
+        // If the list to be deleted is not found in the allInventoryLists array, that means
+        // the list either doesn't exist or doesn't belong to the user. In this case, the API
+        // will return status 404 Not Found.
+        return res(
+          ctx.status(404)
+        )
+      }
     })
   ]
 }
@@ -265,6 +315,11 @@ GameNotFoundOnCreate.parameters = {
       return res(
         ctx.status(404)
       )
+    }),
+    rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(400)
+      )
     })
   ]
 }
@@ -348,6 +403,15 @@ ListOrItemNotFound.parameters = {
       return res(
         ctx.status(404)
       )
+    }),
+    // This illustrates what would happen if a user tried to destroy an inventory list
+    // after deleting the list on another device or browser. The API would return a 404 and
+    // the UI should display a message telling the user the list could not be found and
+    // advising them to refresh their browser.
+    rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
     })
   ]
 }
@@ -426,6 +490,13 @@ NoLists.parameters = {
         ctx.json(returnData)
       )
     }),
+    // This will not work if multiple inventory lists are created and then destroyed - this
+    // API response is only valid if the list is the user's last regular list.
+    rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(204)
+      )
+    })
   ]
 }
 
