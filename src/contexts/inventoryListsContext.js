@@ -21,7 +21,8 @@ import {
 import PropTypes from 'prop-types'
 import {
   fetchInventoryLists,
-  createInventoryList
+  createInventoryList,
+  updateInventoryList
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -160,10 +161,60 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, activeGameId, setFlashAttributes, inventoryLists, logOutAndRedirect])
 
+  const performInventoryListUpdate = useCallback((listId, title, callbacks = {}) => {
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
+    updateInventoryList(token, listId, { title })
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 200) {
+          const newInventoryLists = inventoryLists.map(list => list.id === listId ? json : list)
+          setInventoryLists(newInventoryLists)
+          onSuccess && onSuccess()
+        } else if (status === 422) {
+          setFlashAttributes({
+            type: 'error',
+            message: json.errors,
+            header: `${json.errors.length} error(s) prevented your changes from beings saved:`
+          })
+
+          onUnprocessableEntity && onUnprocessableEntity()
+        } else {
+          throw new Error(json.errors ? `Error ${status} when updating inventory list: ${json.errors}` : `Unknown error ${status} when updating inventory list`)
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list you wanted to update. Try refreshing the page to fix this issue."
+          })
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Error updating inventory list ${listId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to update your inventory list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
     performInventoryListCreate,
+    performInventoryListUpdate,
     ...overrideValue
   }
 
@@ -200,7 +251,8 @@ InventoryListsProvider.propTypes = {
       })).isRequired
     })),
     inventoryListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
-    performInventoryListCreate: PropTypes.func
+    performInventoryListCreate: PropTypes.func,
+    performInventoryListUpdate: PropTypes.func
   })
 }
 

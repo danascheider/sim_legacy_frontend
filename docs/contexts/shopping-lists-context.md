@@ -111,7 +111,7 @@ A setter function for shopping list item edit form props. Takes an object as an 
 
 ### `setListItemEditFormVisible`
 
-A setter function to indicate whether the `ShoppingListEditForm` component should be displayed or hidden. Takes a single boolean argument.
+A setter function to indicate whether the `ShoppingListItemEditForm` component should be displayed or hidden. Takes a single boolean argument.
 
 ## Testing Components in Storybook
 

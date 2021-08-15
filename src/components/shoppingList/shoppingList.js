@@ -8,7 +8,7 @@ import titlecase from '../../utils/titlecase'
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
 import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
-import ShoppingListEditForm from '../shoppingListEditForm/shoppingListEditForm'
+import ListEditForm from '../listEditForm/listEditForm'
 import ShoppingListItem from '../shoppingListItem/shoppingListItem'
 import ShoppingListItemCreateForm from '../shoppingListItemCreateForm/shoppingListItemCreateForm'
 import styles from './shoppingList.module.css'
@@ -48,8 +48,6 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
     performShoppingListUpdate,
     performShoppingListDestroy,
   } = useShoppingListsContext()
-
-  const originalTitle = title // to switch back in case of API error on update
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
@@ -94,7 +92,7 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
     if (!newTitle || isValid(newTitle)) setCurrentTitle(titlecase(newTitle))
 
     const resetTitleAndDisplayError = () => {
-      setCurrentTitle(originalTitle)
+      setCurrentTitle(title)
       setFlashVisible(true)
     }
 
@@ -164,7 +162,7 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
             </div>
           </span>}
           {canEdit && isComponentVisible ?
-            <ShoppingListEditForm
+            <ListEditForm
               formRef={componentRef}
               maxTotalWidth={maxEditFormWidth}
               className={styles.form}

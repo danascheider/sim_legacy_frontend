@@ -13,15 +13,15 @@ import { renderWithRouter } from '../../../setupTests'
 import { backendBaseUri } from '../../../utils/config'
 import { AppProvider } from '../../../contexts/appContext'
 import { GamesProvider } from '../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../sharedTestData'
-import ShoppingListsPage from './../shoppingListsPage'
+import { InventoryListsProvider } from '../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../sharedTestData'
+import InventoryPage from './../inventoryPage'
 
-describe('Editing a shopping list', () => {
+describe('Editing a inventory list', () => {
   let component
 
   const renderComponentWithMockCookies = (gameId = null, allGames = games) => {
-    const route = gameId ? `/dashboard/shopping_lists?game_id=${gameId}` : '/dashboard/shopping_lists'
+    const route = gameId ? `/dashboard/inventory?game_id=${gameId}` : '/dashboard/inventory'
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -30,9 +30,9 @@ describe('Editing a shopping list', () => {
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games: allGames, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -41,9 +41,9 @@ describe('Editing a shopping list', () => {
   }
 
   const sharedHandlers = [
-    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
       const gameId = parseInt(req.params.gameId)
-      const lists = allShoppingLists.filter(list => list.game_id === gameId)
+      const lists = allInventoryLists.filter(list => list.game_id === gameId)
 
       return res(
         ctx.status(200),
@@ -65,13 +65,13 @@ describe('Editing a shopping list', () => {
     it('displays without toggling the list items when you click the edit icon', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -86,13 +86,13 @@ describe('Editing a shopping list', () => {
     it('hides the form again when you click outside', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -109,10 +109,10 @@ describe('Editing a shopping list', () => {
 
   describe('when all goes as planned', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         const listId = parseInt(req.params.id)
-        const list = allShoppingLists.find(l => l.id === listId)
-        const title = req.body.shopping_list.title
+        const list = allInventoryLists.find(l => l.id === listId)
+        const title = req.body.inventory_list.title
 
         const respBody = { ...list, title }
 
@@ -130,16 +130,16 @@ describe('Editing a shopping list', () => {
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    it('edits the shopping list and hides the form', async () => {
+    it('edits the inventory list and hides the form', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -153,13 +153,18 @@ describe('Editing a shopping list', () => {
 
       // The input should be hidden and the new title should be visible
       await waitFor(() => expect(input).not.toBeInTheDocument())
-      expect(listEl).toHaveTextContent(/Honeyside/)
+
+      // For some reason in the shopping list edit test I'm able to just
+      // say expect(listTitleEl).toHaveTextContent('Honeyside') but in
+      // this test the new title is a new h3 element.
+      expect(listTitleEl).not.toBeInTheDocument()
+      expect(screen.getByText('Honeyside')).toBeVisible()
     })
   })
 
   describe('when the server returns a 404', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404),
         )
@@ -176,13 +181,13 @@ describe('Editing a shopping list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -201,13 +206,13 @@ describe('Editing a shopping list', () => {
       await waitFor(() => expect(listEl).not.toHaveTextContent(/Honeyside/))
 
       // The flash error message should be visible
-      await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
     })
   })
 
   describe('when the server returns a 422', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(422),
           ctx.json({
@@ -227,14 +232,14 @@ describe('Editing a shopping list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const gameLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+      // Find the inventory list we'll edit
+      const gameLists = allInventoryLists.filter(list => list.game_id === games[0].id)
       const list = gameLists[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -243,7 +248,7 @@ describe('Editing a shopping list', () => {
       const form = input.closest('.root')
 
       // Fill out the title input and submit the form
-      fireEvent.change(input, { target: { value: 'Honeyside' } })
+      fireEvent.change(input, { target: { value: gameLists[2].title } })
       fireEvent.submit(form)
 
       // The input and form should be hidden
@@ -260,7 +265,7 @@ describe('Editing a shopping list', () => {
 
   describe('when the server returns a 500', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(500),
           ctx.json({
@@ -280,13 +285,13 @@ describe('Editing a shopping list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -311,7 +316,7 @@ describe('Editing a shopping list', () => {
 
   describe('when the response indicates the user has been logged out', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({
@@ -331,13 +336,13 @@ describe('Editing a shopping list', () => {
     it('redirects to the login page', async () => {
       const { history } = component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 

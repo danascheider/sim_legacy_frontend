@@ -1,14 +1,14 @@
 import React, { useRef } from 'react'
 import { PINK } from '../../utils/colorSchemes'
 import { ColorProvider } from '../../contexts/colorContext'
-import ShoppingListEditForm from './shoppingListEditForm'
+import ListEditForm from './listEditForm'
 
 const WrapperComponent = () => {
   const formRef = useRef(null)
 
   return(
     <div>
-      <ShoppingListEditForm
+      <ListEditForm
         className='foo'
         formRef={formRef}
         maxTotalWidth={256}
@@ -19,7 +19,7 @@ const WrapperComponent = () => {
   )
 }
 
-export default { title: 'ShoppingListEditForm' }
+export default { title: 'ListEditForm' }
 
 export const Default = () => (
   <ColorProvider colorScheme={PINK}>

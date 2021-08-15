@@ -48,6 +48,8 @@ const capitalize = word => {
 }
 
 const titlecase = text => {
+  if (!text) return ''
+
   const words = text.toLowerCase().split(' ')
 
   return words.map((word, index) => (

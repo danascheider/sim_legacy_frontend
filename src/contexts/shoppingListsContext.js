@@ -151,7 +151,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         if (status === 200) {
           const newShoppingLists = shoppingLists.map(list => { if (list.id === listId) { return json } else { return list } })
           setShoppingLists(newShoppingLists)
-          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
+
           onSuccess && onSuccess()
         } else if (status === 422) {
           setFlashAttributes({
@@ -160,16 +160,12 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             header: `${json.errors.length} error(s) prevented your changes from being saved:`
           })
 
-          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
-
           onUnprocessableEntity && onUnprocessableEntity()
         } else {
           throw new Error(json.errors ? `Error ${status} when updating shopping list: ${json.errors}` : `Unknown error ${status} when updating shopping list`)
         }
       })
       .catch(err => {
-        if (process.env.NODE_ENV === 'development') console.error(`Error updating shopping list ${listId}: `, err)
-
         if (err.code === 401) {
           logOutAndRedirect(paths.login, () => {
             mountedRef.current = false
@@ -180,17 +176,15 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             type: 'error',
             message: "Oops! The shopping list you wanted to update could not be found. Try refreshing the page to fix this issue."
           })
-
-          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
           
           onNotFound && onNotFound()
         } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Error updating shopping list ${listId}: `, err)
+
           setFlashAttributes({
             type: 'error',
             message: "Something unexpected happened while trying to update your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
-
-          !overrideValue.shoppingListLoadingState && setShoppingListLoadingState(DONE)
 
           onInternalServerError && onInternalServerError()
         }

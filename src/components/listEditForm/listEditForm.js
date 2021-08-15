@@ -4,9 +4,9 @@ import classnames from 'classnames'
 import { useColorScheme } from '../../hooks/contexts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons'
-import styles from './shoppingListEditForm.module.css'
+import styles from './listEditForm.module.css'
 
-const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubmit }) => {
+const ListEditForm = ({ formRef, maxTotalWidth, className, title, onSubmit }) => {
   const getInputTextWidth = (text) => {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
@@ -26,6 +26,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   const [maxTextWidth, setMaxTextWidth] = useState(null)
   const [inputWidth, setInputWidth] = useState(`${getInputTextWidth(title)}px`)
 
+  const mountedRef = useRef(true)
   const inputRef = useRef(null)
   const buttonRef = useRef(null)
 
@@ -39,6 +40,8 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   }
 
   const updateInputWidth = (e) => {
+    if (!mountedRef.current) return
+
     const newValue = e.currentTarget.value
     setInputValue(newValue)
     setInputWidth(`${getInputTextWidth(newValue)}px`)
@@ -46,9 +49,13 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
 
   useEffect(() => {
     inputRef.current.focus()
-  })
+
+    return () => mountedRef.current = false
+  }, [])
 
   useEffect(() => {
+    if (!mountedRef.current) return
+
     if (!buttonRef.current) return setMaxTextWidth(maxTotalWidth)
 
     setMaxTextWidth(maxTotalWidth - buttonRef.current.offsetWidth)
@@ -76,7 +83,7 @@ const ShoppingListEditForm = ({ formRef, maxTotalWidth, className, title, onSubm
   )
 }
 
-ShoppingListEditForm.propTypes = {
+ListEditForm.propTypes = {
   formRef: PropTypes.shape({
     current: PropTypes.instanceOf(Element)
   }),
@@ -86,4 +93,4 @@ ShoppingListEditForm.propTypes = {
   title: PropTypes.string.isRequired
 }
 
-export default ShoppingListEditForm
+export default ListEditForm

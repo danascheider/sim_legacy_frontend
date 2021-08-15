@@ -281,7 +281,6 @@ export const destroyShoppingListItem = (token, itemId) => {
  */
 
 // GET /games/:game_id/inventory_lists
-
 export const fetchInventoryLists = (token, gameId) => {
   const uri = `${backendBaseUri}/games/${gameId}/inventory_lists`
 
@@ -297,13 +296,28 @@ export const fetchInventoryLists = (token, gameId) => {
 }
 
 // POST /games/:game_id/inventory_lists
-
 export const createInventoryList = (token, gameId, attrs) => {
   const uri = `${backendBaseUri}/games/${gameId}/inventory_lists`
   const body = JSON.stringify({ inventory_list: attrs })
 
   return(
     fetch(uri, { method: 'POST', headers: combinedHeaders(token), body })
+      .then(resp => {
+        if (resp.status === 401) throw new AuthorizationError()
+        if (resp.status === 404) throw new NotFoundError()
+
+        return resp.json().then(json => ({ status: resp.status, json }))
+      })
+  )
+}
+
+// PATCH /inventory_lists/:id
+export const updateInventoryList = (token, listId, attrs) => {
+  const uri = `${backendBaseUri}/inventory_lists/${listId}`
+  const body = JSON.stringify({ inventory_list: attrs })
+
+  return(
+    fetch(uri, { method: 'PATCH', headers: combinedHeaders(token), body })
       .then(resp => {
         if (resp.status === 401) throw new AuthorizationError()
         if (resp.status === 404) throw new NotFoundError()
