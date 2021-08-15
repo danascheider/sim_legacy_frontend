@@ -345,3 +345,25 @@ export const destroyInventoryList = (token, listId) => {
       })
   )
 }
+
+/*
+ *
+ * Inventory List Item Endpoints
+ *
+ */
+
+// POST /inventory_lists/:list_id/inventory_list_items
+export const createInventoryListItem = (token, listId, attrs) => {
+  const uri = `${backendBaseUri}/inventory_lists/${listId}/inventory_list_items`
+  const body = JSON.stringify({ inventory_list_item: attrs })
+
+  return(
+    fetch(uri, { method: 'POST', headers: combinedHeaders(token), body })
+      .then(resp => {
+        if (resp.status === 401) throw new AuthorizationError()
+        if (resp.status === 404) throw new NotFoundError()
+
+        return resp.json().then(json => ({ status: resp.status, json }))
+      })
+  )
+}

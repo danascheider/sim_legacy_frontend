@@ -23,7 +23,8 @@ import {
   fetchInventoryLists,
   createInventoryList,
   updateInventoryList,
-  destroyInventoryList
+  destroyInventoryList,
+  createInventoryListItem
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -60,6 +61,22 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
   }
 
   const mountedRef = useRef(true)
+
+  const addOrUpdateListItem = (list, item) => {
+    const originalItem = list.list_items.find(listItem => listItem.description.toLowerCase() === item.description.toLowerCase())
+    const newListItems = [...list.list_items]
+
+    if (originalItem) {
+      const originalItemPosition = list.list_items.indexOf(originalItem)
+      newListItems.splice(originalItemPosition, 1, item)
+    } else {
+      newListItems.unshift(item)
+    }
+
+    list.list_items = newListItems
+
+    return { ...list }
+  }
 
   const fetchLists = useCallback(() => {
     if (token && !inventoryListsOverridden.current) {
@@ -275,12 +292,58 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
+  const performInventoryListItemCreate = useCallback((listId, attrs, callbacks) => {
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
+    createInventoryListItem(token, listId, attrs)
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 200 || status === 201) {
+          // Have to create an actual new object or the state change won't cause useEffect
+          // hooks to run.
+          const newLists = [...inventoryLists]
+
+          // The JSON object returned from this endpoint is the array of all items
+          // that have been updated while handling this request. Because changing the
+          // `unit_weight` of an inventory list item can cause items other than the
+          // list item edited and the aggregate list item to be updated, it's not
+          // possible to know for sure how many items the array will contain. It will
+          // be at least two though.
+          for (let i = 0; i < json.length; i++) {
+            const list = inventoryLists.find(list => list.id === json[i].list_id)
+            const listPosition = inventoryLists.indexOf(list)
+            const newList = addOrUpdateListItem(list, json[i])
+
+            newLists[listPosition] = newList
+          }
+
+          setInventoryLists(newLists)
+
+          if (status === 201) {
+            setFlashAttributes({
+              type: 'success',
+              message: 'Success! Your inventory list item has been created.'
+            })
+          } else {
+            setFlashAttributes({
+              type: 'success',
+              message: 'Success! Your new inventory list item has been combined with another item with the same description.'
+            })
+          }
+
+          onSuccess && onSuccess()
+        }
+      })
+  }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
     performInventoryListCreate,
     performInventoryListUpdate,
     performInventoryListDestroy,
+    performInventoryListItemCreate,
     ...overrideValue
   }
 
@@ -319,7 +382,8 @@ InventoryListsProvider.propTypes = {
     inventoryListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
     performInventoryListCreate: PropTypes.func,
     performInventoryListUpdate: PropTypes.func,
-    performInventoryListDestroy: PropTypes.func
+    performInventoryListDestroy: PropTypes.func,
+    performInventoryListItemCreate: PropTypes.func
   })
 }
 

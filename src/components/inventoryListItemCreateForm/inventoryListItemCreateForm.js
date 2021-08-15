@@ -1,0 +1,109 @@
+import React, { useState, useRef } from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import SlideToggle from 'react-slide-toggle'
+import { useAppContext, useColorScheme, useInventoryListsContext } from '../../hooks/contexts'
+import styles from './inventoryListItemCreateForm.module.css'
+
+const InventoryListItemCreateForm = ({ listId }) => {
+  const [toggleEvent, setToggleEvent] = useState(0)
+  const [collapsed, setCollapsed] = useState(true)
+  const { setFlashVisible } = useAppContext()
+  const { performInventoryListItemCreate } = useInventoryListsContext()
+  const {
+    schemeColorDark,
+    hoverColorLight,
+    schemeColorLightest,
+    borderColor,
+    textColorSecondary,
+    textColorTertiary
+  } = useColorScheme()
+
+  const formRef = useRef(null)
+
+  const colorVars = {
+    '--base-color': schemeColorDark,
+    '--hover-color': hoverColorLight,
+    '--body-color': schemeColorLightest,
+    '--border-color': borderColor,
+    '--text-color-main': textColorSecondary,
+    '--text-color-secondary': textColorTertiary
+  }
+
+  const toggleForm = () => {
+    setToggleEvent(Date.now)
+    setCollapsed(!collapsed)
+  }
+
+  const createInventoryListItem = e => {
+    e.preventDefault()
+
+    setFlashVisible(false)
+
+    const description = e.target.elements.description.value
+    const quantity = parseInt(e.target.elements.quantity.value)
+    const unit_weight = Number(e.target.elements.unitWeight.value)
+    const notes = e.target.elements.notes.value
+    const attrs = { description, quantity, unit_weight, notes }
+
+    const resetToggleAndDisplayFlash = () => {
+      formRef.current.reset()
+      toggleForm()
+      setFlashVisible(true)
+    }
+
+    const callbacks = {
+      onSuccess: resetToggleAndDisplayFlash,
+      onNotFound: resetToggleAndDisplayFlash,
+      onUnprocessableEntity: () => setFlashVisible(true),
+      onInternalServerError: resetToggleAndDisplayFlash
+    }
+
+    performInventoryListItemCreate(listId, attrs, callbacks)
+  }
+
+  return(
+    <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={colorVars}>
+      <div className={styles.triggerContainer}>
+        <button className={styles.triggerButton} onClick={toggleForm}>
+          Add item to list...
+        </button>
+      </div>
+      <SlideToggle toggleEvent={toggleEvent} collapsed>
+        {({ setCollapsibleElement }) => (
+          <div className={styles.collapsible} ref={setCollapsibleElement}>
+            <form className={styles.form} ref={formRef} onSubmit={createInventoryListItem}>
+              <fieldset className={styles.fieldset}>
+                <label className={styles.label}>Description</label>
+                <input className={styles.input} type='text' name='description' placeholder='Description' required />
+              </fieldset>
+
+              <fieldset className={styles.fieldset}>
+                <label className={styles.label}>Quantity</label>
+                <input className={styles.input} type='number' inputMode='numeric' min={1} name='quantity' defaultValue={1} required />
+              </fieldset>
+
+              <fieldset className={styles.fieldset}>
+                <label className={styles.label}>Unit Weight</label>
+                <input className={styles.input} type='number' inputMode='numeric' min={0} step={0.1} name='unitWeight' placeholder='Unit Weight' />
+              </fieldset>
+
+              <fieldset className={styles.fieldset}>
+                <label className={styles.label}>Notes</label>
+                <input className={styles.input} type='text' name='notes' placeholder='Notes' />
+              </fieldset>
+
+              <button className={styles.submit} type='submit'>Add to List</button>
+            </form>
+          </div>
+        )}
+      </SlideToggle>
+    </div>
+  )
+}
+
+InventoryListItemCreateForm.propTypes = {
+  listId: PropTypes.number.isRequired
+}
+
+export default InventoryListItemCreateForm
