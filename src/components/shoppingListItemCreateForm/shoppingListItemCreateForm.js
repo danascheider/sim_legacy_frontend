@@ -42,8 +42,9 @@ const ShoppingListItemCreateForm = ({ listId }) => {
 
     const description = e.target.elements.description.value
     const quantity = parseInt(e.target.elements.quantity.value)
+    const unit_weight = Number(e.target.elements.unitWeight.value)
     const notes = e.target.elements.notes.value
-    const attrs = { description, quantity, notes }
+    const attrs = { description, quantity, unit_weight, notes }
 
     const resetToggleAndDisplayFlash = () => {
       formRef.current.reset()
@@ -80,6 +81,11 @@ const ShoppingListItemCreateForm = ({ listId }) => {
               <fieldset className={styles.fieldset}>
                 <label className={styles.label}>Quantity</label>
                 <input className={styles.input} type='number' inputMode='numeric' min={1} name='quantity' defaultValue={1} required />
+              </fieldset>
+
+              <fieldset className={styles.fieldset}>
+                <label className={styles.label}>Unit Weight</label>
+                <input className={styles.input} type='number'inputMode='numeric' name='unitWeight' min={0} step={0.1} placeholder='Unit Weight' />
               </fieldset>
 
               <fieldset className={styles.fieldset}>
