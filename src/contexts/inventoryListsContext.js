@@ -22,7 +22,8 @@ import PropTypes from 'prop-types'
 import {
   fetchInventoryLists,
   createInventoryList,
-  updateInventoryList
+  updateInventoryList,
+  destroyInventoryList
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -210,11 +211,35 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
+  const performInventoryListDestroy = useCallback((listId, callbacks) => {
+    const { onSuccess, onNotFound, onInternalServerError, onUnauthorized } = callbacks
+
+    destroyInventoryList(token, listId)
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 204) {
+          // This means that the list was the game's last inventory list and both
+          // it and the aggreegate list have been destroyed.
+          setInventoryLists([])
+
+          setFlashAttributes({
+            type: 'success',
+            header: 'Success! Your inventory list has been deleted.',
+            message: 'Since it was your last list for this game, the "All Items" list has been deleted as well.'
+          })
+
+          onSuccess && onSuccess()
+        }
+      })
+  }, [token, logOutAndRedirect, setFlashAttributes])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
     performInventoryListCreate,
     performInventoryListUpdate,
+    performInventoryListDestroy,
     ...overrideValue
   }
 
@@ -252,7 +277,8 @@ InventoryListsProvider.propTypes = {
     })),
     inventoryListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
     performInventoryListCreate: PropTypes.func,
-    performInventoryListUpdate: PropTypes.func
+    performInventoryListUpdate: PropTypes.func,
+    performInventoryListDestroy: PropTypes.func
   })
 }
 

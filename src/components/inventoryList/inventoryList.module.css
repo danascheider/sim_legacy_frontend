@@ -40,6 +40,10 @@
   display: inline;
 }
 
+.icon:first-of-type {
+  margin-right: 8px;
+}
+
 .editIcons {
   margin: auto 0;
 }

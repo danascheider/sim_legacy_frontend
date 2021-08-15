@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import SlideToggle from 'react-slide-toggle'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit } from '@fortawesome/free-solid-svg-icons'
+import { faEdit } from '@fortawesome/free-regular-svg-icons'
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import titlecase from '../../utils/titlecase'
 import { useColorScheme, useAppContext, useInventoryListsContext } from '../../hooks/contexts'
 import useComponentVisible from '../../hooks/useComponentVisible'
@@ -23,8 +24,14 @@ const isValid = str => (
 )
 
 const InventoryList = ({ canEdit = true, listId, title }) => {
+  const DELETE_CONFIRMATION = `Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`
+
   const { setFlashVisible } = useAppContext()
-  const { inventoryLists, performInventoryListUpdate } = useInventoryListsContext()
+  const {
+    inventoryLists,
+    performInventoryListUpdate,
+    performInventoryListDestroy
+  } = useInventoryListsContext()
 
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
@@ -33,6 +40,7 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
 
   const mountedRef = useRef(true)
   const slideTriggerRef = useRef(null)
+  const deleteTriggerRef = useRef(null)
   const iconsRef = useRef(null)
 
   const size = useSize(slideTriggerRef)
@@ -41,8 +49,9 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
 
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
+  const deleteTriggerRefContains = element => deleteTriggerRef.current && (deleteTriggerRef.current === element || deleteTriggerRef.current.contains(element))
   const componentRefContains = element => componentRef.current && (componentRef.current === element || componentRef.current.contains(element))
-  const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element) && !componentRefContains(element))
+  const shouldToggleListItems = element => (slideTriggerRefContains(element) && !triggerRefContains(element) && !componentRefContains(element) && !deleteTriggerRefContains(element))
 
   const toggleListItems = e => {
     if (shouldToggleListItems(e.target)) setToggleEvent(Date.now)
@@ -95,6 +104,21 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
     performInventoryListUpdate(listId, newTitle, callbacks)
   }
 
+  const deleteList = e => {
+    const confirmed = window.confirm(DELETE_CONFIRMATION)
+
+    setFlashVisible(false)
+
+    if (confirmed) {
+      const onSuccess = () => {
+        setFlashVisible(true)
+        mountedRef.current = false
+      }
+
+      performInventoryListDestroy(listId, { onSuccess })
+    }
+  }
+
   useEffect(() => {
     if (!inventoryLists || !mountedRef.current) return // it'll run again when they populate
 
@@ -119,6 +143,9 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
           <span className={styles.editIcons} ref={iconsRef}>
+            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid='delete-inventory-list'>
+              <FontAwesomeIcon className={styles.fa} icon={faTimes} />
+            </div>
             <div className={styles.icon} ref={triggerRef} data-testid='edit-inventory-list'>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
             </div>
