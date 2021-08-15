@@ -65,11 +65,12 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     if (token && !inventoryListsOverridden.current) {
       fetchInventoryLists(token, activeGameId)
         .then(({ status, json }) => {
+          if (!mountedRef.current) return
+
           if (status === 200) {
-            if (mountedRef.current) {
-              setInventoryLists(json)
-              !overrideValue.inventoryListLoadingState && setInventoryListLoadingState(DONE)
-            }
+            setInventoryLists(json)
+
+            !overrideValue.inventoryListLoadingState && setInventoryListLoadingState(DONE)
           } else {
             const message = json.errors ? `Error ${status} while fetching inventory lists: ${json.errors}` : `Unknown error ${status} while fetching inventory lists`
             throw new Error(message)
@@ -220,7 +221,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
         if (status === 204) {
           // This means that the list was the game's last inventory list and both
-          // it and the aggreegate list have been destroyed.
+          // it and the aggregate list have been destroyed.
           setInventoryLists([])
 
           setFlashAttributes({
@@ -230,9 +231,27 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
+        } else if (status === 200) {
+          // This means that the aggregate list has been updated and returned,
+          // to adjust for any items that were deleted with the other list.
+          const newInventoryLists = inventoryLists.filter(list => list.id !== listId)
+                                                  .map(list => list.aggregate === true ? json : list)
+          setInventoryLists(newInventoryLists)
+
+          setFlashAttributes({
+            type: 'success',
+            message: 'Your inventory list has been deleted.'
+          })
+
+          onSuccess && onSuccess()
         }
       })
-  }, [token, logOutAndRedirect, setFlashAttributes])
+      .catch(err => {
+        if (err.code === 404) {
+
+        }
+      })
+  }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
   const value = {
     inventoryLists,

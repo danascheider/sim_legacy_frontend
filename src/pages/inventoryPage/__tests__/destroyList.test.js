@@ -154,7 +154,7 @@ describe('Destroying a inventory list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -166,10 +166,10 @@ describe('Destroying a inventory list', () => {
       await waitFor(() => expect(listEl).not.toBeInTheDocument())
 
       // The aggregate list should still be visible on the page
-      await waitFor(() => expect(screen.queryByText(/all items/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
 
       // There should be a flash message indicating the list was deleted
-      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/inventory list has been deleted/i)).toBeVisible())
     })
   })
 
@@ -224,7 +224,7 @@ describe('Destroying a inventory list', () => {
       const allItemsEl = allItemsTitle.closest('.root')
 
       // Get the destroy icon for the regular list and click it
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -238,7 +238,7 @@ describe('Destroying a inventory list', () => {
       expect(allItemsEl).toBeVisible()
 
       // There should be a flash message indicating the list was deleted
-      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/inventory list has been deleted/i)).toBeVisible())
 
       // Expand the aggregate list so its list items are visible
       fireEvent.click(allItemsTitle)

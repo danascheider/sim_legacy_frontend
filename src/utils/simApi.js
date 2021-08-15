@@ -340,7 +340,7 @@ export const destroyInventoryList = (token, listId) => {
         if (resp.status === 204) {
           return { status: resp.status, json: null }
         } else {
-          return response.json().then(json => ({ status: resp.status, json }))
+          return resp.json().then(json => ({ status: resp.status, json }))
         }
       })
   )
