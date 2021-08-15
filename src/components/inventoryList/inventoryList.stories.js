@@ -151,6 +151,12 @@ const emptyInventoryLists = [
   }
 ]
 
+/*
+ *
+ * When there are no list items and `canEdit` is set to `true`
+ *
+ */
+
 export const EmptyList = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
     <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
@@ -165,6 +171,29 @@ export const EmptyList = () => (
     </GamesProvider>
   </AppProvider>
 )
+
+EmptyList.parameters = {
+  msw: [
+    // This enables you to edit the title of the editable list in Storybook.
+    rest.patch(`${backendBaseUri}/inventory_lists/2`, (req, res, ctx) => {
+      const title = req.body.inventory_list.Title
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          ...inventoryLists[1],
+          title
+        })
+      )
+    })
+  ]
+}
+
+/*
+ *
+ * When the list is empty and `canEdit` is set to `false`
+ *
+ */
 
 export const EmptyAggregateList = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>

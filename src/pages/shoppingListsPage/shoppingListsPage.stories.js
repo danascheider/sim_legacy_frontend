@@ -133,10 +133,7 @@ HappyPath.parameters = {
 
       if (listToUpdate) {
         // If the list requested is valid and the title isn't a duplicate, update the
-        // shopping list and return the updated list. Note that, in real life, having
-        // characters other than alphanumeric characters, commas, spaces, and hyphens will
-        // also resultt in a 422 error, however, for the purposes of Storybook we're going
-        // to ignore this and treat title uniqueness as the only validation.
+        // shopping list and return the updated list.
         const title = req.body.shopping_list.title || 'My List 1'
         const otherListsForSameGame = allShoppingLists.filter(list => list.game_id === listToUpdate.game_id)
         const existingListWithSameTitle = otherListsForSameGame.find(list => list.title.toLowerCase() === title.toLowerCase())
@@ -680,7 +677,7 @@ NoLists.parameters = {
     // This is included just in case somebody wants to both create and destroy a list in the
     // story.
     rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
-      const listId = Number(req.params.id)
+      const listId = parseInt(req.params.id)
       const title = req.body.shopping_list.title || 'My List 2'
       const returnData = { id: listId, user_id: 24, title, aggregate: false, list_items: [] }
 

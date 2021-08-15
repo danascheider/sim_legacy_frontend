@@ -174,6 +174,21 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           onSuccess && onSuccess()
         }
       })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list you wanted to update. Try refreshing the page to fix this issue."
+          })
+
+          onNotFound && onNotFound()
+        }
+      })
   }, [token, inventoryLists])
 
   const value = {

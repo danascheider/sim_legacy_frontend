@@ -77,8 +77,17 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
 
     if (!newTitle || isValid(newTitle)) setCurrentTitle(titlecase(newTitle))
 
+    const resetTitleDisplayErrorAndHideForm = () => {
+      if (mountedRef.current) {
+        setCurrentTitle(title)
+        setFlashVisible(true)
+        setIsComponentVisible(false)
+      }
+    }
+
     const callbacks = {
-      onSuccess: () => mountedRef.current && setIsComponentVisible(false)
+      onSuccess: () => mountedRef.current && setIsComponentVisible(false),
+      onNotFound: resetTitleDisplayErrorAndHideForm
     }
 
     performInventoryListUpdate(listId, newTitle, callbacks)

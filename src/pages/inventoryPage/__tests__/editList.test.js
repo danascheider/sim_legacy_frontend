@@ -164,7 +164,7 @@ describe('Editing a inventory list', () => {
 
   describe('when the server returns a 404', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404),
         )
@@ -181,13 +181,13 @@ describe('Editing a inventory list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -206,7 +206,7 @@ describe('Editing a inventory list', () => {
       await waitFor(() => expect(listEl).not.toHaveTextContent(/Honeyside/))
 
       // The flash error message should be visible
-      await waitFor(() => expect(screen.queryByText(/could not be found/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
     })
   })
 
