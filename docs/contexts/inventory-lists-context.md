@@ -35,9 +35,20 @@ A function that takes the `listId` of the list to be updated, a new `title`, and
 The `callbacks` object can contain the following callbacks:
 
 * `onSuccess`: called after a 200-range response has been handled successfully
-* `onNotFound`: called when the game the user requests to create a list for is not found or does not belong to the authenticated user
+* `onNotFound`: called when the list the user wants to update is not found or does not belong to the authenticated user
 * `onUnauthorized`: called when the request returns a 401 response
 * `onUnprocessableEntity`: called when the title the user submits is invalid or not unique
+* `onInternalServerError`: called when the server returns a 500-range response or there is an unexpected error while handling the response
+
+### `performInventoryListDestroy`
+
+A function that takes the `listId` of the list to be destroyed and a `callbacks` object and destroys the requested list, calling the appropriate callback when the request has completed.
+
+The `callbacks` object can contain the following callbacks:
+
+* `onSuccess`: called after a 200-range response has been handled successfully (possible responses are 200 and 204)
+* `onNotFound`: called when the list requested is not found or does not belong to the authenticated user
+* `onUnauthorized`: called when the request returns a 401 response
 * `onInternalServerError`: called when the server returns a 500-range response or there is an unexpected error while handling the response
 
 ## Testing Components in Storybook
