@@ -4,7 +4,6 @@ import { setupServer } from 'msw/node'
 import {
   waitFor,
   screen,
-  waitForElementToBeRemoved,
   fireEvent
 } from '@testing-library/react'
 import { within } from '@testing-library/dom'
