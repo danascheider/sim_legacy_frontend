@@ -172,6 +172,14 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           const newInventoryLists = inventoryLists.map(list => list.id === listId ? json : list)
           setInventoryLists(newInventoryLists)
           onSuccess && onSuccess()
+        } else if (status === 422) {
+          setFlashAttributes({
+            type: 'error',
+            message: json.errors,
+            header: `${json.errors.length} error(s) prevented your changes from beings saved:`
+          })
+
+          onUnprocessableEntity && onUnprocessableEntity()
         }
       })
       .catch(err => {

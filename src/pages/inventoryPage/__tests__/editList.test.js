@@ -212,7 +212,7 @@ describe('Editing a inventory list', () => {
 
   describe('when the server returns a 422', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(422),
           ctx.json({
@@ -232,14 +232,14 @@ describe('Editing a inventory list', () => {
     it("doesn't change the list name and renders an error message", async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const gameLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+      // Find the inventory list we'll edit
+      const gameLists = allInventoryLists.filter(list => list.game_id === games[0].id)
       const list = gameLists[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -248,7 +248,7 @@ describe('Editing a inventory list', () => {
       const form = input.closest('.root')
 
       // Fill out the title input and submit the form
-      fireEvent.change(input, { target: { value: 'Honeyside' } })
+      fireEvent.change(input, { target: { value: gameLists[2].title } })
       fireEvent.submit(form)
 
       // The input and form should be hidden
