@@ -180,6 +180,8 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onUnprocessableEntity && onUnprocessableEntity()
+        } else {
+          throw new Error(json.errors ? `Error ${status} when updating inventory list: ${json.errors}` : `Unknown error ${status} when updating inventory list`)
         }
       })
       .catch(err => {
@@ -195,6 +197,15 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Error updating inventory list ${listId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to update your inventory list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
         }
       })
   }, [token, inventoryLists])

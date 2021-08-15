@@ -88,7 +88,8 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
     const callbacks = {
       onSuccess: () => mountedRef.current && setIsComponentVisible(false),
       onNotFound: resetTitleDisplayErrorAndHideForm,
-      onUnprocessableEntity: resetTitleDisplayErrorAndHideForm
+      onUnprocessableEntity: resetTitleDisplayErrorAndHideForm,
+      onInternalServerError: resetTitleDisplayErrorAndHideForm
     }
 
     performInventoryListUpdate(listId, newTitle, callbacks)
