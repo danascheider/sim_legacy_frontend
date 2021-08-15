@@ -152,12 +152,12 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
           <span className={styles.editIcons} ref={iconsRef}>
-            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid='delete-inventory-list'>
+            <button className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid='delete-inventory-list'>
               <FontAwesomeIcon className={styles.fa} icon={faTimes} />
-            </div>
-            <div className={styles.icon} ref={triggerRef} data-testid='edit-inventory-list'>
+            </button>
+            <button className={styles.icon} ref={triggerRef} data-testid='edit-inventory-list'>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
-            </div>
+            </button>
           </span>}
           {canEdit && isComponentVisible ?
             <ListEditForm
@@ -173,6 +173,7 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
+            {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>This game has no inventory list items.</div>}
             {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes, unit_weight }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 

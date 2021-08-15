@@ -10,7 +10,8 @@
 .root:hover,
 .root:hover .trigger,
 .root:hover .form input,
-.root:hover .form button {
+.root:hover .form button,
+.root:hover .icon {
   background-color: var(--hover-color);
 }
 
@@ -38,6 +39,11 @@
 
 .icon {
   display: inline;
+  border: none;
+  padding: 0;
+  background-color: var(--scheme-color);
+  cursor: pointer;
+  color: var(--text-color-primary);
 }
 
 .icon:first-of-type {
@@ -69,9 +75,20 @@
   border: 1px solid var(--border-color);
 }
 
+.emptyList {
+  font-size: 1.025rem;
+  background-color: var(--scheme-color-lighter);
+  color: var(--text-color-secondary);
+  padding: 32px 24px;
+}
+
 @media (min-width: 769px) {
   .root {
     width: 80%;
+  }
+
+  .emptyList {
+    font-size: 1.125rem;
   }
 }
 
