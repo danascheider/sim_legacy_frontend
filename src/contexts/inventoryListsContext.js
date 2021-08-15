@@ -22,7 +22,8 @@ import PropTypes from 'prop-types'
 import {
   fetchInventoryLists,
   createInventoryList,
-  updateInventoryList
+  updateInventoryList,
+  destroyInventoryList
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -64,11 +65,12 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     if (token && !inventoryListsOverridden.current) {
       fetchInventoryLists(token, activeGameId)
         .then(({ status, json }) => {
+          if (!mountedRef.current) return
+
           if (status === 200) {
-            if (mountedRef.current) {
-              setInventoryLists(json)
-              !overrideValue.inventoryListLoadingState && setInventoryListLoadingState(DONE)
-            }
+            setInventoryLists(json)
+
+            !overrideValue.inventoryListLoadingState && setInventoryListLoadingState(DONE)
           } else {
             const message = json.errors ? `Error ${status} while fetching inventory lists: ${json.errors}` : `Unknown error ${status} while fetching inventory lists`
             throw new Error(message)
@@ -210,11 +212,75 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
+  const performInventoryListDestroy = useCallback((listId, callbacks) => {
+    const { onSuccess, onNotFound, onInternalServerError, onUnauthorized } = callbacks
+
+    destroyInventoryList(token, listId)
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 204) {
+          // This means that the list was the game's last inventory list and both
+          // it and the aggregate list have been destroyed.
+          setInventoryLists([])
+
+          setFlashAttributes({
+            type: 'success',
+            header: 'Success! Your inventory list has been deleted.',
+            message: 'Since it was your last list for this game, the "All Items" list has been deleted as well.'
+          })
+
+          onSuccess && onSuccess()
+        } else if (status === 200) {
+          // This means that the aggregate list has been updated and returned,
+          // to adjust for any items that were deleted with the other list.
+          const newInventoryLists = inventoryLists.filter(list => list.id !== listId)
+                                                  .map(list => list.aggregate === true ? json : list)
+          setInventoryLists(newInventoryLists)
+
+          setFlashAttributes({
+            type: 'success',
+            message: 'Your inventory list has been deleted.'
+          })
+
+          onSuccess && onSuccess()
+        } else {
+          const message = json.errors ? `Error ${status} when deleting inventory list ${listId}: ${json.errors}` : `Unknown error ${status} when deleting inventory list ${listId}`
+          throw new Error()
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list you wanted to delete. Sorry! Try refreshing the page to solve this issue."
+          })
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Error destroying inventory list ${listId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to delete your inventory list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
     performInventoryListCreate,
     performInventoryListUpdate,
+    performInventoryListDestroy,
     ...overrideValue
   }
 
@@ -252,7 +318,8 @@ InventoryListsProvider.propTypes = {
     })),
     inventoryListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
     performInventoryListCreate: PropTypes.func,
-    performInventoryListUpdate: PropTypes.func
+    performInventoryListUpdate: PropTypes.func,
+    performInventoryListDestroy: PropTypes.func
   })
 }
 

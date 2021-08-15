@@ -154,12 +154,12 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
         <div className={styles.trigger} ref={slideTriggerRef} onClick={toggleListItems}>
           {canEdit &&
           <span className={styles.editIcons} ref={iconsRef}>
-            <div className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid='delete-shopping-list'>
+            <button className={styles.icon} ref={deleteTriggerRef} onClick={deleteList} data-testid='delete-shopping-list'>
               <FontAwesomeIcon className={styles.fa} icon={faTimes} />
-            </div>
-            <div className={styles.icon} ref={triggerRef} data-testid='edit-shopping-list'>
+            </button>
+            <button className={styles.icon} ref={triggerRef} data-testid='edit-shopping-list'>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
-            </div>
+            </button>
           </span>}
           {canEdit && isComponentVisible ?
             <ListEditForm
@@ -175,7 +175,7 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>You have no shopping list items.</div>}
+            {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>This game has no shopping list items.</div>}
             {canEdit && <ShoppingListItemCreateForm listId={listId} />}
             {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes, unit_weight }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`

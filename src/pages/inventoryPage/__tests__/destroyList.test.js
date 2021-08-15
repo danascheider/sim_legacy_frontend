@@ -13,15 +13,15 @@ import { renderWithRouter } from '../../../setupTests'
 import { backendBaseUri } from '../../../utils/config'
 import { AppProvider } from '../../../contexts/appContext'
 import { GamesProvider } from '../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../sharedTestData'
-import ShoppingListsPage from './../shoppingListsPage'
+import { InventoryListsProvider } from '../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../sharedTestData'
+import InventoryPage from './../inventoryPage'
 
-describe('Destroying a shopping list', () => {
+describe('Destroying a inventory list', () => {
   let component
 
   const renderComponentWithMockCookies = (gameId = null, allGames = games) => {
-    const route = gameId ? `/dashboard/shopping_lists?game_id=${gameId}` : '/dashboard/shopping_lists'
+    const route = gameId ? `/dashboard/inventory?game_id=${gameId}` : '/dashboard/inventory'
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -30,9 +30,9 @@ describe('Destroying a shopping list', () => {
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games: allGames, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -41,9 +41,9 @@ describe('Destroying a shopping list', () => {
   }
 
   const sharedHandlers = [
-    rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+    rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
       const gameId = parseInt(req.params.gameId)
-      const lists = allShoppingLists.filter(list => list.game_id === gameId)
+      const lists = allInventoryLists.filter(list => list.game_id === gameId)
 
       return res(
         ctx.status(200),
@@ -55,9 +55,9 @@ describe('Destroying a shopping list', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
-  describe('when there is one regular list', () => {
+  describe('when there is only one regular list', () => {
     const handlers = [
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(204)
         )
@@ -80,7 +80,6 @@ describe('Destroying a shopping list', () => {
     })
 
     afterEach(() => confirm.mockRestore())
-
     afterAll(() => server.close())
 
     it('prompts the user and removes the list and aggregate list', async () => {
@@ -89,7 +88,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -103,18 +102,18 @@ describe('Destroying a shopping list', () => {
 
       // There should be a flash message indicating that the list and its aggregate list
       // have both been destroyed
-      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/inventory list has been deleted/i)).toBeVisible())
       expect(screen.queryByText(/"All Items" list has been deleted/i)).toBeVisible()
     })
   })
 
   describe('when there are multiple regular lists and no list items', () => {
     const handlers = [
-      rest.get(`${backendBaseUri}/games/:gameId/shopping_lists`, (req, res, ctx) => {
+      rest.get(`${backendBaseUri}/games/:gameId/inventory_lists`, (req, res, ctx) => {
         const lists = [
-          { ...allShoppingLists[0], list_items: [] },
-          { ...allShoppingLists[1], list_items: [] },
-          { ...allShoppingLists[2], list_items: [] }
+          { ...allInventoryLists[0], list_items: [] },
+          { ...allInventoryLists[1], list_items: [] },
+          { ...allInventoryLists[2], list_items: [] }
         ]
         
         return res(
@@ -122,10 +121,10 @@ describe('Destroying a shopping list', () => {
           ctx.json(lists)
         )
       }),
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(200),
-          ctx.json({ ...allShoppingLists[0], list_items: [] })
+          ctx.json({ ...allInventoryLists[0], list_items: [] })
         )
       })
     ]
@@ -154,7 +153,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -166,20 +165,20 @@ describe('Destroying a shopping list', () => {
       await waitFor(() => expect(listEl).not.toBeInTheDocument())
 
       // The aggregate list should still be visible on the page
-      await waitFor(() => expect(screen.queryByText(/all items/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText('All Items')).toBeVisible())
 
       // There should be a flash message indicating the list was deleted
-      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/inventory list has been deleted/i)).toBeVisible())
     })
   })
 
   describe('when there are multiple regular lists with list items', () => {
     const handlers = [
-      rest.delete(`${backendBaseUri}/shopping_lists/${allShoppingLists[1].id}`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_lists/${allInventoryLists[1].id}`, (req, res, ctx) => {
         const newListItems = [
           {
-            id: allShoppingLists[0].list_items[0].id,
-            list_id: allShoppingLists[0].id,
+            id: allInventoryLists[0].list_items[0].id,
+            list_id: allInventoryLists[0].id,
             description: 'Ebony sword',
             quantity: 1,
             notes: 'notes 2'
@@ -188,7 +187,7 @@ describe('Destroying a shopping list', () => {
 
         return res(
           ctx.status(200),
-          ctx.json({ ...allShoppingLists[0], list_items: newListItems })
+          ctx.json({ ...allInventoryLists[0], list_items: newListItems })
         )
       }),
       ...sharedHandlers
@@ -224,7 +223,7 @@ describe('Destroying a shopping list', () => {
       const allItemsEl = allItemsTitle.closest('.root')
 
       // Get the destroy icon for the regular list and click it
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -238,7 +237,7 @@ describe('Destroying a shopping list', () => {
       expect(allItemsEl).toBeVisible()
 
       // There should be a flash message indicating the list was deleted
-      await waitFor(() => expect(screen.queryByText(/shopping list has been deleted/i)).toBeVisible())
+      await waitFor(() => expect(screen.queryByText(/inventory list has been deleted/i)).toBeVisible())
 
       // Expand the aggregate list so its list items are visible
       fireEvent.click(allItemsTitle)
@@ -255,7 +254,7 @@ describe('Destroying a shopping list', () => {
 
   describe('when the server returns a 404 error', () => {
     const handlers = [
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
@@ -278,7 +277,6 @@ describe('Destroying a shopping list', () => {
     })
 
     afterEach(() => confirm.mockRestore())
-
     afterAll(() => server.close())
 
     it("doesn't remove the list and displays an error message", async () => {
@@ -287,7 +285,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -305,7 +303,7 @@ describe('Destroying a shopping list', () => {
 
   describe('when the server returns a 500 error', () => {
     const handlers = [
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(500),
           ctx.json({ errors: ['Something went horribly wrong'] })
@@ -340,7 +338,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -358,7 +356,7 @@ describe('Destroying a shopping list', () => {
 
   describe('when the server indicates the user has been logged out', () => {
     const handlers = [
-      rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({ errors: ['Google OAuth token validation failed'] })
@@ -393,7 +391,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -406,7 +404,7 @@ describe('Destroying a shopping list', () => {
     })
   })
 
-  describe('cancelling deletion of a shopping list', () => {
+  describe('cancelling deletion of an inventory list', () => {
     let confirm
     
     const server = setupServer.apply(null, sharedHandlers)
@@ -419,7 +417,6 @@ describe('Destroying a shopping list', () => {
     })
 
     afterEach(() => confirm.mockRestore())
-
     afterAll(() => server.close())
     
     it("doesn't remove the list and displays a message", async () => {
@@ -428,7 +425,7 @@ describe('Destroying a shopping list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon =within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon =within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 

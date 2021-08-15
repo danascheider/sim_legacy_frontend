@@ -4,7 +4,15 @@ import { backendBaseUri } from '../../utils/config'
 import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import { InventoryListsProvider } from '../../contexts/inventoryListsContext'
+import { inventoryListUpdateData } from './storyData'
 import { token, games, emptyGames, allInventoryLists, profileData } from '../../sharedTestData'
+import {
+  removeOrAdjustItemsOnListDestroy,
+  removeOrAdjustItemOnItemDestroy,
+  findListByListItem,
+  findAggregateList,
+  adjustListItem
+} from '../../sharedTestUtilities'
 import InventoryPageContent from './inventoryPageContent'
 
 export default { title: 'InventoryPageContent' }
@@ -24,6 +32,43 @@ export const HappyPath = () => (
     </GamesProvider>
   </AppProvider>
 )
+
+HappyPath.parameters = {
+  msw: [
+    rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
+      const listId = parseInt(req.params.id)
+      const returnData = inventoryListUpdateData
+      returnData.title = req.body.inventory_list.title
+      returnData.id = listId
+
+      return res(
+        ctx.status(200),
+        ctx.json(returnData)
+      )
+    }),
+    // This will blow up if you try to delete both list items because it doesn't
+    // account for the fact that the aggregate list would be removed too in that
+    // case.
+    rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
+      const listId = parseInt(req.params.id)
+      const regularList = allInventoryLists.find(list => list.id === listId)
+      const items = regularList.list_items
+      
+      const newAggregateList = removeOrAdjustItemsOnListDestroy(allInventoryLists[0], items)
+
+      if (newAggregateList === null) {
+        return res(
+          ctx.status(204)
+          )
+        } else {
+        return res(
+          ctx.status(200),
+          ctx.json(newAggregateList)
+        )
+      }
+    })
+  ]
+}
 
 /*
  *
@@ -133,7 +178,7 @@ ErrorState.parameters = {
 export const Loading = () => (
   <AppProvider overrideValue={{ profileData, token }}>
     <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
-      <InventoryListsProvider overrideValue={{ shoppingListLoadingState: 'loading' }}>
+      <InventoryListsProvider overrideValue={{ inventoryListLoadingState: 'loading' }}>
         <InventoryPageContent />
       </InventoryListsProvider>
     </GamesProvider>

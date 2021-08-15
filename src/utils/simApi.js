@@ -326,3 +326,22 @@ export const updateInventoryList = (token, listId, attrs) => {
       })
   )
 }
+
+// DELETE /inventory_lists/:id
+export const destroyInventoryList = (token, listId) => {
+  const uri = `${backendBaseUri}/inventory_lists/${listId}`
+
+  return(
+    fetch(uri, { method: 'DELETE', headers: authHeader(token) })
+      .then(resp => {
+        if (resp.status === 401) throw new AuthorizationError()
+        if (resp.status === 404) throw new NotFoundError()
+
+        if (resp.status === 204) {
+          return { status: resp.status, json: null }
+        } else {
+          return resp.json().then(json => ({ status: resp.status, json }))
+        }
+      })
+  )
+}
