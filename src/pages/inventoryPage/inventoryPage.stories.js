@@ -318,7 +318,7 @@ GameNotFoundOnCreate.parameters = {
     }),
     rest.delete(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
       return res(
-        ctx.status(400)
+        ctx.status(404)
       )
     })
   ]
