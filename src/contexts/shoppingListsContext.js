@@ -290,7 +290,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
 
           onSuccess && onSuccess()
         } else {
-          const message = json.errors ? `Error ${status} when deleting shopping list: ${json.errors}` : `Unknown error ${status} when deleting shopping list`
+          const message = json.errors ? `Error ${status} when deleting shopping list: ${json.errors}` : `Unknown error ${status} when deleting shopping list ${listId}`
           throw new Error(message)
         }
       })

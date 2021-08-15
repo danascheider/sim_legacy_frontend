@@ -244,11 +244,33 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onSuccess && onSuccess()
+        } else {
+          const message = json.errors ? `Error ${status} when deleting inventory list ${listId}: ${json.errors}` : `Unknown error ${status} when deleting inventory list ${listId}`
+          throw new Error()
         }
       })
       .catch(err => {
-        if (err.code === 404) {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list you wanted to delete. Sorry! Try refreshing the page to solve this issue."
+          })
 
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Error destroying inventory list ${listId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to delete your inventory list. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
         }
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])

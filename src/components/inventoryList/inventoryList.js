@@ -26,7 +26,7 @@ const isValid = str => (
 const InventoryList = ({ canEdit = true, listId, title }) => {
   const DELETE_CONFIRMATION = `Are you sure you want to delete the list "${title}"? You will also lose any list items on the list. This action cannot be undone.`
 
-  const { setFlashVisible } = useAppContext()
+  const { setFlashAttributes, setFlashVisible } = useAppContext()
   const {
     inventoryLists,
     performInventoryListUpdate,
@@ -115,7 +115,16 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
         mountedRef.current = false
       }
 
-      performInventoryListDestroy(listId, { onSuccess })
+      const onError = setFlashVisible(true)
+
+      performInventoryListDestroy(listId, { onSuccess, onNotFound: onError, onInternalServerError: onError })
+    } else {
+      setFlashAttributes({
+        type: 'info',
+        message: 'Your list was not deleted.'
+      })
+
+      setFlashVisible(true)
     }
   }
 

@@ -278,7 +278,6 @@ describe('Destroying a inventory list', () => {
     })
 
     afterEach(() => confirm.mockRestore())
-
     afterAll(() => server.close())
 
     it("doesn't remove the list and displays an error message", async () => {
@@ -287,7 +286,7 @@ describe('Destroying a inventory list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -340,7 +339,7 @@ describe('Destroying a inventory list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -393,7 +392,7 @@ describe('Destroying a inventory list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon = within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon = within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
@@ -406,7 +405,7 @@ describe('Destroying a inventory list', () => {
     })
   })
 
-  describe('cancelling deletion of a shopping list', () => {
+  describe('cancelling deletion of an inventory list', () => {
     let confirm
     
     const server = setupServer.apply(null, sharedHandlers)
@@ -419,7 +418,6 @@ describe('Destroying a inventory list', () => {
     })
 
     afterEach(() => confirm.mockRestore())
-
     afterAll(() => server.close())
     
     it("doesn't remove the list and displays a message", async () => {
@@ -428,7 +426,7 @@ describe('Destroying a inventory list', () => {
       // Find the list on the page and locate its destroy icon
       const listTitle = await screen.findByText('Lakeview Manor')
       const listEl = listTitle.closest('.root')
-      const deleteIcon =within(listEl).getByTestId('delete-shopping-list')
+      const deleteIcon =within(listEl).getByTestId('delete-inventory-list')
 
       fireEvent.click(deleteIcon)
 
