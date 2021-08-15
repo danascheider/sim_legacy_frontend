@@ -26,6 +26,7 @@ const ListEditForm = ({ formRef, maxTotalWidth, className, title, onSubmit }) =>
   const [maxTextWidth, setMaxTextWidth] = useState(null)
   const [inputWidth, setInputWidth] = useState(`${getInputTextWidth(title)}px`)
 
+  const mountedRef = useRef(true)
   const inputRef = useRef(null)
   const buttonRef = useRef(null)
 
@@ -39,6 +40,8 @@ const ListEditForm = ({ formRef, maxTotalWidth, className, title, onSubmit }) =>
   }
 
   const updateInputWidth = (e) => {
+    if (!mountedRef.current) return
+
     const newValue = e.currentTarget.value
     setInputValue(newValue)
     setInputWidth(`${getInputTextWidth(newValue)}px`)
@@ -46,9 +49,13 @@ const ListEditForm = ({ formRef, maxTotalWidth, className, title, onSubmit }) =>
 
   useEffect(() => {
     inputRef.current.focus()
-  })
+
+    return () => mountedRef.current = false
+  }, [])
 
   useEffect(() => {
+    if (!mountedRef.current) return
+
     if (!buttonRef.current) return setMaxTextWidth(maxTotalWidth)
 
     setMaxTextWidth(maxTotalWidth - buttonRef.current.offsetWidth)

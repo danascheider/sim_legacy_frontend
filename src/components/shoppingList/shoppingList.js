@@ -49,8 +49,6 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
     performShoppingListDestroy,
   } = useShoppingListsContext()
 
-  const originalTitle = title // to switch back in case of API error on update
-
   const slideTriggerRefContains = element => slideTriggerRef.current && (slideTriggerRef.current === element || slideTriggerRef.current.contains(element))
   const triggerRefContains = element => triggerRef.current && (triggerRef.current === element || triggerRef.current.contains(element))
   const deleteTriggerRefContains = element => deleteTriggerRef.current && (deleteTriggerRef.current === element || deleteTriggerRef.current.contains(element))
@@ -94,7 +92,7 @@ const ShoppingList = ({ canEdit = true, listId, title }) => {
     if (!newTitle || isValid(newTitle)) setCurrentTitle(titlecase(newTitle))
 
     const resetTitleAndDisplayError = () => {
-      setCurrentTitle(originalTitle)
+      setCurrentTitle(title)
       setFlashVisible(true)
     }
 

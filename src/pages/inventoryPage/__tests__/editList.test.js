@@ -55,14 +55,14 @@ describe('Editing a inventory list', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component && component.unmount())
 
-  fdescribe('showing and hiding the form', () => {
+  describe('showing and hiding the form', () => {
     const server = setupServer.apply(null, sharedHandlers)
 
     beforeAll(() => server.listen())
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    fit('displays without toggling the list items when you click the edit icon', async () => {
+    it('displays without toggling the list items when you click the edit icon', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
       // Find the inventory list we'll edit
@@ -86,13 +86,13 @@ describe('Editing a inventory list', () => {
     it('hides the form again when you click outside', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -109,16 +109,16 @@ describe('Editing a inventory list', () => {
 
   describe('when all goes as planned', () => {
     const handlers = [
-      rest.patch(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_lists/:id`, (req, res, ctx) => {
         const listId = parseInt(req.params.id)
-        const list = allShoppingLists.find(l => l.id === listId)
-        const title = req.body.shopping_list.title
+        const list = allInventoryLists.find(l => l.id === listId)
+        const title = req.body.inventory_list.title
 
         const respBody = { ...list, title }
 
         return res(
           ctx.status(200),
-          ctx.json({ ...list, title })
+          ctx.json(respBody)
         )
       }),
       ...sharedHandlers
@@ -130,16 +130,16 @@ describe('Editing a inventory list', () => {
     beforeEach(() => server.resetHandlers())
     afterAll(() => server.close())
 
-    it('edits the shopping list and hides the form', async () => {
+    it('edits the inventory list and hides the form', async () => {
       component = renderComponentWithMockCookies(games[0].id)
 
-      // Find the shopping list we'll edit
-      const list = allShoppingLists.filter(list => list.game_id === games[0].id)[1]
+      // Find the inventory list we'll edit
+      const list = allInventoryLists.filter(list => list.game_id === games[0].id)[1]
 
-      // Find the shopping list component for this list and click its edit icon
+      // Find the inventory list component for this list and click its edit icon
       const listTitleEl = await screen.findByText(list.title)
       const listEl = listTitleEl.closest('.root')
-      const editIcon = within(listEl).getByTestId('edit-shopping-list')
+      const editIcon = within(listEl).getByTestId('edit-inventory-list')
 
       fireEvent.click(editIcon)
 
@@ -153,7 +153,12 @@ describe('Editing a inventory list', () => {
 
       // The input should be hidden and the new title should be visible
       await waitFor(() => expect(input).not.toBeInTheDocument())
-      expect(listEl).toHaveTextContent(/Honeyside/)
+
+      // For some reason in the shopping list edit test I'm able to just
+      // say expect(listTitleEl).toHaveTextContent('Honeyside') but in
+      // this test the new title is a new h3 element.
+      expect(listTitleEl).not.toBeInTheDocument()
+      expect(screen.getByText('Honeyside')).toBeVisible()
     })
   })
 

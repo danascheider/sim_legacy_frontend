@@ -23,13 +23,15 @@ const isValid = str => (
 )
 
 const InventoryList = ({ canEdit = true, listId, title }) => {
-  const { inventoryLists } = useInventoryListsContext()
+  const { setFlashVisible } = useAppContext()
+  const { inventoryLists, performInventoryListUpdate } = useInventoryListsContext()
 
   const [toggleEvent, setToggleEvent] = useState(0)
   const [currentTitle, setCurrentTitle] = useState(title)
   const [maxEditFormWidth, setMaxEditFormWidth] = useState(null)
   const [listItems, setListItems] = useState([])
 
+  const mountedRef = useRef(true)
   const slideTriggerRef = useRef(null)
   const iconsRef = useRef(null)
 
@@ -68,10 +70,22 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
 
   const submitAndHideForm = e => {
     e.preventDefault()
+
+    setFlashVisible(false)
+
+    const newTitle = e.target.elements.title.value
+
+    if (!newTitle || isValid(newTitle)) setCurrentTitle(titlecase(newTitle))
+
+    const callbacks = {
+      onSuccess: () => mountedRef.current && setIsComponentVisible(false)
+    }
+
+    performInventoryListUpdate(listId, newTitle, callbacks)
   }
 
   useEffect(() => {
-    if (!inventoryLists) return // it'll run again when they populate
+    if (!inventoryLists || !mountedRef.current) return // it'll run again when they populate
 
     const items = inventoryLists.find(obj => obj.id === listId).list_items
 
@@ -79,10 +93,14 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
   }, [inventoryLists, listId])
 
   useEffect(() => {
-    if (!size || !iconsRef.current) return
+    if (!size || !iconsRef.current || !mountedRef.current) return
 
     setMaxEditFormWidth(size.width - iconsRef.current.offsetWidth - 16)
   }, [size])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
 
   return(
     <div className={styles.root} style={styleVars}>
@@ -94,7 +112,15 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
             </div>
           </span>}
-          <h3 className={styles.title}>{title}</h3>
+          {canEdit && isComponentVisible ?
+            <ListEditForm
+              formRef={componentRef}
+              maxTotalWidth={maxEditFormWidth}
+              className={styles.form}
+              title={title}
+              onSubmit={submitAndHideForm}
+            /> :
+            <h3 className={styles.title}>{currentTitle}</h3>}
         </div>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
@@ -112,6 +138,7 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
                   quantity={quantity}
                   notes={notes}
                   unitWeight={unit_weight}
+                  canEdit={canEdit}
                 />
               )
             })}

@@ -118,7 +118,7 @@ describe('Editing a shopping list', () => {
 
         return res(
           ctx.status(200),
-          ctx.json({ ...list, title })
+          ctx.json(respBody)
         )
       }),
       ...sharedHandlers

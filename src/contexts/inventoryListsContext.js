@@ -21,7 +21,8 @@ import {
 import PropTypes from 'prop-types'
 import {
   fetchInventoryLists,
-  createInventoryList
+  createInventoryList,
+  updateInventoryList
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -160,10 +161,26 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, activeGameId, setFlashAttributes, inventoryLists, logOutAndRedirect])
 
+  const performInventoryListUpdate = useCallback((listId, title, callbacks = {}) => {
+    const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
+
+    updateInventoryList(token, listId, { title })
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 200) {
+          const newInventoryLists = inventoryLists.map(list => list.id === listId ? json : list)
+          setInventoryLists(newInventoryLists)
+          onSuccess && onSuccess()
+        }
+      })
+  }, [token, inventoryLists])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
     performInventoryListCreate,
+    performInventoryListUpdate,
     ...overrideValue
   }
 
@@ -200,7 +217,8 @@ InventoryListsProvider.propTypes = {
       })).isRequired
     })),
     inventoryListLoadingState: PropTypes.oneOf([LOADING, DONE, ERROR]),
-    performInventoryListCreate: PropTypes.func
+    performInventoryListCreate: PropTypes.func,
+    performInventoryListUpdate: PropTypes.func
   })
 }
 

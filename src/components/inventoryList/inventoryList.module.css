@@ -8,7 +8,9 @@
 }
 
 .root:hover,
-.root:hover .trigger {
+.root:hover .trigger,
+.root:hover .form input,
+.root:hover .form button {
   background-color: var(--hover-color);
 }
 
@@ -40,6 +42,13 @@
 
 .editIcons {
   margin: auto 0;
+}
+
+.form {
+  margin-block-start: 7px;
+  margin-block-end: 7px;
+  margin-left: 16px;
+  max-width: var(--max-title-width);
 }
 
 .fa {
