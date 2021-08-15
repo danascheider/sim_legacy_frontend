@@ -47,6 +47,7 @@ describe('Creating a shopping list item - happy path', () => {
         const listId = parseInt(req.params.listId)
         const description = req.body.shopping_list_item.description
         const quantity = req.body.shopping_list_item.quantity
+        const unit_weight = req.body.shopping_list_item.unit_weight
         const notes = req.body.shopping_list_item.notes
 
         const json = [
@@ -55,6 +56,7 @@ describe('Creating a shopping list item - happy path', () => {
             list_id: allShoppingLists[0].id,
             description,
             quantity,
+            unit_weight,
             notes
           },
           {
@@ -62,6 +64,7 @@ describe('Creating a shopping list item - happy path', () => {
             list_id: listId,
             description,
             quantity,
+            unit_weight,
             notes
           }
         ]
@@ -93,6 +96,7 @@ describe('Creating a shopping list item - happy path', () => {
 
       const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
       const quantityInput = within(listEl).getByDisplayValue('1')
+      const unitWeightInput = within(listEl).getByPlaceholderText('Unit Weight')
       const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
       const form = descriptionInput.closest('form')
@@ -100,6 +104,7 @@ describe('Creating a shopping list item - happy path', () => {
       // Fill out and submit the form
       fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingots' } })
       fireEvent.change(quantityInput, { target: { value: '10' } })
+      fireEvent.change(unitWeightInput, { target: { value: '1' } })
       fireEvent.change(notesInput, { target: { value: 'To make bolts with' } })
 
       fireEvent.submit(form)
@@ -117,6 +122,7 @@ describe('Creating a shopping list item - happy path', () => {
 
       await waitFor(() => expect(within(itemElOnRegList).queryByText('10')).toBeVisible())
       expect(within(itemElOnRegList).getByText('To make bolts with')).toBeVisible()
+      expect(within(itemElOnRegList).getByText('1')).toBeVisible()
 
       // The item should be added to the all items list - expand the list to see
       const allItemsTitle = await screen.findByText(/all items/i)
