@@ -208,7 +208,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           onInternalServerError && onInternalServerError()
         }
       })
-  }, [token, inventoryLists])
+  }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
   const value = {
     inventoryLists,
