@@ -11,9 +11,11 @@ import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListIt
 import styles from './shoppingListItem.module.css'
 
 const formatWeight = weight => {
-  if (!weight) return '-'
+  if (weight === undefined || weight === null || weight === '') return '-'
 
-  return weight % 1 === 0 ? weight.toFixed(0) : weight.toFixed(1)
+  const weightNum = Number(weight)
+
+  return weightNum % 1 === 0 ? weightNum.toFixed(0) : weightNum.toFixed(1)
 }
 
 const ShoppingListItem = ({
@@ -245,7 +247,7 @@ ShoppingListItem.propTypes = {
   canEdit: PropTypes.bool.isRequired,
   description: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
-  unitWeight: PropTypes.number,
+  unitWeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   notes: PropTypes.string
 }
 

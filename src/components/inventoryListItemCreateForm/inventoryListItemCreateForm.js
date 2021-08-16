@@ -2,14 +2,14 @@ import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
-import { useAppContext, useColorScheme, useShoppingListsContext } from '../../hooks/contexts'
-import styles from './shoppingListItemCreateForm.module.css'
+import { useAppContext, useColorScheme, useInventoryListsContext } from '../../hooks/contexts'
+import styles from './inventoryListItemCreateForm.module.css'
 
-const ShoppingListItemCreateForm = ({ listId }) => {
+const InventoryListItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [collapsed, setCollapsed] = useState(true)
   const { setFlashVisible } = useAppContext()
-  const { performShoppingListItemCreate } = useShoppingListsContext()
+  const { performInventoryListItemCreate } = useInventoryListsContext()
   const {
     schemeColorDark,
     hoverColorLight,
@@ -35,7 +35,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
     setCollapsed(!collapsed)
   }
 
-  const createShoppingListItem = e => {
+  const createInventoryListItem = e => {
     e.preventDefault()
 
     setFlashVisible(false)
@@ -61,7 +61,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
       onInternalServerError: resetToggleAndDisplayFlash
     }
 
-    performShoppingListItemCreate(listId, attrs, callbacks)
+    performInventoryListItemCreate(listId, attrs, callbacks)
   }
 
   return(
@@ -74,7 +74,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            <form className={styles.form} ref={formRef} onSubmit={createShoppingListItem}>
+            <form className={styles.form} ref={formRef} onSubmit={createInventoryListItem}>
               <fieldset className={styles.fieldset}>
                 <label className={styles.label}>Description</label>
                 <input className={styles.input} type='text' name='description' placeholder='Description' required />
@@ -87,7 +87,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
 
               <fieldset className={styles.fieldset}>
                 <label className={styles.label}>Unit Weight</label>
-                <input className={styles.input} type='number'inputMode='numeric' name='unitWeight' min={0} step={0.1} placeholder='Unit Weight' />
+                <input className={styles.input} type='number' inputMode='numeric' min={0} step={0.1} name='unitWeight' placeholder='Unit Weight' />
               </fieldset>
 
               <fieldset className={styles.fieldset}>
@@ -104,8 +104,8 @@ const ShoppingListItemCreateForm = ({ listId }) => {
   )
 }
 
-ShoppingListItemCreateForm.propTypes = {
+InventoryListItemCreateForm.propTypes = {
   listId: PropTypes.number.isRequired
 }
 
-export default ShoppingListItemCreateForm
+export default InventoryListItemCreateForm

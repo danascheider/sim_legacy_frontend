@@ -10,6 +10,7 @@ import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
 import ListEditForm from '../listEditForm/listEditForm'
 import InventoryListItem from '../inventoryListItem/inventoryListItem'
+import InventoryListItemCreateForm from '../inventoryListItemCreateForm/inventoryListItemCreateForm'
 import styles from './inventoryList.module.css'
 
 const isValid = str => (
@@ -174,6 +175,7 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
             {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>This game has no inventory list items.</div>}
+            {canEdit && <InventoryListItemCreateForm listId={listId} />}
             {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes, unit_weight }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 

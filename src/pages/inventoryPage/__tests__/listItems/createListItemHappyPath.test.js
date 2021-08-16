@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { waitFor, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react'
+import { waitFor, screen, fireEvent } from '@testing-library/react'
 import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
@@ -9,17 +9,17 @@ import { renderWithRouter } from '../../../../setupTests'
 import { backendBaseUri } from '../../../../utils/config'
 import { AppProvider } from '../../../../contexts/appContext'
 import { GamesProvider } from '../../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
-import ShoppingListsPage from './../../shoppingListsPage'
+import { InventoryListsProvider } from '../../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
+import InventoryPage from './../../inventoryPage'
 
-describe('Creating a shopping list item - happy path', () => {
+describe('Creating a inventory list item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
-    const route = `/dashboard/shopping_lists?game_id=${games[0].id}`
+    const route = `/dashboard/inventory?game_id=${games[0].id}`
 
-    const shoppingLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+    const inventoryLists = allInventoryLists.filter(list => list.game_id === games[0].id)
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -28,9 +28,9 @@ describe('Creating a shopping list item - happy path', () => {
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'done' }}>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done' }}>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -41,19 +41,19 @@ describe('Creating a shopping list item - happy path', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component.unmount())
 
-  describe('when there is no matching item on any shopping list', () => {
+  describe('when there is no matching item on any inventory list', () => {
     const server = setupServer(
-      rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
         const listId = parseInt(req.params.listId)
-        const description = req.body.shopping_list_item.description
-        const quantity = req.body.shopping_list_item.quantity
-        const unit_weight = req.body.shopping_list_item.unit_weight
-        const notes = req.body.shopping_list_item.notes
+        const description = req.body.inventory_list_item.description
+        const quantity = req.body.inventory_list_item.quantity
+        const unit_weight = req.body.inventory_list_item.unit_weight
+        const notes = req.body.inventory_list_item.notes
 
         const json = [
           {
             id: 856,
-            list_id: allShoppingLists[0].id,
+            list_id: allInventoryLists[0].id,
             description,
             quantity,
             unit_weight,
@@ -96,16 +96,16 @@ describe('Creating a shopping list item - happy path', () => {
 
       const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
       const quantityInput = within(listEl).getByDisplayValue('1')
-      const unitWeightInput = within(listEl).getByPlaceholderText('Unit Weight')
       const notesInput = within(listEl).getByPlaceholderText(/notes/i)
+      const unitWeightInput = within(listEl).getByPlaceholderText(/unit weight/i)
 
       const form = descriptionInput.closest('form')
 
       // Fill out and submit the form
       fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingots' } })
       fireEvent.change(quantityInput, { target: { value: '10' } })
-      fireEvent.change(unitWeightInput, { target: { value: '1' } })
       fireEvent.change(notesInput, { target: { value: 'To make bolts with' } })
+      fireEvent.change(unitWeightInput, { target: { value: '1' } })
 
       fireEvent.submit(form)
 
@@ -140,6 +140,7 @@ describe('Creating a shopping list item - happy path', () => {
 
       await waitFor(() => expect(within(itemElOnAggList).queryByText('10')).toBeVisible())
       expect(itemElOnAggList).toHaveTextContent(/To make bolts with/)
+      expect(within(itemElOnAggList).getByText('1')).toBeVisible()
 
       // There should be a flash message visible
       await waitFor(() => expect(screen.queryByText(/has been created/i)).toBeVisible())
@@ -148,25 +149,28 @@ describe('Creating a shopping list item - happy path', () => {
 
   describe('when there is a matching item on another list', () => {
     const server = setupServer(
-      rest.post(`${backendBaseUri}/shopping_lists/${allShoppingLists[2].id}/shopping_list_items`, (req, res, ctx) => {
-        const listId = allShoppingLists[2].id
-        const description = req.body.shopping_list_item.description
-        const quantity = req.body.shopping_list_item.quantity
-        const notes = req.body.shopping_list_item.notes
+      rest.post(`${backendBaseUri}/inventory_lists/${allInventoryLists[2].id}/inventory_list_items`, (req, res, ctx) => {
+        const listId = allInventoryLists[2].id
+        const description = req.body.inventory_list_item.description
+        const quantity = req.body.inventory_list_item.quantity
+        const unit_weight = Number(req.body.inventory_list_item.unit_weight)
+        const notes = req.body.inventory_list_item.notes
 
-        const allItemsListItem = allShoppingLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+        const allItemsListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
 
         const json = [
           {
             ...allItemsListItem,
             quantity: allItemsListItem.quantity + quantity,
-            notes: notes // just because in the existing matching item for this test the notes are null
+            unit_weight,
+            notes // just because in the existing matching item for this test the notes are null
           },
           {
             id: 855,
             list_id: listId,
             description,
             quantity,
+            unit_weight,
             notes
           }
         ]
@@ -198,19 +202,21 @@ describe('Creating a shopping list item - happy path', () => {
 
       const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
       const quantityInput = within(listEl).getByDisplayValue('1')
+      const unitWeightInput = within(listEl).getByPlaceholderText('Unit Weight')
       const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
       const form = descriptionInput.closest('form')
 
       // Fill out and submit the form
-      fireEvent.change(descriptionInput, { target: { value: 'Ingredients with "Frenzy" property' } })
+      fireEvent.change(descriptionInput, { target: { value: 'Nirnroot' } })
       fireEvent.change(quantityInput, { target: { value: '5' } })
-      fireEvent.change(notesInput, { target: { value: 'To make poison with' } })
+      fireEvent.change(unitWeightInput, { target: { value: '1' } })
+      fireEvent.change(notesInput, { target: { value: 'To make invisibility potions' } })
 
       fireEvent.submit(form)
 
       // Item should be added to the list
-      const itemTitle = await within(listEl).findByText('Ingredients with "Frenzy" property')
+      const itemTitle = await within(listEl).findByText('Nirnroot')
       const itemElOnRegList = itemTitle.closest('.root')
       expect(itemTitle).toBeVisible()
 
@@ -221,7 +227,8 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(itemTitle)
 
       await waitFor(() => expect(within(itemElOnRegList).queryByText('5')).toBeVisible())
-      expect(itemElOnRegList).toHaveTextContent(/To make poison with/)
+      expect(itemElOnRegList).toHaveTextContent(/To make invisibility potions/)
+      expect(within(itemElOnRegList).queryByText('1')).toBeVisible()
 
       // The item should be updated on the all items list but should not appear
       // on the list twice.
@@ -230,7 +237,7 @@ describe('Creating a shopping list item - happy path', () => {
 
       fireEvent.click(allItemsTitle)
 
-      const item = await within(allItemsEl).findByText('Ingredients with "Frenzy" property')
+      const item = await within(allItemsEl).findByText('Nirnroot')
       const itemEl = item.closest('.root')
 
       expect(item).toBeVisible()
@@ -238,20 +245,21 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.click(item)
 
       await waitFor(() => expect(within(itemEl).queryByText('9')).toBeVisible())
-      expect(itemEl).toHaveTextContent(/To make poison with/)
+      expect(itemEl).toHaveTextContent(/To make invisibility potions/)
+      expect(within(itemEl).queryByText('1')).toBeVisible()
     })
   })
 
   describe('when there is a matching item on the same list', () => {
     const server = setupServer(
-      rest.post(`${backendBaseUri}/shopping_lists/${allShoppingLists[1].id}/shopping_list_items`, (req, res, ctx) => {
-        const listId = allShoppingLists[1].id
-        const description = req.body.shopping_list_item.description
-        const quantity = req.body.shopping_list_item.quantity
-        const notes = req.body.shopping_list_item.notes
+      rest.post(`${backendBaseUri}/inventory_lists/${allInventoryLists[1].id}/inventory_list_items`, (req, res, ctx) => {
+        const listId = allInventoryLists[1].id
+        const description = req.body.inventory_list_item.description
+        const quantity = req.body.inventory_list_item.quantity
+        const notes = req.body.inventory_list_item.notes
 
-        const regularListItem = allShoppingLists[1].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
-        const allItemsListItem = allShoppingLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+        const regularListItem = allInventoryLists[1].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
+        const allItemsListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
 
         const json = [
           {

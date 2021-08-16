@@ -84,7 +84,9 @@ export const Editable = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
     <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
       <ColorProvider colorScheme={AQUA}>
-        <InventoryListsProvider overrideValue={{ inventoryLists, performInventoryListDestroy: () => {} }}>
+        <InventoryListsProvider
+          overrideValue={{ inventoryLists, performInventoryListDestroy: () => {}, performInventoryListItemCreate: () => {} }}
+        >
           <InventoryList
             listId={2}
             title='My List 1'
@@ -161,7 +163,9 @@ export const EmptyList = () => (
   <AppProvider overrideValue={{ token, setShouldRedirectTo: () => null }}>
     <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
       <ColorProvider colorScheme={AQUA}>
-        <InventoryListsProvider overrideValue={{ inventoryLists: emptyInventoryLists, performInventoryListDestroy: () => {} }}>
+        <InventoryListsProvider
+          overrideValue={{ inventoryLists: emptyInventoryLists, performInventoryListDestroy: () => {}, performInventoryListItemCreate: () => {} }}
+        >
           <InventoryList
             listId={2}
             title='My List 2'

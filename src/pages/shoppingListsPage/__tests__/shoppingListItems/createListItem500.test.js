@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { waitFor, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react'
+import { waitFor, screen, fireEvent } from '@testing-library/react'
 import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
@@ -13,7 +13,7 @@ import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext
 import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
 import ShoppingListsPage from './../../shoppingListsPage'
 
-describe('Creating a shopping list item when the server returns a 404', () => {
+describe('Creating a shopping list item when the server returns a 500', () => {
   let component
 
   const renderComponentWithMockCookies = () => {

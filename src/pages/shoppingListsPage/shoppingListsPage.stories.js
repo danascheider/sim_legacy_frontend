@@ -487,6 +487,16 @@ GameNotFoundOnCreate.parameters = {
       return res(
         ctx.status(404)
       )
+    }),
+    rest.delete(`${backendBaseUri}/shopping_lists/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
     })
   ]
 }
