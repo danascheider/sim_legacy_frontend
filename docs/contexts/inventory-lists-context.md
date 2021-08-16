@@ -51,6 +51,25 @@ The `callbacks` object can contain the following callbacks:
 * `onUnauthorized`: called when the request returns a 401 response
 * `onInternalServerError`: called when the server returns a 500-range response or there is an unexpected error while handling the response
 
+### `performInventoryListItemCreate`
+
+A function that takes a `listId`, list item `attrs`, and a `callbacks` object and creates an inventory list item with that title on the list indicated, calling the appropriate callback when the request has completed.
+
+Valid `attrs` include the following:
+
+* `description` (string, required)
+* `quantity` (integer greater than 0, required)
+* `unit_weight` (number with up to one decimal place, can be null)
+* `notes` (string)
+
+The `callbacks` object can contain the following callbacks:
+
+* `onSuccess`: called after a 200-range response has been handled successfully
+* `onNotFound`: called when the list the user wants to add the item to is not found or does not belong to the authenticated user
+* `onUnauthorized`: called when the request returns a 401 response
+* `onUnprocessableEntity`: called when the attributes the user submits are invalid or not unique
+* `onInternalServerError`: called when the server returns a 500-range response or there is an unexpected error while handling the response
+
 ## Testing Components in Storybook
 
 The `InventoryListsContext` is a little easier to work with in Storybook than the `AppContext`. While it still has an `overrideValues` prop, it isn't needed quite as much to make the basics work and you should only need it to, for example, set the loading state to 'loading' if a story needs to display that state. The rest of the testing can mostly be handled by mocking the API calls the provider makes using `msw`. Remember that the `InventoryListsProvider` component needs to be wrapped in a `AppProvider` and a `GamesProvider`, which will require override values.
