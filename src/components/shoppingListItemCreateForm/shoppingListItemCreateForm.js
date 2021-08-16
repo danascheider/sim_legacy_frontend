@@ -40,9 +40,11 @@ const ShoppingListItemCreateForm = ({ listId }) => {
 
     setFlashVisible(false)
 
+    let unit_weight = e.target.elements.unitWeight.value
+    if (unit_weight !== undefined && unit_weight !== null && unit_weight !== '') unit_weight = Number(unit_weight)
+
     const description = e.target.elements.description.value
     const quantity = parseInt(e.target.elements.quantity.value)
-    const unit_weight = Number(e.target.elements.unitWeight.value)
     const notes = e.target.elements.notes.value
     const attrs = { description, quantity, unit_weight, notes }
 
