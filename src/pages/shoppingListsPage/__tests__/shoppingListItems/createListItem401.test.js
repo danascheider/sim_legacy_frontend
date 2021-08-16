@@ -13,7 +13,7 @@ import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext
 import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
 import ShoppingListsPage from './../../shoppingListsPage'
 
-describe('Creating a shopping list item - when the server returns a 404', () => {
+describe('Creating a shopping list item - when the server returns a 401', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
