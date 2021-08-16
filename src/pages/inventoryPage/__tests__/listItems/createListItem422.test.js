@@ -9,17 +9,17 @@ import { renderWithRouter } from '../../../../setupTests'
 import { backendBaseUri } from '../../../../utils/config'
 import { AppProvider } from '../../../../contexts/appContext'
 import { GamesProvider } from '../../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
-import ShoppingListsPage from './../../shoppingListsPage'
+import { InventoryListsProvider } from '../../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
+import InventoryPage from './../../inventoryPage'
 
-describe('Creating a shopping list item when the attributes are invalid', () => {
+describe('Creating a inventory list item when the attributes are invalid', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
-    const route = `/dashboard/shopping_lists?game_id=${games[0].id}`
+    const route = `/dashboard/inventory?game_id=${games[0].id}`
 
-    const shoppingLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+    const inventoryLists = allInventoryLists.filter(list => list.game_id === games[0].id)
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -28,9 +28,9 @@ describe('Creating a shopping list item when the attributes are invalid', () => 
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'done' }}>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done' }}>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -39,7 +39,7 @@ describe('Creating a shopping list item when the attributes are invalid', () => 
   }
 
   const server = setupServer(
-    rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
       return res(
         ctx.status(422),
         ctx.json({
@@ -80,7 +80,7 @@ describe('Creating a shopping list item when the attributes are invalid', () => 
     const form = descriptionInput.closest('form')
 
     // Fill out and submit the form
-    fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingots' } })
+    fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingot' } })
     fireEvent.change(quantityInput, { target: { value: '-42' } })
     fireEvent.change(notesInput, { target: { value: 'To make bolts with' } })
 
@@ -90,7 +90,7 @@ describe('Creating a shopping list item when the attributes are invalid', () => 
     await waitFor(() => expect(form).toBeVisible())
 
     // The item should not be added to the list
-    expect(listEl).not.toHaveTextContent(/Dwarven metal ingots/)
+    expect(listEl).not.toHaveTextContent(/Dwarven metal ingot/)
 
     //  There should be an error message
     await waitFor(() => expect(screen.queryByText(/quantity must be greater than zero/i)).toBeVisible())

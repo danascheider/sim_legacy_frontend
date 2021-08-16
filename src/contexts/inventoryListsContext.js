@@ -333,6 +333,14 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           }
 
           onSuccess && onSuccess()
+        } else if (status === 422) {
+          setFlashAttributes({
+            type: 'error',
+            header: `${json.errors.length} error(s) prevented your list item from being created:`,
+            message: json.errors
+          })
+
+          onUnprocessableEntity && onUnprocessableEntity()
         }
       })
       .catch(err => {
