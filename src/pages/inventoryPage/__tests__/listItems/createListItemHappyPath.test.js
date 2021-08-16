@@ -41,7 +41,7 @@ describe('Creating a inventory list item - happy path', () => {
   beforeEach(() => cleanCookies())
   afterEach(() => component.unmount())
 
-  fdescribe('when there is no matching item on any inventory list', () => {
+  describe('when there is no matching item on any inventory list', () => {
     const server = setupServer(
       rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
         const listId = parseInt(req.params.listId)
@@ -153,6 +153,7 @@ describe('Creating a inventory list item - happy path', () => {
         const listId = allInventoryLists[2].id
         const description = req.body.inventory_list_item.description
         const quantity = req.body.inventory_list_item.quantity
+        const unit_weight = Number(req.body.inventory_list_item.unit_weight)
         const notes = req.body.inventory_list_item.notes
 
         const allItemsListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
@@ -161,13 +162,15 @@ describe('Creating a inventory list item - happy path', () => {
           {
             ...allItemsListItem,
             quantity: allItemsListItem.quantity + quantity,
-            notes: notes // just because in the existing matching item for this test the notes are null
+            unit_weight,
+            notes // just because in the existing matching item for this test the notes are null
           },
           {
             id: 855,
             list_id: listId,
             description,
             quantity,
+            unit_weight,
             notes
           }
         ]
@@ -199,19 +202,21 @@ describe('Creating a inventory list item - happy path', () => {
 
       const descriptionInput = await within(listEl).findByPlaceholderText(/description/i)
       const quantityInput = within(listEl).getByDisplayValue('1')
+      const unitWeightInput = within(listEl).getByPlaceholderText('Unit Weight')
       const notesInput = within(listEl).getByPlaceholderText(/notes/i)
 
       const form = descriptionInput.closest('form')
 
       // Fill out and submit the form
-      fireEvent.change(descriptionInput, { target: { value: 'Ingredients with "Frenzy" property' } })
+      fireEvent.change(descriptionInput, { target: { value: 'Nirnroot' } })
       fireEvent.change(quantityInput, { target: { value: '5' } })
-      fireEvent.change(notesInput, { target: { value: 'To make poison with' } })
+      fireEvent.change(unitWeightInput, { target: { value: '1' } })
+      fireEvent.change(notesInput, { target: { value: 'To make invisibility potions' } })
 
       fireEvent.submit(form)
 
       // Item should be added to the list
-      const itemTitle = await within(listEl).findByText('Ingredients with "Frenzy" property')
+      const itemTitle = await within(listEl).findByText('Nirnroot')
       const itemElOnRegList = itemTitle.closest('.root')
       expect(itemTitle).toBeVisible()
 
@@ -222,7 +227,8 @@ describe('Creating a inventory list item - happy path', () => {
       fireEvent.click(itemTitle)
 
       await waitFor(() => expect(within(itemElOnRegList).queryByText('5')).toBeVisible())
-      expect(itemElOnRegList).toHaveTextContent(/To make poison with/)
+      expect(itemElOnRegList).toHaveTextContent(/To make invisibility potions/)
+      expect(within(itemElOnRegList).queryByText('1')).toBeVisible()
 
       // The item should be updated on the all items list but should not appear
       // on the list twice.
@@ -231,7 +237,7 @@ describe('Creating a inventory list item - happy path', () => {
 
       fireEvent.click(allItemsTitle)
 
-      const item = await within(allItemsEl).findByText('Ingredients with "Frenzy" property')
+      const item = await within(allItemsEl).findByText('Nirnroot')
       const itemEl = item.closest('.root')
 
       expect(item).toBeVisible()
@@ -239,17 +245,18 @@ describe('Creating a inventory list item - happy path', () => {
       fireEvent.click(item)
 
       await waitFor(() => expect(within(itemEl).queryByText('9')).toBeVisible())
-      expect(itemEl).toHaveTextContent(/To make poison with/)
+      expect(itemEl).toHaveTextContent(/To make invisibility potions/)
+      expect(within(itemEl).queryByText('1')).toBeVisible()
     })
   })
 
   describe('when there is a matching item on the same list', () => {
     const server = setupServer(
-      rest.post(`${backendBaseUri}/shopping_lists/${allInventoryLists[1].id}/shopping_list_items`, (req, res, ctx) => {
+      rest.post(`${backendBaseUri}/inventory_lists/${allInventoryLists[1].id}/inventory_list_items`, (req, res, ctx) => {
         const listId = allInventoryLists[1].id
-        const description = req.body.shopping_list_item.description
-        const quantity = req.body.shopping_list_item.quantity
-        const notes = req.body.shopping_list_item.notes
+        const description = req.body.inventory_list_item.description
+        const quantity = req.body.inventory_list_item.quantity
+        const notes = req.body.inventory_list_item.notes
 
         const regularListItem = allInventoryLists[1].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
         const allItemsListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === description.toLowerCase())

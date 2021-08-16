@@ -247,7 +247,7 @@ ShoppingListItem.propTypes = {
   canEdit: PropTypes.bool.isRequired,
   description: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
-  unitWeight: PropTypes.number,
+  unitWeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   notes: PropTypes.string
 }
 
