@@ -341,6 +341,9 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onUnprocessableEntity && onUnprocessableEntity()
+        } else {
+          const message = json.errors && json.errors.length ? `Error ${status} creating list item for inventory list ${listId}: ${json.errors}` : `Unknown error ${status} creating list item for inventory list ${listId}`
+          throw new Error(message)
         }
       })
       .catch(err => {
@@ -356,6 +359,15 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           })
 
           onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error('Error creating inventory list item: ', err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to create your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
         }
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
