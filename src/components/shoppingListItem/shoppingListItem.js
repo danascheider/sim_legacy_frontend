@@ -11,7 +11,7 @@ import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListIt
 import styles from './shoppingListItem.module.css'
 
 const formatWeight = weight => {
-  if (weight === undefined || weight === null) return '-'
+  if (weight === undefined || weight === null || weight === '') return '-'
 
   const weightNum = Number(weight)
 

@@ -10,7 +10,7 @@ import styles from './inventoryListItem.module.css'
 // value in the decimal place should it be displayed as
 // a decimal.
 const formatWeight = weight => {
-  if (weight === undefined || weight === null) return '-'
+  if (weight === undefined || weight === null || weight === '') return '-'
 
   const weightNum = Number(weight)
 
