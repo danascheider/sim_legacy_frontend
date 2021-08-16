@@ -336,7 +336,12 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
         }
       })
       .catch(err => {
-        if (err.code === 404) {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
           setFlashAttributes({
             type: 'error',
             message: "Oops! We couldn't find the inventory list you wanted to add an item to. Sorry! Try refreshing the page to solve this issue."
