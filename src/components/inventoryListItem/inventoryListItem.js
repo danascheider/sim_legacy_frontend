@@ -83,7 +83,7 @@ InventoryListItem.propTypes = {
   listTitle: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
   notes: PropTypes.string,
-  unitWeight: PropTypes.number
+  unitWeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 }
 
 export default InventoryListItem
