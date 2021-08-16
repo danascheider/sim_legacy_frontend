@@ -335,6 +335,16 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           onSuccess && onSuccess()
         }
       })
+      .catch(err => {
+        if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list you wanted to add an item to. Sorry! Try refreshing the page to solve this issue."
+          })
+
+          onNotFound && onNotFound()
+        }
+      })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
   const value = {
