@@ -374,8 +374,28 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
   const performInventoryListItemUpdate = useCallback((itemId, attrs, callbacks) => {
-    //
-  }, [])
+    const { onSuccess, onNotFound, onUnprocessableEntity, onInternalServerError, onUnauthorized } = callbacks
+
+    updateInventoryListItem(token, itemId, attrs)
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 200) {
+          let newInventoryLists = [...inventoryLists]
+
+          for (let i = 0; i < json.length; i++) {
+            const list = inventoryLists.find(list => list.id === json[i].list_id)
+            const newList = addOrUpdateListItem(list, json[i])
+            const listPosition = inventoryLists.indexOf(list)
+          }
+          
+          setInventoryLists(newInventoryLists)
+          setFlashAttributes({ type: 'success', message: 'Success! Your inventory list item was updated.' })
+
+          onSuccess && onSuccess()
+        }
+      })
+  }, [token, inventoryLists, setFlashAttributes])
 
   const value = {
     inventoryLists,
