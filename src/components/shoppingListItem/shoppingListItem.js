@@ -10,6 +10,10 @@ import withModal from '../../hocs/withModal'
 import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListItemEditForm'
 import styles from './shoppingListItem.module.css'
 
+// If the unit weight has an integer value, we want
+// to display it as an integer. Only if it has a nonzero
+// value in the decimal place should it be displayed as
+// a decimal.
 const formatWeight = weight => {
   if (weight === undefined || weight === null || weight === '') return '-'
 
@@ -59,7 +63,6 @@ const ShoppingListItem = ({
   } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
-  const iconsRef = useRef(null)
   const editRef = useRef(null)
   const deleteRef = useRef(null)
   const incRef = useRef(null)
@@ -204,7 +207,7 @@ const ShoppingListItem = ({
       <div className={styles.toggle} onClick={toggleDetails}>
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
-            <span className={styles.editIcons} ref={iconsRef}>
+            <span className={styles.editIcons}>
               <button className={styles.icon} ref={deleteRef} onClick={destroyItem} data-testid='destroy-item'>
                 <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
               </button>
