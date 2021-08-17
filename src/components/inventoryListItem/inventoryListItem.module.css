@@ -51,6 +51,19 @@
   margin: auto;
 }
 
+.icon {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.icon:hover .fa {
+  color: var(--body-background-color);
+}
+
 .description {
   display: inline-block;
   font-family: 'Quattrocento Sans', Arial, Helvetica, sans-serif;

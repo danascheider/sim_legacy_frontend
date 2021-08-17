@@ -134,7 +134,7 @@ const ShoppingListItem = ({
       setCurrentQuantity(newQuantity)
       performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
     } else if (newQuantity === 0) {
-      const confirmed = window.confirm("Item quantity must be greater than zero. Delete the item instead?")
+      const confirmed = window.confirm('Item quantity must be greater than zero. Delete the item instead?')
 
       if (confirmed) {
         performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })

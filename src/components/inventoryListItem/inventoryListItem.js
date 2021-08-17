@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAngleUp } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
-import { useColorScheme } from '../../hooks/contexts'
+import { useAppContext, useInventoryListsContext, useColorScheme } from '../../hooks/contexts'
 import styles from './inventoryListItem.module.css'
 
 // If the unit weight has an integer value, we want
@@ -18,15 +20,26 @@ const formatWeight = weight => {
 }
 
 const InventoryListItem = ({
-  canEdit = true,
   itemId,
+  listTitle,
+  canEdit,
   description,
   quantity,
-  notes,
-  unitWeight
+  unitWeight,
+  notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [collapsed, setCollapsed] = useState(true)
+
+  // This enables us to set the quantity to the new quantity during the time between when
+  // the user increments/decrements the quantity and the time the API responds.
+  const [currentQuantity, setCurrentQuantity] = useState(quantity)
+
+  const { setFlashVisible } = useAppContext()
+  const { performInventoryListItemUpdate } = useInventoryListsContext()
+
+  const mountedRef = useRef(true)
+  const incRef = useRef(null)
 
   const {
     schemeColorDark,
@@ -37,9 +50,15 @@ const InventoryListItem = ({
     textColorTertiary
   } = useColorScheme()
 
+  const iconContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
+
+  const shouldToggleDetails = element => !iconContains(incRef, element)
+
   const toggleDetails = e => {
-    setToggleEvent(Date.now)
-    setCollapsed(!collapsed)
+    if (shouldToggleDetails(e.target)) {
+      setToggleEvent(Date.now)
+      setCollapsed(!collapsed)
+    }
   }
 
   const styleVars = {
@@ -51,6 +70,34 @@ const InventoryListItem = ({
     '--hover-color': hoverColorLight
   }
 
+  const incrementQuantity = () => {
+    const oldQuantity = currentQuantity
+    const newQuantity = currentQuantity + 1
+
+    if (mountedRef.current) setCurrentQuantity(newQuantity)
+
+    const callbacks = {
+      onNotFound: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      },
+      onInternalServerError: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      }
+    }
+
+    performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
+  }
+
+  useEffect(() => {
+    if (mountedRef.current) setCurrentQuantity(quantity)
+  }, [quantity])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
+
   return(
     <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={styleVars}>
       <div className={styles.toggle} onClick={toggleDetails}>
@@ -58,7 +105,10 @@ const InventoryListItem = ({
           <h3 className={styles.description}>{description}</h3>
         </span>
         <span className={styles.quantity}>
-          <div className={styles.quantityContent}>{quantity}</div>
+          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity} data-testid='incrementer'>
+            <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
+          </button>}
+          <div className={styles.quantityContent}>{currentQuantity}</div>
         </span>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
@@ -77,7 +127,7 @@ const InventoryListItem = ({
 }
 
 InventoryListItem.propTypes = {
-  canEdit: PropTypes.bool,
+  canEdit: PropTypes.bool.isRequired,
   itemId: PropTypes.number.isRequired,
   description: PropTypes.string.isRequired,
   listTitle: PropTypes.string.isRequired,

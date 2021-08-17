@@ -24,7 +24,8 @@ import {
   createInventoryList,
   updateInventoryList,
   destroyInventoryList,
-  createInventoryListItem
+  createInventoryListItem,
+  updateInventoryListItem
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -263,7 +264,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           onSuccess && onSuccess()
         } else {
           const message = json.errors ? `Error ${status} when deleting inventory list ${listId}: ${json.errors}` : `Unknown error ${status} when deleting inventory list ${listId}`
-          throw new Error()
+          throw new Error(message)
         }
       })
       .catch(err => {
@@ -372,6 +373,10 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
+  const performInventoryListItemUpdate = useCallback((itemId, attrs, callbacks) => {
+    //
+  }, [])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
@@ -379,6 +384,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     performInventoryListUpdate,
     performInventoryListDestroy,
     performInventoryListItemCreate,
+    performInventoryListItemUpdate,
     ...overrideValue
   }
 
@@ -418,7 +424,8 @@ InventoryListsProvider.propTypes = {
     performInventoryListCreate: PropTypes.func,
     performInventoryListUpdate: PropTypes.func,
     performInventoryListDestroy: PropTypes.func,
-    performInventoryListItemCreate: PropTypes.func
+    performInventoryListItemCreate: PropTypes.func,
+    performInventoryListItemUpdate: PropTypes.func
   })
 }
 
