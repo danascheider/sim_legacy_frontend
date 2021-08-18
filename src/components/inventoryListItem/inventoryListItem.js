@@ -103,7 +103,16 @@ const InventoryListItem = ({
     const newQuantity = currentQuantity - 1
 
     if (newQuantity > 0) {
-      const callbacks = {}
+      const callbacks = {
+        onNotFound: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        },
+        onInternalServerError: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        }
+      }
 
       setCurrentQuantity(newQuantity)
       performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
@@ -112,7 +121,9 @@ const InventoryListItem = ({
 
       if (confirmed) {
         const callbacks = {
-          onSuccess: () => mountedRef.current = false
+          onSuccess: () => mountedRef.current = false,
+          onNotFound: () => setFlashVisible(true),
+          onInternalServerError: () => setFlashVisible(true)
         }
 
         performInventoryListItemDestroy(itemId, callbacks)

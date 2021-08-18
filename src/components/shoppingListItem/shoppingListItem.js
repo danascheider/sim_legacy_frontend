@@ -122,6 +122,8 @@ const ShoppingListItem = ({
     const oldQuantity = currentQuantity
     const newQuantity = currentQuantity - 1
 
+    if (mountedRef.current) setCurrentQuantity(newQuantity)
+
     if (newQuantity > 0) {
       const callbacks = {
         onNotFound: () => {

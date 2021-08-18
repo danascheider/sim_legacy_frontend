@@ -80,7 +80,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     return { ...list }
   }
 
-  const listFromItemId = itemId => inventoryLists.find(list => !!list.list_items.find(item => item.id === itemId))
+  const listFromItemId = useCallback(itemId => inventoryLists.find(list => !!list.list_items.find(item => item.id === itemId)), [inventoryLists])
 
   const removeItemFromList = (list, itemId) => {
     const newList = { ...list }
@@ -189,7 +189,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
           setFlashAttributes({
             type: 'error',
-            message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to create your inventory list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()
@@ -409,9 +409,36 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           setFlashAttributes({ type: 'success', message: 'Success! Your inventory list item was updated.' })
 
           onSuccess && onSuccess()
+        } else {
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory list item ${itemId}: ${json.errors}` : `Unknown error ${status} when updating inventory list item ${itemId}`
+          throw new Error(message)
         }
       })
-  }, [token, inventoryLists, setFlashAttributes])
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list item you wanted to update. Try refreshing the page to fix this issue."
+          })
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Error updating inventory list item ${itemId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to update your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [token, inventoryLists, setFlashAttributes, logOutAndRedirect])
 
   const performInventoryListItemDestroy = useCallback((itemId, callbacks = {}) => {
     const { onSuccess, onNotFound, onInternalServerError, onUnauthorized } = callbacks
@@ -441,9 +468,36 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           setInventoryLists(newLists)
 
           onSuccess && onSuccess()
+        } else {
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory list item ${itemId}: ${json.errors}` : `Error ${status} updating inventory list item ${itemId}`
+          throw new Error(message)
         }
       })
-  }, [token, inventoryLists])
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list item you wanted to delete. Try refreshing the page to fix this issue."
+          })
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Unexpected error deleting list item ${itemId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to delete your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [token, inventoryLists, listFromItemId, logOutAndRedirect, setFlashAttributes])
 
   const value = {
     inventoryLists,
