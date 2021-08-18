@@ -13,7 +13,7 @@ import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext
 import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
 import ShoppingListsPage from './../../shoppingListsPage'
 
-describe('Incrementing a shopping list item - error cases', () => {
+describe('Incrementing or decrementing a shopping list item - error cases', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
