@@ -86,6 +86,7 @@ export const allShoppingLists = [
         list_id: 823,
         description: 'Ebony sword',
         quantity: 2,
+        unit_weight: 14.0,
         notes: 'notes 1 -- notes 2'
       },
       {
@@ -93,6 +94,13 @@ export const allShoppingLists = [
         list_id: 823,
         description: 'Ingredients with "Frenzy" property',
         quantity: 4,
+        notes: null
+      },
+      {
+        id: 7,
+        list_id: 823,
+        description: 'Dwarven boots',
+        quantity: 1,
         notes: null
       }
     ]
@@ -108,6 +116,7 @@ export const allShoppingLists = [
         list_id: 837,
         description: 'Ebony sword',
         quantity: 1,
+        unit_weight: 14.0,
         notes: 'notes 1'
       },
       {
@@ -115,6 +124,13 @@ export const allShoppingLists = [
         list_id: 837,
         description: 'Ingredients with "Frenzy" property',
         quantity: 4,
+        notes: null
+      },
+      {
+        id: 6,
+        list_id: 837,
+        description: 'Dwarven boots',
+        quantity: 1,
         notes: null
       }
     ]
@@ -206,6 +222,14 @@ export const allInventoryLists = [
         quantity: 4,
         notes: null,
         unit_weight: 0.3
+      },
+      {
+        id: 7,
+        list_id: 823,
+        description: 'Copper and onyx circlet',
+        quantity: 1,
+        notes: null,
+        unit_weight: null
       }
     ]
   },
@@ -215,6 +239,8 @@ export const allInventoryLists = [
     title: 'Lakeview Manor',
     aggregate: false,
     list_items: [
+      // List item with quantity 1, with another matching
+      // item on another list for the same game
       {
         id: 1,
         list_id: 837,
@@ -223,6 +249,9 @@ export const allInventoryLists = [
         notes: 'notes 1',
         unit_weight: 14.0
       },
+      // List item with quantity greater than 1,
+      // with no matching item on another list for the
+      // same game
       {
         id: 3,
         list_id: 837,
@@ -230,7 +259,18 @@ export const allInventoryLists = [
         quantity: 4,
         notes: null,
         unit_weight: 0.3
-      }
+      },
+      // List item with quantity 1, with no matching
+      // item on another list for the same game. Also
+      // has null unit weight
+      {
+        id: 6,
+        list_id: 837,
+        description: 'Copper and onyx circlet',
+        quantity: 1,
+        notes: null,
+        unit_weight: null
+      } 
     ]
   },
   {

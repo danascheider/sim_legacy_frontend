@@ -183,7 +183,14 @@ describe('Displaying the shopping lists page', () => {
             await waitFor(() => expect(within(lakeviewManorList).queryByText(/ebony sword/i)).toBeVisible())
             expect(within(lakeviewManorList).getByText(/ingredients with "frenzy" property/i)).toBeVisible()
             expect(within(lakeviewManorList).getByText(/notes 1/i)).not.toBeVisible()
-            expect(within(lakeviewManorList).getByText(/no details available/i)).not.toBeVisible()
+
+            // Multiple lists have no notes and the 'No details available' text shouldn't
+            // be visible for either of them
+            const noDetailsAvailable = within(lakeviewManorList).queryAllByText(/no details available/i)
+
+            for (let i = 0; i < noDetailsAvailable.length; i++) {
+              expect(noDetailsAvailable[i]).not.toBeVisible()
+            }
           })
 
           it('expands one item when you click on it', async () => {
@@ -202,8 +209,12 @@ describe('Displaying the shopping lists page', () => {
             // Notes for the clicked item should be visible
             await waitFor(() => expect(within(ebonySwordItem).queryByText('notes 1')).toBeVisible())
 
-            // Notes for the other item should not be visible
-            expect(within(lakeviewManorList).queryByText(/no details available/i)).not.toBeVisible()
+            // Notes for the other items should not be visible
+            const noDetailsAvailable = within(lakeviewManorList).queryAllByText(/no details available/i)
+
+            for (let i = 0; i < noDetailsAvailable.length; i++) {
+              expect(noDetailsAvailable[i]).not.toBeVisible()
+            }
           })
 
           it('collapses the item when you click it again', async () => {

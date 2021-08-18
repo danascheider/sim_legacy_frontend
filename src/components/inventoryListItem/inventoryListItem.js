@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleUp } from '@fortawesome/free-solid-svg-icons'
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useInventoryListsContext, useColorScheme } from '../../hooks/contexts'
 import styles from './inventoryListItem.module.css'
@@ -35,11 +35,12 @@ const InventoryListItem = ({
   // the user increments/decrements the quantity and the time the API responds.
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
-  const { setFlashVisible } = useAppContext()
-  const { performInventoryListItemUpdate } = useInventoryListsContext()
+  const { setFlashVisible, setFlashAttributes } = useAppContext()
+  const { performInventoryListItemUpdate, performInventoryListItemDestroy } = useInventoryListsContext()
 
   const mountedRef = useRef(true)
   const incRef = useRef(null)
+  const decRef = useRef(null)
 
   const {
     schemeColorDark,
@@ -52,13 +53,20 @@ const InventoryListItem = ({
 
   const iconContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
 
-  const shouldToggleDetails = element => !iconContains(incRef, element)
+  const shouldToggleDetails = element => !iconContains(incRef, element) && !iconContains(decRef, element)
 
   const toggleDetails = e => {
     if (shouldToggleDetails(e.target)) {
       setToggleEvent(Date.now)
       setCollapsed(!collapsed)
     }
+  }
+
+  const displayFlash = (type, message) => {
+    if (!mountedRef.current) return
+
+    setFlashAttributes({ type, message })
+    setFlashVisible(true)
   }
 
   const styleVars = {
@@ -90,6 +98,30 @@ const InventoryListItem = ({
     performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
   }
 
+  const decrementQuantity = () => {
+    const oldQuantity = currentQuantity
+    const newQuantity = currentQuantity - 1
+
+    if (newQuantity > 0) {
+      const callbacks = {}
+
+      setCurrentQuantity(newQuantity)
+      performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
+    } else if (newQuantity === 0) {
+      const confirmed = window.confirm('Item quantity must be greater than zero. Delete the item instead?')
+
+      if (confirmed) {
+        const callbacks = {
+          onSuccess: () => mountedRef.current = false
+        }
+
+        performInventoryListItemDestroy(itemId, callbacks)
+      } else {
+        displayFlash('info', 'Your item was not deleted.')
+      }
+    }
+  }
+
   useEffect(() => {
     if (mountedRef.current) setCurrentQuantity(quantity)
   }, [quantity])
@@ -109,6 +141,9 @@ const InventoryListItem = ({
             <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
           </button>}
           <div className={styles.quantityContent}>{currentQuantity}</div>
+          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity} data-testid='decrementer'>
+            <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
+          </button>}
         </span>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
