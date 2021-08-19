@@ -185,9 +185,10 @@ const ShoppingListItem = ({
           },
           currentAttributes: {
             id: itemId,
+            description,
             quantity,
-            notes,
-            description
+            unitWeight,
+            notes
           }
         }
       })

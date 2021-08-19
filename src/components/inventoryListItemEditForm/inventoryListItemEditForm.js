@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { useAppContext, useShoppingListsContext } from '../../hooks/contexts'
+import { useAppContext, useInventoryListsContext } from '../../hooks/contexts'
 import ModalForm from '../modalForm/modalForm'
 
 const formFields = [
@@ -19,10 +19,10 @@ const formFields = [
     tag: 'input',
     label: 'Unit Weight',
     type: 'number',
+    step: 0.1,
+    min: 0,
     placeholder: 'Unit Weight',
     inputMode: 'decimal',
-    min: 0,
-    step: 0.1
   },
   {
     name: 'notes',
@@ -34,9 +34,9 @@ const formFields = [
   }
 ]
 
-const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
+const InventoryListItemEditForm = ({ buttonColor, currentAttributes }) => {
   const { setFlashVisible, setModalVisible } = useAppContext()
-  const { performShoppingListItemUpdate } = useShoppingListsContext()
+  const { performInventoryListItemUpdate } = useInventoryListsContext()
 
   const mountedRef = useRef(true)
 
@@ -63,7 +63,7 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
     const unit_weight = Number(e.target.elements.unitWeight.value)
     const notes = e.target.elements.notes.value
 
-    performShoppingListItemUpdate(currentAttributes.id, { quantity, unit_weight, notes }, callbacks)
+    performInventoryListItemUpdate(currentAttributes.id, { quantity, unit_weight, notes }, callbacks)
   }
 
   useEffect(() => (
@@ -72,7 +72,7 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
 
   return(
     <ModalForm
-      modelName='shopping-list-item'
+      modelName='inventory-list-item'
       buttonLabel='Update Item'
       buttonColor={buttonColor}
       onSubmit={updateItem}
@@ -81,7 +81,7 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
   )
 }
 
-ShoppingListItemEditForm.propTypes = {
+InventoryListItemEditForm.propTypes = {
   buttonColor: PropTypes.shape({
     schemeColorDarkest: PropTypes.string.isRequired,
     textColorPrimary: PropTypes.string.isRequired,
@@ -96,4 +96,4 @@ ShoppingListItemEditForm.propTypes = {
   }).isRequired
 }
 
-export default ShoppingListItemEditForm
+export default InventoryListItemEditForm

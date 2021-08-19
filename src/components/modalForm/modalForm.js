@@ -91,7 +91,7 @@ ModalForm.propTypes = {
     // Optional inputMode determines what keypad mobile users see. More
     // options could be added to this list but we didn't need them yet
     // so I just put these ones.
-    inputMode: PropTypes.oneOf(['numeric', 'text']),
+    inputMode: PropTypes.oneOf(['numeric', 'text', 'decimal']),
     // The starting `value` of the field, generally the current value of
     // the attribute, if there is one.
     defaultValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number])

@@ -2,9 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEdit } from '@fortawesome/free-regular-svg-icons'
 import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useInventoryListsContext, useColorScheme } from '../../hooks/contexts'
+import withModal from '../../hocs/withModal'
+import InventoryListItemEditForm from '../inventoryListItemEditForm/inventoryListItemEditForm'
 import styles from './inventoryListItem.module.css'
 
 // If the unit weight has an integer value, we want
@@ -35,25 +38,35 @@ const InventoryListItem = ({
   // the user increments/decrements the quantity and the time the API responds.
   const [currentQuantity, setCurrentQuantity] = useState(quantity)
 
-  const { setFlashVisible, setFlashAttributes } = useAppContext()
+  const {
+    setFlashVisible,
+    setFlashAttributes,
+    setModalVisible,
+    setModalAttributes
+  } = useAppContext()
   const { performInventoryListItemUpdate, performInventoryListItemDestroy } = useInventoryListsContext()
 
   const mountedRef = useRef(true)
+  const editRef = useRef(null)
   const incRef = useRef(null)
   const decRef = useRef(null)
 
   const {
+    schemeColorDarkest,
     schemeColorDark,
+    hoverColorDark,
     hoverColorLight,
+    textColorPrimary,
     textColorSecondary,
     borderColor,
     schemeColorLightest,
     textColorTertiary
   } = useColorScheme()
 
-  const iconContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
+  const refContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
+  const iconContains = el => refContains(incRef, el) || refContains(decRef, el) || refContains(editRef, el)
 
-  const shouldToggleDetails = element => !iconContains(incRef, element) && !iconContains(decRef, element)
+  const shouldToggleDetails = element => !iconContains(element)
 
   const toggleDetails = e => {
     if (shouldToggleDetails(e.target)) {
@@ -133,6 +146,37 @@ const InventoryListItem = ({
     }
   }
 
+  const showEditForm = () => {
+    if (!mountedRef.current) return
+
+    setFlashVisible(false)
+
+    const Tag = withModal(InventoryListItemEditForm)
+
+    setModalAttributes({
+      Tag,
+      props: {
+        title: description,
+        subtitle: `On list "${listTitle}"`,
+        buttonColor: {
+          schemeColorDarkest,
+          hoverColorDark,
+          borderColor,
+          textColorPrimary
+        },
+        currentAttributes: {
+          id: itemId,
+          description,
+          quantity,
+          unitWeight,
+          notes
+        }
+      }
+    })
+
+    setModalVisible(true)
+  }
+
   useEffect(() => {
     if (mountedRef.current) setCurrentQuantity(quantity)
   }, [quantity])
@@ -144,7 +188,13 @@ const InventoryListItem = ({
   return(
     <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={styleVars}>
       <div className={styles.toggle} onClick={toggleDetails}>
-        <span className={styles.header}>
+        <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
+          {canEdit &&
+          <span className={styles.editIcons}>
+            <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>
+              <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+            </button>
+          </span>}
           <h3 className={styles.description}>{description}</h3>
         </span>
         <span className={styles.quantity}>

@@ -403,6 +403,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
             const list = inventoryLists.find(list => list.id === json[i].list_id)
             const newList = addOrUpdateListItem(list, json[i])
             const listPosition = inventoryLists.indexOf(list)
+            newInventoryLists[listPosition] = newList
           }
           
           setInventoryLists(newInventoryLists)
