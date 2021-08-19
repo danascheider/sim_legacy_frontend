@@ -195,4 +195,96 @@ describe('Updating a shopping list item - happy path', () => {
       })
     })
   })
+
+  describe('when updating unit weight', () => {
+    const server = setupServer(
+      rest.patch(`${backendBaseUri}/shopping_list_items/1`, (req, res, ctx) => {
+        const lists = allShoppingLists.filter(list => list.game_id === games[0].id)
+
+        let response = []
+
+        for (let i = 0; i < lists.length; i++) {
+          const item = lists[i].list_items.find(li => li.description === 'Ebony sword')
+
+          if (item) response.push({ ...item, unit_weight: 16.0 })
+        }
+
+        return res(
+          ctx.status(200),
+          ctx.json(response)
+        )
+      })
+    )
+
+    beforeAll(() => server.listen())
+    beforeEach(() => server.resetHandlers())
+    afterAll(() => server.close())
+
+    it('updates all modified list items', async () => {
+      component = renderComponentWithMockCookies()
+
+      // We're going to update an item on the 'Lakeview Manor' list
+      const lakeviewManorTitle = await screen.findByText('Lakeview Manor')
+      const lakeviewManorList = lakeviewManorTitle.closest('.root')
+
+      fireEvent.click(lakeviewManorTitle)
+
+      // The list item we're going for is titled 'Ebony sword'.
+      const itemDesc = await within(lakeviewManorList).findByText('Ebony sword')
+      const itemEl = itemDesc.closest('.root')
+      const editIcon = within(itemEl).getByTestId('edit-item')
+
+      fireEvent.click(editIcon)
+
+      // It should display the list item edit form
+      const form = await screen.findByTestId('shopping-list-item-form')
+      expect(form).toBeVisible()
+
+      // Now find the form field and fill out the form. This item has no unit weight
+      // so we find the notes field by placeholder text instead.
+      const unitWeightField = within(form).getByPlaceholderText('Unit Weight')
+
+      // Fill out the form field. We'll change just the unit weight value.
+      fireEvent.change(unitWeightField, { target: { value: 16.0 } })
+
+      // Submit the form
+      fireEvent.submit(form)
+
+      // The form should be hidden 
+      await waitFor(() => expect(form).not.toBeInTheDocument())
+
+      // Now we need to find the item on all the lists where it appears.
+      // Start by finding the lists.
+      const aggListTitle = screen.getByText('All Items')
+      const aggList = aggListTitle.closest('.root')
+
+      const heljarchenHallTitle = screen.getByText('Heljarchen Hall')
+      const heljarchenHallList = heljarchenHallTitle.closest('.root')
+
+      // Expand the lists so the item is visible
+      fireEvent.click(aggListTitle)
+      fireEvent.click(heljarchenHallTitle)
+
+      // Then find the corresponding item
+      const aggListItemDesc = await within(aggList).findByText('Ebony sword')
+      const aggListItem = aggListItemDesc.closest('.root')
+
+      const heljarchenHallListItemDesc = within(heljarchenHallList).getByText('Ebony sword')
+      const heljarchenHallListItem = heljarchenHallListItemDesc.closest('.root')
+
+      // Expand the list item on each list to see the notes
+      fireEvent.click(aggListItemDesc)
+      fireEvent.click(itemDesc)
+      fireEvent.click(heljarchenHallListItemDesc)
+
+      // Now we need to check that the aggregate list item and regular list
+      // item are updated.
+      await waitFor(() => expect(aggListItem).toHaveTextContent('16'))
+      expect(itemEl).toHaveTextContent('16')
+      expect(heljarchenHallListItem).toHaveTextContent('16')
+
+      // Finally, it should display the flash message.
+      await waitFor(() => expect(screen.queryByText(/updated/i)).toBeVisible())
+    })
+  })
 })
