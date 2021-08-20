@@ -13,7 +13,7 @@ export default { title: 'InventoryListItemEditForm' }
 export const Default = () => (
   <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
-      <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done', performInventoryListItemUpdate: e => e.preventDefault() }}>
+      <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done', performInventoryListItemUpdate: () => {} }}>
         <Modal
           title={listItemData.description}
           subtitle={`On list "${inventoryLists[1].title}"`}

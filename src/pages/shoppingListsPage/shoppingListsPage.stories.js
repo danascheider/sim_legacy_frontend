@@ -48,7 +48,7 @@ export const HappyPath = () => {
 }
 
 // Although POST requests to /games can originate from this page (from the games
-// dropdown), no handlers for that request are defined in this file. This is
+// dropdown), no handlers for that request are defined in this story. This is
 // because creating a new game that way will trigger a GET request for that game's
 // shopping lists, which will trigger a 404 response since the game isn't in the
 // `games` array. We could hack this but it's not really worth it for Storybook.
@@ -231,6 +231,16 @@ HappyPath.parameters = {
         const description = req.body.shopping_list_item.description
         const quantity = req.body.shopping_list_item.quantity || '1'
 
+        // We're not going to do syncing of unit weights in this story. It's
+        // just too complicated. If a unit weight is set in Storybook, it'll only
+        // be set for the new item.
+        let unit_weight = req.body.shopping_list_item.unit_weight
+        if (unit_weight === null || unit_weight === undefined || unit_weight === '') {
+          unit_weight = null
+        } else {
+          unit_weight = Number(unit_weight)
+        }
+
         // Description and quantity are both required and neither can be blank. The
         // quantity must be an integer as well. If the quantity is a decimal/float value
         // greater than 1, it will be truncated and treated as an integer. If the
@@ -242,11 +252,11 @@ HappyPath.parameters = {
           const aggregateList = findAggregateList(allShoppingLists, regList.game_id)
           const aggregateListItem = aggregateList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
 
-          if (regListItem) adjustListItem(regListItem, parseInt(quantity), regListItem.notes, notes)
-          if (aggregateListItem) adjustListItem(aggregateListItem, parseInt(quantity), aggregateListItem.notes, notes)
+          if (regListItem) adjustListItem(regListItem, parseInt(quantity), regListItem.notes, notes, unit_weight)
+          if (aggregateListItem) adjustListItem(aggregateListItem, parseInt(quantity), aggregateListItem.notes, notes, unit_weight)
 
-          const defaultRegListItem = { id: Math.floor(Math.random() * 10000), list_id: regList.id, description, quantity }
-          const defaultAggListItem = { id: Math.floor(Math.random() * 10000), list_id: aggregateList.id, description, quantity }
+          const defaultRegListItem = { id: Math.floor(Math.random() * 10000), list_id: regList.id, description, quantity, unit_weight }
+          const defaultAggListItem = { id: Math.floor(Math.random() * 10000), list_id: aggregateList.id, description, quantity, unit_weight }
 
           // The API will return the updated aggregate list item along with the created or
           // updated list item from the regular list with a 200 status.
@@ -494,6 +504,16 @@ GameNotFoundOnCreate.parameters = {
       )
     }),
     rest.post(`${backendBaseUri}/shopping_lists/:listId/shopping_list_items`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      return res(
+        ctx.status(404)
+      )
+    }),
+    rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
