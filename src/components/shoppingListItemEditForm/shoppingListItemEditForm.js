@@ -60,8 +60,14 @@ const ShoppingListItemEditForm = ({ buttonColor, currentAttributes }) => {
     }
 
     const quantity = e.target.elements.quantity.value
-    const unit_weight = Number(e.target.elements.unitWeight.value)
     const notes = e.target.elements.notes.value
+
+    let unit_weight = e.target.elements.unitWeight.value
+    if (unit_weight === undefined || unit_weight === null || unit_weight === '') {
+      unit_weight = null
+    } else {
+      unit_weight = Number(unit_weight)
+    }
 
     performShoppingListItemUpdate(currentAttributes.id, { quantity, unit_weight, notes }, callbacks)
   }

@@ -410,6 +410,14 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           setFlashAttributes({ type: 'success', message: 'Success! Your inventory list item was updated.' })
 
           onSuccess && onSuccess()
+        } else if (status === 422) {
+          setFlashAttributes({
+            type: 'error',
+            header: `${json.errors.length} error(s) prevented your inventory list item from being updated:`,
+            message: json.errors
+          })
+
+          onUnprocessableEntity && onUnprocessableEntity()
         } else {
           const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory list item ${itemId}: ${json.errors}` : `Unknown error ${status} when updating inventory list item ${itemId}`
           throw new Error(message)
