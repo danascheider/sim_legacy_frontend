@@ -42,7 +42,7 @@ const ShoppingListItemCreateForm = ({ listId }) => {
 
     let unit_weight = e.target.elements.unitWeight.value
 
-    if (unit_weight === undefined || unit_weight === null || unit_weight == '') {
+    if (unit_weight === undefined || unit_weight === null || unit_weight === '') {
       unit_weight = null
     } else {
       unit_weight = Number(unit_weight)
