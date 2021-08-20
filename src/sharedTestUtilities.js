@@ -142,8 +142,9 @@ export const findAggregateList = (allLists, gameId) => (
 // that was edited, and the new notes value of the same list item. The delta
 // quantity argument can be any integer - positive, negative, or zero. Either
 // or both of `oldNotes` and `newNotes` can be `null`.
-export const adjustListItem = (listItem, deltaQuantity, oldNotes, newNotes) => {
+export const adjustListItem = (listItem, deltaQuantity, oldNotes, newNotes, unitWeight = null) => {
   listItem.quantity = listItem.quantity + deltaQuantity
+  if (unitWeight) listItem.unit_weight = unitWeight
 
   // If the old notes and new notes both exist, the old value should be
   // replaced with the new one.
