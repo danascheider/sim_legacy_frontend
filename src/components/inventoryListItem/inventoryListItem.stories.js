@@ -9,7 +9,7 @@ import InventoryListItem from './inventoryListItem'
 
 export default { title: 'InventoryListItem' }
 
-export const Default = () => (
+export const Editable = () => (
   <AppProvider overrideValue={{ token, profileData }}>
     <GamesProvider overrideValue={{ games }}>
       <InventoryListsProvider overrideValue={{ inventoryLists }}>
@@ -20,6 +20,27 @@ export const Default = () => (
             listTitle='Lakeview Manor'
             quantity={1}
             unitWeight={14.0}
+            notes='Enchanted with Soul Trap'
+            canEdit
+          />
+        </ColorProvider>
+      </InventoryListsProvider>
+    </GamesProvider>
+  </AppProvider>
+)
+
+export const NotEditable = () => (
+  <AppProvider overrideValue={{ token, profileData }}>
+    <GamesProvider overrideValue={{ games }}>
+      <InventoryListsProvider overrideValue={{ inventoryLists }}>
+        <ColorProvider colorScheme={BLUE}>
+          <InventoryListItem
+            itemId={1}
+            description='Ebony sword'
+            listTitle='Lakeview Manor'
+            quantity={1}
+            unitWeight={14.0}
+            canEdit={false}
             notes='Enchanted with Soul Trap'
           />
         </ColorProvider>

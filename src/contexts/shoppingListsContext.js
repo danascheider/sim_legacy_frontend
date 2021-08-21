@@ -441,7 +441,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             mountedRef.current = false
             onUnauthorized && onUnauthorized()
           })
-        } else if (err.code === 404) {
+        } else if (err.code === 404 && mountedRef.current) {
           setFlashAttributes({
             type: 'error',
             message: "Oops! We couldn't find the shopping list item you wanted to update. Sorry! Try refreshing the page to solve this problem."
@@ -461,7 +461,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
       })
   }
 
-  const performShoppingListItemDestroy = (itemId, callbacks) => {
+  const performShoppingListItemDestroy = (itemId, callbacks = {}) => {
     const { onSuccess, onNotFound, onUnauthorized, onInternalServerError } = callbacks
 
     destroyShoppingListItem(token, itemId)
@@ -502,7 +502,7 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
             mountedRef.current = false
             onUnauthorized && onUnauthorized()
           })
-        } else if (err.code === 404) {
+        } else if (err.code === 404 && mountedRef.current) {
           setFlashAttributes({
             type: 'error', 
             message: "Oops! We couldn't find the shopping list item you wanted to delete. Sorry! Try refreshing the page to solve this problem."
@@ -512,10 +512,12 @@ const ShoppingListsProvider = ({ children, overrideValue = {} }) => {
         } else {
           if (process.env.NODE_ENV === 'development') console.error('Unexpected error destroying shopping list item: ', err)
 
-          setFlashAttributes({
-            type: 'error', 
-            message: "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
-          })
+          if (mountedRef.current) {
+            setFlashAttributes({
+              type: 'error', 
+              message: "Something unexpected happened while trying to delete your shopping list item. Unfortunately, we don't know more than that yet. We're working on it!"
+            })
+          }
 
           onInternalServerError && onInternalServerError()
         }

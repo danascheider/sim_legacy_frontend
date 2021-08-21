@@ -185,7 +185,7 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
                   itemId={id}
                   listTitle={title}
                   description={description}
-                  quantity={quantity}
+                  quantity={parseInt(quantity)}
                   notes={notes}
                   unitWeight={unit_weight}
                   canEdit={canEdit}

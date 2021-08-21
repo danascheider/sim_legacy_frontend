@@ -53,7 +53,7 @@ The `callbacks` object can contain the following callbacks:
 
 ### `performInventoryListItemCreate`
 
-A function that takes a `listId`, list item `attrs`, and a `callbacks` object and creates an inventory list item with that title on the list indicated, calling the appropriate callback when the request has completed.
+A function that takes a `listId`, list item `attrs`, and a `callbacks` object and creates an inventory list item with that title on the list indicated, calling the appropriate callback when the request has completed. The aggregate list will also be updated. If `unit_weight` is set on the new list item, all matching items belonging to the same game will have their `unit_weight` updated to the same value and will be returned with the response.
 
 Valid `attrs` include the following:
 
@@ -64,10 +64,40 @@ Valid `attrs` include the following:
 
 The `callbacks` object can contain the following callbacks:
 
-* `onSuccess`: called after a 200-range response has been handled successfully
+* `onSuccess`: called after a 200-range response has been handled successfully (possible responses are 200 and 201)
 * `onNotFound`: called when the list the user wants to add the item to is not found or does not belong to the authenticated user
 * `onUnauthorized`: called when the request returns a 401 response
 * `onUnprocessableEntity`: called when the attributes the user submits are invalid or not unique
+* `onInternalServerError`: called when the server returns a 500-range response or there is an unexpected error while handling the response
+
+### `performInventoryListItemUpdate`
+
+A function that takes an `itemId`, list item `attrs`, and a `callbacks` object and updates an inventory list item with the given ID, calling the appropriate callback when the request has completed. The aggregate list will also be updated. If `unit_weight` is set to a non-`null` value, unit weight will also be updated for any matching (by description) list item belonging to the same game. The response from the API returns all list items that were updated while executing the request.
+
+Valid `attrs` include the following:
+
+* `description` (string, required)
+* `quantity` (integer greater than 0, required)
+* `unit_weight` (number with up to one decimal place, can be null)
+* `notes` (string)
+
+The `callbacks` object can contain the following callbacks:
+
+* `onSuccess`: called after a 200 response has been handled successfully
+* `onNotFound`: called when the list the user wants to add the item to is not found or does not belong to the authenticated user
+* `onUnauthorized`: called when the request returns a 401 response
+* `onUnprocessableEntity`: called when the attributes the user submits are invalid
+* `onInternalServerError`: called when the server returns a 500-range response or there is an unexpected error while handling the response
+
+### `performInventoryListItemDestroy`
+
+A function that takes the `itemId` of the list item to be destroyed and a `callbacks` object and destroys the requested list item, calling the appropriate callback when the request has completed. The corresponding aggregate list item will also be updated or destroyed on the backend while handling this request.
+
+The `callbacks` object can contain the following callbacks:
+
+* `onSuccess`: called after a 200-range response has been handled successfully (possible responses are 200 and 204)
+* `onNotFound`: called when the list item requested is not found or does not belong to the authenticated user
+* `onUnauthorized`: called when the request returns a 401 response
 * `onInternalServerError`: called when the server returns a 500-range response or there is an unexpected error while handling the response
 
 ## Testing Components in Storybook

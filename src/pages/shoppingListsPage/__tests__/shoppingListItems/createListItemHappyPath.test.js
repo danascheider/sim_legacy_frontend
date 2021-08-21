@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { waitFor, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react'
+import { waitFor, screen, fireEvent } from '@testing-library/react'
 import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
@@ -102,7 +102,7 @@ describe('Creating a shopping list item - happy path', () => {
       const form = descriptionInput.closest('form')
 
       // Fill out and submit the form
-      fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingots' } })
+      fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingot' } })
       fireEvent.change(quantityInput, { target: { value: '10' } })
       fireEvent.change(unitWeightInput, { target: { value: '1' } })
       fireEvent.change(notesInput, { target: { value: 'To make bolts with' } })
@@ -110,7 +110,7 @@ describe('Creating a shopping list item - happy path', () => {
       fireEvent.submit(form)
 
       // Item should be added to the list
-      const itemTitle = await within(listEl).findByText('Dwarven metal ingots')
+      const itemTitle = await within(listEl).findByText('Dwarven metal ingot')
       const itemElOnRegList = itemTitle.closest('.root')
       expect(itemTitle).toBeVisible()
 
@@ -130,7 +130,7 @@ describe('Creating a shopping list item - happy path', () => {
 
       fireEvent.click(allItemsTitle)
 
-      const itemTitleOnAggList = await within(allItemsEl).findByText('Dwarven metal ingots')
+      const itemTitleOnAggList = await within(allItemsEl).findByText('Dwarven metal ingot')
       const itemElOnAggList = itemTitleOnAggList.closest('.root')
 
       expect(itemElOnAggList).toBeVisible()

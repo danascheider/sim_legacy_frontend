@@ -1,8 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEdit } from '@fortawesome/free-regular-svg-icons'
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
-import { useColorScheme } from '../../hooks/contexts'
+import { useAppContext, useInventoryListsContext, useColorScheme } from '../../hooks/contexts'
+import withModal from '../../hocs/withModal'
+import InventoryListItemEditForm from '../inventoryListItemEditForm/inventoryListItemEditForm'
 import styles from './inventoryListItem.module.css'
 
 // If the unit weight has an integer value, we want
@@ -18,28 +23,63 @@ const formatWeight = weight => {
 }
 
 const InventoryListItem = ({
-  canEdit = true,
   itemId,
+  listTitle,
+  canEdit,
   description,
   quantity,
-  notes,
-  unitWeight
+  unitWeight,
+  notes
 }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [collapsed, setCollapsed] = useState(true)
 
+  // This enables us to set the quantity to the new quantity during the time between when
+  // the user increments/decrements the quantity and the time the API responds.
+  const [currentQuantity, setCurrentQuantity] = useState(quantity)
+
   const {
+    setFlashVisible,
+    setFlashAttributes,
+    setModalVisible,
+    setModalAttributes
+  } = useAppContext()
+  const { performInventoryListItemUpdate, performInventoryListItemDestroy } = useInventoryListsContext()
+
+  const mountedRef = useRef(true)
+  const editRef = useRef(null)
+  const incRef = useRef(null)
+  const decRef = useRef(null)
+
+  const {
+    schemeColorDarkest,
     schemeColorDark,
+    hoverColorDark,
     hoverColorLight,
+    textColorPrimary,
     textColorSecondary,
     borderColor,
     schemeColorLightest,
     textColorTertiary
   } = useColorScheme()
 
+  const refContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
+  const iconContains = el => refContains(incRef, el) || refContains(decRef, el) || refContains(editRef, el)
+
+  const shouldToggleDetails = element => !iconContains(element)
+
   const toggleDetails = e => {
-    setToggleEvent(Date.now)
-    setCollapsed(!collapsed)
+    if (shouldToggleDetails(e.target)) {
+      setToggleEvent(Date.now)
+      setCollapsed(!collapsed)
+    }
+  }
+
+  const displayFlash = (type, message) => {
+    if (!mountedRef.current) return
+
+    setFlashAttributes({ type, message })
+    setFlashVisible(true)
   }
 
   const styleVars = {
@@ -51,14 +91,120 @@ const InventoryListItem = ({
     '--hover-color': hoverColorLight
   }
 
+  const incrementQuantity = () => {
+    const oldQuantity = currentQuantity
+    const newQuantity = currentQuantity + 1
+
+    if (mountedRef.current) setCurrentQuantity(newQuantity)
+
+    const callbacks = {
+      onNotFound: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      },
+      onInternalServerError: () => {
+        setCurrentQuantity(oldQuantity)
+        setFlashVisible(true)
+      }
+    }
+
+    performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
+  }
+
+  const decrementQuantity = () => {
+    const oldQuantity = currentQuantity
+    const newQuantity = currentQuantity - 1
+
+    if (newQuantity > 0) {
+      const callbacks = {
+        onNotFound: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        },
+        onInternalServerError: () => {
+          setCurrentQuantity(oldQuantity)
+          setFlashVisible(true)
+        }
+      }
+
+      setCurrentQuantity(newQuantity)
+      performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
+    } else if (newQuantity === 0) {
+      const confirmed = window.confirm('Item quantity must be greater than zero. Delete the item instead?')
+
+      if (confirmed) {
+        const callbacks = {
+          onSuccess: () => mountedRef.current = false,
+          onNotFound: () => setFlashVisible(true),
+          onInternalServerError: () => setFlashVisible(true)
+        }
+
+        performInventoryListItemDestroy(itemId, callbacks)
+      } else {
+        displayFlash('info', 'Your item was not deleted.')
+      }
+    }
+  }
+
+  const showEditForm = () => {
+    if (!mountedRef.current) return
+
+    setFlashVisible(false)
+
+    const Tag = withModal(InventoryListItemEditForm)
+
+    setModalAttributes({
+      Tag,
+      props: {
+        title: description,
+        subtitle: `On list "${listTitle}"`,
+        buttonColor: {
+          schemeColorDarkest,
+          hoverColorDark,
+          borderColor,
+          textColorPrimary
+        },
+        currentAttributes: {
+          id: itemId,
+          description,
+          quantity,
+          unitWeight,
+          notes
+        }
+      }
+    })
+
+    setModalVisible(true)
+  }
+
+  useEffect(() => {
+    if (mountedRef.current) setCurrentQuantity(quantity)
+  }, [quantity])
+
+  useEffect(() => (
+    () => mountedRef.current = false
+  ), [])
+
   return(
     <div className={classNames(styles.root, { [styles.collapsed]: collapsed })} style={styleVars}>
       <div className={styles.toggle} onClick={toggleDetails}>
-        <span className={styles.header}>
+        <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
+          {canEdit &&
+          <span className={styles.editIcons}>
+            <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>
+              <FontAwesomeIcon className={styles.fa} icon={faEdit} />
+            </button>
+          </span>}
           <h3 className={styles.description}>{description}</h3>
         </span>
         <span className={styles.quantity}>
-          <div className={styles.quantityContent}>{quantity}</div>
+          {canEdit && <button className={styles.icon} ref={incRef} onClick={incrementQuantity} data-testid='incrementer'>
+            <FontAwesomeIcon className={styles.fa} icon={faAngleUp} />
+          </button>}
+          <div className={styles.quantityContent}>{currentQuantity}</div>
+          {canEdit && <button className={styles.icon} ref={decRef} onClick={decrementQuantity} data-testid='decrementer'>
+            <FontAwesomeIcon className={styles.fa} icon={faAngleDown} />
+          </button>}
         </span>
       </div>
       <SlideToggle toggleEvent={toggleEvent} collapsed>
@@ -77,7 +223,7 @@ const InventoryListItem = ({
 }
 
 InventoryListItem.propTypes = {
-  canEdit: PropTypes.bool,
+  canEdit: PropTypes.bool.isRequired,
   itemId: PropTypes.number.isRequired,
   description: PropTypes.string.isRequired,
   listTitle: PropTypes.string.isRequired,

@@ -9,17 +9,17 @@ import { renderWithRouter } from '../../../../setupTests'
 import { backendBaseUri } from '../../../../utils/config'
 import { AppProvider } from '../../../../contexts/appContext'
 import { GamesProvider } from '../../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
-import ShoppingListsPage from './../../shoppingListsPage'
+import { InventoryListsProvider } from '../../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
+import InventoryPage from './../../inventoryPage'
 
-describe('Decrementing a shopping list item - happy path', () => {
+describe('Decrementing an inventory list item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
-    const route = `/dashboard/shopping_lists?game_id=${games[0].id}`
+    const route = `/dashboard/inventory?game_id=${games[0].id}`
 
-    const shoppingLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+    const inventoryLists = allInventoryLists.filter(list => list.game_id === games[0].id)
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -28,9 +28,9 @@ describe('Decrementing a shopping list item - happy path', () => {
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'done' }}>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done' }}>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -38,12 +38,14 @@ describe('Decrementing a shopping list item - happy path', () => {
     )
   }
 
+   afterEach(() => component.unmount())
+
   describe('when the new quantity would be greater than zero', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/shopping_list_items/3`, (req, res, ctx) => {
-        const listItem = allShoppingLists[1].list_items[1]
-        const aggListItem = allShoppingLists[0].list_items.find(item => item.description.toLowerCase() === listItem.description.toLowerCase())
-        const quantity = req.body.shopping_list_item.quantity
+      rest.patch(`${backendBaseUri}/inventory_list_items/3`, (req, res, ctx) => {
+        const listItem = allInventoryLists[1].list_items[1]
+        const aggListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === listItem.description.toLowerCase())
+        const quantity = req.body.inventory_list_item.quantity
         const deltaQty = quantity - listItem.quantity
 
         const returnJson = [
@@ -71,21 +73,19 @@ describe('Decrementing a shopping list item - happy path', () => {
       server.resetHandlers()
     })
 
-    afterEach(() => component.unmount())
     afterAll(() => server.close())
 
     it('updates the requested item and the aggregate list', async () => {
       component = renderComponentWithMockCookies()
 
-      // We're going to increment an item on the 'Lakeview Manor' list
+      // We're going to decrement an item on the 'Lakeview Manor' list
       const listTitleEl = await screen.findByText('Lakeview Manor')
       const listEl = listTitleEl.closest('.root')
 
       fireEvent.click(listTitleEl)
 
-      // The list item we're going for is titled 'Ingredients with "Frenzy"
-      // property'. Its initial quantity is 4.
-      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      // The list item we're going for is 'Nirnroot'. Its initial quantity is 4.
+      const itemDescEl = await within(listEl).findByText('Nirnroot')
       const itemEl = itemDescEl.closest('.root')
       const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -103,7 +103,7 @@ describe('Decrementing a shopping list item - happy path', () => {
       fireEvent.click(aggListTitleEl)
 
       // Then find the corresponding item
-      const aggListItemDescEl = await within(aggListEl).findByText(/frenzy/i)
+      const aggListItemDescEl = await within(aggListEl).findByText('Nirnroot')
       const aggListItemEl = aggListItemDescEl.closest('.root')
 
       // Now we need to check its quantity. The quantity of this item
@@ -112,7 +112,7 @@ describe('Decrementing a shopping list item - happy path', () => {
       await waitFor(() => expect(within(aggListItemEl).queryByText('3')).toBeVisible())
     })
   })
-
+  
   describe('when the new quantity would be zero', () => {
     let confirm
 
@@ -134,7 +134,7 @@ describe('Decrementing a shopping list item - happy path', () => {
 
         // The list item we're going for is 'Ebony sword'. Its initial quantity
         // is 1.
-        const itemDescEl = await within(listEl).findByText(/ebony sword/i)
+        const itemDescEl = await within(listEl).findByText('Ebony sword')
         const itemEl = itemDescEl.closest('.root')
         const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -154,11 +154,11 @@ describe('Decrementing a shopping list item - happy path', () => {
     describe('when the user deletes the item when prompted', () => {
       describe('when the item on the aggregate list is not destroyed', () => {
         const server = setupServer(
-          rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+          rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
             const itemId = parseInt(req.params.id)
-            const regList = allShoppingLists.find(list => !!list.list_items.find(li => li.id === itemId))
+            const regList = allInventoryLists.find(list => !!list.list_items.find(li => li.id === itemId))
             const regListItem = regList.list_items.find(li => li.id === itemId)
-            const aggregateListItem = allShoppingLists[0].list_items.find(item => item.description.toLowerCase() === regListItem.description.toLowerCase())
+            const aggregateListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === regListItem.description.toLowerCase())
 
             const responseData = {
               ...aggregateListItem,
@@ -195,7 +195,7 @@ describe('Decrementing a shopping list item - happy path', () => {
 
           // The list item we're going for is 'Ebony sword'. Its initial quantity
           // is 1.
-          const itemDescEl = await within(listEl).findByText(/ebony sword/i)
+          const itemDescEl = await within(listEl).findByText('Ebony sword')
           const itemEl = itemDescEl.closest('.root')
           const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -216,7 +216,7 @@ describe('Decrementing a shopping list item - happy path', () => {
           fireEvent.click(aggListTitleEl)
 
           // Find the aggregate list item
-          const aggListItemTitleEl = await within(aggListEl).findByText(/ebony sword/i)
+          const aggListItemTitleEl = await within(aggListEl).findByText('Ebony sword')
           const aggListItemEl = aggListItemTitleEl.closest('.root')
 
           // The new quantity on the aggregate list should be 1
@@ -226,7 +226,7 @@ describe('Decrementing a shopping list item - happy path', () => {
 
       describe('when the item on the aggregate list is destroyed', () => {
         const server = setupServer(
-          rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+          rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
             return res(
               ctx.status(204)
             )
@@ -257,7 +257,7 @@ describe('Decrementing a shopping list item - happy path', () => {
           // The list item we're going for is 'Copper and onyx circlet'. Its
           // initial quantity is 1 and there is no other matching item on
           // another list
-          const itemDescEl = await within(listEl).findByText(/dwarven boots/i)
+          const itemDescEl = await within(listEl).findByText('Copper and onyx circlet')
           const itemEl = itemDescEl.closest('.root')
           const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -278,7 +278,7 @@ describe('Decrementing a shopping list item - happy path', () => {
           fireEvent.click(aggListTitleEl)
 
           // Find the aggregate list item
-          await waitFor(() => expect(within(aggListEl).queryByText(/dwarven boots/i)).not.toBeInTheDocument())
+          await waitFor(() => expect(within(aggListEl).queryByText('Copper and onyx circlet')).not.toBeInTheDocument())
         })
       })
     })

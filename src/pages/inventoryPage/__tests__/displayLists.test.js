@@ -207,8 +207,12 @@ describe('Displaying the inventory page', () => {
             // The clicked item's notes should be visible
             expect(within(ebonySwordItem).queryByText(/notes 1/)).toBeVisible()
 
-            // Notes for the other list item should not be visible
-            expect(within(lakeviewManorList).queryByText(/no details available/i)).not.toBeVisible()
+            // There are two list items with no notes. Neither of them should be expanded.
+            const noDetailsAvailable = within(lakeviewManorList).queryAllByText(/no details available/)
+
+            for (let i = 1; i < noDetailsAvailable.length; i++) {
+              expect(noDetailsAvailable[i]).not.toBeVisible()
+            }
           })
 
           it('collapses the item when you click it again', async () => {

@@ -24,7 +24,9 @@ import {
   createInventoryList,
   updateInventoryList,
   destroyInventoryList,
-  createInventoryListItem
+  createInventoryListItem,
+  updateInventoryListItem,
+  destroyInventoryListItem
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -78,6 +80,21 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     return { ...list }
   }
 
+  const listFromItemId = useCallback(itemId => inventoryLists.find(list => !!list.list_items.find(item => item.id === itemId)), [inventoryLists])
+
+  const removeItemFromList = (list, itemId) => {
+    const newList = { ...list }
+    const newListItems = [...list.list_items]
+
+    const item = list.list_items.find(item => item.id === itemId)
+    const index = list.list_items.indexOf(item)
+
+    newListItems.splice(index, 1)
+    newList.list_items = newListItems
+    
+    return newList
+  }
+
   const fetchLists = useCallback(() => {
     if (token && !inventoryListsOverridden.current) {
       fetchInventoryLists(token, activeGameId)
@@ -116,7 +133,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     }
   }, [token, logOutAndRedirect, setFlashAttributes, setFlashVisible, overrideValue.inventoryListLoadingState, activeGameId])
 
-  const performInventoryListCreate = useCallback((title, callbacks) => {
+  const performInventoryListCreate = useCallback((title, callbacks = {}) => {
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     createInventoryList(token, activeGameId, { title })
@@ -172,7 +189,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
           setFlashAttributes({
             type: 'error',
-            message: "Something unexpected happened while trying to create your shopping list. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to create your inventory list. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()
@@ -229,7 +246,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
-  const performInventoryListDestroy = useCallback((listId, callbacks) => {
+  const performInventoryListDestroy = useCallback((listId, callbacks = {}) => {
     const { onSuccess, onNotFound, onInternalServerError, onUnauthorized } = callbacks
 
     destroyInventoryList(token, listId)
@@ -263,7 +280,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           onSuccess && onSuccess()
         } else {
           const message = json.errors ? `Error ${status} when deleting inventory list ${listId}: ${json.errors}` : `Unknown error ${status} when deleting inventory list ${listId}`
-          throw new Error()
+          throw new Error(message)
         }
       })
       .catch(err => {
@@ -292,7 +309,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
-  const performInventoryListItemCreate = useCallback((listId, attrs, callbacks) => {
+  const performInventoryListItemCreate = useCallback((listId, attrs, callbacks = {}) => {
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
     createInventoryListItem(token, listId, attrs)
@@ -372,6 +389,125 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
+  const performInventoryListItemUpdate = useCallback((itemId, attrs, callbacks = {}) => {
+    const { onSuccess, onNotFound, onUnprocessableEntity, onInternalServerError, onUnauthorized } = callbacks
+
+    updateInventoryListItem(token, itemId, attrs)
+      .then(({ status, json }) => {
+        if (!mountedRef.current) return
+
+        if (status === 200) {
+          let newInventoryLists = [...inventoryLists]
+
+          for (let i = 0; i < json.length; i++) {
+            const list = inventoryLists.find(list => list.id === json[i].list_id)
+            const newList = addOrUpdateListItem(list, json[i])
+            const listPosition = inventoryLists.indexOf(list)
+            newInventoryLists[listPosition] = newList
+          }
+          
+          setInventoryLists(newInventoryLists)
+          setFlashAttributes({ type: 'success', message: 'Success! Your inventory list item was updated.' })
+
+          onSuccess && onSuccess()
+        } else if (status === 422) {
+          setFlashAttributes({
+            type: 'error',
+            header: `${json.errors.length} error(s) prevented your inventory list item from being updated:`,
+            message: json.errors
+          })
+
+          onUnprocessableEntity && onUnprocessableEntity()
+        } else {
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory list item ${itemId}: ${json.errors}` : `Unknown error ${status} when updating inventory list item ${itemId}`
+          throw new Error(message)
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list item you wanted to update. Try refreshing the page to fix this issue."
+          })
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Error updating inventory list item ${itemId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to update your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [token, inventoryLists, setFlashAttributes, logOutAndRedirect])
+
+  const performInventoryListItemDestroy = useCallback((itemId, callbacks = {}) => {
+    const { onSuccess, onNotFound, onInternalServerError, onUnauthorized } = callbacks
+
+    destroyInventoryListItem(token, itemId)
+      .then(({ status, json }) => {
+        if (status === 200 || status === 204) {
+          const regularListToRemoveItemFrom = listFromItemId(itemId)
+          const regularListIndex = inventoryLists.indexOf(regularListToRemoveItemFrom)
+          const newLists = [...inventoryLists]
+          let newAggregateList
+
+          if (status === 200) {
+            newAggregateList = addOrUpdateListItem(inventoryLists[0], json)
+          } else {
+            const deletedItem = regularListToRemoveItemFrom.list_items.find(item => item.id === itemId)
+            const aggregateListItem = inventoryLists[0].list_items.find(item => item.description.toLowerCase() === deletedItem.description.toLowerCase())
+
+            newAggregateList = removeItemFromList(inventoryLists[0], aggregateListItem.id)
+          }
+
+          const newRegularList = removeItemFromList(regularListToRemoveItemFrom, itemId)
+
+          newLists[0] = newAggregateList
+          newLists.splice(regularListIndex, 1, newRegularList)
+
+          setInventoryLists(newLists)
+
+          onSuccess && onSuccess()
+        } else {
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory list item ${itemId}: ${json.errors}` : `Error ${status} updating inventory list item ${itemId}`
+          throw new Error(message)
+        }
+      })
+      .catch(err => {
+        if (err.code === 401) {
+          logOutAndRedirect(paths.login, () => {
+            mountedRef.current = false
+            onUnauthorized && onUnauthorized()
+          })
+        } else if (err.code === 404) {
+          setFlashAttributes({
+            type: 'error',
+            message: "Oops! We couldn't find the inventory list item you wanted to delete. Try refreshing the page to fix this issue."
+          })
+
+          onNotFound && onNotFound()
+        } else {
+          if (process.env.NODE_ENV === 'development') console.error(`Unexpected error deleting list item ${itemId}: `, err)
+
+          setFlashAttributes({
+            type: 'error',
+            message: "Something unexpected happened while trying to delete your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+          })
+
+          onInternalServerError && onInternalServerError()
+        }
+      })
+  }, [token, inventoryLists, listFromItemId, logOutAndRedirect, setFlashAttributes])
+
   const value = {
     inventoryLists,
     inventoryListLoadingState,
@@ -379,6 +515,8 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     performInventoryListUpdate,
     performInventoryListDestroy,
     performInventoryListItemCreate,
+    performInventoryListItemUpdate,
+    performInventoryListItemDestroy,
     ...overrideValue
   }
 
@@ -418,7 +556,9 @@ InventoryListsProvider.propTypes = {
     performInventoryListCreate: PropTypes.func,
     performInventoryListUpdate: PropTypes.func,
     performInventoryListDestroy: PropTypes.func,
-    performInventoryListItemCreate: PropTypes.func
+    performInventoryListItemCreate: PropTypes.func,
+    performInventoryListItemUpdate: PropTypes.func,
+    performInventoryListItemDestroy: PropTypes.func
   })
 }
 

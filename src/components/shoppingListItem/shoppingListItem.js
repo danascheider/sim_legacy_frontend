@@ -10,6 +10,10 @@ import withModal from '../../hocs/withModal'
 import ShoppingListItemEditForm from '../shoppingListItemEditForm/shoppingListItemEditForm'
 import styles from './shoppingListItem.module.css'
 
+// If the unit weight has an integer value, we want
+// to display it as an integer. Only if it has a nonzero
+// value in the decimal place should it be displayed as
+// a decimal.
 const formatWeight = weight => {
   if (weight === undefined || weight === null || weight === '') return '-'
 
@@ -59,7 +63,6 @@ const ShoppingListItem = ({
   } = useShoppingListsContext()
 
   const mountedRef = useRef(true)
-  const iconsRef = useRef(null)
   const editRef = useRef(null)
   const deleteRef = useRef(null)
   const incRef = useRef(null)
@@ -120,6 +123,8 @@ const ShoppingListItem = ({
     const newQuantity = currentQuantity - 1
 
     if (newQuantity > 0) {
+      if (mountedRef.current) setCurrentQuantity(newQuantity)
+
       const callbacks = {
         onNotFound: () => {
           setCurrentQuantity(oldQuantity)
@@ -134,10 +139,16 @@ const ShoppingListItem = ({
       setCurrentQuantity(newQuantity)
       performShoppingListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
     } else if (newQuantity === 0) {
-      const confirmed = window.confirm("Item quantity must be greater than zero. Delete the item instead?")
+      const confirmed = window.confirm('Item quantity must be greater than zero. Delete the item instead?')
 
       if (confirmed) {
-        performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
+        const callbacks = {
+          success: () => mountedRef.current = false,
+          onNotFound: () => mountedRef.current && setFlashVisible(true),
+          onInternalServerError: () => mountedRef.current && setFlashVisible(true)
+        }
+
+        performShoppingListItemDestroy(itemId, callbacks)
       } else {
         displayFlash('info', 'Your item was not deleted.')
       }
@@ -180,9 +191,10 @@ const ShoppingListItem = ({
           },
           currentAttributes: {
             id: itemId,
+            description,
             quantity,
-            notes,
-            description
+            unitWeight,
+            notes
           }
         }
       })
@@ -204,7 +216,7 @@ const ShoppingListItem = ({
       <div className={styles.toggle} onClick={toggleDetails}>
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
-            <span className={styles.editIcons} ref={iconsRef}>
+            <span className={styles.editIcons}>
               <button className={styles.icon} ref={deleteRef} onClick={destroyItem} data-testid='destroy-item'>
                 <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
               </button>

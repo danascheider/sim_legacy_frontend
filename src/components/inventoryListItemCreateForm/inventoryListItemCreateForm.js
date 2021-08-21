@@ -41,7 +41,12 @@ const InventoryListItemCreateForm = ({ listId }) => {
     setFlashVisible(false)
 
     let unit_weight = e.target.elements.unitWeight.value
-    if (unit_weight !== undefined && unit_weight !== null && unit_weight !== '') unit_weight = Number(unit_weight)
+    
+    if (unit_weight === undefined || unit_weight === null || unit_weight === '') {
+      unit_weight = null
+    } else {
+      unit_weight = Number(unit_weight)
+    }
 
     const description = e.target.elements.description.value
     const quantity = parseInt(e.target.elements.quantity.value)

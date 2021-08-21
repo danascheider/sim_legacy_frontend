@@ -9,17 +9,17 @@ import { renderWithRouter } from '../../../../setupTests'
 import { backendBaseUri } from '../../../../utils/config'
 import { AppProvider } from '../../../../contexts/appContext'
 import { GamesProvider } from '../../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
-import ShoppingListsPage from './../../shoppingListsPage'
+import { InventoryListsProvider } from '../../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
+import InventoryPage from './../../inventoryPage'
 
-describe('Updating a shopping list item - happy path', () => {
+describe('Updating an inventory list item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
-    const route = `/dashboard/shopping_lists?game_id=${games[0].id}`
+    const route = `/dashboard/inventory?game_id=${games[0].id}`
 
-    const shoppingLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+    const inventoryLists = allInventoryLists.filter(list => list.game_id === games[0].id)
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -28,9 +28,9 @@ describe('Updating a shopping list item - happy path', () => {
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'done' }}>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done' }}>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -43,11 +43,11 @@ describe('Updating a shopping list item - happy path', () => {
 
   describe('when not updating unit weight', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/shopping_list_items/3`, (req, res, ctx) => {
-        const listItem = allShoppingLists[1].list_items[1]
-        const aggListItem = allShoppingLists[0].list_items.find(item => item.description.toLowerCase() === listItem.description.toLowerCase())
-        const quantity = parseInt(req.body.shopping_list_item.quantity)
-        const notes = req.body.shopping_list_item.notes
+      rest.patch(`${backendBaseUri}/inventory_list_items/3`, (req, res, ctx) => {
+        const listItem = allInventoryLists[1].list_items[1]
+        const aggListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === listItem.description.toLowerCase())
+        const quantity = parseInt(req.body.inventory_list_item.quantity)
+        const notes = req.body.inventory_list_item.notes
 
         const returnJson = [
           {
@@ -70,7 +70,7 @@ describe('Updating a shopping list item - happy path', () => {
     )
 
     beforeAll(() => server.listen())
-    beforeEach(() => server.resetHandlers())
+    beforeEach(() =>  server.resetHandlers())
     afterAll(() => server.close())
 
     it('updates the requested item and the aggregate list', async () => {
@@ -82,16 +82,16 @@ describe('Updating a shopping list item - happy path', () => {
 
       fireEvent.click(listTitleEl)
 
-      // The list item we're going for is titled 'Ingredients with "Frenzy"
-      // property'. Its initial quantity is 4 and it has no notes.
-      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      // The list item we're going for is titled 'Nirnroot'. Its initial
+      // quantity is 4 and it has no notes.
+      const itemDescEl = await within(listEl).findByText('Nirnroot')
       const itemEl = itemDescEl.closest('.root')
       const editIcon = within(itemEl).getByTestId('edit-item')
 
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-form')
+      const form = await screen.findByTestId('inventory-list-item-form')
       expect(form).toBeVisible()
 
       // Now find the form fields and fill out the form. This item has no notes
@@ -117,7 +117,7 @@ describe('Updating a shopping list item - happy path', () => {
       fireEvent.click(aggListTitleEl)
 
       // Then find the corresponding item
-      const aggListItemDescEl = await within(aggListEl).findByText(/frenzy/i)
+      const aggListItemDescEl = await within(aggListEl).findByText('Nirnroot')
       const aggListItemEl = aggListItemDescEl.closest('.root')
 
       // Expand the list item on each list to see the notes
@@ -143,9 +143,9 @@ describe('Updating a shopping list item - happy path', () => {
 
         fireEvent.click(listTitleEl)
 
-        // The list item we're going for is titled 'Ingredients with "Frenzy"
-        // property'. Its initial quantity is 4 and it has no notes.
-        const itemDescEl = await within(listEl).findByText(/frenzy/i)
+        // The list item we're going for is titled 'Nirnroot'. Its initial
+        // quantity is 4 and it has no notes.
+        const itemDescEl = await within(listEl).findByText('Nirnroot')
         const itemEl = itemDescEl.closest('.root')
         const editIcon = within(itemEl).getByTestId('edit-item')
 
@@ -153,7 +153,7 @@ describe('Updating a shopping list item - happy path', () => {
 
         // It should display the modal and form
         const modal = await screen.findByRole('dialog')
-        const form = within(modal).getByTestId('shopping-list-item-form')
+        const form = within(modal).getByTestId('inventory-list-item-form')
         expect(form).toBeVisible()
 
         // Now press the escape key to hide the modal
@@ -174,9 +174,9 @@ describe('Updating a shopping list item - happy path', () => {
 
         fireEvent.click(listTitleEl)
 
-        // The list item we're going for is titled 'Ingredients with "Frenzy"
-        // property'. Its initial quantity is 4 and it has no notes.
-        const itemDescEl = await within(listEl).findByText(/frenzy/i)
+        // The list item we're going for is titled 'Nirnroot'. Its initial
+        // quantity is 4 and it has no notes.
+        const itemDescEl = await within(listEl).findByText('Nirnroot')
         const itemEl = itemDescEl.closest('.root')
         const editIcon = within(itemEl).getByTestId('edit-item')
 
@@ -184,7 +184,7 @@ describe('Updating a shopping list item - happy path', () => {
 
         // It should display the modal and form
         const modal = await screen.findByRole('dialog')
-        const form = within(modal).getByTestId('shopping-list-item-form')
+        const form = within(modal).getByTestId('inventory-list-item-form')
         expect(form).toBeVisible()
 
         // Now click on the modal element, outside the form, to hide it
@@ -198,8 +198,8 @@ describe('Updating a shopping list item - happy path', () => {
 
   describe('when updating unit weight', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/shopping_list_items/1`, (req, res, ctx) => {
-        const lists = allShoppingLists.filter(list => list.game_id === games[0].id)
+      rest.patch(`${backendBaseUri}/inventory_list_items/1`, (req, res, ctx) => {
+        const lists = allInventoryLists.filter(list => list.game_id === games[0].id)
 
         let response = []
 
@@ -237,7 +237,7 @@ describe('Updating a shopping list item - happy path', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('shopping-list-item-form')
+      const form = await screen.findByTestId('inventory-list-item-form')
       expect(form).toBeVisible()
 
       // Now find the form field and fill out the form. This item has no unit weight

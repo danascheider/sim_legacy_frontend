@@ -5,6 +5,7 @@ There are several common errors in Jest that often come up as you're writing new
 * [Can't Perform a React State Update on an Unmounted Component](#cant-perform-a-react-state-update-on-an-unmounted-component)
 * [Failure Says Element Doesn't Appear and Shows an Empty Body](#failure-says-element-doesnt-appear-and-shows-an-empty-body)
 * [Tests Fail when Preceded by Other Tests with Form Events](#tests-fail-when-preceded-by-other-tests-with-form-events)
+* [Network Request Failed](#network-request-failed)
 * [MSW Says Preflight (CORS) OPTIONS Request Is Unhandled](#msw-says-preflight-cors-options-request-is-unhandled)
 
 ## Can't Perform a React State Update on an Unmounted Component
@@ -161,6 +162,10 @@ Another common error is that, when you have a test that interacts with a form, e
 There are some [known issues](https://github.com/testing-library/react-testing-library/issues/716) with React testing library that cause tests to become order-dependent in this way. The testing library maintainers have not yet figured out exactly what the problem is. There have been some other occurrences of the problem involving lazy loading and [Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html), which led maintainers to speculate that this could be the problem, however in this code base it has shown a clear pattern of coming after form events, primarily submits, in previous tests within the same file.
 
 Unfortunately, the only known workaround at this point is to separate affected tests into separate files, or remove them. Separating them is the preferred choice for this project and is a good idea when you have multiple tests with form submit events in them, even if they are passing, since we know state leakage and order dependence are possible in this situation. This could lead to false passes as well as false failures.
+
+## Network Request Failed
+
+This error typically means that there is some kind of error in one of your MSW request handlers, use of an undeclared variable, for example. Errors in MSW handlers don't seem to raise what you could consider "meaningful" errors but always indicate `Network Request Failed` when there is any syntax error or similar issue in the handler.
 
 ## MSW Says Preflight (CORS) OPTIONS Request Is Unhandled
 
