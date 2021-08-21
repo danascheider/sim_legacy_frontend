@@ -4,8 +4,7 @@ import { AppProvider } from '../../contexts/appContext'
 import { GamesProvider } from '../../contexts/gamesContext'
 import { InventoryListsProvider } from '../../contexts/inventoryListsContext'
 import Modal from '../../components/modal/modal'
-import { token, profileData, games } from '../../sharedTestData'
-import { listItemData, inventoryLists } from './storyData'
+import { token, profileData, games, allInventoryLists as inventoryLists } from '../../sharedTestData'
 import InventoryListItemEditForm from './inventoryListItemEditForm'
 
 export default { title: 'InventoryListItemEditForm' }
@@ -15,11 +14,11 @@ export const Default = () => (
     <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }}>
       <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done', performInventoryListItemUpdate: () => {} }}>
         <Modal
-          title={listItemData.description}
+          title={inventoryLists[1].list_items[0].description}
           subtitle={`On list "${inventoryLists[1].title}"`}
           setVisible={() => {}}
         >
-          <InventoryListItemEditForm buttonColor={GREEN} currentAttributes={listItemData} />
+          <InventoryListItemEditForm buttonColor={GREEN} currentAttributes={inventoryLists[1].list_items[0]} />
         </Modal>
       </InventoryListsProvider>
     </GamesProvider>
