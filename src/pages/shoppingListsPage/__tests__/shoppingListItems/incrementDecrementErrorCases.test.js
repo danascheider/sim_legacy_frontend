@@ -289,6 +289,14 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
             errors: ['Something went horribly wrong']
           })
         )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(500),
+          ctx.json({
+            errors: ['Mistakes were made']
+          })
+        )
       })
     )
 
@@ -338,7 +346,7 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
       })
     })
 
-    describe('decrementing', () => {
+    describe('decrementing above zero', () => {
       it("doesn't update the requested item and displays an error", async () => {
         component = renderComponentWithMockCookies()
 
@@ -376,6 +384,43 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
         await waitFor(() => expect(within(aggListItemEl).queryByText('4')).toBeVisible())
 
         // Finally, we'll check for the flash message
+        await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
+      })
+    })
+
+    describe('decrementing to zero', () => {
+      let confirm
+
+      beforeEach(() => {
+        confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+      })
+
+      afterEach(() => confirm.mockRestore())
+
+      it("doesn't remove the item and shows an error message", async () => {
+        component = renderComponentWithMockCookies()
+
+        // We're going to increment an item on the 'Lakeview Manor' list
+        const listTitleEl = await screen.findByText('Lakeview Manor')
+        const listEl = listTitleEl.closest('.root')
+
+        fireEvent.click(listTitleEl)
+
+        // The list item we're going for is titled 'Dwarven boots'
+        const itemDescEl = await within(listEl).findByText('Dwarven boots')
+        const itemEl = itemDescEl.closest('.root')
+        const decrementer = within(itemEl).getByTestId('decrementer')
+
+        fireEvent.click(decrementer)
+
+        // The item should not be removed
+        await waitFor(() => expect(itemEl).toBeVisible())
+
+        // The item's quantity should not be adjusted to zero
+        expect(within(itemEl).queryByText('0')).not.toBeInTheDocument()
+        expect(within(itemEl).getByText('1')).toBeVisible()
+
+        // There should be a flash error message
         await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
       })
     })
