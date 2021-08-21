@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Decrementing a inventory list item - happy path', () => {
+describe('Decrementing an inventory list item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -85,7 +85,7 @@ describe('Decrementing a inventory list item - happy path', () => {
       fireEvent.click(listTitleEl)
 
       // The list item we're going for is 'Nirnroot'. Its initial quantity is 4.
-      const itemDescEl = await within(listEl).findByText(/nirnroot/i)
+      const itemDescEl = await within(listEl).findByText('Nirnroot')
       const itemEl = itemDescEl.closest('.root')
       const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -103,7 +103,7 @@ describe('Decrementing a inventory list item - happy path', () => {
       fireEvent.click(aggListTitleEl)
 
       // Then find the corresponding item
-      const aggListItemDescEl = await within(aggListEl).findByText(/nirnroot/i)
+      const aggListItemDescEl = await within(aggListEl).findByText('Nirnroot')
       const aggListItemEl = aggListItemDescEl.closest('.root')
 
       // Now we need to check its quantity. The quantity of this item
@@ -134,7 +134,7 @@ describe('Decrementing a inventory list item - happy path', () => {
 
         // The list item we're going for is 'Ebony sword'. Its initial quantity
         // is 1.
-        const itemDescEl = await within(listEl).findByText(/ebony sword/i)
+        const itemDescEl = await within(listEl).findByText('Ebony sword')
         const itemEl = itemDescEl.closest('.root')
         const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -195,7 +195,7 @@ describe('Decrementing a inventory list item - happy path', () => {
 
           // The list item we're going for is 'Ebony sword'. Its initial quantity
           // is 1.
-          const itemDescEl = await within(listEl).findByText(/ebony sword/i)
+          const itemDescEl = await within(listEl).findByText('Ebony sword')
           const itemEl = itemDescEl.closest('.root')
           const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -216,7 +216,7 @@ describe('Decrementing a inventory list item - happy path', () => {
           fireEvent.click(aggListTitleEl)
 
           // Find the aggregate list item
-          const aggListItemTitleEl = await within(aggListEl).findByText(/ebony sword/i)
+          const aggListItemTitleEl = await within(aggListEl).findByText('Ebony sword')
           const aggListItemEl = aggListItemTitleEl.closest('.root')
 
           // The new quantity on the aggregate list should be 1
@@ -257,7 +257,7 @@ describe('Decrementing a inventory list item - happy path', () => {
           // The list item we're going for is 'Copper and onyx circlet'. Its
           // initial quantity is 1 and there is no other matching item on
           // another list
-          const itemDescEl = await within(listEl).findByText(/copper and onyx circlet/i)
+          const itemDescEl = await within(listEl).findByText('Copper and onyx circlet')
           const itemEl = itemDescEl.closest('.root')
           const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -278,7 +278,7 @@ describe('Decrementing a inventory list item - happy path', () => {
           fireEvent.click(aggListTitleEl)
 
           // Find the aggregate list item
-          await waitFor(() => expect(within(aggListEl).queryByText(/copper and onyx circlet/i)).not.toBeInTheDocument())
+          await waitFor(() => expect(within(aggListEl).queryByText('Copper and onyx circlet')).not.toBeInTheDocument())
         })
       })
     })
