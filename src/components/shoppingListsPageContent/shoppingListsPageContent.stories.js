@@ -224,7 +224,7 @@ HappyPath.parameters = {
         } else {
           // If the aggregate list item has a quantity equal to that of the item
           // destroyed (meaning there are no other matching items on any of that
-          // game's othere lists), then it will be removed from the databasee and
+          // game's othere lists), then it will be removed from the database and
           // the API will return a 204 No Content response.
           return res(
             ctx.status(204)
@@ -235,7 +235,7 @@ HappyPath.parameters = {
         // found in any list's array of list items. The list item doesn't exist
         // or doesn't belong to the authenticated user.
         return res(
-          ctx.status(204)
+          ctx.status(404)
         )
       }
     })

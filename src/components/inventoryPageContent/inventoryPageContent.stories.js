@@ -138,6 +138,112 @@ HappyPath.parameters = {
           ctx.status(404)
         )
       }
+    }),
+    // This request updates an inventory list item by ID, assuming the inventory list
+    // item exists and belongs to the authenticated user. For the purposes of
+    // Storybook, we assume the user is authenticated and the `allInventoryLists`
+    // array represents all their lists for all their games.
+    rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+      // Find the list the item is on
+      const itemId = parseInt(req.params.id)
+      const regList = findListByListItem(allInventoryLists, itemId)
+
+      if (regList) {
+        // If the regular list exists, find the item and the aggregate list the item
+        // is on. The corresponding item on that list will need to be updated as well.
+        // Note that, for this story, incrementing and decrementing are the only way
+        // to update an item - because there is no modal rendered in the story, the
+        // edit form will not appear if you click the update link.
+        const existingItem = regList.list_items.find(item => item.id === itemId)
+        const aggregateList = findAggregateList(allInventoryLists, regList.game_id)
+        const newItem = { ...existingItem, ...req.body.inventory_list_item }
+        const quantity = parseInt(newItem.quantity)
+        
+        if (newItem.unit_weight === null || newItem.unit_weight === undefined || newItem.unit_weight === '') {
+          newItem.unit_weight = null
+        } else {
+          newItem.unit_weight = Number(newItem.unit_weight)
+        }
+
+        if (quantity > 0) {
+          const deltaQuantity = quantity - existingItem.quantity
+          const aggregateListItem = aggregateList.list_items.find(item => (
+            item.description.toLowerCase() === existingItem.description.toLowerCase()
+          ))
+
+          adjustListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes, newItem.unit_weight)
+
+          return res(
+            ctx.status(200),
+            ctx.json([aggregateListItem, newItem])
+          )
+        } else {
+          // If the quantity is less than 0, return a 422 error
+          return res(
+            ctx.status(422),
+            ctx.json({ errors: ['Quantity must be greater than zero'] })
+          )
+        }
+      } else {
+        // Return a 404 error if the inventory list the item is on doesn't exist -
+        // that means the item wasn't found in any list's array of list items
+        return res(
+          ctx.status(404)
+        )
+      }
+    }),
+    // This request deletes the requested inventory list item, if it exists and
+    // belongs to the authenticated user. For the purposes of Storybook, we're
+    // assuming that the user is authenticated and the `allInventoryLists` array
+    // represents all their inventory lists for all their games.
+    rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+      // Find the item and the list it is on.
+      const itemId = parseInt(req.params.id)
+      const regList = findListByListItem(allInventoryLists, itemId)
+
+      if (regList) {
+        // If the list exists (i.e., if the item has been found on one of the
+        // lists for that game), find the item itself.
+        const item = regList.list_items.find(listItem => listItem.id === itemId)
+
+        // Find the item on the aggregate list.
+        const aggregateList = findAggregateList(allInventoryLists, regList.game_id)
+
+        // This will blow up if `aggregateList` is `null` but because there are
+        // aggregate lists hard-coded into the test data it would actually kind
+        // of be good to know if that wasn't making it into here properly.
+        let aggregateListItem = aggregateList.list_items.find(listItem => (
+          listItem.description.toLowerCase() === item.description.toLowerCase()
+        ))
+
+        aggregateListItem = removeOrAdjustItemOnItemDestroy(aggregateListItem, item)
+
+        if (aggregateListItem) {
+          // If the aggregate list item has a higher quantity than the item destroyed,
+          // meaning that there is another matching item on another shopping list for
+          // the same game, then the adjusted aggregate list item will be returned from
+          // the API.
+          return res(
+            ctx.status(200),
+            ctx.json(aggregateListItem)
+          )
+        } else {
+          // If the aggregate list item has a quantity equal to that of the item
+          // destroyed (meaning there are no other matching items on any of that
+          // game's othere lists), then it will be removed from the database and
+          // the API will return a 204 No Content response.
+          return res(
+            ctx.status(204)
+          )
+        }
+      } else {
+        // If the object `regList` is null, it means that the list item wasn't
+        // found in any list's array of list items. The list item doesn't exist
+        // or doesn't belong to the authenticated user.
+        return res(
+          ctx.status(404)
+        )
+      }
     })
   ]
 }
