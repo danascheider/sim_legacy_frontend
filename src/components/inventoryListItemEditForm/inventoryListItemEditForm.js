@@ -98,6 +98,7 @@ InventoryListItemEditForm.propTypes = {
     id: PropTypes.number.isRequired,
     description: PropTypes.string.isRequired,
     quantity: PropTypes.number.isRequired,
+    unitWeight: PropTypes.number,
     notes: PropTypes.string
   }).isRequired
 }
