@@ -93,6 +93,16 @@ HappyPath.parameters = {
         const description = req.body.shopping_list_item.description
         const quantity = req.body.shopping_list_item.quantity || '1'
 
+        // We're not going to do syncing of unit weights in this story. It's
+        // just too complicated. If a unit weight is set in Storybook, it'll only
+        // be set for the new item and the aggregate list item.
+        let unit_weight = req.body.shopping_list_item.unit_weight
+        if (unit_weight === null || unit_weight === undefined || unit_weight === '') {
+          unit_weight = null
+        } else {
+          unit_weight = Number(unit_weight)
+        }
+
         // Description and quantity are both required and neither can be blank. The
         // quantity must be an integer as well. If the quantity is a decimal/float value
         // greater than 1, it will be truncated and treated as an integer. If the
@@ -104,8 +114,8 @@ HappyPath.parameters = {
           const aggregateList = findAggregateList(allShoppingLists, regList.game_id)
           const aggregateListItem = aggregateList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
 
-          if (regListItem) adjustListItem(regListItem, parseInt(quantity), regListItem.notes, notes)
-          if (aggregateListItem) adjustListItem(aggregateListItem, parseInt(quantity), aggregateListItem.notes, notes)
+          if (regListItem) adjustListItem(regListItem, parseInt(quantity), regListItem.notes, notes, unit_weight)
+          if (aggregateListItem) adjustListItem(aggregateListItem, parseInt(quantity), aggregateListItem.notes, notes, unit_weight)
 
           const defaultRegListItem = { id: Math.floor(Math.random() * 10000), list_id: regList.id, description, quantity }
           const defaultAggListItem = { id: Math.floor(Math.random() * 10000), list_id: aggregateList.id, description, quantity }
@@ -165,7 +175,9 @@ HappyPath.parameters = {
             item.description.toLowerCase() === existingItem.description.toLowerCase()
           ))
 
-          adjustListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes)
+          const unitWeight = req.body.shopping_list_item.unit_weight
+
+          adjustListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes, unitWeight)
 
           return res(
             ctx.status(200),

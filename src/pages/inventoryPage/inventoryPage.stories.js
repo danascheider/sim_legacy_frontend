@@ -229,7 +229,7 @@ HappyPath.parameters = {
 
         // We're not going to do syncing of unit weights in this story. It's
         // just too complicated. If a unit weight is set in Storybook, it'll only
-        // be set for the new item.
+        // be set for the new item and the aggregate list item.
         let unit_weight = req.body.inventory_list_item.unit_weight
         if (unit_weight === null || unit_weight === undefined || unit_weight === '') {
           unit_weight = null
