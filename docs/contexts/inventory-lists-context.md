@@ -64,7 +64,7 @@ Valid `attrs` include the following:
 
 The `callbacks` object can contain the following callbacks:
 
-* `onSuccess`: called after a 200-range response has been handled successfully (possible responses are 200 and)
+* `onSuccess`: called after a 200-range response has been handled successfully (possible responses are 200 and 201)
 * `onNotFound`: called when the list the user wants to add the item to is not found or does not belong to the authenticated user
 * `onUnauthorized`: called when the request returns a 401 response
 * `onUnprocessableEntity`: called when the attributes the user submits are invalid or not unique
