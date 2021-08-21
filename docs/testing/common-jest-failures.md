@@ -165,7 +165,7 @@ Unfortunately, the only known workaround at this point is to separate affected t
 
 ## Network Request Failed
 
-This error typically means that there is some kind of error in one of your MSW request handlers, use of an undeclared variable, for example. Errors in MSW handlers don't seem to raise what you could consider "meaningful" errors but always indicate `Network Request Failed` when there is any logic error or other issue in the handler.
+This error typically means that there is some kind of error in one of your MSW request handlers, use of an undeclared variable, for example. Errors in MSW handlers don't seem to raise what you could consider "meaningful" errors but always indicate `Network Request Failed` when there is any syntax error or similar issue in the handler.
 
 ## MSW Says Preflight (CORS) OPTIONS Request Is Unhandled
 
