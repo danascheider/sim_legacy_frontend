@@ -9,22 +9,22 @@ import { renderWithRouter } from '../../../../setupTests'
 import { backendBaseUri } from '../../../../utils/config'
 import { AppProvider } from '../../../../contexts/appContext'
 import { GamesProvider } from '../../../../contexts/gamesContext'
-import { ShoppingListsProvider } from '../../../../contexts/shoppingListsContext'
-import { profileData, games, allShoppingLists } from '../../../../sharedTestData'
+import { InventoryListsProvider } from '../../../../contexts/inventoryListsContext'
+import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import {
   findAggregateList,
   findListByListItem,
   removeOrAdjustItemOnItemDestroy
 } from '../../../../sharedTestUtilities'
-import ShoppingListsPage from './../../shoppingListsPage'
+import InventoryPage from './../../inventoryPage'
 
-describe('Destroying a shopping list item', () => {
+describe('Destroying a inventory list item', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
-    const route = `/dashboard/shopping_lists?game_id=${games[0].id}`
+    const route = `/dashboard/inventory?game_id=${games[0].id}`
 
-    const shoppingLists = allShoppingLists.filter(list => list.game_id === games[0].id)
+    const inventoryLists = allInventoryLists.filter(list => list.game_id === games[0].id)
 
     const cookies = new Cookies('_sim_google_session="xxxxxx"')
     cookies.HAS_DOCUMENT_COOKIE = false
@@ -33,9 +33,9 @@ describe('Destroying a shopping list item', () => {
       <CookiesProvider cookies={cookies}>
         <AppProvider overrideValue={{ profileData }}>
           <GamesProvider overrideValue={{ games, gameLoadingState: 'done' }} >
-            <ShoppingListsProvider overrideValue={{ shoppingLists, shoppingListLoadingState: 'done' }}>
-              <ShoppingListsPage />
-            </ShoppingListsProvider>
+            <InventoryListsProvider overrideValue={{ inventoryLists, inventoryListLoadingState: 'done' }}>
+              <InventoryPage />
+            </InventoryListsProvider>
           </GamesProvider>
         </AppProvider>
       </CookiesProvider>,
@@ -56,7 +56,7 @@ describe('Destroying a shopping list item', () => {
       component = renderComponentWithMockCookies()
 
       // Start by finding the list the item is on. In this case, we'll be deleting the
-      // item 'Ingredients with "Frenzy" property' from the list 'Lakeview Manor'.
+      // item 'Nirnroot' from the list 'Lakeview Manor'.
       const listTitleEl = await screen.findByText('Lakeview Manor')
       const listEl = listTitleEl.closest('.root')
 
@@ -64,7 +64,7 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(listTitleEl)
 
       // Find the item on the list
-      const regItemDescEl = await within(listEl).findByText(/frenzy/i)
+      const regItemDescEl = await within(listEl).findByText('Nirnroot')
       const regItemEl = regItemDescEl.closest('.root')
 
       const destroyIcon = within(regItemEl).getByTestId('destroy-item')
@@ -86,7 +86,7 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list too
-      await waitFor(() => expect(aggListEl).toHaveTextContent(/frenzy/i))
+      await waitFor(() => expect(aggListEl).toHaveTextContent('Nirnroot'))
 
       // There should be a flash info message
       await waitFor(() => expect(screen.queryByText(/not deleted/i)).toBeVisible())
@@ -95,7 +95,7 @@ describe('Destroying a shopping list item', () => {
 
   describe('when the aggregate list item is also removed', () => {
     const server = setupServer(
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(204)
         )
@@ -128,7 +128,7 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(listTitleEl)
 
       // Find the item on the list
-      const regItemDescEl = await within(listEl).findByText(/frenzy/i)
+      const regItemDescEl = await within(listEl).findByText('Nirnroot')
       const regItemEl = regItemDescEl.closest('.root')
 
       const destroyIcon = within(regItemEl).getByTestId('destroy-item')
@@ -150,17 +150,17 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(aggListTitle)
 
       // The list item should not be on the aggregate list either
-      await waitFor(() => expect(aggListEl).not.toHaveTextContent(/frenzy/i))
+      await waitFor(() => expect(aggListEl).not.toHaveTextContent('Nirnroot'))
     })
   })
 
   describe('when the aggregate list item is not removed', () => {
     const server = setupServer(
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
         const itemId = parseInt(req.params.id)
-        const list = findListByListItem(allShoppingLists, itemId)
+        const list = findListByListItem(allInventoryLists, itemId)
         const item = list.list_items.find(i => i.id === itemId)
-        const aggList = findAggregateList(allShoppingLists, list.game_id)
+        const aggList = findAggregateList(allInventoryLists, list.game_id)
         const aggListItem = aggList.list_items.find(i => i.description.toLowerCase() === item.description.toLowerCase())
 
         return res(
@@ -218,13 +218,13 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list
-      await waitFor(() => expect(aggListEl).toHaveTextContent(/Ebony sword/))
+      await waitFor(() => expect(aggListEl).toHaveTextContent('Ebony sword'))
     })
   })
 
   describe('when the server returns a 401 error', () => {
     const server = setupServer(
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({
@@ -257,7 +257,7 @@ describe('Destroying a shopping list item', () => {
 
       // The list item we're going for is titled 'Ingredients with "Frenzy"
       // property'
-      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      const itemDescEl = await within(listEl).findByText('Nirnroot')
       const itemEl = itemDescEl.closest('.root')
       const destroyIcon = within(itemEl).getByTestId('destroy-item')
 
@@ -270,7 +270,7 @@ describe('Destroying a shopping list item', () => {
 
   describe('when the server returns a 404 error', () => {
     const server = setupServer(
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
@@ -300,7 +300,7 @@ describe('Destroying a shopping list item', () => {
 
       // The list item we're going for is titled 'Ingredients with "Frenzy"
       // property'. Its initial quantity is 4 and it has no notes.
-      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      const itemDescEl = await within(listEl).findByText('Nirnroot')
       const itemEl = itemDescEl.closest('.root')
       const destroy = within(itemEl).getByTestId('destroy-item')
 
@@ -317,7 +317,7 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list too
-      await waitFor(() => expect(aggListEl).toHaveTextContent(/frenzy/i))
+      await waitFor(() => expect(aggListEl).toHaveTextContent('Nirnroot'))
 
       // There should be a flash message visible
       await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
@@ -326,7 +326,7 @@ describe('Destroying a shopping list item', () => {
 
   describe('when the server returns a 500 error', () => {
     const server = setupServer(
-      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+      rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(500),
           ctx.json({
@@ -357,9 +357,8 @@ describe('Destroying a shopping list item', () => {
 
       fireEvent.click(listTitleEl)
 
-      // The list item we're going for is titled 'Ingredients with "Frenzy"
-      // property'. Its initial quantity is 4 and it has no notes.
-      const itemDescEl = await within(listEl).findByText(/frenzy/i)
+      // The list item we're going for is titled 'Nirnroot'.
+      const itemDescEl = await within(listEl).findByText('Nirnroot')
       const itemEl = itemDescEl.closest('.root')
       const destroy = within(itemEl).getByTestId('destroy-item')
 
@@ -376,7 +375,7 @@ describe('Destroying a shopping list item', () => {
       fireEvent.click(aggListTitle)
 
       // The list item should still be on the aggregate list too
-      await waitFor(() => expect(aggListEl).toHaveTextContent(/frenzy/i))
+      await waitFor(() => expect(aggListEl).toHaveTextContent('Nirnroot'))
 
       // There should be a flash error message
       await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
