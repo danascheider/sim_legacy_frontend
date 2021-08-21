@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { waitFor, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react'
+import { waitFor, screen, fireEvent } from '@testing-library/react'
 import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
@@ -50,6 +50,14 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
             errors: ['Google OAuth token validation failed']
           })
         )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(401),
+          ctx.json({
+            errors: ['Google OAuth token validation failed']
+          })
+        )
       })
     )
 
@@ -80,19 +88,47 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
       })
     })
 
-    describe('decrementing', () => {
+    describe('decrementing above zero', () => {
       it('returns to the login page', async () => {
         const { history } = component = renderComponentWithMockCookies()
 
-        // We're going to increment an item on the 'Lakeview Manor' list
         const listTitleEl = await screen.findByText('Lakeview Manor')
         const listEl = listTitleEl.closest('.root')
 
         fireEvent.click(listTitleEl)
 
-        // The list item we're going for is titled 'Ingredients with "Frenzy"
-        // property'. Its initial quantity is 4.
+        // The list item we're going for is titled 'Ingredients with "Frenzy" property'.
         const itemDescEl = await within(listEl).findByText(/frenzy/i)
+        const itemEl = itemDescEl.closest('.root')
+        const decrementer = within(itemEl).getByTestId('decrementer')
+
+        fireEvent.click(decrementer)
+
+        // It should redirect to the login page
+        await waitFor(() => expect(history.location.pathname).toEqual('/login'))
+      })
+    })
+
+    describe('decrementing to zero', () => {
+      let confirm
+      
+      beforeEach(() => {
+        confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+      })
+
+      afterEach(() => confirm.mockRestore())
+
+      it('returns to the login page', async () => {
+        const { history } = component = renderComponentWithMockCookies()
+
+        // We're going to decrement an item on the 'Lakeview Manor' list
+        const listTitleEl = await screen.findByText('Lakeview Manor')
+        const listEl = listTitleEl.closest('.root')
+
+        fireEvent.click(listTitleEl)
+
+        // The list item we're going for is titled 'Dwarven boots'.
+        const itemDescEl = await within(listEl).findByText('Dwarven boots')
         const itemEl = itemDescEl.closest('.root')
         const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -107,6 +143,11 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
   describe('when the server returns a 404', () => {
     const server = setupServer(
       rest.patch(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
+        return res(
+          ctx.status(404)
+        )
+      }),
+      rest.delete(`${backendBaseUri}/shopping_list_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
@@ -159,7 +200,7 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
       })
     })
 
-    describe('decrementing', () => {
+    describe('decrementing above zero', () => {
       it("doesn't update the requested item and displays an error", async () => {
         component = renderComponentWithMockCookies()
 
@@ -198,6 +239,43 @@ describe('Incrementing or decrementing a shopping list item - error cases', () =
 
         // Finally, we'll check for the flash message
         await waitFor(() => expect(screen.queryByText(/couldn't find/i)).toBeVisible())
+      })
+    })
+
+    describe('decrementing to zero', () => {
+      let confirm
+
+      beforeEach(() => {
+        confirm = jest.spyOn(window, 'confirm').mockImplementation(() => true)
+      })
+
+      afterEach(() => confirm.mockRestore())
+
+      it("doesn't remove the requested item and displays an error", async () => {
+        component = renderComponentWithMockCookies()
+
+        // We're going to increment an item on the 'Lakeview Manor' list
+        const listTitleEl = await screen.findByText('Lakeview Manor')
+        const listEl = listTitleEl.closest('.root')
+
+        fireEvent.click(listTitleEl)
+
+        // The list item we're going for is titled 'Dwarven boots'
+        const itemDescEl = await within(listEl).findByText('Dwarven boots')
+        const itemEl = itemDescEl.closest('.root')
+        const decrementer = within(itemEl).getByTestId('decrementer')
+
+        fireEvent.click(decrementer)
+
+        // The item should not be removed
+        await waitFor(() => expect(itemEl).toBeVisible())
+
+        // The item's quantity should not be adjusted to zero
+        expect(within(itemEl).queryByText('0')).not.toBeInTheDocument()
+        expect(within(itemEl).getByText('1')).toBeVisible()
+
+        // There should be a flash error message
+        await waitFor(() => expect(screen.queryByText(/couldn't find/)).toBeVisible())
       })
     })
   })

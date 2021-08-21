@@ -122,9 +122,9 @@ const ShoppingListItem = ({
     const oldQuantity = currentQuantity
     const newQuantity = currentQuantity - 1
 
-    if (mountedRef.current) setCurrentQuantity(newQuantity)
-
     if (newQuantity > 0) {
+      if (mountedRef.current) setCurrentQuantity(newQuantity)
+
       const callbacks = {
         onNotFound: () => {
           setCurrentQuantity(oldQuantity)
@@ -142,7 +142,13 @@ const ShoppingListItem = ({
       const confirmed = window.confirm('Item quantity must be greater than zero. Delete the item instead?')
 
       if (confirmed) {
-        performShoppingListItemDestroy(itemId, () => { mountedRef.current = false })
+        const callbacks = {
+          success: () => mountedRef.current = false,
+          onNotFound: () => mountedRef.current && setFlashVisible(true),
+          onInternalServerError: () => mountedRef.current && setFlashVisible(true)
+        }
+
+        performShoppingListItemDestroy(itemId, callbacks)
       } else {
         displayFlash('info', 'Your item was not deleted.')
       }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { waitFor, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react'
+import { waitFor, screen, fireEvent } from '@testing-library/react'
 import { within } from '@testing-library/dom'
 import { cleanCookies } from 'universal-cookie/lib/utils'
 import { Cookies, CookiesProvider } from 'react-cookie'
@@ -76,7 +76,7 @@ describe('Incrementing or decrementing an inventory list item - error cases', ()
         fireEvent.click(listTitleEl)
 
         // The list item we're going for is titled 'Nirnroot'.
-        const itemDescEl = await within(listEl).findByText(/nirnroot/i)
+        const itemDescEl = await within(listEl).findByText('Nirnroot')
         const itemEl = itemDescEl.closest('.root')
         const incrementer = within(itemEl).getByTestId('incrementer')
 
@@ -98,7 +98,7 @@ describe('Incrementing or decrementing an inventory list item - error cases', ()
         fireEvent.click(listTitleEl)
 
         // The list item we're going for is titled 'Nirnroot'.
-        const itemDescEl = await within(listEl).findByText(/nirnroot/i)
+        const itemDescEl = await within(listEl).findByText('Nirnroot')
         const itemEl = itemDescEl.closest('.root')
         const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -128,7 +128,7 @@ describe('Incrementing or decrementing an inventory list item - error cases', ()
         fireEvent.click(listTitleEl)
 
         // The list item we're going for is titled 'Copper and onyx circlet'.
-        const itemDescEl = await within(listEl).findByText(/copper and onyx circlet/i)
+        const itemDescEl = await within(listEl).findByText('Copper and onyx circlet')
         const itemEl = itemDescEl.closest('.root')
         const decrementer = within(itemEl).getByTestId('decrementer')
 
@@ -170,7 +170,7 @@ describe('Incrementing or decrementing an inventory list item - error cases', ()
 
         // The list item we're going for is titled 'Nirnroot'. Its initial
         // quantity is 4.
-        const itemDescEl = await within(listEl).findByText(/nirnroot/i)
+        const itemDescEl = await within(listEl).findByText('Nirnroot')
         const itemEl = itemDescEl.closest('.root')
         const incrementer = within(itemEl).getByTestId('incrementer')
 
@@ -188,7 +188,7 @@ describe('Incrementing or decrementing an inventory list item - error cases', ()
         fireEvent.click(aggListTitleEl)
 
         // Then find the corresponding item
-        const aggListItemDescEl = await within(aggListEl).findByText(/nirnroot/i)
+        const aggListItemDescEl = await within(aggListEl).findByText('Nirnroot')
         const aggListItemEl = aggListItemDescEl.closest('.root')
 
         // Now we need to check its quantity. The original quantity of this item
