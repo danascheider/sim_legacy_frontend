@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
-import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-icons'
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useInventoryListsContext, useColorScheme } from '../../hooks/contexts'
 import withModal from '../../hocs/withModal'
@@ -48,6 +48,7 @@ const InventoryListItem = ({
 
   const mountedRef = useRef(true)
   const editRef = useRef(null)
+  const deleteRef = useRef(null)
   const incRef = useRef(null)
   const decRef = useRef(null)
 
@@ -64,7 +65,7 @@ const InventoryListItem = ({
   } = useColorScheme()
 
   const refContains = (ref, el) => ref.current && (ref.current === el || ref.current.contains(el))
-  const iconContains = el => refContains(incRef, el) || refContains(decRef, el) || refContains(editRef, el)
+  const iconContains = el => refContains(incRef, el) || refContains(decRef, el) || refContains(editRef, el) || refContains(deleteRef, el)
 
   const shouldToggleDetails = element => !iconContains(element)
 
@@ -146,6 +147,23 @@ const InventoryListItem = ({
     }
   }
 
+  const destroyItem = () => {
+    const confirmed = window.confirm("Destroy inventory list item? Your All Items list will be updated to reflect the change. This cannot be undone.")
+
+    if (confirmed) {
+      const callbacks = {
+        onSuccess: () => mountedRef.current = false,
+        onUnauthorized: () => mountedRef.current = false,
+        onNotFound: () => setFlashVisible(true),
+        onInternalServerError: () => setFlashVisible(true)
+      }
+
+      performInventoryListItemDestroy(itemId, callbacks)
+    } else {
+      displayFlash('info', 'Your item was not deleted.')
+    }
+  }
+
   const showEditForm = () => {
     if (!mountedRef.current) return
 
@@ -191,6 +209,9 @@ const InventoryListItem = ({
         <span className={classNames(styles.header, { [styles.headerEditable]: canEdit })}>
           {canEdit &&
           <span className={styles.editIcons}>
+            <button className={styles.icon} ref={deleteRef} onClick={destroyItem} data-testid='destroy-item'>
+              <FontAwesomeIcon className={classNames(styles.fa, styles.destroyIcon)} icon={faTimes} />
+            </button>
             <button className={styles.icon} ref={editRef} onClick={showEditForm} data-testid='edit-item'>
               <FontAwesomeIcon className={styles.fa} icon={faEdit} />
             </button>
