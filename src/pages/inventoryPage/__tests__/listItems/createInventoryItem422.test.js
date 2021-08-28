@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Creating an inventory list item when the server returns a 500', () => {
+describe('Creating a inventory item when the attributes are invalid', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -39,11 +39,11 @@ describe('Creating an inventory list item when the server returns a 500', () => 
   }
 
   const server = setupServer(
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       return res(
-        ctx.status(500),
+        ctx.status(422),
         ctx.json({
-          errors: ['Something went horribly wrong']
+          errors: ['Quantity must be greater than zero']
         })
       )
     })
@@ -56,7 +56,7 @@ describe('Creating an inventory list item when the server returns a 500', () => 
     server.resetHandlers()
   })
 
-  afterEach(() => component && component.unmount())
+  afterEach(() => component.unmount())
   afterAll(() => server.close())
 
   it("doesn't add the item and displays an error message", async () => {
@@ -80,19 +80,19 @@ describe('Creating an inventory list item when the server returns a 500', () => 
     const form = descriptionInput.closest('form')
 
     // Fill out and submit the form
-    fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingots' } })
-    fireEvent.change(quantityInput, { target: { value: '10' } })
+    fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingot' } })
+    fireEvent.change(quantityInput, { target: { value: '-42' } })
     fireEvent.change(notesInput, { target: { value: 'To make bolts with' } })
 
     fireEvent.submit(form)
 
-    // Form should be hidden
-    await waitFor(() => expect(form).not.toBeVisible())
+    // Form should not be hidden in this case
+    await waitFor(() => expect(form).toBeVisible())
 
     // The item should not be added to the list
-    expect(listEl).not.toHaveTextContent(/Dwarven metal ingots/)
+    expect(listEl).not.toHaveTextContent(/Dwarven metal ingot/)
 
     //  There should be an error message
-    await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
+    await waitFor(() => expect(screen.queryByText(/quantity must be greater than zero/i)).toBeVisible())
   })
 })

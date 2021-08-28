@@ -205,7 +205,7 @@ HappyPath.parameters = {
     // list exists and belongs to the authenticated user. For the purposes of Storybook, we
     // assume the user is authenticated and the `allInventoryLists` array represents all their
     // inventory lists for all their games.
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       // Find the inventory list the user wants to add the item to
       const listId = parseInt(req.params.listId)
       const regList = allInventoryLists.find(list => list.id === listId)
@@ -224,13 +224,13 @@ HappyPath.parameters = {
         // If there is a matching item on the aggregate list, that item will be updated as
         // described above. If there is no matching item, a new one will be created with
         // the `notes` and `description` values from the request.
-        const description = req.body.inventory_list_item.description
-        const quantity = req.body.inventory_list_item.quantity || '1'
+        const description = req.body.inventory_item.description
+        const quantity = req.body.inventory_item.quantity || '1'
 
         // We're not going to do syncing of unit weights in this story. It's
         // just too complicated. If a unit weight is set in Storybook, it'll only
         // be set for the new item and the aggregate list item.
-        let unit_weight = req.body.inventory_list_item.unit_weight
+        let unit_weight = req.body.inventory_item.unit_weight
         if (unit_weight === null || unit_weight === undefined || unit_weight === '') {
           unit_weight = null
         } else {
@@ -243,7 +243,7 @@ HappyPath.parameters = {
         // quantity is non-numeric or less than 1, it is invalid.
         if (description && quantity && (typeof quantity === 'number' || quantity.match(/[1-9]+(\.\d+)?/))) {
           const regListItem = regList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
-          const notes = req.body.inventory_list_item.notes
+          const notes = req.body.inventory_item.notes
 
           const aggregateList = findAggregateList(allInventoryLists, regList.game_id)
           const aggregateListItem = aggregateList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
@@ -258,6 +258,10 @@ HappyPath.parameters = {
           // updated list item from the regular list with a 200 status.
           const returnData = [aggregateListItem || defaultAggListItem, regListItem || defaultRegListItem]
 
+          // In reality this might return a 201 as well and the flash message will be affected by
+          // what the status is. A 200 message leads to a flash message indicating the item has been combined
+          // with another matching item, while a 201 would lead to a flash message indicating a new item
+          // has been created.
           return res(
             ctx.status(200),
             ctx.json(returnData)
@@ -280,11 +284,11 @@ HappyPath.parameters = {
         )
       }
     }),
-    // This request updates an inventory list item by ID, assuming the inventory list
+    // This request updates an inventory item by ID, assuming the inventory
     // item exists and belongs to the authenticated user. For the purposes of
     // Storybook, we assume the user is authenticated and the `allInventoryLists`
     // array represents all their inventory lists for all their games.
-    rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       // Find the list the item is on
       const itemId = parseInt(req.params.id)
       const regList = findListByListItem(allInventoryLists, itemId)
@@ -295,7 +299,7 @@ HappyPath.parameters = {
         // will need to be updated as well.
         const existingItem = regList.list_items.find(item => item.id === itemId)
         const aggregateList = findAggregateList(allInventoryLists, regList.game_id)
-        const newItem = { ...existingItem, ...req.body.inventory_list_item }
+        const newItem = { ...existingItem, ...req.body.inventory_item }
 
         if (parseInt(newItem.quantity) > 0) {
           const deltaQuantity = newItem.quantity - existingItem.quantity
@@ -303,7 +307,7 @@ HappyPath.parameters = {
             item.description.toLowerCase() === existingItem.description.toLowerCase()
           ))
 
-          const unitWeight = req.body.inventory_list_item.unit_weight
+          const unitWeight = req.body.inventory_item.unit_weight
 
           adjustListItem(aggregateListItem, deltaQuantity, existingItem.notes, newItem.notes, unitWeight)
 
@@ -326,11 +330,11 @@ HappyPath.parameters = {
         )
       }
     }),
-    // This request deletes the requested inventory list item, if it exists and
+    // This request deletes the requested inventory item, if it exists and
     // belongs to the authenticated user. For the purposes of Storybook, we're
     // assuming that the user is authenticated and the `allInventoryLists` array
     // represents all their inventory lists for all their games.
-    rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.delete(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       // Find the item and the list it is on.
       const itemId = parseInt(req.params.id)
       const regList = findListByListItem(allInventoryLists, itemId)
@@ -498,17 +502,17 @@ GameNotFoundOnCreate.parameters = {
         ctx.status(404)
       )
     }),
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
     }),
-    rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
     }),
-    rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.delete(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
@@ -605,29 +609,29 @@ ListOrItemNotFound.parameters = {
         ctx.status(404)
       )
     }),
-    // This illustrates what would happen if a user tried to create an inventory list item
+    // This illustrates what would happen if a user tried to create an inventory item
     // on a list after deleting the list on another device or browser. The API would return
     // a 404 and the UI should display a message telling the user the list could not be found
     // and advising them to refresh their browser.
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
     }),
-    // This illustrates what would happen if a user tried to update an inventory list item
+    // This illustrates what would happen if a user tried to update an inventory item
     // after deleting the list item on another device or browser. The API would return a
     // 404 and the UI should display a message telling the user the item could not be found
     // and advising them to refresh their browser.
-    rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
     }),
-    // This illustrates what would happen if a user tried to delete an inventory list item
+    // This illustrates what would happen if a user tried to delete an inventory item
     // after deleting the list item on another device or browser. The API would return a
     // 404 and the UI should display a message telling the user the list could not be found
     // and advising them to refresh their browser.
-    rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.delete(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )
@@ -651,7 +655,7 @@ export const NoLists = () => (
   </AppProvider>
 )
 
-// This story will not offer the possibility to add inventory list items to lists you create.
+// This story will not offer the possibility to add inventory items to lists you create.
 // It's just too hard to predict and mock application state so many actions out. It also
 // won't offer the ability to create new games from the games dropdown since that triggers
 // a GET request to inventory lists and becomes a whole thing.

@@ -348,14 +348,14 @@ export const destroyInventoryList = (token, listId) => {
 
 /*
  *
- * Inventory List Item Endpoints
+ * Inventory Item Endpoints
  *
  */
 
-// POST /inventory_lists/:list_id/inventory_list_items
-export const createInventoryListItem = (token, listId, attrs) => {
-  const uri = `${backendBaseUri}/inventory_lists/${listId}/inventory_list_items`
-  const body = JSON.stringify({ inventory_list_item: attrs })
+// POST /inventory_lists/:list_id/inventory_items
+export const createInventoryItem = (token, listId, attrs) => {
+  const uri = `${backendBaseUri}/inventory_lists/${listId}/inventory_items`
+  const body = JSON.stringify({ inventory_item: attrs })
 
   return(
     fetch(uri, { method: 'POST', headers: combinedHeaders(token), body })
@@ -368,10 +368,10 @@ export const createInventoryListItem = (token, listId, attrs) => {
   )
 }
 
-// PATCH /inventory_list_items/:id
-export const updateInventoryListItem = (token, itemId, attrs) => {
-  const uri = `${backendBaseUri}/inventory_list_items/${itemId}`
-  const body = JSON.stringify({ inventory_list_item: attrs })
+// PATCH /inventory_items/:id
+export const updateInventoryItem = (token, itemId, attrs) => {
+  const uri = `${backendBaseUri}/inventory_items/${itemId}`
+  const body = JSON.stringify({ inventory_item: attrs })
 
   return(
     fetch(uri, { method: 'PATCH', headers: combinedHeaders(token), body })
@@ -384,9 +384,9 @@ export const updateInventoryListItem = (token, itemId, attrs) => {
   )
 }
 
-// DELETE /inventory_list_items/:id
-export const destroyInventoryListItem = (token, itemId) => {
-  const uri = `${backendBaseUri}/inventory_list_items/${itemId}`
+// DELETE /inventory_items/:id
+export const destroyInventoryItem = (token, itemId) => {
+  const uri = `${backendBaseUri}/inventory_items/${itemId}`
 
   return(
     fetch(uri, { method: 'DELETE', headers: authHeader(token) })

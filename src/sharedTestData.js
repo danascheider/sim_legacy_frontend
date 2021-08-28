@@ -23,7 +23,7 @@ export const emptyShoppingListItems = []
 
 export const emptyInventoryLists = []
 
-export const emptyInventoryListItems = []
+export const emptyInventoryItems = []
 
 export const token = 'xxxxxxx'
 
@@ -294,7 +294,7 @@ export const allInventoryLists = [
     game_id: games[0].id,
     title: 'Breezehome',
     aggregate: false,
-    list_items: emptyInventoryListItems
+    list_items: emptyInventoryItems
   },
 
   // Game 2 inventory lists
@@ -310,13 +310,13 @@ export const allInventoryLists = [
     game_id: games[1].id,
     title: 'Windstad Manor',
     aggregate: false,
-    list_items: emptyInventoryListItems
+    list_items: emptyInventoryItems
   },
   {
     id: 6818,
     game_id: games[1].id,
     title: 'Hjerim',
     aggregate: false,
-    list_items: emptyInventoryListItems
+    list_items: emptyInventoryItems
   }
 ]

@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Creating a inventory list item - when the server returns a 401', () => {
+describe('Creating an inventory item when the server returns a 500', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -39,11 +39,11 @@ describe('Creating a inventory list item - when the server returns a 401', () =>
   }
 
   const server = setupServer(
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       return res(
-        ctx.status(401),
+        ctx.status(500),
         ctx.json({
-          errors: ['Google OAuth token validation failed']
+          errors: ['Something went horribly wrong']
         })
       )
     })
@@ -56,11 +56,11 @@ describe('Creating a inventory list item - when the server returns a 401', () =>
     server.resetHandlers()
   })
 
-  afterEach(() => component.unmount())
+  afterEach(() => component && component.unmount())
   afterAll(() => server.close())
 
   it("doesn't add the item and displays an error message", async () => {
-    const { history } = component = renderComponentWithMockCookies()
+    component = renderComponentWithMockCookies()
 
     const listTitle = await screen.findByText('Lakeview Manor')
     const listEl = listTitle.closest('.root')
@@ -86,7 +86,13 @@ describe('Creating a inventory list item - when the server returns a 401', () =>
 
     fireEvent.submit(form)
 
-    // The user should be redirected to the login page
-    await waitFor(() => expect(history.location.pathname).toEqual('/login'))
+    // Form should be hidden
+    await waitFor(() => expect(form).not.toBeVisible())
+
+    // The item should not be added to the list
+    expect(listEl).not.toHaveTextContent(/Dwarven metal ingots/)
+
+    //  There should be an error message
+    await waitFor(() => expect(screen.queryByText(/something unexpected happened/i)).toBeVisible())
   })
 })

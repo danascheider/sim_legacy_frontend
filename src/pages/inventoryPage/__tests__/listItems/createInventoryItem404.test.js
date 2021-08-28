@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Creating a inventory list item - when the server returns a 404', () => {
+describe('Creating a inventory item - when the server returns a 404', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -39,7 +39,7 @@ describe('Creating a inventory list item - when the server returns a 404', () =>
   }
 
   const server = setupServer(
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       return res(
         ctx.status(404)
       )

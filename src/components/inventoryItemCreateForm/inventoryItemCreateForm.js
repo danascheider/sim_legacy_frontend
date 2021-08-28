@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useColorScheme, useInventoryListsContext } from '../../hooks/contexts'
-import styles from './inventoryListItemCreateForm.module.css'
+import styles from './inventoryItemCreateForm.module.css'
 
-const InventoryListItemCreateForm = ({ listId }) => {
+const InventoryItemCreateForm = ({ listId }) => {
   const [toggleEvent, setToggleEvent] = useState(0)
   const [collapsed, setCollapsed] = useState(true)
   const { setFlashVisible } = useAppContext()
-  const { performInventoryListItemCreate } = useInventoryListsContext()
+  const { performInventoryItemCreate } = useInventoryListsContext()
   const {
     schemeColorDark,
     hoverColorLight,
@@ -66,7 +66,7 @@ const InventoryListItemCreateForm = ({ listId }) => {
       onInternalServerError: resetToggleAndDisplayFlash
     }
 
-    performInventoryListItemCreate(listId, attrs, callbacks)
+    performInventoryItemCreate(listId, attrs, callbacks)
   }
 
   return(
@@ -109,8 +109,8 @@ const InventoryListItemCreateForm = ({ listId }) => {
   )
 }
 
-InventoryListItemCreateForm.propTypes = {
+InventoryItemCreateForm.propTypes = {
   listId: PropTypes.number.isRequired
 }
 
-export default InventoryListItemCreateForm
+export default InventoryItemCreateForm

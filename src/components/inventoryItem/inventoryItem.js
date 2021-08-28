@@ -7,8 +7,8 @@ import { faAngleUp, faAngleDown, faTimes } from '@fortawesome/free-solid-svg-ico
 import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useInventoryListsContext, useColorScheme } from '../../hooks/contexts'
 import withModal from '../../hocs/withModal'
-import InventoryListItemEditForm from '../inventoryListItemEditForm/inventoryListItemEditForm'
-import styles from './inventoryListItem.module.css'
+import InventoryItemEditForm from '../inventoryItemEditForm/inventoryItemEditForm'
+import styles from './inventoryItem.module.css'
 
 // If the unit weight has an integer value, we want
 // to display it as an integer. Only if it has a nonzero
@@ -22,7 +22,7 @@ const formatWeight = weight => {
   return weightNum % 1 === 0 ? weightNum.toFixed(0) : weightNum.toFixed(1)
 }
 
-const InventoryListItem = ({
+const InventoryItem = ({
   itemId,
   listTitle,
   canEdit,
@@ -44,7 +44,7 @@ const InventoryListItem = ({
     setModalVisible,
     setModalAttributes
   } = useAppContext()
-  const { performInventoryListItemUpdate, performInventoryListItemDestroy } = useInventoryListsContext()
+  const { performInventoryItemUpdate, performInventoryItemDestroy } = useInventoryListsContext()
 
   const mountedRef = useRef(true)
   const editRef = useRef(null)
@@ -109,7 +109,7 @@ const InventoryListItem = ({
       }
     }
 
-    performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
+    performInventoryItemUpdate(itemId, { quantity: newQuantity }, callbacks)
   }
 
   const decrementQuantity = () => {
@@ -129,7 +129,7 @@ const InventoryListItem = ({
       }
 
       setCurrentQuantity(newQuantity)
-      performInventoryListItemUpdate(itemId, { quantity: newQuantity }, callbacks)
+      performInventoryItemUpdate(itemId, { quantity: newQuantity }, callbacks)
     } else if (newQuantity === 0) {
       const confirmed = window.confirm('Item quantity must be greater than zero. Delete the item instead?')
 
@@ -140,7 +140,7 @@ const InventoryListItem = ({
           onInternalServerError: () => setFlashVisible(true)
         }
 
-        performInventoryListItemDestroy(itemId, callbacks)
+        performInventoryItemDestroy(itemId, callbacks)
       } else {
         displayFlash('info', 'Your item was not deleted.')
       }
@@ -148,7 +148,7 @@ const InventoryListItem = ({
   }
 
   const destroyItem = () => {
-    const confirmed = window.confirm("Destroy inventory list item? Your All Items list will be updated to reflect the change. This cannot be undone.")
+    const confirmed = window.confirm("Destroy inventory item? Your All Items list will be updated to reflect the change. This cannot be undone.")
 
     if (confirmed) {
       const callbacks = {
@@ -158,7 +158,7 @@ const InventoryListItem = ({
         onInternalServerError: () => setFlashVisible(true)
       }
 
-      performInventoryListItemDestroy(itemId, callbacks)
+      performInventoryItemDestroy(itemId, callbacks)
     } else {
       displayFlash('info', 'Your item was not deleted.')
     }
@@ -169,7 +169,7 @@ const InventoryListItem = ({
 
     setFlashVisible(false)
 
-    const Tag = withModal(InventoryListItemEditForm)
+    const Tag = withModal(InventoryItemEditForm)
 
     setModalAttributes({
       Tag,
@@ -243,7 +243,7 @@ const InventoryListItem = ({
   )
 }
 
-InventoryListItem.propTypes = {
+InventoryItem.propTypes = {
   canEdit: PropTypes.bool.isRequired,
   itemId: PropTypes.number.isRequired,
   description: PropTypes.string.isRequired,
@@ -253,4 +253,4 @@ InventoryListItem.propTypes = {
   unitWeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 }
 
-export default InventoryListItem
+export default InventoryItem
