@@ -24,9 +24,9 @@ import {
   createInventoryList,
   updateInventoryList,
   destroyInventoryList,
-  createInventoryListItem,
-  updateInventoryListItem,
-  destroyInventoryListItem
+  createInventoryItem,
+  updateInventoryItem,
+  destroyInventoryItem
 } from '../utils/simApi'
 import { LOADING, DONE, ERROR } from '../utils/loadingStates'
 import { useAppContext, useGamesContext } from '../hooks/contexts'
@@ -309,10 +309,10 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
-  const performInventoryListItemCreate = useCallback((listId, attrs, callbacks = {}) => {
+  const performInventoryItemCreate = useCallback((listId, attrs, callbacks = {}) => {
     const { onSuccess, onNotFound, onUnprocessableEntity, onUnauthorized, onInternalServerError } = callbacks
 
-    createInventoryListItem(token, listId, attrs)
+    createInventoryItem(token, listId, attrs)
       .then(({ status, json }) => {
         if (!mountedRef.current) return
 
@@ -340,12 +340,12 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           if (status === 201) {
             setFlashAttributes({
               type: 'success',
-              message: 'Success! Your inventory list item has been created.'
+              message: 'Success! Your inventory item has been created.'
             })
           } else {
             setFlashAttributes({
               type: 'success',
-              message: 'Success! Your new inventory list item has been combined with another item with the same description.'
+              message: 'Success! Your new inventory item has been combined with another item with the same description.'
             })
           }
 
@@ -353,13 +353,13 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
         } else if (status === 422) {
           setFlashAttributes({
             type: 'error',
-            header: `${json.errors.length} error(s) prevented your list item from being created:`,
+            header: `${json.errors.length} error(s) prevented your inventory item from being created:`,
             message: json.errors
           })
 
           onUnprocessableEntity && onUnprocessableEntity()
         } else {
-          const message = json.errors && json.errors.length ? `Error ${status} creating list item for inventory list ${listId}: ${json.errors}` : `Unknown error ${status} creating list item for inventory list ${listId}`
+          const message = json.errors && json.errors.length ? `Error ${status} creating item for inventory list ${listId}: ${json.errors}` : `Unknown error ${status} creating list item for inventory list ${listId}`
           throw new Error(message)
         }
       })
@@ -377,11 +377,11 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
           onNotFound && onNotFound()
         } else {
-          if (process.env.NODE_ENV === 'development') console.error('Error creating inventory list item: ', err)
+          if (process.env.NODE_ENV === 'development') console.error('Error creating inventory item: ', err)
 
           setFlashAttributes({
             type: 'error',
-            message: "Something unexpected happened while trying to create your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to create your inventory item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()
@@ -389,10 +389,10 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, logOutAndRedirect, setFlashAttributes])
 
-  const performInventoryListItemUpdate = useCallback((itemId, attrs, callbacks = {}) => {
+  const performInventoryItemUpdate = useCallback((itemId, attrs, callbacks = {}) => {
     const { onSuccess, onNotFound, onUnprocessableEntity, onInternalServerError, onUnauthorized } = callbacks
 
-    updateInventoryListItem(token, itemId, attrs)
+    updateInventoryItem(token, itemId, attrs)
       .then(({ status, json }) => {
         if (!mountedRef.current) return
 
@@ -407,19 +407,19 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
           }
           
           setInventoryLists(newInventoryLists)
-          setFlashAttributes({ type: 'success', message: 'Success! Your inventory list item was updated.' })
+          setFlashAttributes({ type: 'success', message: 'Success! Your inventory item was updated.' })
 
           onSuccess && onSuccess()
         } else if (status === 422) {
           setFlashAttributes({
             type: 'error',
-            header: `${json.errors.length} error(s) prevented your inventory list item from being updated:`,
+            header: `${json.errors.length} error(s) prevented your inventory item from being updated:`,
             message: json.errors
           })
 
           onUnprocessableEntity && onUnprocessableEntity()
         } else {
-          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory list item ${itemId}: ${json.errors}` : `Unknown error ${status} when updating inventory list item ${itemId}`
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory item ${itemId}: ${json.errors}` : `Unknown error ${status} when updating inventory list item ${itemId}`
           throw new Error(message)
         }
       })
@@ -432,16 +432,16 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           setFlashAttributes({
             type: 'error',
-            message: "Oops! We couldn't find the inventory list item you wanted to update. Try refreshing the page to fix this issue."
+            message: "Oops! We couldn't find the inventory item you wanted to update. Try refreshing the page to fix this issue."
           })
 
           onNotFound && onNotFound()
         } else {
-          if (process.env.NODE_ENV === 'development') console.error(`Error updating inventory list item ${itemId}: `, err)
+          if (process.env.NODE_ENV === 'development') console.error(`Error updating inventory item ${itemId}: `, err)
 
           setFlashAttributes({
             type: 'error',
-            message: "Something unexpected happened while trying to update your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to update your inventory item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()
@@ -449,10 +449,10 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
       })
   }, [token, inventoryLists, setFlashAttributes, logOutAndRedirect])
 
-  const performInventoryListItemDestroy = useCallback((itemId, callbacks = {}) => {
+  const performInventoryItemDestroy = useCallback((itemId, callbacks = {}) => {
     const { onSuccess, onNotFound, onInternalServerError, onUnauthorized } = callbacks
 
-    destroyInventoryListItem(token, itemId)
+    destroyInventoryItem(token, itemId)
       .then(({ status, json }) => {
         if (status === 200 || status === 204) {
           const regularListToRemoveItemFrom = listFromItemId(itemId)
@@ -478,7 +478,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
           onSuccess && onSuccess()
         } else {
-          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory list item ${itemId}: ${json.errors}` : `Error ${status} updating inventory list item ${itemId}`
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory item ${itemId}: ${json.errors}` : `Error ${status} updating inventory list item ${itemId}`
           throw new Error(message)
         }
       })
@@ -491,16 +491,16 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
         } else if (err.code === 404) {
           setFlashAttributes({
             type: 'error',
-            message: "Oops! We couldn't find the inventory list item you wanted to delete. Try refreshing the page to fix this issue."
+            message: "Oops! We couldn't find the inventory item you wanted to delete. Try refreshing the page to fix this issue."
           })
 
           onNotFound && onNotFound()
         } else {
-          if (process.env.NODE_ENV === 'development') console.error(`Unexpected error deleting list item ${itemId}: `, err)
+          if (process.env.NODE_ENV === 'development') console.error(`Unexpected error deleting item ${itemId}: `, err)
 
           setFlashAttributes({
             type: 'error',
-            message: "Something unexpected happened while trying to delete your inventory list item. Unfortunately, we don't know more than that yet. We're working on it!"
+            message: "Something unexpected happened while trying to delete your inventory item. Unfortunately, we don't know more than that yet. We're working on it!"
           })
 
           onInternalServerError && onInternalServerError()
@@ -514,9 +514,9 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
     performInventoryListCreate,
     performInventoryListUpdate,
     performInventoryListDestroy,
-    performInventoryListItemCreate,
-    performInventoryListItemUpdate,
-    performInventoryListItemDestroy,
+    performInventoryItemCreate,
+    performInventoryItemUpdate,
+    performInventoryItemDestroy,
     ...overrideValue
   }
 
@@ -556,9 +556,9 @@ InventoryListsProvider.propTypes = {
     performInventoryListCreate: PropTypes.func,
     performInventoryListUpdate: PropTypes.func,
     performInventoryListDestroy: PropTypes.func,
-    performInventoryListItemCreate: PropTypes.func,
-    performInventoryListItemUpdate: PropTypes.func,
-    performInventoryListItemDestroy: PropTypes.func
+    performInventoryItemCreate: PropTypes.func,
+    performInventoryItemUpdate: PropTypes.func,
+    performInventoryItemDestroy: PropTypes.func
   })
 }
 

@@ -10,7 +10,7 @@ import {
   profileData,
   emptyInventoryLists as inventoryLists
 } from '../../sharedTestData'
-import InventoryListItemCreateForm from './inventoryListItemCreateForm'
+import InventoryItemCreateForm from './inventoryItemCreateForm'
 
 export default { title: 'InventoryListItemCreateForm' }
 
@@ -19,7 +19,7 @@ export const Default = () => (
     <GamesProvider overrideValue={{ games }}>
       <InventoryListsProvider overrideValue={{ inventoryLists }}>
         <ColorProvider colorScheme={YELLOW}>
-          <InventoryListItemCreateForm listId={3} />
+          <InventoryItemCreateForm listId={3} />
         </ColorProvider>
       </InventoryListsProvider>
     </GamesProvider>

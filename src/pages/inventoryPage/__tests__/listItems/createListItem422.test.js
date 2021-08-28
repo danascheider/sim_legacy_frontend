@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Creating a inventory list item when the attributes are invalid', () => {
+describe('Creating a inventory item when the attributes are invalid', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -39,7 +39,7 @@ describe('Creating a inventory list item when the attributes are invalid', () =>
   }
 
   const server = setupServer(
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       return res(
         ctx.status(422),
         ctx.json({

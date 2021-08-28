@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Updating an inventory list item - happy path', () => {
+describe('Updating an inventory item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -43,11 +43,11 @@ describe('Updating an inventory list item - happy path', () => {
 
   describe('when not updating unit weight', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/inventory_list_items/3`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_items/3`, (req, res, ctx) => {
         const listItem = allInventoryLists[1].list_items[1]
         const aggListItem = allInventoryLists[0].list_items.find(item => item.description.toLowerCase() === listItem.description.toLowerCase())
-        const quantity = parseInt(req.body.inventory_list_item.quantity)
-        const notes = req.body.inventory_list_item.notes
+        const quantity = parseInt(req.body.inventory_item.quantity)
+        const notes = req.body.inventory_item.notes
 
         const returnJson = [
           {
@@ -91,7 +91,7 @@ describe('Updating an inventory list item - happy path', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('inventory-list-item-form')
+      const form = await screen.findByTestId('inventory-item-form')
       expect(form).toBeVisible()
 
       // Now find the form fields and fill out the form. This item has no notes
@@ -153,7 +153,7 @@ describe('Updating an inventory list item - happy path', () => {
 
         // It should display the modal and form
         const modal = await screen.findByRole('dialog')
-        const form = within(modal).getByTestId('inventory-list-item-form')
+        const form = within(modal).getByTestId('inventory-item-form')
         expect(form).toBeVisible()
 
         // Now press the escape key to hide the modal
@@ -184,7 +184,7 @@ describe('Updating an inventory list item - happy path', () => {
 
         // It should display the modal and form
         const modal = await screen.findByRole('dialog')
-        const form = within(modal).getByTestId('inventory-list-item-form')
+        const form = within(modal).getByTestId('inventory-item-form')
         expect(form).toBeVisible()
 
         // Now click on the modal element, outside the form, to hide it
@@ -198,7 +198,7 @@ describe('Updating an inventory list item - happy path', () => {
 
   describe('when updating unit weight', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/inventory_list_items/1`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_items/1`, (req, res, ctx) => {
         const lists = allInventoryLists.filter(list => list.game_id === games[0].id)
 
         let response = []
@@ -237,7 +237,7 @@ describe('Updating an inventory list item - happy path', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('inventory-list-item-form')
+      const form = await screen.findByTestId('inventory-item-form')
       expect(form).toBeVisible()
 
       // Now find the form field and fill out the form. This item has no unit weight

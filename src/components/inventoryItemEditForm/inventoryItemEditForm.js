@@ -34,9 +34,9 @@ const formFields = [
   }
 ]
 
-const InventoryListItemEditForm = ({ buttonColor, currentAttributes }) => {
+const InventoryItemEditForm = ({ buttonColor, currentAttributes }) => {
   const { setFlashVisible, setModalVisible } = useAppContext()
-  const { performInventoryListItemUpdate } = useInventoryListsContext()
+  const { performInventoryItemUpdate } = useInventoryListsContext()
 
   const mountedRef = useRef(true)
 
@@ -69,7 +69,7 @@ const InventoryListItemEditForm = ({ buttonColor, currentAttributes }) => {
       unit_weight = Number(unit_weight)
     }
 
-    performInventoryListItemUpdate(currentAttributes.id, { quantity, unit_weight, notes }, callbacks)
+    performInventoryItemUpdate(currentAttributes.id, { quantity, unit_weight, notes }, callbacks)
   }
 
   useEffect(() => (
@@ -78,7 +78,7 @@ const InventoryListItemEditForm = ({ buttonColor, currentAttributes }) => {
 
   return(
     <ModalForm
-      modelName='inventory-list-item'
+      modelName='inventory-item'
       buttonLabel='Update Item'
       buttonColor={buttonColor}
       onSubmit={updateItem}
@@ -87,7 +87,7 @@ const InventoryListItemEditForm = ({ buttonColor, currentAttributes }) => {
   )
 }
 
-InventoryListItemEditForm.propTypes = {
+InventoryItemEditForm.propTypes = {
   buttonColor: PropTypes.shape({
     schemeColorDarkest: PropTypes.string.isRequired,
     textColorPrimary: PropTypes.string.isRequired,
@@ -103,4 +103,4 @@ InventoryListItemEditForm.propTypes = {
   }).isRequired
 }
 
-export default InventoryListItemEditForm
+export default InventoryItemEditForm
