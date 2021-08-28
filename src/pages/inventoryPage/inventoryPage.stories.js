@@ -258,6 +258,10 @@ HappyPath.parameters = {
           // updated list item from the regular list with a 200 status.
           const returnData = [aggregateListItem || defaultAggListItem, regListItem || defaultRegListItem]
 
+          // In reality this might return a 201 as well and the flash message will be affected by
+          // what the status is. A 200 message leads to a flash message indicating the item has been combined
+          // with another matching item, while a 201 would lead to a flash message indicating a new item
+          // has been created.
           return res(
             ctx.status(200),
             ctx.json(returnData)
