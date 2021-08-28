@@ -280,7 +280,7 @@ HappyPath.parameters = {
         )
       }
     }),
-    // This request updates an inventory list item by ID, assuming the inventory list
+    // This request updates an inventory item by ID, assuming the inventory
     // item exists and belongs to the authenticated user. For the purposes of
     // Storybook, we assume the user is authenticated and the `allInventoryLists`
     // array represents all their inventory lists for all their games.
@@ -326,7 +326,7 @@ HappyPath.parameters = {
         )
       }
     }),
-    // This request deletes the requested inventory list item, if it exists and
+    // This request deletes the requested inventory item, if it exists and
     // belongs to the authenticated user. For the purposes of Storybook, we're
     // assuming that the user is authenticated and the `allInventoryLists` array
     // represents all their inventory lists for all their games.
@@ -605,7 +605,7 @@ ListOrItemNotFound.parameters = {
         ctx.status(404)
       )
     }),
-    // This illustrates what would happen if a user tried to create an inventory list item
+    // This illustrates what would happen if a user tried to create an inventory item
     // on a list after deleting the list on another device or browser. The API would return
     // a 404 and the UI should display a message telling the user the list could not be found
     // and advising them to refresh their browser.
@@ -614,7 +614,7 @@ ListOrItemNotFound.parameters = {
         ctx.status(404)
       )
     }),
-    // This illustrates what would happen if a user tried to update an inventory list item
+    // This illustrates what would happen if a user tried to update an inventory item
     // after deleting the list item on another device or browser. The API would return a
     // 404 and the UI should display a message telling the user the item could not be found
     // and advising them to refresh their browser.
@@ -623,7 +623,7 @@ ListOrItemNotFound.parameters = {
         ctx.status(404)
       )
     }),
-    // This illustrates what would happen if a user tried to delete an inventory list item
+    // This illustrates what would happen if a user tried to delete an inventory item
     // after deleting the list item on another device or browser. The API would return a
     // 404 and the UI should display a message telling the user the list could not be found
     // and advising them to refresh their browser.
@@ -651,7 +651,7 @@ export const NoLists = () => (
   </AppProvider>
 )
 
-// This story will not offer the possibility to add inventory list items to lists you create.
+// This story will not offer the possibility to add inventory items to lists you create.
 // It's just too hard to predict and mock application state so many actions out. It also
 // won't offer the ability to create new games from the games dropdown since that triggers
 // a GET request to inventory lists and becomes a whole thing.

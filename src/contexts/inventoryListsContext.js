@@ -323,7 +323,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
           // The JSON object returned from this endpoint is the array of all items
           // that have been updated while handling this request. Because changing the
-          // `unit_weight` of an inventory list item can cause items other than the
+          // `unit_weight` of an inventory item can cause items other than the
           // list item edited and the aggregate list item to be updated, it's not
           // possible to know for sure how many items the array will contain. It will
           // be at least two though.
@@ -419,7 +419,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
           onUnprocessableEntity && onUnprocessableEntity()
         } else {
-          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory item ${itemId}: ${json.errors}` : `Unknown error ${status} when updating inventory list item ${itemId}`
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory item ${itemId}: ${json.errors}` : `Unknown error ${status} when updating inventory item ${itemId}`
           throw new Error(message)
         }
       })
@@ -478,7 +478,7 @@ const InventoryListsProvider = ({ children, overrideValue = {} }) => {
 
           onSuccess && onSuccess()
         } else {
-          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory item ${itemId}: ${json.errors}` : `Error ${status} updating inventory list item ${itemId}`
+          const message = json && json.errors && json.errors.length ? `Error ${status} updating inventory item ${itemId}: ${json.errors}` : `Error ${status} updating inventory item ${itemId}`
           throw new Error(message)
         }
       })

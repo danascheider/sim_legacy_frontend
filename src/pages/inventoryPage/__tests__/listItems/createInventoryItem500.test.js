@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Creating an inventory list item when the server returns a 500', () => {
+describe('Creating an inventory item when the server returns a 500', () => {
   let component
 
   const renderComponentWithMockCookies = () => {

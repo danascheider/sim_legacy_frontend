@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Creating a inventory list item - when the server returns a 401', () => {
+describe('Creating a inventory item - when the server returns a 401', () => {
   let component
 
   const renderComponentWithMockCookies = () => {

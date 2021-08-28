@@ -67,7 +67,7 @@ HappyPath.parameters = {
         )
       }
     }),
-    // This request adds an inventory list item to the inventory list requested, if that inventory
+    // This request adds an inventory item to the inventory list requested, if that inventory
     // list exists and belongs to the authenticated user. For the purposes of Storybook, we
     // assume the user is authenticated and the `allInventoryLists` array represents all their
     // inventory lists for all their games.
@@ -139,7 +139,7 @@ HappyPath.parameters = {
         )
       }
     }),
-    // This request updates an inventory list item by ID, assuming the inventory list
+    // This request updates an inventory item by ID, assuming the inventory
     // item exists and belongs to the authenticated user. For the purposes of
     // Storybook, we assume the user is authenticated and the `allInventoryLists`
     // array represents all their lists for all their games.
@@ -192,7 +192,7 @@ HappyPath.parameters = {
         )
       }
     }),
-    // This request deletes the requested inventory list item, if it exists and
+    // This request deletes the requested inventory item, if it exists and
     // belongs to the authenticated user. For the purposes of Storybook, we're
     // assuming that the user is authenticated and the `allInventoryLists` array
     // represents all their inventory lists for all their games.

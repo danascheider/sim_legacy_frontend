@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Decrementing an inventory list item - happy path', () => {
+describe('Decrementing an inventory item - happy path', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
