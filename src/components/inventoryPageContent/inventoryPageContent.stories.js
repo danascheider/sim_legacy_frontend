@@ -71,7 +71,7 @@ HappyPath.parameters = {
     // list exists and belongs to the authenticated user. For the purposes of Storybook, we
     // assume the user is authenticated and the `allInventoryLists` array represents all their
     // inventory lists for all their games.
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       // Find the inventory list the user wants to add the item to
       const listId = parseInt(req.params.listId)
       const regList = allInventoryLists.find(list => list.id === listId)
@@ -90,8 +90,8 @@ HappyPath.parameters = {
         // If there is a matching item on the aggregate list, that item will be updated as
         // described above. If there is no matching item, a new one will be created with
         // the `notes` and `description` values from the request.
-        const description = req.body.inventory_list_item.description
-        const quantity = req.body.inventory_list_item.quantity || '1'
+        const description = req.body.inventory_item.description
+        const quantity = req.body.inventory_item.quantity || '1'
 
         // Description and quantity are both required and neither can be blank. The
         // quantity must be an integer as well. If the quantity is a decimal/float value
@@ -99,7 +99,7 @@ HappyPath.parameters = {
         // quantity is non-numeric or less than 1, it is invalid.
         if (description && quantity && (typeof quantity === 'number' || quantity.match(/[1-9]+(\.\d+)?/))) {
           const regListItem = regList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
-          const notes = req.body.inventory_list_item.notes
+          const notes = req.body.inventory_item.notes
 
           const aggregateList = findAggregateList(allInventoryLists, regList.game_id)
           const aggregateListItem = aggregateList.list_items.find(item => item.description.toLowerCase() === description.toLowerCase())
@@ -143,7 +143,7 @@ HappyPath.parameters = {
     // item exists and belongs to the authenticated user. For the purposes of
     // Storybook, we assume the user is authenticated and the `allInventoryLists`
     // array represents all their lists for all their games.
-    rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       // Find the list the item is on
       const itemId = parseInt(req.params.id)
       const regList = findListByListItem(allInventoryLists, itemId)
@@ -156,7 +156,7 @@ HappyPath.parameters = {
         // edit form will not appear if you click the update link.
         const existingItem = regList.list_items.find(item => item.id === itemId)
         const aggregateList = findAggregateList(allInventoryLists, regList.game_id)
-        const newItem = { ...existingItem, ...req.body.inventory_list_item }
+        const newItem = { ...existingItem, ...req.body.inventory_item }
         const quantity = parseInt(newItem.quantity)
         
         if (newItem.unit_weight === null || newItem.unit_weight === undefined || newItem.unit_weight === '') {
@@ -196,7 +196,7 @@ HappyPath.parameters = {
     // belongs to the authenticated user. For the purposes of Storybook, we're
     // assuming that the user is authenticated and the `allInventoryLists` array
     // represents all their inventory lists for all their games.
-    rest.delete(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+    rest.delete(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
       // Find the item and the list it is on.
       const itemId = parseInt(req.params.id)
       const regList = findListByListItem(allInventoryLists, itemId)

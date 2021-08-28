@@ -8,7 +8,7 @@ import SlideToggle from 'react-slide-toggle'
 import { useAppContext, useInventoryListsContext, useColorScheme } from '../../hooks/contexts'
 import withModal from '../../hocs/withModal'
 import InventoryItemEditForm from '../inventoryItemEditForm/inventoryItemEditForm'
-import styles from './inventoryListItem.module.css'
+import styles from './inventoryItem.module.css'
 
 // If the unit weight has an integer value, we want
 // to display it as an integer. Only if it has a nonzero
