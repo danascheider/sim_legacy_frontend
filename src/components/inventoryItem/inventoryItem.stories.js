@@ -5,7 +5,7 @@ import { GamesProvider } from '../../contexts/gamesContext'
 import { InventoryListsProvider } from '../../contexts/inventoryListsContext'
 import { ColorProvider } from '../../contexts/colorContext'
 import { token, profileData, games, allInventoryLists as inventoryLists } from '../../sharedTestData'
-import InventoryListItem from './inventoryListItem'
+import InventoryItem from './inventoryItem'
 
 export default { title: 'InventoryListItem' }
 
@@ -14,7 +14,7 @@ export const Editable = () => (
     <GamesProvider overrideValue={{ games }}>
       <InventoryListsProvider overrideValue={{ inventoryLists }}>
         <ColorProvider colorScheme={BLUE}>
-          <InventoryListItem
+          <InventoryItem
             itemId={1}
             description='Ebony sword'
             listTitle='Lakeview Manor'
@@ -34,7 +34,7 @@ export const NotEditable = () => (
     <GamesProvider overrideValue={{ games }}>
       <InventoryListsProvider overrideValue={{ inventoryLists }}>
         <ColorProvider colorScheme={BLUE}>
-          <InventoryListItem
+          <InventoryItem
             itemId={1}
             description='Ebony sword'
             listTitle='Lakeview Manor'

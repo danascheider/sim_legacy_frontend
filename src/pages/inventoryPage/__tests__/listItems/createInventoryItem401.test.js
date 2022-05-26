@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Creating a inventory list item when the attributes are invalid', () => {
+describe('Creating a inventory item - when the server returns a 401', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -39,11 +39,11 @@ describe('Creating a inventory list item when the attributes are invalid', () =>
   }
 
   const server = setupServer(
-    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_list_items`, (req, res, ctx) => {
+    rest.post(`${backendBaseUri}/inventory_lists/:listId/inventory_items`, (req, res, ctx) => {
       return res(
-        ctx.status(422),
+        ctx.status(401),
         ctx.json({
-          errors: ['Quantity must be greater than zero']
+          errors: ['Google OAuth token validation failed']
         })
       )
     })
@@ -60,7 +60,7 @@ describe('Creating a inventory list item when the attributes are invalid', () =>
   afterAll(() => server.close())
 
   it("doesn't add the item and displays an error message", async () => {
-    component = renderComponentWithMockCookies()
+    const { history } = component = renderComponentWithMockCookies()
 
     const listTitle = await screen.findByText('Lakeview Manor')
     const listEl = listTitle.closest('.root')
@@ -80,19 +80,13 @@ describe('Creating a inventory list item when the attributes are invalid', () =>
     const form = descriptionInput.closest('form')
 
     // Fill out and submit the form
-    fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingot' } })
-    fireEvent.change(quantityInput, { target: { value: '-42' } })
+    fireEvent.change(descriptionInput, { target: { value: 'Dwarven metal ingots' } })
+    fireEvent.change(quantityInput, { target: { value: '10' } })
     fireEvent.change(notesInput, { target: { value: 'To make bolts with' } })
 
     fireEvent.submit(form)
 
-    // Form should not be hidden in this case
-    await waitFor(() => expect(form).toBeVisible())
-
-    // The item should not be added to the list
-    expect(listEl).not.toHaveTextContent(/Dwarven metal ingot/)
-
-    //  There should be an error message
-    await waitFor(() => expect(screen.queryByText(/quantity must be greater than zero/i)).toBeVisible())
+    // The user should be redirected to the login page
+    await waitFor(() => expect(history.location.pathname).toEqual('/login'))
   })
 })

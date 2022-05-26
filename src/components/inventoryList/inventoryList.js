@@ -9,8 +9,8 @@ import { useColorScheme, useAppContext, useInventoryListsContext } from '../../h
 import useComponentVisible from '../../hooks/useComponentVisible'
 import useSize from '../../hooks/useSize'
 import ListEditForm from '../listEditForm/listEditForm'
-import InventoryListItem from '../inventoryListItem/inventoryListItem'
-import InventoryListItemCreateForm from '../inventoryListItemCreateForm/inventoryListItemCreateForm'
+import InventoryItem from '../inventoryItem/inventoryItem'
+import InventoryItemCreateForm from '../inventoryItemCreateForm/inventoryItemCreateForm'
 import styles from './inventoryList.module.css'
 
 const isValid = str => (
@@ -174,13 +174,13 @@ const InventoryList = ({ canEdit = true, listId, title }) => {
       <SlideToggle toggleEvent={toggleEvent} collapsed>
         {({ setCollapsibleElement }) => (
           <div className={styles.collapsible} ref={setCollapsibleElement}>
-            {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>This game has no inventory list items.</div>}
-            {canEdit && <InventoryListItemCreateForm listId={listId} />}
+            {!canEdit && listItems.length === 0 && <div className={styles.emptyList}>This game has no inventory items.</div>}
+            {canEdit && <InventoryItemCreateForm listId={listId} />}
             {listItems && listItems.length > 0 && listItems.map(({ id, description, quantity, notes, unit_weight }) => {
               const itemKey = `${title.toLowerCase().replace(' ', '-')}-${id}`
 
               return(
-                <InventoryListItem
+                <InventoryItem
                   key={itemKey}
                   itemId={id}
                   listTitle={title}

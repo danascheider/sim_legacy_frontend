@@ -13,7 +13,7 @@ import { InventoryListsProvider } from '../../../../contexts/inventoryListsConte
 import { profileData, games, allInventoryLists } from '../../../../sharedTestData'
 import InventoryPage from './../../inventoryPage'
 
-describe('Updating an inventory list item - error cases', () => {
+describe('Updating an inventory item - error cases', () => {
   let component
 
   const renderComponentWithMockCookies = () => {
@@ -43,7 +43,7 @@ describe('Updating an inventory list item - error cases', () => {
 
   describe('when the server returns a 401 error', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(401),
           ctx.json({
@@ -74,7 +74,7 @@ describe('Updating an inventory list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('inventory-list-item-form')
+      const form = await screen.findByTestId('inventory-item-form')
       expect(form).toBeVisible()
 
       // Now find the form fields and fill out the form. This item has no notes
@@ -95,7 +95,7 @@ describe('Updating an inventory list item - error cases', () => {
 
   describe('when the server returns a 404 error', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(404)
         )
@@ -123,7 +123,7 @@ describe('Updating an inventory list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('inventory-list-item-form')
+      const form = await screen.findByTestId('inventory-item-form')
       expect(form).toBeVisible()
 
       // Now find the form fields and fill out the form. This item has no notes
@@ -168,7 +168,7 @@ describe('Updating an inventory list item - error cases', () => {
 
   describe('when the server returns a 422 error', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(422),
           ctx.json({
@@ -202,7 +202,7 @@ describe('Updating an inventory list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('inventory-list-item-form')
+      const form = await screen.findByTestId('inventory-item-form')
       expect(form).toBeVisible()
 
       // Now find the form fields and fill out the form.
@@ -243,7 +243,7 @@ describe('Updating an inventory list item - error cases', () => {
 
   describe('when the server returns a 500 error', () => {
     const server = setupServer(
-      rest.patch(`${backendBaseUri}/inventory_list_items/:id`, (req, res, ctx) => {
+      rest.patch(`${backendBaseUri}/inventory_items/:id`, (req, res, ctx) => {
         return res(
           ctx.status(500),
           ctx.json({
@@ -274,7 +274,7 @@ describe('Updating an inventory list item - error cases', () => {
       fireEvent.click(editIcon)
 
       // It should display the list item edit form
-      const form = await screen.findByTestId('inventory-list-item-form')
+      const form = await screen.findByTestId('inventory-item-form')
       expect(form).toBeVisible()
 
       // Now find the form fields and fill out the form.
