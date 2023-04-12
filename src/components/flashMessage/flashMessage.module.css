@@ -23,11 +23,6 @@
   transition: opacity 300ms linear,visibility 300ms linear;
 }
 
-.content {
-  margin: 0 auto; 
-  line-height: 1.25;
-}
-
 .header {
   margin-top: 0;
 }
