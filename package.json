@@ -30,8 +30,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "storybook": "STORYBOOK=true start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public",
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider STORYBOOK=true start-storybook -p 6006 -s public",
+    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider build-storybook -s public",
     "predeploy": "yarn run build",
     "deploy": "gh-pages -b main -d build"
   },
@@ -64,15 +64,15 @@
     ]
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^6.3.6",
-    "@storybook/addon-essentials": "^6.3.6",
-    "@storybook/addon-links": "^6.3.6",
-    "@storybook/node-logger": "^6.3.6",
+    "@storybook/addon-actions": "^6.5.16",
+    "@storybook/addon-essentials": "^6.5.16",
+    "@storybook/addon-links": "^6.5.16",
+    "@storybook/node-logger": "^6.5.16",
     "@storybook/preset-create-react-app": "^3.2.0",
-    "@storybook/react": "^6.3.6",
+    "@storybook/react": "^6.5.16",
     "canvas": "^2.8.0",
     "msw": "^0.30.0",
-    "msw-storybook-addon": "^1.2.0",
+    "msw-storybook-addon": "^1.8.0",
     "universal-cookie": "^4.0.4"
   },
   "msw": {
